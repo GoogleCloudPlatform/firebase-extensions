@@ -146,6 +146,7 @@ params:
     description: >
       Model to use for label detection.
     example: builtin/stable
+    type: select
     options:
       - label: Stable
         value: builtin/stable
