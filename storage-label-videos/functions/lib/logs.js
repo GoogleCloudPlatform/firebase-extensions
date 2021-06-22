@@ -19,11 +19,11 @@ exports.skipPath = exports.annotateVideo = exports.operationError = exports.queu
 const firebase_functions_1 = require("firebase-functions");
 const config_1 = require("./config");
 const init = () => {
-    firebase_functions_1.logger.log("Initializing extension with configuration", config_1.default);
+    firebase_functions_1.logger.log('Initializing extension with configuration', config_1.default);
 };
 exports.init = init;
 const skip = (objectName) => {
-    firebase_functions_1.logger.log(`Skipping file due to unsupported file extension: ${objectName || "Unknown Object"}`);
+    firebase_functions_1.logger.log(`Skipping file due to unsupported file extension: ${objectName || 'Unknown Object'}`);
 };
 exports.skip = skip;
 const queued = (objectName) => {
@@ -42,4 +42,3 @@ const skipPath = (objectName) => {
     firebase_functions_1.logger.log(`Skipping file '${objectName}' as it is not located in the configured input videos path '${config_1.default.inputVideosPath}'.`);
 };
 exports.skipPath = skipPath;
-//# sourceMappingURL=logs.js.map

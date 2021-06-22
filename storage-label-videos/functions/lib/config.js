@@ -26,7 +26,6 @@ exports.default = {
     videoConfidenceThreshold: parseFloat(process.env.VIDEO_CONFIDENCE_THRESHOLD),
     frameConfidenceThreshold: parseFloat(process.env.FRAME_CONFIDENCE_THRESHOLD),
     model: process.env.MODEL || null,
-    stationaryCamera: process.env.STATIONARY_CAMERA === "true" &&
-        process.env.LABEL_DETECTION_MODE !== "SHOT_AND_FRAME_MODE",
+    stationaryCamera: process.env.STATIONARY_CAMERA === 'true' &&
+        process.env.LABEL_DETECTION_MODE !== 'SHOT_AND_FRAME_MODE',
 };
-//# sourceMappingURL=config.js.map

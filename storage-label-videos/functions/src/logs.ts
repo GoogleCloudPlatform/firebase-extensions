@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-import { logger } from "firebase-functions";
-import { google } from "@google-cloud/video-intelligence/build/protos/protos";
+import {logger} from 'firebase-functions';
+import {google} from '@google-cloud/video-intelligence/build/protos/protos';
 import IAnnotateVideoRequest = google.cloud.videointelligence.v1.IAnnotateVideoRequest;
 
-import config from "./config";
+import config from './config';
 
 export const init = (): void => {
-  logger.log("Initializing extension with configuration", config);
+  logger.log('Initializing extension with configuration', config);
 };
 
 export const skip = (objectName?: string): void => {
   logger.log(
     `Skipping file due to unsupported file extension: ${
-      objectName || "Unknown Object"
+      objectName || 'Unknown Object'
     }`
   );
 };
