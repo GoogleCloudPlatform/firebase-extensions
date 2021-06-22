@@ -1,0 +1,30 @@
+name: validate
+
+on:
+  pull_request:
+
+jobs:
+  linting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '14'
+      - name: NPM Install
+        run: npm i
+      - name: Lint
+        run: npm run lint
+      - name: Compile
+        run: npm run compile
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '14'
+      - name: NPM Install
+        run: yarn
+      - name: Jest Tests
+        run: yarn run test

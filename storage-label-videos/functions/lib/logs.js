@@ -42,4 +42,3 @@ const skipPath = (objectName) => {
     firebase_functions_1.logger.log(`Skipping file '${objectName}' as it is not located in the configured input videos path '${config_1.default.inputVideosPath}'.`);
 };
 exports.skipPath = skipPath;
-//# sourceMappingURL=logs.js.map

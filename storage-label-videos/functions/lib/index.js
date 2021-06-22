@@ -55,4 +55,3 @@ exports.labelVideo = functions.storage.object().onFinalize(async (object) => {
     }
     logs.queued(object.name);
 });
-//# sourceMappingURL=index.js.map

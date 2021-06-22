@@ -29,4 +29,3 @@ exports.default = {
     stationaryCamera: process.env.STATIONARY_CAMERA === "true" &&
         process.env.LABEL_DETECTION_MODE !== "SHOT_AND_FRAME_MODE",
 };
-//# sourceMappingURL=config.js.map
