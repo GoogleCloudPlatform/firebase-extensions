@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import { logger } from "firebase-functions";
-import { google } from "@google-cloud/video-transcoder/build/protos/protos";
+import {logger} from 'firebase-functions';
+import {google} from '@google-cloud/video-transcoder/build/protos/protos';
 
-import config from "./config";
+import config from './config';
 import IFailureDetail = google.cloud.video.transcoder.v1beta1.IFailureDetail;
 import ICreateJobRequest = google.cloud.video.transcoder.v1beta1.ICreateJobRequest;
 
 export const init = (): void => {
-  logger.log("Initializing extension with configuration", config);
+  logger.log('Initializing extension with configuration', config);
 };
 
 export const skipPath = (objectName: string): void => {

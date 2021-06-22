@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { parseDetectionMode } from "./utils";
+import {parseDetectionMode} from './utils';
 
 export default {
   locationId: process.env.LOCATION_ID,
@@ -27,6 +27,6 @@ export default {
   frameConfidenceThreshold: parseFloat(process.env.FRAME_CONFIDENCE_THRESHOLD!),
   model: process.env.MODEL || null,
   stationaryCamera:
-    process.env.STATIONARY_CAMERA === "true" &&
-    process.env.LABEL_DETECTION_MODE !== "SHOT_AND_FRAME_MODE",
+    process.env.STATIONARY_CAMERA === 'true' &&
+    process.env.LABEL_DETECTION_MODE !== 'SHOT_AND_FRAME_MODE',
 };

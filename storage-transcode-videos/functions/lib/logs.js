@@ -19,7 +19,7 @@ exports.jobFailed = exports.templateDoesNotExist = exports.transcodeVideo = expo
 const firebase_functions_1 = require("firebase-functions");
 const config_1 = require("./config");
 const init = () => {
-    firebase_functions_1.logger.log("Initializing extension with configuration", config_1.default);
+    firebase_functions_1.logger.log('Initializing extension with configuration', config_1.default);
 };
 exports.init = init;
 const skipPath = (objectName) => {

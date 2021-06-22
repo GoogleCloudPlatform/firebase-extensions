@@ -14,23 +14,24 @@
  * limitations under the License.
  */
 
-import * as path from "path";
-import * as functions from "firebase-functions";
-import * as videoIntelligence from "@google-cloud/video-intelligence";
+import * as path from 'path';
+import * as functions from 'firebase-functions';
+import * as videoIntelligence from '@google-cloud/video-intelligence';
 
-import { google } from "@google-cloud/video-intelligence/build/protos/protos";
+import {google} from '@google-cloud/video-intelligence/build/protos/protos';
 import IAnnotateVideoRequest = google.cloud.videointelligence.v1.IAnnotateVideoRequest;
 import Feature = google.cloud.videointelligence.v1.Feature;
 
-import config from "./config";
-import * as logs from "./logs";
-import { shouldProcessStorageObject } from "./utils";
+import config from './config';
+import * as logs from './logs';
+import {shouldProcessStorageObject} from './utils';
 
-const videoIntelligenceServiceClient = new videoIntelligence.VideoIntelligenceServiceClient();
+const videoIntelligenceServiceClient =
+  new videoIntelligence.VideoIntelligenceServiceClient();
 
 logs.init();
 
-exports.labelVideo = functions.storage.object().onFinalize(async (object) => {
+exports.labelVideo = functions.storage.object().onFinalize(async object => {
   if (!object.name) return;
   if (!shouldProcessStorageObject(object.name)) return;
 

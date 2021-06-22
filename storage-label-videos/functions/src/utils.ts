@@ -14,59 +14,58 @@
  * limitations under the License.
  */
 
-import * as videoIntelligence from "@google-cloud/video-intelligence";
-import config from "./config";
-import * as logs from "./logs";
+import * as videoIntelligence from '@google-cloud/video-intelligence';
+import config from './config';
+import * as logs from './logs';
 
-const {
-  LabelDetectionMode,
-} = videoIntelligence.protos.google.cloud.videointelligence.v1;
+const {LabelDetectionMode} =
+  videoIntelligence.protos.google.cloud.videointelligence.v1;
 
 // A curated list of supported file extensions based on:
 // https://cloud.google.com/video-intelligence/docs/supported-formats
 const validMediaExtensions = [
-  ".3g2",
-  ".3gp",
-  ".264",
-  ".265",
-  ".a64",
-  ".apng",
-  ".asf",
-  ".avi",
-  ".avs",
-  ".avs2",
-  ".cavs",
-  ".f4v",
-  ".flm",
-  ".flv",
-  ".gif",
-  ".gxf",
-  ".h261",
-  ".h263",
-  ".h264",
-  ".h265",
-  ".hevc",
-  ".ismv",
-  ".ivf",
-  ".m1v",
-  ".m2v",
-  ".m4v",
-  ".mjpeg",
-  ".mjpg",
-  ".mkv",
-  ".mov",
-  ".mp4",
-  ".mpeg",
-  ".mpeg4",
-  ".mpg",
-  ".ogv",
-  ".rm",
-  ".vc1",
-  ".vc2",
-  ".vob",
-  ".webm",
-  ".wmv",
-  ".y4m",
+  '.3g2',
+  '.3gp',
+  '.264',
+  '.265',
+  '.a64',
+  '.apng',
+  '.asf',
+  '.avi',
+  '.avs',
+  '.avs2',
+  '.cavs',
+  '.f4v',
+  '.flm',
+  '.flv',
+  '.gif',
+  '.gxf',
+  '.h261',
+  '.h263',
+  '.h264',
+  '.h265',
+  '.hevc',
+  '.ismv',
+  '.ivf',
+  '.m1v',
+  '.m2v',
+  '.m4v',
+  '.mjpeg',
+  '.mjpg',
+  '.mkv',
+  '.mov',
+  '.mp4',
+  '.mpeg',
+  '.mpeg4',
+  '.mpg',
+  '.ogv',
+  '.rm',
+  '.vc1',
+  '.vc2',
+  '.vob',
+  '.webm',
+  '.wmv',
+  '.y4m',
 ];
 
 export function shouldProcessStorageObject(objectName?: string): boolean {
@@ -86,11 +85,11 @@ export function shouldProcessStorageObject(objectName?: string): boolean {
 
 export function parseDetectionMode(value?: string): number {
   switch (value) {
-    case "SHOT_MODE":
+    case 'SHOT_MODE':
       return LabelDetectionMode.SHOT_MODE;
-    case "FRAME_MODE":
+    case 'FRAME_MODE':
       return LabelDetectionMode.FRAME_MODE;
-    case "SHOT_AND_FRAME_MODE":
+    case 'SHOT_AND_FRAME_MODE':
       return LabelDetectionMode.SHOT_AND_FRAME_MODE;
     default:
       return LabelDetectionMode.SHOT_MODE;

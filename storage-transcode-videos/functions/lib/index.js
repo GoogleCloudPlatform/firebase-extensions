@@ -23,9 +23,7 @@ const logs = require("./logs");
 const utils_1 = require("./utils");
 const videoTranscoderServiceClient = new videoTranscoder.TranscoderServiceClient();
 logs.init();
-exports.transcodevideo = functions.storage
-    .object()
-    .onFinalize(async (object) => {
+exports.transcodevideo = functions.storage.object().onFinalize(async (object) => {
     var _a;
     if (!object.name)
         return;
@@ -38,7 +36,7 @@ exports.transcodevideo = functions.storage
     // Output to a folder named the same as the original file, minus the file extension.
     const outputUri = `gs://${config_1.default.outputVideosBucket}${config_1.default.outputVideosPath}${path.basename(object.name)}/`;
     // Ensure the template exists if not using the known web-hd preset.
-    if (templateId !== "preset/web-hd") {
+    if (templateId !== 'preset/web-hd') {
         try {
             await videoTranscoderServiceClient.getJobTemplate({
                 name: videoTranscoderServiceClient.jobTemplatePath(config_1.default.projectId, config_1.default.location, templateId),
