@@ -1,5 +1,4 @@
-import { logger } from "firebase-functions";
-import { getEventarc } from "firebase-admin/eventarc";
+import {logger} from 'firebase-functions';
 
 export const apiKeysClientMock = {
   projects: {
@@ -39,7 +38,7 @@ export const mockGoogleApis = {
 export const mockEventArc = {
   getEventarc: jest.fn(() => {
     return {
-      channel: jest.fn((channelId) => {
+      channel: jest.fn(() => {
         return {
           publish: jest.fn(),
         };
@@ -49,5 +48,5 @@ export const mockEventArc = {
 };
 
 /** Logger listeners */
-export const infoSpy = jest.spyOn(logger, "info");
-export const logSpy = jest.spyOn(logger, "log");
+export const infoSpy = jest.spyOn(logger, 'info');
+export const logSpy = jest.spyOn(logger, 'log');

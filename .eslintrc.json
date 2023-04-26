@@ -1,3 +1,11 @@
 {
-  "extends": "./node_modules/gts/"
+  "extends": "./node_modules/gts/",
+  "rules": {
+    "node/no-unpublished-require": [
+      "error",
+      {
+        "allowModules": ["firebase-functions-test"]
+      }
+    ]
+  }
 }

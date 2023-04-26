@@ -5,19 +5,19 @@ import {
   infoSpy,
   apiKeysClientMock,
   authClientMock,
-} from "./__mocks__";
+} from './__mocks__';
 
-const functions = require("firebase-functions-test")();
-const apiKeysDiagnosticModule = require("../src/index");
-const { google, apikeys_v2 } = require("googleapis");
+const functions = require('firebase-functions-test')();
+const apiKeysDiagnosticModule = require('../src/index');
+const {google, apikeys_v2} = require('googleapis');
 
-jest.mock("googleapis", () => mockGoogleApis);
-jest.mock("firebase-admin/eventarc", () => mockEventArc);
+jest.mock('googleapis', () => mockGoogleApis);
+jest.mock('firebase-admin/eventarc', () => mockEventArc);
 
 /** Setup tests project variables */
 // const projectId = "demo-test";
 
-describe("apiKeysDiagnostic", () => {
+describe('apiKeysDiagnostic', () => {
   beforeEach(() => {
     /** Mock Google Authentication */
     google.auth.GoogleAuth.mockImplementation(() => authClientMock);
@@ -32,10 +32,10 @@ describe("apiKeysDiagnostic", () => {
     jest.clearAllMocks();
   });
 
-  it("should log and send an event for unsecured API keys", async () => {
+  it('should log and send an event for unsecured API keys', async () => {
     /** Add an insecure key */
     const key = {
-      name: "projects/demo-test/locations/global/keys/key1",
+      name: 'projects/demo-test/locations/global/keys/key1',
       restrictions: null,
     };
 
@@ -56,18 +56,18 @@ describe("apiKeysDiagnostic", () => {
     /** Check that the mocked key was called */
     expect(apiKeysClientMock.projects.locations.keys.list).toHaveBeenCalledWith(
       {
-        parent: "projects/demo-test/locations/global",
+        parent: 'projects/demo-test/locations/global',
       }
     );
 
     /** Test that an event has been sent */
-    expect(infoSpy).toHaveBeenCalledWith("Sending event");
+    expect(infoSpy).toHaveBeenCalledWith('Sending event');
 
     /** Check that an event with the correct key has been sent */
     expect(logSpy).toHaveBeenCalledWith(JSON.stringify([key], null, 2));
   });
 
-  it("should not send an event if there are no unsecured API keys", async () => {
+  it('should not send an event if there are no unsecured API keys', async () => {
     /** Mock api to return no keys */
     apiKeysClientMock.projects.locations.keys.list.mockResolvedValue({
       data: {
@@ -85,7 +85,7 @@ describe("apiKeysDiagnostic", () => {
     /** Check that the mocked key was called */
     expect(apiKeysClientMock.projects.locations.keys.list).toHaveBeenCalledWith(
       {
-        parent: "projects/demo-test/locations/global",
+        parent: 'projects/demo-test/locations/global',
       }
     );
 
