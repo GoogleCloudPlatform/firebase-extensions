@@ -3,10 +3,10 @@
     "firestore-schedule-writes": "../firestore-schedule-writes",
     "storage-video-labeling": "../storage-video-labeling",
     "storage-image-text-extraction": "../storage-image-text-extraction",
-    "firestore-text-to-speech": "../firestore-text-to-speech",
     "firestore-record-user-acknowledgements": "../firestore-record-user-acknowledgements",
     "firestore-bundle-server": "../firestore-bundle-server",
-    "api-keys-diagnostic": "../api-keys-diagnostic"
+    "api-keys-diagnostic": "../api-keys-diagnostic",
+    "firestore-text-to-speech": "../firestore-text-to-speech"
   },
   "storage": {
     "rules": "storage.rules"

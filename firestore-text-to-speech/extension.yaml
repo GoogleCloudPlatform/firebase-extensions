@@ -1,0 +1,349 @@
+# Copyright 2019 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: firestore-text-to-speech
+version: 0.1.11
+specVersion: v1beta
+
+displayName: Text to Speech with Firestore and Storage
+description:
+  Converts text from Firestore documents into spoken audio files using Google Cloud Text-to-Speech API.
+
+license: Apache-2.0
+
+sourceUrl: https://github.com/firebase/extensions/tree/master/firestore-translate-text
+releaseNotesUrl: https://github.com/firebase/extensions/blob/master/firestore-translate-text/CHANGELOG.md
+
+author:
+  authorName: Firebase
+  url: https://firebase.google.com
+
+contributors:
+  - authorName: Invertase
+    email: oss@invertase.io
+    url: https://github.com/invertase
+
+billingRequired: true
+
+apis:
+  - apiName: texttospeech.googleapis.com
+    reason: To use Google Text to Speech to generate natural sounding speech from your strings in Firestore.
+
+roles:
+  - role: datastore.user
+    reason: Allows the extension to write translated strings to Cloud Firestore.
+  - role: storage.objectAdmin
+    reason: Allows the extension to write translated strings to Cloud Storage.
+
+resources:
+  - name: textToSpeech
+    type: firebaseextensions.v1beta.function
+    description:
+      Processes document changes in the specified Cloud Firestore collection, writing synthesized natural speech files to Cloud Storage
+    properties:
+      location: ${param:LOCATION}
+      runtime: nodejs16
+      eventTrigger:
+        eventType: providers/cloud.firestore/eventTypes/document.write
+        resource: projects/${param:PROJECT_ID}/databases/(default)/documents/${param:COLLECTION_PATH}/{id}
+
+params:
+  - param: LOCATION
+    label: Cloud Functions location
+    description: >-
+      Where do you want to deploy the functions created for this extension?
+      You usually want a location close to your database. For help selecting a
+      location, refer to the [location selection
+      guide](https://firebase.google.com/docs/functions/locations).
+    type: select
+    options:
+      - label: Iowa (us-central1)
+        value: us-central1
+      - label: South Carolina (us-east1)
+        value: us-east1
+      - label: Northern Virginia (us-east4)
+        value: us-east4
+      - label: Los Angeles (us-west2)
+        value: us-west2
+      - label: Salt Lake City (us-west3)
+        value: us-west3
+      - label: Las Vegas (us-west4)
+        value: us-west4
+      - label: Warsaw (europe-central2)
+        value: europe-central2
+      - label: Belgium (europe-west1)
+        value: europe-west1
+      - label: London (europe-west2)
+        value: europe-west2
+      - label: Frankfurt (europe-west3)
+        value: europe-west3
+      - label: Zurich (europe-west6)
+        value: europe-west6
+      - label: Taiwan (asia-east1)
+        value: asia-east1
+      - label: Hong Kong (asia-east2)
+        value: asia-east2
+      - label: Tokyo (asia-northeast1)
+        value: asia-northeast1
+      - label: Osaka (asia-northeast2)
+        value: asia-northeast2
+      - label: Seoul (asia-northeast3)
+        value: asia-northeast3
+      - label: Mumbai (asia-south1)
+        value: asia-south1
+      - label: Singapore (asia-southeast1)
+        value: asia-southeast1
+      - label: Jakarta (asia-southeast2)
+        value: asia-southeast2
+      - label: Montreal (northamerica-northeast1)
+        value: northamerica-northeast1
+      - label: Sao Paulo (southamerica-east1)
+        value: southamerica-east1
+      - label: Sydney (australia-southeast1)
+        value: australia-southeast1
+    default: us-central1
+    required: true
+    immutable: true
+
+  - param: COLLECTION_PATH
+    label: Collection path
+    description: >
+      What collection path contains documents with text you want to synthesize?
+    example: translations
+    validationRegex: "^[^/]+(/[^/]+/[^/]+)*$"
+    validationErrorMessage: Must be a valid Cloud Firestore Collection
+    type: string
+    default: synthesize
+    required: true
+
+  - param: BUCKET_NAME
+    label: Bucket name
+    description: >
+      In which storage bucket do you want to keep synthesized text?
+    type: string
+    required: false
+
+  - param: STORAGE_PATH
+    label: Storage path
+    description: >
+      What is the location in your storage bucket you would like to keep synthesized audio?
+      By default this will be the root of the bucket.
+    type: string
+    required: false
+
+  - param: ENABLE_SSML
+    label: Enable ssml
+    description: >-
+      If set to \"Yes\", text processed by this extension will be assumed to be written in ssml.
+    type: select
+    options:
+      - label: Yes
+        value: yes
+      - label: No
+        value: no
+    default: no
+    required: true
+
+  - param: LANGUAGE_CODE
+    label: Language code
+    description: >-
+      What language code do you want to use?
+    type: select
+    options:
+      - label: Afrikaans (South Africa)
+        value: af-ZA
+      - label: Arabic
+        value: ar-XA
+      - label: Basque (Spain)
+        value: eu-ES
+      - label: Bengali (India)
+        value: bn-IN
+      - label: Bulgarian (Bulgaria)
+        value: bg-BG
+      - label: Catalan (Spain)
+        value: ca-ES
+      - label: Chinese (Hong Kong)
+        value: yue-HK
+      - label: Czech (Czech Republic)
+        value: cs-CZ
+      - label: Danish (Denmark)
+        value: da-DK
+      - label: Dutch (Belgium)
+        value: nl-BE
+      - label: Dutch (Netherlands)
+        value: nl-NL
+      - label: English (Australia)
+        value: en-AU
+      - label: English (India)
+        value: en-IN
+      - label: English (UK)
+        value: en-GB
+      - label: English (US)
+        value: en-US
+      - label: Filipino (Philippines)
+        value: fil-PH
+      - label: Finnish (Finland)
+        value: fi-FI
+      - label: French (Canada)
+        value: fr-CA
+      - label: French (France)
+        value: fr-FR
+      - label: Galician (Spain)
+        value: gl-ES
+      - label: German (Germany)
+        value: de-DE
+      - label: Greek (Greece)
+        value: el-GR
+      - label: Gujarati (India)
+        value: gu-IN
+      - label: Hebrew (Israel)
+        value: he-IL
+      - label: Hindi (India)
+        value: hi-IN
+      - label: Hungarian (Hungary)
+        value: hu-HU
+      - label: Icelandic (Iceland)
+        value: is-IS
+      - label: Indonesian (Indonesia)
+        value: id-ID
+      - label: Italian (Italy)
+        value: it-IT
+      - label: Japanese (Japan)
+        value: ja-JP
+      - label: Kannada (India)
+        value: kn-IN
+      - label: Korean (South Korea)
+        value: ko-KR
+      - label: Latvian (Latvia)
+        value: lv-LV
+      - label: Lithuanian (Lithuania)
+        value: lt-LT
+      - label: Malay (Malaysia)
+        value: ms-MY
+      - label: Malayalam (India)
+        value: ml-IN
+      - label: Mandarin Chinese
+        value: cmn-CN
+      - label: Mandarin Chinese TW
+        value: cmn-TW
+      - label: Marathi (India)
+        value: mr-IN
+      - label: Norwegian (Norway)
+        value: nb-NO
+      - label: Polish (Poland)
+        value: pl-PL
+      - label: Portuguese (Brazil)
+        value: pt-BR
+      - label: Portuguese (Portugal)
+        value: pt-PT
+      - label: Punjabi (India)
+        value: pa-IN
+      - label: Romanian (Romania)
+        value: ro-RO
+      - label: Russian (Russia)
+        value: ru-RU
+      - label: Serbian (Cyrillic)
+        value: sr-RS
+      - label: Slovak (Slovakia)
+        value: sk-SK
+      - label: Spanish (Spain)
+        value: es-ES
+      - label: Spanish (US)
+        value: es-US
+      - label: Swedish (Sweden)
+        value: sv-SE
+      - label: Tamil (India)
+        value: ta-IN
+      - label: Telugu (India)
+        value: te-IN
+      - label: Thai (Thailand)
+        value: th-TH
+      - label: Turkish (Turkey)
+        value: tr-TR
+      - label: Ukrainian (Ukraine)
+        value: uk-UA
+      - label: Vietnamese (Vietnam)
+        value: vi-VN
+    default: en-US
+    required: false
+
+  - param: VOICE_TYPE
+    label: Voice type
+    description: >-
+      What voice type do you want to use?
+    type: select
+    options:
+      - label: Standard
+        value: Standard
+      - label: WaveNet
+        value: WaveNet
+      - label: Neural2
+        value: Neural2
+      - label: Studio
+        value: Studio
+    default: Standard
+
+  - param: SSML_GENDER
+    label: SSML Gender
+    description: >-
+      What SSML Gender do you want to use?
+    type: select
+    options:
+      - label: Female
+        value: FEMALE
+      - label: Male
+        value: MALE
+    default: FEMALE
+    required: true
+
+  - param: AUDIO_ENCODING
+    label: SSML Gender
+    description: >-
+      What audio encoding do you want to use?
+    type: select
+    options:
+    - label: LINEAR16
+      value: LINEAR16
+    - label: MP3
+      value: MP3
+    - label: OGG_OPUS
+      value: OGG_OPUS
+    - label: MULAW
+      value: MULAW
+    - label: ALAW
+      value: ALAW
+    default: MP3
+    required: true
+    
+  - param: ENABLE_PER_DOCUMENT_OVERRIDES
+    label: Enable per document overrides.
+    description: >-
+      If set to \"Yes\", options for synthesizing audio will be overwritten 
+      by fields in the document containing the text to be synthesized.
+    type: select
+    options:
+      - label: Yes
+        value: yes
+      - label: No
+        value: no
+    default: no
+    required: true
+
+  - param: VOICE_NAME
+    label: Voice name
+    description: >
+      Alternatively you may specify a voice name, this will override other
+      extension synthesization parameters (language code, SSML Gender, Voice type).
+    type: string
+    required: false
