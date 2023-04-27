@@ -14,31 +14,31 @@
  * limitations under the License.
  */
 
-import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
-import { ImageAnnotatorClient } from "@google-cloud/vision";
-import * as logs from "./logs";
-import config from "./config";
-import { shouldExtractText } from "./util";
+import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
+import {ImageAnnotatorClient} from '@google-cloud/vision';
+import * as logs from './logs';
+import config from './config';
+import {shouldExtractText} from './util';
 
 admin.initializeApp();
 const client = new ImageAnnotatorClient();
 
-exports.extractText = functions.storage.object().onFinalize(async (object) => {
+exports.extractText = functions.storage.object().onFinalize(async object => {
   if (!shouldExtractText(object)) {
     return;
   }
 
   const bucket = admin.storage().bucket(object.bucket);
   const imageContents = await bucket.file(object.name!).download();
-  const imageBase64 = Buffer.from(imageContents[0]).toString("base64");
+  const imageBase64 = Buffer.from(imageContents[0]).toString('base64');
   const request = {
     image: {
       content: imageBase64,
     },
     features: [
       {
-        type: "TEXT_DETECTION",
+        type: 'TEXT_DETECTION',
       },
     ],
   };
@@ -74,7 +74,7 @@ exports.extractText = functions.storage.object().onFinalize(async (object) => {
   const extractedText = textAnnotations[0].description;
 
   const data =
-    config.detail === "basic"
+    config.detail === 'basic'
       ? {
           file: `gs://${object.bucket}/${object.name}`,
           text: extractedText,

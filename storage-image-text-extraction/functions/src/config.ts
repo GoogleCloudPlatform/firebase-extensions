@@ -15,12 +15,12 @@
  */
 
 function paramToArray(param: unknown) {
-  return typeof param === "string" ? param.split(",") : undefined;
+  return typeof param === 'string' ? param.split(',') : undefined;
 }
 
 export default {
-  collectionPath: process.env.COLLECTION_PATH || "extractedText",
+  collectionPath: process.env.COLLECTION_PATH || 'extractedText',
   includePathList: paramToArray(process.env.INCLUDE_PATH_LIST),
   excludePathList: paramToArray(process.env.EXCLUDE_PATH_LIST),
-  detail: process.env.DETAIL === "basic" ? "basic" : "full",
+  detail: process.env.DETAIL === 'basic' ? 'basic' : 'full',
 };

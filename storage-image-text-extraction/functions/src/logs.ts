@@ -1,4 +1,4 @@
-import { logger } from "firebase-functions/v1";
+import {logger} from 'firebase-functions/v1';
 
 export const noContentType = (objectName: string) => {
   logger.log(
@@ -13,7 +13,7 @@ export const contentTypeInvalid = (contentType: string, objectName: string) => {
 };
 
 export const noName = () => {
-  logger.log(`File has no name, no processing is required`);
+  logger.log('File has no name, no processing is required');
 };
 
 export const imageOutsideOfPaths = (
@@ -22,7 +22,7 @@ export const imageOutsideOfPaths = (
 ) => {
   logger.log(
     `Image path '${imagePath}' is not supported, these are the supported absolute paths: ${absolutePaths.join(
-      ", "
+      ', '
     )}`
   );
 };
@@ -33,7 +33,7 @@ export const imageInsideOfExcludedPaths = (
 ) => {
   logger.log(
     `Image path '${imagePath}' is not supported, these are the not supported absolute paths: ${absolutePaths.join(
-      ", "
+      ', '
     )}`
   );
 };

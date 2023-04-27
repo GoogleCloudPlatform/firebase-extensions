@@ -1,7 +1,7 @@
-import * as functions from "firebase-functions";
-import * as path from "path";
+import * as functions from 'firebase-functions';
+import * as path from 'path';
 // import * as logs from './logs';
-import config from "./config";
+import config from './config';
 
 export const shouldExtractText = (
   object: functions.storage.ObjectMetadata
@@ -10,8 +10,8 @@ export const shouldExtractText = (
     // logs.noName();
     return false;
   }
-  const { contentType } = object;
-  const tmpFilePath = path.resolve("/", path.dirname(object.name)); // Absolute path to dirname
+  const {contentType} = object;
+  const tmpFilePath = path.resolve('/', path.dirname(object.name)); // Absolute path to dirname
 
   if (!contentType) {
     // logs.noContentType(object.name);
@@ -39,12 +39,12 @@ export const startsWithArray = (
   userInputPaths: string[],
   imagePath: string
 ) => {
-  for (let userPath of userInputPaths) {
+  for (const userPath of userInputPaths) {
     const trimmedUserPath = userPath
       .trim()
-      .replace(/\*/g, "([a-zA-Z0-9_\\-.\\s\\/]*)?");
+      .replace(/\*/g, '([a-zA-Z0-9_\\-.\\s\\/]*)?');
 
-    const regex = new RegExp("^" + trimmedUserPath + "(?:/.*|$)");
+    const regex = new RegExp('^' + trimmedUserPath + '(?:/.*|$)');
 
     if (regex.test(imagePath)) {
       return true;
