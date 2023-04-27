@@ -1,14 +1,14 @@
-import * as util from "util";
-import * as ffmpeg from "fluent-ffmpeg";
-import { Failure, TranscribeAudioSuccess } from "./types";
-import { Channel } from "firebase-admin/eventarc";
-import { google } from "@google-cloud/speech/build/protos/protos";
+import * as util from 'util';
+import * as ffmpeg from 'fluent-ffmpeg';
+import {Failure, TranscribeAudioSuccess} from './types';
+import {Channel} from 'firebase-admin/eventarc';
+import {google} from '@google-cloud/speech/build/protos/protos';
 
 export function errorFromAny(anyErr: any): Error {
   let error: Error;
   if (!(anyErr instanceof Error)) {
     error = {
-      name: "Thrown non-error object",
+      name: 'Thrown non-error object',
       message: String(anyErr),
     };
   } else {
@@ -21,7 +21,7 @@ export function errorFromAny(anyErr: any): Error {
 export function isNullFreeList<T>(
   list: (NonNullable<T> | null | undefined)[]
 ): list is NonNullable<T>[] {
-  return list.every((item) => item != null);
+  return list.every(item => item !== null);
 }
 
 export function getTranscriptionsByChannel(
@@ -76,10 +76,10 @@ export const probePromise = util.promisify<string, ffmpeg.FfprobeData>(
 
 export async function publishFailureEvent(
   eventChannel: Channel,
-  { status, ...contents }: Failure
+  {...contents}: Failure
 ): Promise<void> {
   return eventChannel.publish({
-    type: "firebase.extensions.storage-transcribe-audio.v1.fail",
+    type: 'firebase.extensions.storage-transcribe-audio.v1.fail',
     data: {
       ...contents,
     },
@@ -88,10 +88,10 @@ export async function publishFailureEvent(
 
 export async function publishCompleteEvent(
   eventChannel: Channel,
-  { status, ...contents }: TranscribeAudioSuccess
+  {...contents}: TranscribeAudioSuccess
 ): Promise<void> {
   return eventChannel.publish({
-    type: "firebase.extensions.storage-transcribe-audio.v1.complete",
+    type: 'firebase.extensions.storage-transcribe-audio.v1.complete',
     data: {
       ...contents,
     },

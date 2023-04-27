@@ -1,12 +1,12 @@
-const path = require("path");
+const path = require('path');
 
 (async function () {
-  require("dotenv").config({
+  require('dotenv').config({
     path: path.resolve(
       __dirname,
-      "../../../_emulator/extensions/storage-transcribe-audio.env.local"
+      '../../../_emulator/extensions/storage-transcribe-audio.env.local'
     ),
   });
 
-  process.env.EXT_INSTANCE_ID = "storage-transcribe-audio";
+  process.env.EXT_INSTANCE_ID = 'storage-transcribe-audio';
 })();

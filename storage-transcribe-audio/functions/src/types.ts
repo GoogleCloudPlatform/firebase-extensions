@@ -1,4 +1,4 @@
-import { UploadResponse } from "@google-cloud/storage";
+import {UploadResponse} from '@google-cloud/storage';
 
 export type TranscodeAudioResult = TranscodeAudioSuccess | Failure;
 export type TranscribeAudioResult = TranscribeAudioSuccess | Failure;
@@ -47,16 +47,16 @@ export enum FailureType {
 }
 
 export const failureTypeToMessage: Record<FailureType, string> = {
-  [FailureType.UNKNOWN]: "An unknown error occured.",
-  [FailureType.ZERO_STREAMS]: "The uploaded file had zero audio streams.",
+  [FailureType.UNKNOWN]: 'An unknown error occured.',
+  [FailureType.ZERO_STREAMS]: 'The uploaded file had zero audio streams.',
   [FailureType.NULL_SAMPLE_RATE]: "Could not obtain the file's sample rate.",
   [FailureType.NULL_CHANNELS]: "Could not obtain the file's channels.",
-  [FailureType.FFMPEG_FAILURE]: "An ffmpeg error ocurred.",
-  [FailureType.NULL_TRANSCRIPTION]: "Received a null transcription from API.",
+  [FailureType.FFMPEG_FAILURE]: 'An ffmpeg error ocurred.',
+  [FailureType.NULL_TRANSCRIPTION]: 'Received a null transcription from API.',
   [FailureType.TRANSCRIPTION_UPLOAD_FAILED]:
-    "An error ocurred when uploading the transcription.",
+    'An error ocurred when uploading the transcription.',
   [FailureType.TRANSCODED_UPLOAD_FAILED]:
-    "An error ocurred when uploading the transcoded file.",
+    'An error ocurred when uploading the transcoded file.',
 };
 
 export enum WarningType {
@@ -66,11 +66,11 @@ export enum WarningType {
 }
 
 export const warningTypeToMessage: Record<WarningType, string> = {
-  [WarningType.UNKNOWN]: "An unknown warning occured.",
+  [WarningType.UNKNOWN]: 'An unknown warning occured.',
   [WarningType.MORE_THAN_ONE_STREAM]:
-    "The uploaded file had more than one stream.",
+    'The uploaded file had more than one stream.',
   [WarningType.EMPTY_TRANSCRIPTION]:
-    "The transcription is an empty string. " +
-    "\nIf this is not expected, the language code may be wrong, the file may " +
-    "be too noisy, or the sample rate of the original file may be too low.",
+    'The transcription is an empty string. ' +
+    '\nIf this is not expected, the language code may be wrong, the file may ' +
+    'be too noisy, or the sample rate of the original file may be too low.',
 };

@@ -14,28 +14,24 @@
  * limitations under the License.
  */
 
-import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
-import { getEventarc, Channel } from "firebase-admin/eventarc";
-import * as speech from "@google-cloud/speech";
-import * as path from "path";
-import * as os from "os";
-import * as mkdirp from "mkdirp";
+import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
+import {getEventarc, Channel} from 'firebase-admin/eventarc';
+import * as speech from '@google-cloud/speech';
+import * as path from 'path';
+import * as os from 'os';
+import * as mkdirp from 'mkdirp';
 
-import * as logs from "./logs";
-import {
-  publishFailureEvent,
-  errorFromAny,
-  publishCompleteEvent,
-} from "./util";
+import * as logs from './logs';
+import {publishFailureEvent, errorFromAny, publishCompleteEvent} from './util';
 import {
   transcodeToLinear16,
   transcribeAndUpload,
   uploadTranscodedFile,
-} from "./transcribe-audio";
+} from './transcribe-audio';
 
-import { Status } from "./types";
-import config from "./config";
+import {Status} from './types';
+import config from './config';
 
 admin.initializeApp();
 
@@ -55,9 +51,9 @@ export const transcribeAudio = functions.storage
   .object()
   .onFinalize(async (object): Promise<void> => {
     logs.start();
-    const { contentType } = object; // the MIME type
+    const {contentType} = object; // the MIME type
 
-    if (object.metadata && object.metadata.isTranscodeOutput === "true") {
+    if (object.metadata && object.metadata.isTranscodeOutput === 'true') {
       logs.audioAlreadyProcessed();
       return;
     }
@@ -67,7 +63,7 @@ export const transcribeAudio = functions.storage
       return;
     }
 
-    if (!contentType.startsWith("audio/")) {
+    if (!contentType.startsWith('audio/')) {
       logs.contentTypeInvalid(contentType);
       return;
     }
@@ -90,7 +86,7 @@ export const transcribeAudio = functions.storage
 
       const remoteFile = bucket.file(filePath);
       logs.audioDownloading(filePath);
-      await remoteFile.download({ destination: localCopyPath });
+      await remoteFile.download({destination: localCopyPath});
       logs.audioDownloaded(filePath, localCopyPath);
 
       const transcodeResult = await transcodeToLinear16(localCopyPath);
@@ -103,11 +99,11 @@ export const transcribeAudio = functions.storage
         return;
       }
 
-      logs.debug("uploading transcoded file");
+      logs.debug('uploading transcoded file');
       const transcodedUploadResult = await uploadTranscodedFile({
         localPath: transcodeResult.outputPath,
         storagePath:
-          (config.outputCollection || "") + transcodeResult.outputPath,
+          (config.outputCollection || '') + transcodeResult.outputPath,
         bucket: bucket,
       });
       if (transcodedUploadResult.status == Status.FAILURE) {
@@ -117,9 +113,9 @@ export const transcribeAudio = functions.storage
         }
         return;
       }
-      logs.debug("uploaded transcoded file");
+      logs.debug('uploaded transcoded file');
 
-      const { sampleRateHertz, audioChannelCount } = transcodeResult;
+      const {sampleRateHertz, audioChannelCount} = transcodeResult;
       const [file /*, metadata */] = transcodedUploadResult.uploadResponse;
 
       const transcriptionResult = await transcribeAndUpload({
@@ -147,7 +143,7 @@ export const transcribeAudio = functions.storage
 
       if (eventChannel) {
         await eventChannel.publish({
-          type: "firebase.extensions.storage-transcribe-audio.v1.fail",
+          type: 'firebase.extensions.storage-transcribe-audio.v1.fail',
           data: {
             error,
           },

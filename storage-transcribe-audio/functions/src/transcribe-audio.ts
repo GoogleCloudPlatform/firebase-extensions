@@ -1,7 +1,7 @@
-import { SpeechClient } from "@google-cloud/speech";
-import { google } from "@google-cloud/speech/build/protos/protos";
-import { Bucket } from "@google-cloud/storage";
-import * as ffmpeg from "fluent-ffmpeg";
+import {SpeechClient} from '@google-cloud/speech';
+import {google} from '@google-cloud/speech/build/protos/protos';
+import {Bucket} from '@google-cloud/storage';
+import * as ffmpeg from 'fluent-ffmpeg';
 
 import {
   TranscodeAudioResult,
@@ -10,22 +10,22 @@ import {
   TranscribeAudioResult,
   Status,
   UploadAudioResult,
-} from "./types";
-import * as logs from "./logs";
-import config from "./config";
-import { probePromise, getTranscriptionsByChannel } from "./util";
+} from './types';
+import * as logs from './logs';
+import config from './config';
+import {probePromise, getTranscriptionsByChannel} from './util';
 
-const encoding = "LINEAR16";
-const TRANSCODE_TARGET_FILE_EXTENSION = ".wav";
+const encoding = 'LINEAR16';
+const TRANSCODE_TARGET_FILE_EXTENSION = '.wav';
 
 export async function transcribeAndUpload({
   client,
-  file: { bucket, name },
+  file: {bucket, name},
   sampleRateHertz,
   audioChannelCount,
 }: {
   client: SpeechClient;
-  file: { bucket: Bucket; name: string };
+  file: {bucket: Bucket; name: string};
   sampleRateHertz: number;
   audioChannelCount: number;
 }): Promise<TranscribeAudioResult> {
@@ -115,8 +115,8 @@ export async function transcodeToLinear16(
   const probeData: ffmpeg.FfprobeData = await probePromise(localTmpPath);
   const warnings: WarningType[] = [];
 
-  logs.debug("probe data before transcription:", probeData);
-  const { streams } = probeData;
+  logs.debug('probe data before transcription:', probeData);
+  const {streams} = probeData;
 
   if (streams.length === 0) {
     return {
@@ -147,14 +147,14 @@ export async function transcodeToLinear16(
   }
 
   const localTranscodedPath = localTmpPath + TRANSCODE_TARGET_FILE_EXTENSION;
-  logs.debug("transcoding locally");
+  logs.debug('transcoding locally');
   try {
     await transcodeLocally({
       inputPath: localTmpPath,
       outputPath: localTranscodedPath,
     });
   } catch (error: unknown) {
-    const { err, stdout, stderr } = error as {
+    const {err, stdout, stderr} = error as {
       err: any;
       stdout: string;
       stderr: string;
@@ -170,7 +170,7 @@ export async function transcodeToLinear16(
       },
     };
   }
-  logs.debug("finished transcoding locally");
+  logs.debug('finished transcoding locally');
 
   return {
     status: Status.SUCCESS,
@@ -193,7 +193,7 @@ export async function uploadTranscodedFile({
   try {
     const uploadResponse = await bucket.upload(localPath, {
       destination: storagePath,
-      metadata: { metadata: { isTranscodeOutput: true } },
+      metadata: {metadata: {isTranscodeOutput: true}},
     });
 
     return {
@@ -220,12 +220,12 @@ async function transcodeLocally({
   // Save input to output path, converting it to the format of
   // outputPath
   return new Promise((resolve, reject) => {
-    ffmpeg({ source: inputPath })
+    ffmpeg({source: inputPath})
       .save(outputPath)
-      .on("error", (err, stdout, stderr) => {
-        reject({ err, stdout, stderr });
+      .on('error', (err, stdout, stderr) => {
+        reject({err, stdout, stderr});
       })
-      .on("end", (stdout, stderr) => {
+      .on('end', (stdout, stderr) => {
         if (stdout) logs.ffmpegStdout(stdout);
         if (stderr) logs.ffmpegStderr(stderr);
         resolve(outputPath);
