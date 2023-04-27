@@ -1,5 +1,5 @@
 {
-  "name": "storage-label-videos",
+  "name": "storage-video-labelling",
   "scripts": {
     "format": "prettier --write \"**/*.{js,md,yml,ts,json,yaml}\"",
     "lint": "eslint \"src/**/*\"",
@@ -11,7 +11,7 @@
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
     "test": "jest",
-    "generate-readme": "node ../../generate-experimental-readme.js storage-label-videos > ../README.md"
+    "generate-readme": "node ../../generate-experimental-readme.js storage-video-labelling > ../README.md"
   },
   "engines": {
     "node": "16"
