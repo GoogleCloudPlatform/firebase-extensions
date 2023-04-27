@@ -8,6 +8,7 @@
     "gts": "^3.1.0"
   },
   "scripts": {
+    "format": "gts fix",
     "lerna:bootstrap": "lerna bootstrap --no-ci",
     "lerna:link": "lerna link",
     "lerna:clean": "lerna clean,",
