@@ -1,16 +1,18 @@
 # Learn detailed information about the fields of an extension.yaml file in the docs:
 # https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml
 
-name: api-keys-diagnostic  # Identifier for your extension
-version: 0.0.1  # Follow semver versioning
-specVersion: v1beta  # Version of the Firebase Extensions specification
+name: api-keys-diagnostic # Identifier for your extension
+version: 0.0.1 # Follow semver versioning
+specVersion: v1beta # Version of the Firebase Extensions specification
 
 displayName: API Keys Diagnostic
 
 description: >-
-  The API Keys Diagnostic Extension is a security-focused tool designed to safeguard your Firebase project. It routinely scans your project's API keys and sends EventArc events if it detects any unrestricted keys.
+  The API Keys Diagnostic Extension is a security-focused tool designed to
+  safeguard your Firebase project. It routinely scans your project's API keys
+  and sends EventArc events if it detects any unrestricted keys.
 
-license: Apache-2.0  # https://spdx.org/licenses/
+license: Apache-2.0 # https://spdx.org/licenses/
 
 sourceUrl: https://github.com/firebase/firebase-tools/tree/master/templates/extensions
 
@@ -19,7 +21,9 @@ billingRequired: false
 roles:
   - role: cloudscheduler.admin
     reason: Allows the extension to create a new Cloud Scheduler function.
-    
+  - role: serviceusage.apiKeysMetadataViewer
+    reason: Allows the extension to read api keys.
+
 resources:
   - name: apiKeysDiagnostic
     type: firebaseextensions.v1beta.function
@@ -28,14 +32,14 @@ resources:
     properties:
       location: ${LOCATION}
       scheduleTrigger:
-        schedule: "every 2 minutes"
+        schedule: 'every 60 minutes'
 
 params:
   - param: LOCATION
     label: Cloud Functions location
     description: >-
-      Where do you want to deploy the functions created for this extension?
-      For help selecting a location, refer to the [location selection
+      Where do you want to deploy the functions created for this extension? For
+      help selecting a location, refer to the [location selection
       guide](https://firebase.google.com/docs/functions/locations).
     type: select
     options:
