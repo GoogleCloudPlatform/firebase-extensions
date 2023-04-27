@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
-import { ImageAnnotatorClient } from "@google-cloud/vision";
-import * as logs from "./logs";
-import config from "./config";
-import { formatLabels, getVisionRequest, shouldLabelImage } from "./util";
-import { IAnnotatedImageResponse } from "./types";
+import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
+import {ImageAnnotatorClient} from '@google-cloud/vision';
+import * as logs from './logs';
+import config from './config';
+import {formatLabels, getVisionRequest, shouldLabelImage} from './util';
+import {IAnnotatedImageResponse} from './types';
 
 admin.initializeApp();
 
@@ -29,7 +29,7 @@ const client = new ImageAnnotatorClient();
 export const labelImage = functions.storage
   .bucket(process.env.IMG_BUCKET)
   .object()
-  .onFinalize(async (object) => {
+  .onFinalize(async object => {
     logs.functionTriggered(config);
 
     if (!shouldLabelImage(object)) {
@@ -38,7 +38,7 @@ export const labelImage = functions.storage
 
     const bucket = admin.storage().bucket(object.bucket);
     const imageContents = await bucket.file(object.name!).download();
-    const imageBase64 = Buffer.from(imageContents[0]).toString("base64");
+    const imageBase64 = Buffer.from(imageContents[0]).toString('base64');
 
     const request = getVisionRequest(imageBase64);
 
@@ -62,7 +62,7 @@ export const labelImage = functions.storage
 
     logs.writingToFirestore(object.name!);
     // prevent from creating a document with a slash in the name
-    const docName = object.name!.replace(/\//g, "_");
+    const docName = object.name!.replace(/\//g, '_');
 
     const labels = formatLabels(labelAnnotations);
 

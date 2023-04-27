@@ -1,19 +1,19 @@
-import * as path from "path";
-import * as functions from "firebase-functions";
-import config from "./config";
-import * as logs from "./logs";
-import { IEntityAnnotation, ImprovedRequest } from "./types";
+import * as path from 'path';
+import * as functions from 'firebase-functions';
+import config from './config';
+import * as logs from './logs';
+import {IEntityAnnotation, ImprovedRequest} from './types';
 
 export const startsWithArray = (
   userInputPaths: string[],
   imagePath: string
 ) => {
-  for (let userPath of userInputPaths) {
+  for (const userPath of userInputPaths) {
     const trimmedUserPath = userPath
       .trim()
-      .replace(/\*/g, "([a-zA-Z0-9_\\-.\\s\\/]*)?");
+      .replace(/\*/g, '([a-zA-Z0-9_\\-.\\s\\/]*)?');
 
-    const regex = new RegExp("^" + trimmedUserPath + "(?:/.*|$)");
+    const regex = new RegExp('^' + trimmedUserPath + '(?:/.*|$)');
 
     if (regex.test(imagePath)) {
       return true;
@@ -29,7 +29,7 @@ export const shouldLabelImage = (
     logs.noName();
     return false;
   }
-  const tmpFilePath = path.resolve("/", path.dirname(object.name));
+  const tmpFilePath = path.resolve('/', path.dirname(object.name));
 
   if (
     config.includePathList &&
@@ -46,19 +46,19 @@ export const shouldLabelImage = (
     logs.imageInsideOfExcludedPaths(config.excludePathList, tmpFilePath);
     return false;
   }
-  const { contentType } = object; // This is the image MIME type
+  const {contentType} = object; // This is the image MIME type
   if (!contentType) {
     logs.noContentType();
     return false;
   }
-  if (!contentType.startsWith("image/")) {
+  if (!contentType.startsWith('image/')) {
     logs.contentTypeInvalid(contentType);
     return false;
   }
   return true;
 };
 
-const FEATURE_TYPE = "LABEL_DETECTION";
+const FEATURE_TYPE = 'LABEL_DETECTION';
 
 export const getVisionRequest = (imageBase64: string): ImprovedRequest => ({
   image: {
@@ -72,13 +72,13 @@ export const getVisionRequest = (imageBase64: string): ImprovedRequest => ({
 });
 
 export function formatLabels(labelAnnotations: IEntityAnnotation[]) {
-  let labels = [];
-  for (let annotation of labelAnnotations) {
+  const labels = [];
+  for (const annotation of labelAnnotations) {
     if (annotation.description) {
-      if (config.mode === "basic") {
+      if (config.mode === 'basic') {
         labels.push(annotation.description);
       }
-      if (config.mode === "full") {
+      if (config.mode === 'full') {
         labels.push(annotation);
       }
     }

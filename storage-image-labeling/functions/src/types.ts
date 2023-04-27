@@ -1,4 +1,4 @@
-import * as vision from "@google-cloud/vision";
+import * as vision from '@google-cloud/vision';
 export type VisionClient = vision.v1.ImageAnnotatorClient;
 // this isn't exported from the sdk, and is different from IAnnotateImageRequest, but is used in the annotateImage method
 export type ImprovedRequest = {

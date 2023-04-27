@@ -1,14 +1,14 @@
-import * as functions from "firebase-functions";
+import * as functions from 'firebase-functions';
 
 const logger = functions.logger;
 
 export const complete = () => {
-  logger.log("Completed execution of extension");
+  logger.log('Completed execution of extension');
 };
 
 export const noContentType = () => {
   logger.log(
-    "Ignoring file as unable to detect Content-Type, no processing is required."
+    'Ignoring file as unable to detect Content-Type, no processing is required.'
   );
 };
 
@@ -18,7 +18,7 @@ export const imageOutsideOfPaths = (
 ) => {
   logger.log(
     `Image path '${imagePath}' is not supported, these are the supported absolute paths: ${absolutePaths.join(
-      ", "
+      ', '
     )}`
   );
 };
@@ -29,7 +29,7 @@ export const imageInsideOfExcludedPaths = (
 ) => {
   logger.log(
     `Image path '${imagePath}' is not supported, these are the not supported absolute paths: ${absolutePaths.join(
-      ", "
+      ', '
     )}`
   );
 };
@@ -42,7 +42,7 @@ export const contentTypeInvalid = (contentType: string) => {
 
 export const noName = () => {
   logger.log(
-    "Ignoring file as unable to detect name, no processing is required."
+    'Ignoring file as unable to detect name, no processing is required.'
   );
 };
 
