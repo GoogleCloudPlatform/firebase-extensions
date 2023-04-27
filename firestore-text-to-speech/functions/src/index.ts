@@ -1,9 +1,9 @@
-import * as admin from "firebase-admin";
-import * as functions from "firebase-functions";
-import config from "./config";
-import * as tts from "@google-cloud/text-to-speech";
-import { ISynthesizeSpeechRequest, ISynthesizeSpeechResponse } from "./types";
-import { buildRequest, BuildRequestOptions, getFileExtension } from "./util";
+import * as admin from 'firebase-admin';
+import * as functions from 'firebase-functions';
+import config from './config';
+import * as tts from '@google-cloud/text-to-speech';
+import {ISynthesizeSpeechRequest, ISynthesizeSpeechResponse} from './types';
+import {buildRequest, BuildRequestOptions, getFileExtension} from './util';
 
 const logger = functions.logger;
 
@@ -15,7 +15,7 @@ export const textToSpeech = functions.firestore
   .document(`${config.collectionPath}/{docId}`)
   .onCreate(async (snap, _) => {
     if (snap.data().text) {
-      const { text, languageCode, ssmlGender, audioEncoding, voiceName } =
+      const {text, languageCode, ssmlGender, audioEncoding, voiceName} =
         snap.data() as BuildRequestOptions;
 
       const request = config.enablePerDocumentOverrides
@@ -26,7 +26,7 @@ export const textToSpeech = functions.firestore
             audioEncoding,
             voiceName,
           })
-        : buildRequest({ text });
+        : buildRequest({text});
 
       try {
         const speech = await processText(request);
