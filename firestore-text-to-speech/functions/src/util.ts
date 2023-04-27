@@ -1,7 +1,6 @@
 import {
   AudioEncoding,
   ISynthesizeSpeechRequest,
-  ISynthesizeSpeechResponse,
   SsmlVoiceGender,
 } from './types';
 import config from './config';

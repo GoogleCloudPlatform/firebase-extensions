@@ -13,7 +13,7 @@ const ttsClient = new tts.TextToSpeechClient();
 
 export const textToSpeech = functions.firestore
   .document(`${config.collectionPath}/{docId}`)
-  .onCreate(async (snap, _) => {
+  .onCreate(async snap => {
     if (snap.data().text) {
       const {text, languageCode, ssmlGender, audioEncoding, voiceName} =
         snap.data() as BuildRequestOptions;
@@ -54,10 +54,9 @@ export const textToSpeech = functions.firestore
 
 async function processText(request: ISynthesizeSpeechRequest) {
   let response: ISynthesizeSpeechResponse;
-  // Performs the text-to-speech request
 
+  // Performs the text-to-speech request
   try {
-    //@ts-ignore
     [response] = await ttsClient.synthesizeSpeech(request);
   } catch (e) {
     logger.error(e);
