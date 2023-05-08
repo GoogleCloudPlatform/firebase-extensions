@@ -1,5 +1,4 @@
-> **Note**<br/>
-> The Vertex [Matching Engine public endpoints](https://cloud.google.com/vertex-ai/docs/matching-engine/deploy-index-public) are currently in public preview.
+> :warning: Note: The Vertex [Matching Engine public endpoints](https://cloud.google.com/vertex-ai/docs/matching-engine/deploy-index-public) are currently in public preview.
 
 ## How this extension works
 

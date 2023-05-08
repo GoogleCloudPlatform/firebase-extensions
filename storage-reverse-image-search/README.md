@@ -1,4 +1,4 @@
-# Image Similarity Search with Vertex AI
+# Reverse Image Search with Vertex AI
 
 **Author**: Firebase (**[https://firebase.google.com](https://firebase.google.com)**)
 
@@ -6,9 +6,11 @@
 
 
 
-**Details**: ## How this extension works
+**Details**: > :warning: Note: The Vertex [Matching Engine public endpoints](https://cloud.google.com/vertex-ai/docs/matching-engine/deploy-index-public) are currently in public preview.
 
-This extension adds image similarity search to your Firebase application using Vertex AI’s [Matching Engine](https://cloud.google.com/vertex-ai/docs/matching-engine/overview) and Cloud Storage. Image similarity search relies on first generating feature vector representations of your original images which are stored in a Matching Engine index. Once these feature vectors are indexed, the Matching Engine can be used to calculate similar images to an original image from a large dataset of candidate images, based on vector distance measures.
+## How this extension works
+
+This extension adds reverse image search to your Firebase application using Vertex AI’s [Matching Engine](https://cloud.google.com/vertex-ai/docs/matching-engine/overview) and Cloud Storage. Reverse image search relies on first generating feature vector representations of your original images which are stored in a Matching Engine index. Once these feature vectors are indexed, the Matching Engine can be used to calculate similar images to an original image from a large dataset of candidate images, based on vector distance measures.
 
 On installation, you will need to specify a Cloud Storage **bucket** and **files path** for indexing.
 
@@ -31,8 +33,8 @@ If you would like to use a pre-trained model, you simply need to copy the Tensor
 You may want to use your own custom model, or fine-tune an existing model to achieve better results. To do so, follow these steps:
 
 1. Export your model using the Tensorflow SDK. [You can find more information about exporting the correct format here](https://www.tensorflow.org/js/guide/save_load). After exporting, you should have a `[model].json` file and `[model].weights.bin` file. The `.bin` file might be sharded into multiple binary files, you will need all of them.
-2. Upload both the `.json` and `.bin` file to a Cloud Storage page, and make sure both objects are publicly accessible. 
-3. Copy the public URL of the .json file and paste that in the extension configuration during installation. The extension will automatically load the `.bin` file based on an inferred relative path to the `.json` file.
+2. Upload both the `.json` and `.bin` file(s) to a Cloud Storage page, and make sure both objects are publicly accessible. 
+3. Copy the public URL of the .json file and paste that in the extension configuration during installation. The extension will automatically load the `.bin` file(s) based on an inferred relative path to the `.json` file.
 
 You need to know the input dimensionality that your model supports, as the extension needs to resize images before feeding them into the image feature vector model.
 
@@ -43,7 +45,7 @@ First, before installing the extension, you need to enable data read & write acc
 - Filter for “Vertex AI API” and click on the checkbox next to it. A new panel should appear on the right side of the page.
 - On the new panel, click on the checkboxes next to “Data Read” and “Data Write”, and click Save.
 
-Finally, make sure that you've set up a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart).
+Finally, make sure that you've set up a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) and [enabled Cloud Storage](https://firebase.google.com/docs/storage) in your Firebase project.
 
 After installation, you will need to also add some security rules on a new Firestore collection created by the extension that is used to store internal backfill state. Please check the extension instance after installation for more details.
 
@@ -53,16 +55,16 @@ Note that the extension itself will take **~2h** to finish installing & processi
 
 To install an extension, your project must be on the Blaze (pay as you go) plan. You will be charged a small amount (typically around $0.01/month) for the Firebase resources required by this extension (even if it is not used).
 This extension uses other Firebase and Google Cloud Platform services, which have associated charges if you exceed the service's no-cost tier:
-- Cloud Functions
 - Cloud Firestore
 - Cloud Storage
 - Cloud Run
 - Cloud EventArc
 - [Vertex AI](https://cloud.google.com/vertex-ai/pricing#matchingengine)
+- Cloud Functions (Node.js 14+ runtime. See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
 
 [Learn more about Firebase billing](https://firebase.google.com/pricing).
 
-> ⚠️ NOTE 
+> Note 
 > 
 > The extension does not delete the Matching Engine Index automatically when you uninstall the extension. 
 > 
