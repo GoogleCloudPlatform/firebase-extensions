@@ -1,5 +1,5 @@
 export enum BackfillStatus {
-  PENDING = "PENDING",
-  PROCESSING = "PROCESSING",
-  DONE = "DONE",
+  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING',
+  DONE = 'DONE',
 }

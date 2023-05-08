@@ -1,13 +1,13 @@
-import * as admin from "firebase-admin";
-import * as functions from "firebase-functions";
-import { getFunctions } from "firebase-admin/functions";
-import { getExtensions } from "firebase-admin/extensions";
+import * as admin from 'firebase-admin';
+import * as functions from 'firebase-functions';
+import {getFunctions} from 'firebase-admin/functions';
+import {getExtensions} from 'firebase-admin/extensions';
 
-import config from "../config";
-import * as utils from "../common/utils";
-import { BackfillStatus } from "../types/backfill_status";
+import config from '../config';
+import * as utils from '../common/utils';
+import {BackfillStatus} from '../types/backfill_status';
 
-const batchSize = config.embeddingMethod == "palm" ? 50 : 500;
+const batchSize = config.embeddingMethod === 'palm' ? 50 : 500;
 
 export async function backfillTriggerHandler() {
   const runtime = getExtensions().runtime();
@@ -18,15 +18,16 @@ export async function backfillTriggerHandler() {
     `locations/${config.location}/functions/backfillTask`,
     config.instanceId
   );
-  var writer = admin.firestore().batch();
+  let writer = admin.firestore().batch();
 
   // Check if the backfill bucket exists, if so, delete any files in it.
   // This might be a left-over from a previous installation.
   try {
     const bucket = admin.storage().bucket(config.bucketName);
-    await bucket.deleteFiles({ prefix: "datapoints", autoPaginate: false });
+    await bucket.deleteFiles({prefix: 'datapoints', autoPaginate: false});
   } catch (error) {
-    throw error;
+    // Ignore the error if the bucket doesn't exist.
+    functions.logger.debug(error);
   }
 
   try {
@@ -36,8 +37,8 @@ export async function backfillTriggerHandler() {
 
     if (refs.length === 0) {
       return runtime.setProcessingState(
-        "PROCESSING_WARNING",
-        "No documents found in the collection."
+        'PROCESSING_WARNING',
+        'No documents found in the collection.'
       );
     }
 
@@ -45,7 +46,7 @@ export async function backfillTriggerHandler() {
       `Found ${refs.length} documents in the collection ${config.collectionName} 📚`
     );
 
-    var counter = 1;
+    let counter = 1;
 
     await admin.firestore().doc(config.tasksDoc).set({
       totalLength: refs.length,
@@ -65,7 +66,7 @@ export async function backfillTriggerHandler() {
         await queue.enqueue({
           id: id,
           collectionName: config.collectionName,
-          documentIds: chunk.map((ref) => ref.id),
+          documentIds: chunk.map(ref => ref.id),
         });
       }
 
@@ -76,12 +77,12 @@ export async function backfillTriggerHandler() {
           {
             taskId: id,
             status: BackfillStatus.PENDING,
-            documentIds: chunk.map((ref) => ref.id),
+            documentIds: chunk.map(ref => ref.id),
           }
         );
 
         if (counter % batchSize === 0 || chunks.length < batchSize) {
-          functions.logger.info(`Committing the batch...`);
+          functions.logger.info('Committing the batch...');
 
           await writer.commit();
           writer = admin.firestore().batch();
@@ -89,8 +90,8 @@ export async function backfillTriggerHandler() {
       } catch (error) {
         functions.logger.error(error);
         await runtime.setProcessingState(
-          "PROCESSING_FAILED",
-          "Failed to generate embeddings, for more details check the logs."
+          'PROCESSING_FAILED',
+          'Failed to generate embeddings, for more details check the logs.'
         );
 
         throw error;
@@ -102,14 +103,14 @@ export async function backfillTriggerHandler() {
     functions.logger.info(`${counter} tasks enqueued successfully 🚀`);
 
     return runtime.setProcessingState(
-      "PROCESSING_COMPLETE",
-      "Successfully enqueued all tasks to backfill the data."
+      'PROCESSING_COMPLETE',
+      'Successfully enqueued all tasks to backfill the data.'
     );
   } catch (error) {
     functions.logger.error(error);
     await runtime.setProcessingState(
-      "PROCESSING_FAILED",
-      "Failed to generate embeddings, for more details check the logs."
+      'PROCESSING_FAILED',
+      'Failed to generate embeddings, for more details check the logs.'
     );
 
     throw error;

@@ -1,17 +1,17 @@
-import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
+import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
 
-import config from "../config";
+import config from '../config';
 
-import { updateIndex } from "../common/vertex";
-import { IndexStatus } from "../types/index_status";
+import {updateIndex} from '../common/vertex';
+import {IndexStatus} from '../types/index_status';
 
 export async function updateIndexConfigHandler() {
   try {
     // get the index config from the database
     const meatdataDoc = admin.firestore().doc(config.metadataDoc);
     const metdata = await meatdataDoc.get();
-    const { index, status } = metdata.data() as {
+    const {index, status} = metdata.data() as {
       index: string;
       status: IndexStatus;
     };

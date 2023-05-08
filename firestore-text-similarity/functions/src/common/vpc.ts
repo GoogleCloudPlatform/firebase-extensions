@@ -1,22 +1,22 @@
-import { VpcAccessServiceClient } from "@google-cloud/vpc-access";
-import { google } from "googleapis";
+import {VpcAccessServiceClient} from '@google-cloud/vpc-access';
+import {google} from 'googleapis';
 
-import config from "../config";
+import config from '../config';
 
-const compute = google.compute("v1");
+const compute = google.compute('v1');
 const auth = new google.auth.GoogleAuth({
   scopes: [
-    "https://www.googleapis.com/auth/cloud-platform",
-    "https://www.googleapis.com/auth/compute",
+    'https://www.googleapis.com/auth/cloud-platform',
+    'https://www.googleapis.com/auth/compute',
   ],
 });
-const vpcaccessClient = new VpcAccessServiceClient({ auth: auth });
+const vpcaccessClient = new VpcAccessServiceClient({auth: auth});
 
 /**
  * Creates a VPC network & connector for the project.
  */
 export async function setupVPCNetwork() {
-  const network = "";
+  const network = '';
 
   await compute.networks.insert({
     auth: await auth.getClient(),
@@ -26,7 +26,7 @@ export async function setupVPCNetwork() {
       autoCreateSubnetworks: true,
       peerings: [
         {
-          name: "vpc-access-connector",
+          name: 'vpc-access-connector',
           network: `projects/${config.projectId}/global/networks/${network}`,
         },
       ],
@@ -34,11 +34,11 @@ export async function setupVPCNetwork() {
   });
   const [operation] = await vpcaccessClient.createConnector({
     parent: `projects/${config.projectId}/locations/${config.location}`,
-    connectorId: `ext-connector`,
+    connectorId: 'ext-connector',
     connector: {
       connectedProjects: [config.projectId],
       network: network,
-      ipCidrRange: "10.8.0.0/28",
+      ipCidrRange: '10.8.0.0/28',
       maxInstances: 3,
       minInstances: 2,
     },

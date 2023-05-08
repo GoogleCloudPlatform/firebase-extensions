@@ -1,6 +1,5 @@
-import * as admin from "firebase-admin";
-require("@tensorflow/tfjs-node");
-const use = require("@tensorflow-models/universal-sentence-encoder");
+require('@tensorflow/tfjs-node');
+const use = require('@tensorflow-models/universal-sentence-encoder');
 
 let model: any;
 
@@ -12,7 +11,7 @@ let model: any;
  * @returns an array of arrays containing 512 numbers representing the embedding of the text.
  */
 async function getEmbeddingsUSE(text: string | string[]): Promise<number[][]> {
-  if (!model && (typeof text != "string" || text.length != 0)) {
+  if (!model && (typeof text !== 'string' || text.length !== 0)) {
     model = await use.load();
   }
 

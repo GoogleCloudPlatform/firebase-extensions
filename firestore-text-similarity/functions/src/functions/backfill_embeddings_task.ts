@@ -1,18 +1,18 @@
-import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
-import { getFunctions } from "firebase-admin/functions";
+import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
+import {getFunctions} from 'firebase-admin/functions';
 
-import { BackfillStatus } from "../types/backfill_status";
-import { getDatapointsList } from "../common/datapoints";
-import * as utils from "../common/utils";
-import config from "../config";
-import { DocumentData } from "firebase-admin/firestore";
+import {BackfillStatus} from '../types/backfill_status';
+import {getDatapointsList} from '../common/datapoints';
+import * as utils from '../common/utils';
+import config from '../config';
+import {DocumentData} from 'firebase-admin/firestore';
 
 export async function backfillEmbeddingsTaskHandler(data: any) {
-  const { id, collectionName, documentIds } = data;
+  const {id, collectionName, documentIds} = data;
 
   if (!documentIds || documentIds.length === 0) {
-    functions.logger.info(`No document ids found, skipping...`);
+    functions.logger.info('No document ids found, skipping...');
     return;
   }
 
@@ -24,17 +24,16 @@ export async function backfillEmbeddingsTaskHandler(data: any) {
   }[] = [];
 
   await taskRef.update({
-    status: "PROCESSING",
+    status: 'PROCESSING',
   });
 
-  await admin.firestore().runTransaction(async (transaction) => {
-
+  await admin.firestore().runTransaction(async transaction => {
     const refs = documentIds.map((id: string) =>
       admin.firestore().collection(collectionName).doc(id)
     );
     const docs = await transaction.getAll<DocumentData>(...refs);
 
-    docs.map((doc) => {
+    docs.map(doc => {
       const data = doc.data();
       if (!data) {
         functions.logger.error(`Document ${doc.ref.path} has no data`);
@@ -51,7 +50,7 @@ export async function backfillEmbeddingsTaskHandler(data: any) {
   const datapoints = await getDatapointsList(documents);
 
   if (datapoints.length === 0) {
-    functions.logger.info(`No datapoints found, skipping...`);
+    functions.logger.info('No datapoints found, skipping...');
     return;
   }
 
@@ -70,14 +69,15 @@ export async function backfillEmbeddingsTaskHandler(data: any) {
   );
 
   await taskRef.update({
-    status: "DONE",
+    status: 'DONE',
     filePath: `gs://${config.bucketName}/${destinationPath}`,
   });
 
   await utils.deleteTempFiles();
 
   const tasksDoc = await admin.firestore().doc(config.tasksDoc).get();
-  var { totalLength, processedLength } = tasksDoc.data() as any;
+  const {totalLength} = tasksDoc.data() as any;
+  let {processedLength} = tasksDoc.data() as any;
 
   processedLength += documentIds.length;
   await admin
@@ -97,7 +97,7 @@ export async function backfillEmbeddingsTaskHandler(data: any) {
 }
 
 async function _createNextTask(prevId: string) {
-  const taskNum = prevId.split("task")[1];
+  const taskNum = prevId.split('task')[1];
   const nextId = `ext-${config.instanceId}-task${parseInt(taskNum) + 1}`;
 
   functions.logger.info(`Enqueuing the next task ${nextId}`);

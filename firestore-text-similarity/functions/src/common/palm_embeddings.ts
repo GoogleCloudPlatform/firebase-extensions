@@ -1,6 +1,6 @@
-import { TextServiceClient } from "@google-ai/generativelanguage";
-import { GoogleAuth } from "google-auth-library";
-import config from "../config";
+import {TextServiceClient} from '@google-ai/generativelanguage';
+import {GoogleAuth} from 'google-auth-library';
+import config from '../config';
 
 let client: TextServiceClient;
 
@@ -17,8 +17,8 @@ const initializePaLMClient = async () => {
   } else {
     const auth = new GoogleAuth({
       scopes: [
-        "https://www.googleapis.com/auth/userinfo.email",
-        "https://www.googleapis.com/auth/generative-language",
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/generative-language',
       ],
     });
     client = new TextServiceClient({
@@ -38,22 +38,22 @@ const initializePaLMClient = async () => {
  * @returns an array of arrays containing 512 numbers representing the embedding of the text.
  */
 async function getEmbeddingsPaLM(text: string | string[]): Promise<number[][]> {
-  if (!client && (typeof text != "string" || text.length != 0)) {
+  if (!client && (typeof text !== 'string' || text.length !== 0)) {
     await initializePaLMClient();
   }
 
-  if (typeof text == "string") text = [text];
+  if (typeof text === 'string') text = [text];
 
   const t0 = performance.now();
   const embeddings = await Promise.all(
-    text.map(async (text) => {
+    text.map(async text => {
       const [response] = await client.embedText({
         model: EMBEDDING_MODEL,
         text,
       });
 
       if (!response || !response.embedding || !response.embedding.value)
-        throw new Error("Error with embedding");
+        throw new Error('Error with embedding');
 
       return response.embedding!.value!;
     })

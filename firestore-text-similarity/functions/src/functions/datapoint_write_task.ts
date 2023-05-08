@@ -1,31 +1,31 @@
-import * as admin from "firebase-admin";
-import * as functions from "firebase-functions";
-import { getFunctions } from "firebase-admin/functions";
-import { AxiosError } from "axios";
+import * as admin from 'firebase-admin';
+import * as functions from 'firebase-functions';
+import {getFunctions} from 'firebase-admin/functions';
+import {AxiosError} from 'axios';
 
-import config from "../config";
-import { IndexStatus } from "../types/index_status";
+import config from '../config';
+import {IndexStatus} from '../types/index_status';
 import {
   checkIndexStatus,
   upsertDatapoint,
   removeDatapoint,
-} from "../common/vertex";
-import { getDatapoint } from "../common/datapoints";
+} from '../common/vertex';
+import {getDatapoint} from '../common/datapoints';
 
 export async function datapointWriteTaskHandler(data: any) {
-  const { operation, docId } = data as {
-    operation: "update" | "remove";
+  const {operation, docId} = data as {
+    operation: 'update' | 'remove';
     docId: string;
   };
 
   const queue = getFunctions().taskQueue(
-    "datapointWriteTask",
+    'datapointWriteTask',
     config.instanceId
   );
 
   const indexStatus = await checkIndexStatus();
   if (indexStatus !== IndexStatus.DEPLOYED) {
-    functions.logger.info("Index not deployed yet, skipping...");
+    functions.logger.info('Index not deployed yet, skipping...');
 
     // Index isn't ready yet, retry in an hour.
     await queue.enqueue(data, {
@@ -39,16 +39,16 @@ export async function datapointWriteTaskHandler(data: any) {
     const metdata = await admin.firestore().doc(config.metadataDoc).get();
     const index = metdata.data()?.index;
     if (!index) {
-      functions.logger.error("Index not found");
+      functions.logger.error('Index not found');
       return;
     }
 
     switch (operation) {
-      case "remove":
+      case 'remove':
         // Upsert the datapoint to the index.
         await removeDatapoint(index, [docId]);
         break;
-      case "update":
+      case 'update':
         {
           const snap = await admin
             .firestore()
@@ -58,15 +58,15 @@ export async function datapointWriteTaskHandler(data: any) {
           const data = snap.data();
 
           if (!data) return;
-          if (Object.keys(data).length == 0) return;
+          if (Object.keys(data).length === 0) return;
 
           const datapoint = await getDatapoint(snap.ref, data);
           if (!datapoint) {
-            functions.logger.info(`No datapoint found, skipping...`);
+            functions.logger.info('No datapoint found, skipping...');
             return;
           }
 
-          functions.logger.info("Datapoint generated 🎉");
+          functions.logger.info('Datapoint generated 🎉');
 
           // Upsert the datapoint to the index.
           await upsertDatapoint(index, [

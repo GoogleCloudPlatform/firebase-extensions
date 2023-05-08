@@ -1,27 +1,27 @@
-import * as admin from "firebase-admin";
-import * as functions from "firebase-functions";
-import { getFunctions } from "firebase-admin/functions";
+import * as admin from 'firebase-admin';
+import * as functions from 'firebase-functions';
+import {getFunctions} from 'firebase-admin/functions';
 
-import config from "../config";
-import { AxiosError } from "axios";
-import { IndexStatus } from "../types/index_status";
-import { checkIndexStatus, removeDatapoint } from "../common/vertex";
+import config from '../config';
+import {AxiosError} from 'axios';
+import {IndexStatus} from '../types/index_status';
+import {checkIndexStatus, removeDatapoint} from '../common/vertex';
 
 export async function streamRemoveDatapointHandler(
   snap: FirebaseFirestore.DocumentSnapshot
 ) {
   const indexStatus = await checkIndexStatus();
   if (indexStatus !== IndexStatus.DEPLOYED) {
-    functions.logger.info("Index not deployed yet, skipping...");
+    functions.logger.info('Index not deployed yet, skipping...');
     const queue = getFunctions().taskQueue(
-      "datapointWriteTask",
+      'datapointWriteTask',
       config.instanceId
     );
 
     // Index isn't ready yet, retry in an hour.
     await queue.enqueue(
       {
-        operation: "remove",
+        operation: 'remove',
         docId: snap.id,
       },
       {
@@ -36,7 +36,7 @@ export async function streamRemoveDatapointHandler(
     const metdata = await admin.firestore().doc(config.metadataDoc).get();
     const index = metdata.data()?.index;
     if (!index) {
-      functions.logger.error("Index not found");
+      functions.logger.error('Index not found');
       return;
     }
 
@@ -46,7 +46,7 @@ export async function streamRemoveDatapointHandler(
       await removeDatapoint(index, [snap.id]);
     } catch (error) {
       if ((error as AxiosError).response?.status === 404) {
-        functions.logger.error("Index not found, nothing to remove");
+        functions.logger.error('Index not found, nothing to remove');
         return;
       } else {
         throw error;

@@ -1,26 +1,26 @@
-import * as admin from "firebase-admin";
-import * as functions from "firebase-functions";
-import * as functionsv2 from "firebase-functions/v2";
+import * as admin from 'firebase-admin';
+import * as functions from 'firebase-functions';
+import * as functionsv2 from 'firebase-functions/v2';
 
-import config from "./config";
+import config from './config';
 
 import {
   onIndexCreatedConfig,
   onIndexCreatedHandler,
-} from "./functions/on_index_created";
+} from './functions/on_index_created';
 import {
   onIndexDeployedConfig,
   onIndexDeployedHandler,
-} from "./functions/on_index_deployed";
+} from './functions/on_index_deployed';
 
-import { queryIndexHandler } from "./functions/query_index";
-import { backfillTriggerHandler } from "./functions/backfill_trigger";
-import { createIndexTriggerHandler } from "./functions/create_index_trigger";
-import { streamUpdateDatapointHandler } from "./functions/stream_update_datapoint";
-import { streamRemoveDatapointHandler } from "./functions/stream_remove_datapoint";
-import { backfillEmbeddingsTaskHandler } from "./functions/backfill_embeddings_task";
-import { updateIndexConfigHandler } from "./functions/update_index_config";
-import { datapointWriteTaskHandler } from "./functions/datapoint_write_task";
+import {queryIndexHandler} from './functions/query_index';
+import {backfillTriggerHandler} from './functions/backfill_trigger';
+import {createIndexTriggerHandler} from './functions/create_index_trigger';
+import {streamUpdateDatapointHandler} from './functions/stream_update_datapoint';
+import {streamRemoveDatapointHandler} from './functions/stream_remove_datapoint';
+import {backfillEmbeddingsTaskHandler} from './functions/backfill_embeddings_task';
+import {updateIndexConfigHandler} from './functions/update_index_config';
+import {datapointWriteTaskHandler} from './functions/datapoint_write_task';
 
 admin.initializeApp();
 

@@ -1,19 +1,16 @@
-import { google } from "googleapis";
-import { GoogleAuth } from "google-auth-library";
+import {google} from 'googleapis';
+import {GoogleAuth} from 'google-auth-library';
 
-import * as admin from "firebase-admin";
-import { Bucket } from "@google-cloud/storage";
+import * as admin from 'firebase-admin';
+import {Bucket} from '@google-cloud/storage';
 
-import {
-  CollectionReference,
-  DocumentReference,
-} from "firebase-admin/firestore";
+import {CollectionReference, DocumentReference} from 'firebase-admin/firestore';
 
-import * as fs from "fs-extra";
-import * as os from "os";
-import * as path from "path";
+import * as fs from 'fs-extra';
+import * as os from 'os';
+import * as path from 'path';
 
-import config from "../config";
+import config from '../config';
 
 /**
  * Get the bucket where the embeddings will be stored.
@@ -56,10 +53,10 @@ export async function getProjectNumber(
   projectId: string
 ): Promise<string | null> {
   const authClient = await google.auth.getClient({
-    scopes: ["https://www.googleapis.com/auth/cloud-platform"],
+    scopes: ['https://www.googleapis.com/auth/cloud-platform'],
   });
 
-  const client = google.cloudresourcemanager("v1");
+  const client = google.cloudresourcemanager('v1');
 
   try {
     const response = await client.projects.get({
@@ -68,7 +65,7 @@ export async function getProjectNumber(
     });
     return response.data.projectNumber || null;
   } catch (error) {
-    console.error("Error fetching project number:", error);
+    console.error('Error fetching project number:', error);
     return null;
   }
 }
@@ -76,17 +73,17 @@ export async function getProjectNumber(
 export async function saveEmbeddingsToTmpFile(
   embeddings: Array<any>
 ): Promise<string> {
-  const filePath = path.join(os.tmpdir(), "embeddings.json");
+  const filePath = path.join(os.tmpdir(), 'embeddings.json');
 
   // Convert embeddings to the desired format (one JSON object per line)
   const formattedEmbeddings = embeddings
-    .map((embedding) => JSON.stringify(embedding))
-    .join("\n");
+    .map(embedding => JSON.stringify(embedding))
+    .join('\n');
 
   // Write the formatted embeddings to the file
-  await fs.writeFile(filePath, formattedEmbeddings, { encoding: "utf-8" });
+  await fs.writeFile(filePath, formattedEmbeddings, {encoding: 'utf-8'});
 
-  console.log("Embeddings saved to file:", filePath);
+  console.log('Embeddings saved to file:', filePath);
 
   return filePath;
 }
@@ -104,7 +101,7 @@ export async function uploadToCloudStorage(
     await bucket.upload(localFilePath, {
       destination: destinationPath,
       metadata: {
-        cacheControl: "public, max-age=31536000",
+        cacheControl: 'public, max-age=31536000',
       },
     });
   } catch (error: any) {
@@ -113,7 +110,7 @@ export async function uploadToCloudStorage(
 }
 
 const auth = new GoogleAuth({
-  scopes: ["https://www.googleapis.com/auth/cloud-platform"],
+  scopes: ['https://www.googleapis.com/auth/cloud-platform'],
 });
 
 export async function getAccessToken() {

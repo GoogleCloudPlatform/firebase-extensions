@@ -1,15 +1,15 @@
 // google.cloud.aiplatform.v1beta1.IndexEndpointService.DeployIndex
-import * as functionsv2 from "firebase-functions/v2";
-import * as admin from "firebase-admin";
+import * as functionsv2 from 'firebase-functions/v2';
+import * as admin from 'firebase-admin';
 
-import config from "../config";
-import { IndexStatus } from "../types/index_status";
-import { getDeployedIndex } from "../common/vertex";
-import { FieldValue } from "firebase-admin/firestore";
+import config from '../config';
+import {IndexStatus} from '../types/index_status';
+import {getDeployedIndex} from '../common/vertex';
+import {FieldValue} from 'firebase-admin/firestore';
 
 export const onIndexDeployedConfig = {
   retry: false,
-  eventType: "google.cloud.audit.log.v1.written",
+  eventType: 'google.cloud.audit.log.v1.written',
   serviceAccount: `ext-${config.instanceId}@${config.projectId}.iam.gserviceaccount.com`,
 };
 
@@ -21,9 +21,9 @@ export const onIndexDeployedConfig = {
  */
 export async function onIndexDeployedHandler(event: any) {
   try {
-    const { protoPayload, operation } = event.data;
+    const {protoPayload, operation} = event.data;
 
-    functionsv2.logger.info("EVENT RECEIVED", event);
+    functionsv2.logger.info('EVENT RECEIVED', event);
 
     if (!operation) return;
 

@@ -1,13 +1,13 @@
 export enum IndexStatus {
   // The index is being built.
-  BUILDING = "INDEX_BUILDING",
+  BUILDING = 'INDEX_BUILDING',
 
   // The index is being deployed.
-  DEPLOYING = "INDEX_DEPLOYING",
+  DEPLOYING = 'INDEX_DEPLOYING',
 
   // The index is deployed.
-  DEPLOYED = "INDEX_DEPLOYED",
+  DEPLOYED = 'INDEX_DEPLOYED',
 
   // The index is being updated.
-  UPDATING = "INDEX_UPDATING",
+  UPDATING = 'INDEX_UPDATING',
 }

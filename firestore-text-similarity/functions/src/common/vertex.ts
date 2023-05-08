@@ -1,26 +1,26 @@
-import * as admin from "firebase-admin";
-import axios, { AxiosError } from "axios";
-import { protos } from "@google-cloud/aiplatform";
-import { v1beta1 as aiplatform } from "@google-cloud/aiplatform";
+import * as admin from 'firebase-admin';
+import axios, {AxiosError} from 'axios';
+import {protos} from '@google-cloud/aiplatform';
+import {v1beta1 as aiplatform} from '@google-cloud/aiplatform';
 
-import config from "../config";
-import { Query } from "../types/query";
-import { getAccessToken } from "./utils";
-import { IndexStatus } from "../types/index_status";
-import { AlgorithmConfig } from "../types/algorithm_config";
+import config from '../config';
+import {Query} from '../types/query';
+import {getAccessToken} from './utils';
+import {IndexStatus} from '../types/index_status';
+import {AlgorithmConfig} from '../types/algorithm_config';
 
 const apiEndpoint = `${config.location}-aiplatform.googleapis.com`;
 
 export const indexClient = new aiplatform.IndexServiceClient({
   apiEndpoint: apiEndpoint,
-  fallback: "rest",
+  fallback: 'rest',
 });
 export const indexEndpointClient = new aiplatform.IndexEndpointServiceClient({
   apiEndpoint: apiEndpoint,
-  fallback: "rest",
+  fallback: 'rest',
 });
 
-function buildIndexMetdata(updateMetdata: boolean = false) {
+function buildIndexMetdata(updateMetdata = false) {
   const algorithmConfig =
     config.algorithmConfig === AlgorithmConfig.BruteForceConfig
       ? {
@@ -53,7 +53,7 @@ function buildIndexMetdata(updateMetdata: boolean = false) {
           contentsDeltaUri: {
             stringValue: `gs://${config.bucketName}/datapoints`,
           },
-          isCompleteOverwrite: { boolValue: false },
+          isCompleteOverwrite: {boolValue: false},
         }),
         config: {
           structValue: {
@@ -61,9 +61,9 @@ function buildIndexMetdata(updateMetdata: boolean = false) {
               dimensions: {
                 numberValue: config.dimension,
               },
-              approximateNeighborsCount: { numberValue: config.neighbors },
-              distanceMeasureType: { stringValue: config.distanceMeasureType },
-              featureNormType: { stringValue: config.featureNormType },
+              approximateNeighborsCount: {numberValue: config.neighbors},
+              distanceMeasureType: {stringValue: config.distanceMeasureType},
+              featureNormType: {stringValue: config.featureNormType},
               algorithmConfig: {},
             },
           },
@@ -87,11 +87,11 @@ export async function createIndex(): Promise<string | undefined> {
   const [operation] = await indexClient.createIndex({
     parent: `projects/${config.projectId}/locations/${config.location}`,
     index: {
-      name: "ext-" + config.instanceId,
-      displayName: "Firestore Text Similarity Extension",
-      indexUpdateMethod: "STREAM_UPDATE",
+      name: 'ext-' + config.instanceId,
+      displayName: 'Firestore Text Similarity Extension',
+      indexUpdateMethod: 'STREAM_UPDATE',
       metadataSchemaUri:
-        "gs://google-cloud-aiplatform/schema/matchingengine/metadata/nearest_neighbor_search_1.0.0.yaml",
+        'gs://google-cloud-aiplatform/schema/matchingengine/metadata/nearest_neighbor_search_1.0.0.yaml',
       metadata: buildIndexMetdata(),
     },
   });
@@ -130,8 +130,8 @@ export async function createIndexEndpoint() {
   const [operation] = await indexEndpointClient.createIndexEndpoint({
     parent: `projects/${config.projectId}/locations/${config.location}`,
     indexEndpoint: {
-      name: "ext-" + config.instanceId + "-endpoint",
-      displayName: "Firestore Text Similarity Extension",
+      name: 'ext-' + config.instanceId + '-endpoint',
+      displayName: 'Firestore Text Similarity Extension',
       publicEndpointEnabled: true,
     },
   });
@@ -145,23 +145,19 @@ export async function createIndexEndpoint() {
  * @param index format: projects/{project}/locations/{location}/indexes/{index}
  */
 export async function deployIndex(indexEndpoint: string, index: string) {
-  try {
-    const [operation] = await indexEndpointClient.deployIndex({
-      indexEndpoint: indexEndpoint,
-      deployedIndex: {
-        id: `ext_${config.instanceId.replace(/-/g, "_")}_index`,
-        index: index,
-      },
-    });
+  const [operation] = await indexEndpointClient.deployIndex({
+    indexEndpoint: indexEndpoint,
+    deployedIndex: {
+      id: `ext_${config.instanceId.replace(/-/g, '_')}_index`,
+      index: index,
+    },
+  });
 
-    if (operation.error) {
-      throw new Error(operation.error.message);
-    }
-
-    return operation.name;
-  } catch (error) {
-    throw error;
+  if (operation.error) {
+    throw new Error(operation.error.message);
   }
+
+  return operation.name;
 }
 
 /**
@@ -184,7 +180,7 @@ export async function upsertDatapoint(
     },
     {
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${await getAccessToken()}`,
       },
     }
@@ -202,7 +198,7 @@ export async function removeDatapoint(
     },
     {
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${await getAccessToken()}`,
       },
     }
@@ -221,13 +217,13 @@ export async function queryIndex(
     const response = await axios.post(
       `https://${endpoint}/v1beta1/projects/${config.projectId}/locations/${config.location}/indexEndpoints/${indexEndpoint}:findNeighbors`,
       {
-        queries: queries.map((query) => query.toVertexQuery()),
-        deployed_index_id: `ext_${config.instanceId.replace(/-/g, "_")}_index`,
+        queries: queries.map(query => query.toVertexQuery()),
+        deployed_index_id: `ext_${config.instanceId.replace(/-/g, '_')}_index`,
         neighbor_count: searchResults,
       },
       {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
       }
@@ -235,7 +231,7 @@ export async function queryIndex(
 
     return response.data;
   } catch (error) {
-    console.error("Error calling the endpoint:", error);
+    console.error('Error calling the endpoint:', error);
     throw error;
   }
 }
@@ -247,21 +243,17 @@ export async function queryIndex(
  * @returns {Promise<string>} the public endpoint domain name
  */
 export async function getDeployedIndex(indexEndpoint: string): Promise<string> {
-  try {
-    const [operation] = await indexEndpointClient.getIndexEndpoint({
-      name: indexEndpoint,
-    });
+  const [operation] = await indexEndpointClient.getIndexEndpoint({
+    name: indexEndpoint,
+  });
 
-    if (!operation.publicEndpointDomainName) {
-      throw new Error(
-        `IndexEndpoint ${indexEndpoint} is not deployed or doesn't have a public endpoint.`
-      );
-    }
-
-    return operation.publicEndpointDomainName;
-  } catch (error) {
-    throw error;
+  if (!operation.publicEndpointDomainName) {
+    throw new Error(
+      `IndexEndpoint ${indexEndpoint} is not deployed or doesn't have a public endpoint.`
+    );
   }
+
+  return operation.publicEndpointDomainName;
 }
 
 export async function getOperationByName(
@@ -274,7 +266,7 @@ export async function getOperationByName(
       `https://${apiEndpoint}/v1beta1/${operationName}`,
       {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
       }
@@ -295,7 +287,7 @@ export async function cancelOperationByName(operationName: string) {
       {},
       {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
       }
@@ -315,7 +307,7 @@ export async function deleteOperationByName(operationName: string) {
       `https://${apiEndpoint}/v1beta1/${operationName}`,
       {
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
       }

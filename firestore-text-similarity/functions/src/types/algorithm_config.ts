@@ -1,4 +1,4 @@
 export enum AlgorithmConfig {
-  TreeAhConfig = "treeAhConfig",
-  BruteForceConfig = "bruteForceConfig",
+  TreeAhConfig = 'treeAhConfig',
+  BruteForceConfig = 'bruteForceConfig',
 }
