@@ -2,11 +2,11 @@ This extension creates provides a solution for searching documents in Firestore.
  
 By using the [Vertex Matching Engine](https://cloud.google.com/vertex-ai/docs/matching-engine/overview), documents a syncronied through ML (Machine Learning), allowing developers to query document through ta `Http endpoint`.
 
-> ⚠️ **Note**<br/>
+> **Note**<br/>
 > The PaLM API is currently in public preview. For details and limitations, see the PaLM API documentation. The PaLM API is an optional part of this extension.
 
-> ⚠️ **Note**<br/>
-> The Vertex [Matching Engine public endpoints](https://cloud.google.com/vertex-ai/docs/matching-engine/deploy-index-public) are currently in preview.
+> **Note**<br/>
+> The Vertex [Matching Engine public endpoints](https://cloud.google.com/vertex-ai/docs/matching-engine/deploy-index-public) are currently in public preview.
 
 ### How This Extension Works
 This extension adds text similarity search to your Firestore application using Vertex AI’s [Matching Engine](https://cloud.google.com/vertex-ai/docs/matching-engine/overview). Text similarity search relies on first generating embeddings (vector representations of your original text) which are stored in a Matching Engine index. Once these embeddings are indexed, the Matching Engine can be used to calculate semantically similar documents to an original document from a large corpus of candidate documents, based on vector distance measures.
