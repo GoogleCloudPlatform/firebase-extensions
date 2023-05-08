@@ -1,16 +1,16 @@
-name: storage-image-labeling
-version: 0.0.2
+name: storage-label-images
+version: 0.1.0
 specVersion: v1beta
 
-displayName: Image Labeling
-description: Performs image labeling on images uploaded to Storage and writes labels to Firestore.
+displayName: Label Images with Cloud Vision AI
+description: Extracts labels from images and saves to Firestore using Cloud Vision API.
 
 license: Apache-2.0 # The license you want for the extension
 sourceUrl: https://github.com/FirebaseExtended/experimental-extensions/tree/main/storage-image-labeling
 
 author:
-  authorName: Firebase
-  url: https://firebase.google.com
+  authorName: Google Cloud
+  url: https://cloud.google.com/
 
 billingRequired: true
 
@@ -137,7 +137,7 @@ params:
     required: true
 
 roles:
-  - role: storage.admin
+  - role: storage.objectAdmin
     reason: Allows the extension to write to your Cloud Storage.
   - role: datastore.user
     reason: Allows the extension to write to your Firestore Database instance.
