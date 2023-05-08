@@ -31,8 +31,7 @@ First, before installing the extension, you need to enable data read & write acc
 - Filter for “Vertex AI API” and click on the checkbox next to it. A new panel should appear on the right side of the page.
 - On the new panel, click on the checkboxes next to “Data Read” and “Data Write”, and click Save.
 
-Next, if you would like to use the PaLM embeddings model, you will need to apply for access to the PaLM API [via this waitlist](https://makersuite.google.com/waitlist). 
-Once you have access, please [enable the Generative Language API in your Google Cloud Project](https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com) before installing this extension (Other models such as Universal Sentence Encoder that are available on TFHub can be used immediately).
+Next, if you would like to use the PaLM embeddings model, the PaLM API is currently still in public preview and may make backwards-incompatible changes that the extension is also subject to. The extension is also subject to PaLM API [quota limits](https://developers.generativeai.google/models/language).
 
 Finally, make sure that you've set up a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) and [enabled Cloud Storage](https://firebase.google.com/docs/storage) in your Firebase project.
 
