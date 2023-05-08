@@ -1,19 +1,18 @@
-name: storage-transcribe-audio
+name: speech-to-text
 version: 0.0.1
 specVersion: v1beta
 
-displayName: Transcribe Audio
+displayName: Transcribe Speech to Text
 description:
-  Transcribes speech in audio files, writing the transcription to Storage and/or
-  to Firestore.
+  Transcribes audio files in Cloud Storage to .txt files using Cloud Speech To Text.
 
 license: Apache-2.0 # The license you want for the extension
 
 author:
-  authorName: Firebase
-  url: https://firebase.google.com
+  authorName: Google Cloud
+  url: https://cloud.google.com/
 
-sourceUrl: TODO
+sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/speech-to-text
 
 apis:
   - apiName: speech.googleapis.com
@@ -119,7 +118,7 @@ params:
     required: true
 
 roles:
-  - role: storage.admin
+  - role: storage.objectAdmin
     reason: Allows the extension to write to your Cloud Storage.
   - role: datastore.user
     reason: Allows the extension to write to your Firestore Database instance.
