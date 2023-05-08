@@ -73,4 +73,4 @@ When you use Firebase Extensions, you're only charged for the underlying resourc
 
 This extension will operate with the following project IAM roles:
 
-* storage.admin (Reason: Allows the extension to write to your Cloud Storage.)
+* storage.objectAdmin (Reason: Allows the extension to write to your Cloud Storage.)
