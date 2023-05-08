@@ -4,7 +4,7 @@ This extension extracts labels from media files stored in Cloud Storage and writ
 
 On installation, you will be asked to provide an input and output Storage path. This extension triggers a Cloud Function whenever a new video file is uploaded to the specified bucket. The Cloud Function calls the Video Intelligence API to extract labels and writes the output as a JSON file in the output Storage path. The output filename will match the input filename (with file extensions changed).
 
-## Use Cases
+### Use Cases
 
 Extracting labels from videos can help with:
 
