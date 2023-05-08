@@ -12,12 +12,12 @@
 
 ### Console
 
-[![Install this extension in your Firebase project](https://www.gstatic.com/mobilesdk/210513_mobilesdk/install-extension.png "Install this extension in your Firebase project")](https://console.firebase.google.com/project/_/extensions/install?ref=googlecloud/storage-label-videos)
+[![Install this extension in your Firebase project](../install-extension.png?raw=true "Install this extension in your Firebase project")](https://console.firebase.google.com/project/_/extensions/install?sourceName=undefined)
 
 ### Firebase CLI
 
 ```bash
-firebase ext:install googlecloud/storage-label-videos --project=<your-project-id>
+firebase ext:install storage-label-videos --project=<your-project-id>
 ```
 
 > Learn more about installing extensions in the Firebase Extensions documentation: [console](https://firebase.google.com/docs/extensions/install-extensions?platform=console), [CLI](https://firebase.google.com/docs/extensions/install-extensions?platform=cli)
