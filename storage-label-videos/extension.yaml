@@ -2,8 +2,8 @@ name: storage-label-videos
 version: 0.1.0
 specVersion: v1beta
 
-displayName: Label Videos with Video Intelligence API
-description: Extracts labels from videos and saves to Cloud Storage using Cloud Video API.
+displayName: Label Videos with Cloud Video AI
+description: Extracts labels from videos and saves to Cloud Storage using Cloud Video Intelligence API.
 
 license: Apache-2.0
 
