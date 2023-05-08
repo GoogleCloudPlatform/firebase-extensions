@@ -1,12 +1,7 @@
-This extension creates provides a solution for searching documents in Firestore. 
- 
-By using the [Vertex Matching Engine](https://cloud.google.com/vertex-ai/docs/matching-engine/overview), documents a syncronied through ML (Machine Learning), allowing developers to query document through ta `Http endpoint`.
+> :warning: Note: The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 
-> **Note**<br/>
-> The PaLM API is currently in public preview. For details and limitations, see the PaLM API documentation. The PaLM API is an optional part of this extension.
 
-> **Note**<br/>
-> The Vertex [Matching Engine public endpoints](https://cloud.google.com/vertex-ai/docs/matching-engine/deploy-index-public) are currently in public preview.
+> :warning: Note: The Vertex [Matching Engine public endpoints](https://cloud.google.com/vertex-ai/docs/matching-engine/deploy-index-public) are currently in public preview.
 
 ### How This Extension Works
 This extension adds text similarity search to your Firestore application using Vertex AI’s [Matching Engine](https://cloud.google.com/vertex-ai/docs/matching-engine/overview). Text similarity search relies on first generating embeddings (vector representations of your original text) which are stored in a Matching Engine index. Once these embeddings are indexed, the Matching Engine can be used to calculate semantically similar documents to an original document from a large corpus of candidate documents, based on vector distance measures.
@@ -58,11 +53,9 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 [Learn more about Firebase billing](https://firebase.google.com/pricing).
 
-Additionally, this extension uses the PaLM API, which is currently in public preview. During the preview period, developers can try the PaLM API at no cost. Pricing will be announced closer to general availability. For more information on the PaLM API public preview, [see the PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
+Additionally, this extension uses the PaLM API, which is currently in public preview. During the preview period, developers can try the PaLM API at no cost. Pricing will be announced closer to general availability. For more information on the PaLM API public preview, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 
-> ⚠️ NOTE 
-> 
-> The extension does not delete the Matching Engine Index automatically when you uninstall the extension. 
+> :warning: Note: The extension does not delete the Matching Engine Index automatically when you uninstall the extension. 
 > 
 > Vertex AI charges by node hour when hosting a Matching Engine Index, so your project will continue to incur costs until you manually undeploy the index. Instructions for undeploying an index are available here.
 >
