@@ -1,4 +1,4 @@
-# Copyright 2019 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,22 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: firestore-text-to-speech
-version: 0.1.11
+name: text-to-speech
+version: 0.1.0
 specVersion: v1beta
 
-displayName: Text to Speech with Firestore and Storage
+displayName: Convert Text to Speech
 description:
-  Converts text from Firestore documents into spoken audio files using Google Cloud Text-to-Speech API.
+  Converts Firestore documents to audio files stored in Cloud Storage using Cloud Text to Speech.
 
 license: Apache-2.0
 
-sourceUrl: https://github.com/firebase/extensions/tree/master/firestore-translate-text
-releaseNotesUrl: https://github.com/firebase/extensions/blob/master/firestore-translate-text/CHANGELOG.md
+sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/text-to-speech
+releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/blob/main/text-to-speech/CHANGELOG.md
 
 author:
-  authorName: Firebase
-  url: https://firebase.google.com
+  authorName: Google Cloud
+  url: https://cloud.google.com/
 
 contributors:
   - authorName: Invertase

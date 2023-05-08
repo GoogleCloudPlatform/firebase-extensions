@@ -1,8 +1,8 @@
-# Text to Speech with Firestore and Storage
+# Convert Text to Speech
 
-**Author**: Firebase (**[https://firebase.google.com](https://firebase.google.com)**)
+**Author**: Google Cloud (**[https://cloud.google.com/](https://cloud.google.com/)**)
 
-**Description**: Converts text from Firestore documents into spoken audio files using Google Cloud Text-to-Speech API.
+**Description**: Converts Firestore documents to audio files stored in Cloud Storage using Cloud Text to Speech.
 
 
 
