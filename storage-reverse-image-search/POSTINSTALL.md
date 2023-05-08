@@ -27,7 +27,7 @@ curl -X POST \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer $(gcloud auth print-access-token)" \
 -d '{"data": {"query": ["..."]} }' \
-https://${param:LOCATION}-${param:PROJECT_ID}.cloudfunctions.net/ext-firestore-text-similarity-queryIndex
+https://${param:LOCATION}-${param:PROJECT_ID}.cloudfunctions.net/ext-${param:EXT_INSTANCE_ID}-queryIndex
 ```
 Sample request body:
 
@@ -79,7 +79,7 @@ The response contains object paths to images in the `${param:IMG_BUCKET}` bucket
 
 ## Example client integration
 
-Now that you have an index with data in it, you can run text similarity search queries directly from your client application. Note that this Callable Function is protected by App Check and requires that you are signed in with a [Firebase Auth](https://firebase.google.com/docs/auth) user to call the Function from your client application. You can also use the `signInAnonymously` Auth SDK method if you do not want to enforce that users actually create their own accounts in Firebase Auth.
+Now that you have an index with data in it, you can run reverse image search search queries directly from your client application. Note that this Callable Function is protected by App Check and requires that you are signed in with a [Firebase Auth](https://firebase.google.com/docs/auth) user to call the Function from your client application. You can also use the `signInAnonymously` Auth SDK method if you do not want to enforce that users actually create their own accounts in Firebase Auth.
 
 ```js
 import firebase from "firebase";
