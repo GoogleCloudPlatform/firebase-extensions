@@ -139,6 +139,9 @@ async function fetchHistory(ref: DocumentReference) {
   const collSnap = await ref.parent.orderBy(orderField, 'desc').get();
   return collSnap.docs
     .filter(snap => !snap.ref.isEqual(ref))
+    .filter(
+      snap => snap.get('status') && snap.get('status.state') === 'COMPLETED'
+    )
     .map(snap => ({
       prompt: snap.get(promptField),
       response: snap.get(responseField),
