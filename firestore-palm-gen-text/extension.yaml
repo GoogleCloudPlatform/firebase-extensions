@@ -5,7 +5,7 @@ specVersion: v1beta
 displayName: Language Tasks with PaLM API
 
 description: >-
-  Use Firestore to perform language tasks using the PaLM API.
+  Performs AI/ML tasks on text, customizable with prompt engineering, using PaLM API and Firestore.
 
 license: Apache-2.0 # https://spdx.org/licenses/
 
