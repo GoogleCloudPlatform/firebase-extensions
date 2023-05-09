@@ -1,4 +1,4 @@
-> :warning: Note: The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
+> ⚠️ The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 
 This extension helps you call the PaLM API from your frontend client application without exposing your API key directly in the frontend code. 
 
@@ -10,8 +10,6 @@ Three Callable Functions are provided:
 * getModels takes no arguments and will respond with detailed information about all models on the PaLM API
 * getModel takes an object {name: string} as an argument and will return information about a specific model.
 * post takes an object as an argument. The object must have properties {model: string, method: string}. It will make a POST request to the PaLM API. Any other properties of the object will be used to populate the body of this request.
-
-
 
 ## Additional Setup
 
