@@ -6,7 +6,7 @@
     "firestore-record-user-acknowledgements": "../firestore-record-user-acknowledgements",
     "firestore-bundle-server": "../firestore-bundle-server",
     "api-keys-diagnostic": "../api-keys-diagnostic",
-    "firestore-text-to-speech": "../firestore-text-to-speech"
+    "text-to-speech": "../text-to-speech"
   },
   "storage": {
     "rules": "storage.rules"
