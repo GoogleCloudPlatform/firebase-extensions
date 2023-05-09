@@ -155,6 +155,7 @@ params:
     label: Model
     description: >
       Model to use for label detection.
+    type: select
     example: builtin/stable
     options:
       - label: Stable
