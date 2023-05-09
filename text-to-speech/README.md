@@ -6,24 +6,36 @@
 
 
 
-**Details**: This extension converts text from Firestore documents into speech using the Google Cloud Text-to-Speech API and saves the generated audio files in Cloud Storage for Firebase.
+**Details**: This extension converts text from Firestore documents into speech using the Google Cloud Text-to-Speech API.
 
+Upon install you will be asked to provide a Firestore collection path and a Storage path. Any document writes to this collection will trigger a Cloud Function that does the following:
 
-### Monitor the specified Firestore collection for new documents
-This extension reads the text field from newly created documents and converts the text into speech using the Google Cloud Text-to-Speech API.
+* Generates an audio version of the same text
+* Stores it in Cloud Storage in the specified path
+* Writes the path to the Storage object back in the same document.
 
-### Saving audio to the defined storage bucket
-The the resulting audio files are then saved in the specified Cloud Storage bucket.
+## Use Cases
+* Accessibility: A key strength of TTS lies in fostering inclusive access to digital content for people with visual impairments or who face reading challenges. By utilizing TTS, we can work towards providing equal opportunities for everyone to obtain information, acknowledging and embracing the diverse abilities and requirements of all users.
+* Language learning: TTS can be a handy tool for language learners, as it can help users to practice their pronunciation and improve their listening comprehension. By providing accurate and natural-sounding speech, TTS can help language learners to develop their language skills in a more immersive and interactive way.
+* Navigation: In-car navigation systems often use TTS to give drivers turn-by-turn directions. TTS can help drivers keep their eyes on the road and avoid distractions by providing spoken instructions, improving safety.
+* Virtual assistants: Virtual assistants like Siri, Alexa, and Google Assistant rely heavily on TTS to provide users with helpful information and complete tasks. Using TTS, virtual assistants can create a more natural and conversational experience for users, enhancing their overall usability.
 
-### Billing
+## Additional Setup
+
+Before installing this extension, make sure that you've set up a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) and [Cloud Storage bucket](https://firebase.google.com/docs/storage) in your Firebase project.
+
+## Billing
+
 To install an extension, your project must be on the Blaze (pay as you go) plan.
 
-- You will be charged a small amount (typically around $0.01/month) for the Firebase resources required by this extension (even if it is not used).
-- This extension uses other Firebase and Google Cloud Platform services, which have associated charges if you exceed the service's no-cost tier:
-  - Google Cloud Text-to-Speech API
-  - Cloud Firestore
-  - Cloud Storage for Firebase
-  - Cloud Functions (Node.js 10+ runtime. See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
+You will be charged a small amount (typically around $0.01/month) for the Firebase resources required by this extension (even if it is not used).
+
+This extension uses other Firebase and Google Cloud Platform services, which have associated charges if you exceed the service's no-cost tier:
+
+* [Google Cloud Text-to-Speech API](https://cloud.google.com/text-to-speech#section-11)
+* Cloud Firestore
+* Cloud Storage
+* Cloud Functions (Node.js 14+ runtime. See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
 
 
 
