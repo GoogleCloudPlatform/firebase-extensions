@@ -1,4 +1,4 @@
-> :warning: Note: The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
+> ⚠️ The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 
 This extension allows you to summarize a field in a Firestore document using the PaLM API.
 
