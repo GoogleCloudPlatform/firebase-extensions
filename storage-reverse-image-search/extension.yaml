@@ -1,0 +1,351 @@
+name: storage-reverse-image-search
+version: 0.1.0
+specVersion: v1beta
+
+icon: icon.png
+
+tags: [ai, search, images, vector-search, image-search, image-similarity, google-ai]
+
+displayName: Reverse Image Search with Vertex AI
+
+description: >-
+  Search for similar images in Cloud Storage with Vertex AI Matching Engine.
+
+license: Apache-2.0 # https://spdx.org/licenses/
+sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/storage-reverse-image-search
+releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/storage-reverse-image-search/CHANGELOG.md
+
+author:
+  authorName: Firebase
+  url: https://firebase.google.com
+
+contributors:
+  - authorName: Invertase
+    email: oss@invertase.io
+    url: https://github.com/invertase
+
+billingRequired: true
+
+apis:
+  - apiName: aiplatform.googleapis.com
+    reason: >-
+      Powers Vertex Matching Engine
+
+  - apiName: eventarc.googleapis.com
+    reason: >-
+      Powers all events and triggers
+
+  - apiName: run.googleapis.com
+    reason: >-
+      Powers v2 Cloud Functions
+
+  - apiName: storage-component.googleapis.com
+    reason: >-
+      Needed to use Cloud Storage
+
+roles:
+  - role: datastore.user
+    reason: >-
+      This extension requires read/write access to Firestore.
+
+  - role: storage.admin
+    reason: >-
+      This extension requires write access to Cloud Storage to create a bucket
+      and upload embeddings files to it as part of the backfill.
+
+  - role: aiplatform.user
+    reason: >-
+      This extension requires access to Vertex AI to create, update and query a
+      Vertex Matching Engine index.
+
+resources:
+  - name: backfillTrigger
+    type: firebaseextensions.v1beta.function
+    description: >-
+      Sets up the Vertex Matching Engine index.
+    properties:
+      availableMemoryMb: 512
+      location: ${LOCATION}
+      runtime: 'nodejs16'
+      timeout: 540s
+      taskQueueTrigger: {}
+
+  - name: backfillTask
+    type: firebaseextensions.v1beta.function
+    description: >-
+      A task-triggered function that gets called before a Vertex Matching Engine
+      index is created. It backfills embeddings for all images in the specified
+      Cloud Storage path.
+    properties:
+      availableMemoryMb: 8192
+      location: ${LOCATION}
+      runtime: 'nodejs16'
+      timeout: 540s
+      taskQueueTrigger:
+        retryConfig:
+          maxAttempts: 50
+
+  - name: createIndexTrigger
+    type: firebaseextensions.v1beta.function
+    description: >-
+      An event-triggered function that gets called when a special metadata
+      document updated. It checks the status of the backfill every time, and
+      once it's done it will trigger index creation.
+    properties:
+      availableMemoryMb: 512
+      location: ${LOCATION}
+      runtime: 'nodejs16'
+      eventTrigger:
+        eventType: providers/cloud.firestore/eventTypes/document.update
+        resource: projects/${param:PROJECT_ID}/databases/(default)/documents/_ext-${param:EXT_INSTANCE_ID}/tasks
+
+  - name: onIndexCreated
+    type: firebaseextensions.v1beta.v2function
+    description: >-
+      An event-triggered function that gets called when a Vertex Matching Engine
+      index is created.
+    properties:
+      location: ${LOCATION}
+      buildConfig:
+        runtime: nodejs16
+      serviceConfig:
+        availableMemory: 512M
+      eventTrigger:
+        eventType: google.cloud.audit.log.v1.written
+        triggerRegion: global
+        eventFilters:
+          - attribute: serviceName
+            value: aiplatform.googleapis.com
+          - attribute: methodName
+            value: google.cloud.aiplatform.v1beta1.IndexService.CreateIndex
+
+  - name: onIndexDeployed
+    type: firebaseextensions.v1beta.v2function
+    description: >-
+      An event-triggered function that gets called when a Vertex Matching Engine
+      index is deployed.
+    properties:
+      location: ${LOCATION}
+      buildConfig:
+        runtime: nodejs16
+      serviceConfig:
+        availableMemory: 512M
+      eventTrigger:
+        eventType: google.cloud.audit.log.v1.written
+        triggerRegion: global
+        eventFilters:
+          - attribute: serviceName
+            value: aiplatform.googleapis.com
+          - attribute: methodName
+            value: google.cloud.aiplatform.v1beta1.IndexEndpointService.DeployIndex
+
+  - name: streamUpdateDatapoint
+    type: firebaseextensions.v1beta.function
+    description: >-
+      An event-triggered function that gets called when a new Image is created
+      or updated. It generates embeddings for the image and updates the Matching
+      Engine index.
+    properties:
+      location: ${LOCATION}
+      runtime: 'nodejs16'
+      availableMemoryMb: 8192
+      timeout: 540s
+      eventTrigger:
+        eventType: google.storage.object.finalize
+        resource: projects/_/buckets/${param:IMG_BUCKET}
+
+  - name: streamRemoveDatapoint
+    type: firebaseextensions.v1beta.function
+    description: >-
+      An event-triggered function that gets called when a new Image is deleted.
+      It removes the image's datapoint from the Matching Engine index.
+    properties:
+      location: ${LOCATION}
+      runtime: 'nodejs16'
+      availableMemoryMb: 8192
+      timeout: 540s
+      eventTrigger:
+        eventType: google.storage.object.delete
+        resource: projects/_/buckets/${param:IMG_BUCKET}
+
+  - name: datapointWriteTask
+    type: firebaseextensions.v1beta.function
+    description: >-
+      A task-triggered function that gets called when a new Image is created or
+      updated but the index isn't ready. It generates embeddings for the image
+      and updates the Matching Engine index.
+    properties:
+      availableMemoryMb: 1024
+      location: ${LOCATION}
+      runtime: 'nodejs16'
+      timeout: 540s
+      taskQueueTrigger: {}
+
+  - name: queryIndex
+    type: firebaseextensions.v1beta.function
+    description: >-
+      A function that queries the Vertex Matching Engine index.
+    properties:
+      availableMemoryMb: 8192
+      location: ${LOCATION}
+      runtime: 'nodejs16'
+      httpsTrigger: {}
+
+params:
+  - param: IMG_BUCKET
+    label: Cloud Storage bucket for images
+    description: >
+      Which Cloud Storage bucket will has images you want to index and search?
+    type: string
+    example: my-project-12345.appspot.com
+    validationRegex: ^([0-9a-z_.-]*)$
+    validationErrorMessage: Invalid storage bucket
+    default: ${STORAGE_BUCKET}
+    required: true
+    immutable: true
+
+  - param: IMG_PATH
+    label: The path to images in the bucket
+    description: >
+      If images is located inside a folder in the bucket, what's the path? If
+      empty the root of the bucket will be used.
+    type: string
+    example: root/images
+    validationRegex: ^[\w-]+(\/[\w-]+)*$
+    validationErrorMessage: Invalid path
+    immutable: true
+
+  - param: MODEL_URL
+    label: TF Model URL
+    description: >-
+      The URL to the TF model exported to JSON with weights. The URL must be
+      public and points to a directory with `model.json` and `**.bin` files.
+      Check https://www.tensorflow.org/js/guide/save_load for more details.
+    type: string
+    required: true
+    immutable: true
+    validationRegex: ^https:\/\/.*$
+    validationErrorMessage: Invalid URL
+
+  - param: INPUT_SHAPE
+    label: Model input shape
+    description: >-
+      The input shape of the model. For example, if the model expects 224x224
+      images, the input shape is `224,244`.
+    type: string
+    required: true
+    immutable: true
+    example: 224,224
+    validationRegex: ^\d+,\d+$
+    validationErrorMessage: Invalid input shape
+
+  - param: DISTANCE_MEASURE
+    label: Distance measure type
+    description: >-
+      The distance measure used in nearest neighbor search. The default is dot
+      product.  [Read more about distance measures
+      here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#distance-measure-type).
+    type: select
+    required: true
+    default: DOT_PRODUCT_DISTANCE
+    options:
+      - label: Squared Euclidean distance
+        value: SQUARED_L2_DISTANCE
+      - label: Manhattan distance
+        value: L1_DISTANCE
+      - label: Cosine distance
+        value: COSINE_DISTANCE
+      - label: Dot product
+        value: DOT_PRODUCT_DISTANCE
+
+  - param: ALGORITHM_CONFIG
+    label: Algorithm config
+    description: >-
+      The configuration with regard to the algorithms used for efficient search.
+      [Read more about algorithm config
+      here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#tree-ah-config).
+    type: select
+    required: true
+    default: bruteForceConfig
+    options:
+      - label: Tree AH config
+        value: treeAhConfig
+      - label: Brute force config
+        value: bruteForceConfig
+
+  - param: N_COUNT
+    label: Approximate number of neighbors
+    description: >-
+      The approximate number of neighbors to return in the response. [Read more
+      about this parameter
+      here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#nearest-neighbor-search-config).
+    default: 100
+    required: true
+    immutable: true
+    validationRegex: ^\d+$
+    validationErrorMessage: Invalid number
+
+  - param: BATCH_SIZE
+    label: Batch size
+    description: >-
+      The batch size used to generate feature vectors for existing images. The
+      larger the batch size, the more time and memory are required. Do not sit a
+      size larger than 64.
+    type: string
+    required: true
+    immutable: true
+    default: 32
+    example: 32
+    validationRegex: ^(?:[1-5]?[0-9]|6[0-4])$
+    validationErrorMessage: Invalid batch size
+
+  # Locations restricted to those that support Vertex AI & both gen 1 & 2 Cloud Functions.
+  # https://cloud.google.com/vertex-ai/docs/reference/rest#service-endpoint
+  # https://cloud.google.com/functions/docs/locations
+  - param: LOCATION
+    label: Cloud Functions location
+    description: >-
+      Where do you want to deploy the functions created for this extension? For
+      help selecting a location, refer to the [location selection
+      guide](https://firebase.google.com/docs/functions/locations).
+    type: select
+    options:
+      - label: Iowa (us-central1)
+        value: us-central1
+      - label: South Carolina (us-east1)
+        value: us-east1
+      - label: Northern Virginia (us-east4)
+        value: us-east4
+      - label: Oregon (us-west1)
+        value: us-west1
+      - label: Los Angeles (us-west2)
+        value: us-west2
+      - label: Montreal (northamerica-northeast1)
+        value: northamerica-northeast1
+      - label: Belgium (europe-west1)
+        value: europe-west1
+      - label: London (europe-west2)
+        value: europe-west2
+      - label: Frankfurt (europe-west3)
+        value: europe-west3
+      - label: Zurich (europe-west6)
+        value: europe-west6
+      - label: Taiwan (asia-east1)
+        value: asia-east1
+      - label: Tokyo (asia-northeast1)
+        value: asia-northeast1
+      - label: Seoul (asia-northeast3)
+        value: asia-northeast3
+      - label: Mumbai (asia-south1)
+        value: asia-south1
+      - label: Singapore (asia-southeast1)
+        value: asia-south1
+      - label: Sydney (australia-southeast1)
+        value: australia-southeast1
+    required: true
+    immutable: true
+
+lifecycleEvents:
+  onInstall:
+    function: backfillTrigger
+    processingMessage: Initiating backfill for existing images with your model.
