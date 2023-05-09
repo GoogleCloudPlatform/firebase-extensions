@@ -18,5 +18,5 @@ export default Object.freeze({
   bucket: process.env.EXTENSION_BUCKET,
   languageCode: process.env.LANGUAGE_CODE,
   model: process.env.MODEL,
-  outputCollection: process.env.OUTPUT_FIRESTORE_COLLECTION,
+  outputStoragePath: process.env.OUTPUT_STORAGE_PATH,
 });

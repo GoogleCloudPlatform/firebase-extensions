@@ -84,16 +84,12 @@ params:
     default: ${STORAGE_BUCKET}
     required: true
 
-  - param: OUTPUT_FIRESTORE_COLLECTION
-    label: Firestore collection for transcriptions
+  - param: OUTPUT_STORAGE_PATH
+    label: Storage path for transcriptions
     description: >
-      The Firestore collection that the extension will write transcriptions to.
-      *This field is ignored if output to firestore is not selected.*
-    example: transcription
-    validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
-    validationErrorMessage: Must be a valid Cloud Firestore Collection
-    default: transcription
-    required: true
+      The storage path in which to output transcriptions. If this is not set, the extension will output to the root of the bucket.
+    example: transcriptions
+    required: false
 
   - param: LANGUAGE_CODE
     label: BCP-47 code of the transcription language
