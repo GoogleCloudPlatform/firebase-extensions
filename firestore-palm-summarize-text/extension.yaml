@@ -14,6 +14,10 @@ description: >-
 
 license: Apache-2.0 # https://spdx.org/licenses/
 
+icon: icon.png
+
+tags: [ai, palm, summarization-api, generative-ai, text-ai, language-ai, large-language-models, llm, nlp, google-ai]
+
 author:
   authorName: Google Cloud
   url: https://cloud.google.com/

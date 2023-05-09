@@ -9,6 +9,8 @@ description: >-
 
 icon: icon.png
 
+tags: [ai, palm, generative-ai, text-ai, language-ai, large-language-models, llm, nlp, google-ai]
+
 license: Apache-2.0 # https://spdx.org/licenses/
 
 sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-palm-gen-text
