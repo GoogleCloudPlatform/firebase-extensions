@@ -1,8 +1,8 @@
 # Language Tasks with PaLM API
 
-**Author**: Firebase (**[https://firebase.google.com](https://firebase.google.com)**)
+**Author**: Google Cloud (**[https://cloud.google.com](https://cloud.google.com)**)
 
-**Description**: Use Firestore to perform language tasks using the PaLM API.
+**Description**: Performs AI/ML tasks on text, customizable with prompt engineering, using PaLM API and Firestore.
 
 
 
