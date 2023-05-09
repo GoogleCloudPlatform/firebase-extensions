@@ -1,5 +1,5 @@
 name: firestore-palm-gen-text
-version: 0.1.0
+version: 0.1.1
 specVersion: v1beta
 
 displayName: Language Tasks with PaLM API
@@ -195,7 +195,7 @@ params:
     immutable: false
 
   - param: CANDIDATES_FIELD
-    label: Candidate count
+    label: Candidates field
     description: >-
       The field in the message document into which to put the other candidate
       responses if the candidate count parameter is greater than one.

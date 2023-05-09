@@ -2,7 +2,7 @@
 # https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml
 
 name: firestore-palm-summarize-text # Identifier for your extension
-version: 0.1.0 # Follow semver versioning
+version: 0.1.1 # Follow semver versioning
 specVersion: v1beta # Version of the Firebase Extensions specification
 
 # Friendly display name for your extension (~3-5 words)
@@ -70,7 +70,7 @@ params:
     description: >-
       Path to the Firestore collection where messages will be generated.
     type: string
-    default: summarize
+    example: text_documents
     required: true
     immutable: false
   

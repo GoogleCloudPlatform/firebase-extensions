@@ -40,8 +40,8 @@ const config: Config = {
     : undefined,
   topP: process.env.TOP_P ? parseFloat(process.env.TOP_P) : undefined,
   topK: process.env.TOP_K ? parseInt(process.env.TOP_K) : undefined,
-  candidateCount: process.env.CANDIDATE_NUMBER
-    ? parseInt(process.env.CANDIDATE_NUMBER)
+  candidateCount: process.env.CANDIDATE_COUNT
+    ? parseInt(process.env.CANDIDATE_COUNT)
     : 1,
   candidatesField: process.env.CANDIDATES_FIELD || 'candidates',
   variableFields: process.env.VARIABLE_FIELDS
