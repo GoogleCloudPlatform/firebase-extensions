@@ -7,6 +7,8 @@ displayName: Language Tasks with PaLM API
 description: >-
   Use Firestore to perform language tasks using the PaLM API.
 
+icon: icon.png
+
 license: Apache-2.0 # https://spdx.org/licenses/
 
 sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-palm-gen-text
