@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-import * as functions from "firebase-functions";
-import fetch, { Response, RequestInit } from "node-fetch";
-import { CallableContext, HttpsError } from "firebase-functions/v1/https";
-import { FunctionsErrorCode } from "firebase-functions/v1/https";
-import config from "./config";
+import * as functions from 'firebase-functions';
+import fetch, {Response, RequestInit} from 'node-fetch';
+import {CallableContext, HttpsError} from 'firebase-functions/v1/https';
+import {FunctionsErrorCode} from 'firebase-functions/v1/https';
+import config from './config';
 
 const checkAuth = (context: CallableContext) => {
   if (!context.auth) {
     throw new HttpsError(
-      "unauthenticated",
-      "The function must be called while authenticated."
+      'unauthenticated',
+      'The function must be called while authenticated.'
     );
   }
 };
@@ -47,39 +47,44 @@ export const fetchFromApi = async (url: string, options?: RequestInit) => {
     response = await fetch(urlWithKey, options);
   } catch (e) {
     if (e instanceof Error) {
-      throw new HttpsError("internal", e.message);
+      throw new HttpsError('internal', e.message);
     }
-    throw new HttpsError("internal", "Unknown error");
+    throw new HttpsError('internal', 'Unknown error');
   }
 
   const body = await getDataFromResponse(response);
 
   if (!response.ok) {
-    let message: string
-    let details: any
+    let message: string;
+    let details: any;
     if (typeof body !== 'string' && body.error) {
       message = body.error.message;
 
       if (body.error.details && body.error.details.length > 0) {
-        details = { ...body.error.details[0], httpErrorCode: response.status };
+        details = {...body.error.details[0], httpErrorCode: response.status};
       } else if (body.error.details) {
-        details = { ...body.error.details, httpErrorCode: response.status };
+        details = {...body.error.details, httpErrorCode: response.status};
       }
-
     } else {
-      message = response.statusText ?? "Unknown error, see details";
+      message = response.statusText ?? 'Unknown error, see details';
       details = {
         httpErrorCode: response.status,
       };
     }
-    throw new HttpsError(codeToFunctionsErrorCode[response.status] || "internal", message, details);
+    throw new HttpsError(
+      codeToFunctionsErrorCode[response.status] || 'internal',
+      message,
+      details
+    );
   }
   return body;
 };
 
-const getDataFromResponse = async (response: Response): Promise<{ error: Record<string, any> } | string> => {
-  const contentType = response.headers.get("content-type");
-  if (contentType && contentType.indexOf("application/json") !== -1) {
+const getDataFromResponse = async (
+  response: Response
+): Promise<{error: Record<string, any>} | string> => {
+  const contentType = response.headers.get('content-type');
+  if (contentType && contentType.indexOf('application/json') !== -1) {
     return response.json();
   } else {
     return await response.text();
@@ -87,15 +92,15 @@ const getDataFromResponse = async (response: Response): Promise<{ error: Record<
 };
 
 export const codeToFunctionsErrorCode: Record<number, FunctionsErrorCode> = {
-  400: "invalid-argument",
-  401: "unauthenticated",
-  403: "permission-denied",
-  404: "not-found",
-  409: "already-exists",
-  429: "resource-exhausted",
-  499: "cancelled",
-  500: "internal",
-  501: "unimplemented",
-  503: "unavailable",
-  504: "deadline-exceeded",
+  400: 'invalid-argument',
+  401: 'unauthenticated',
+  403: 'permission-denied',
+  404: 'not-found',
+  409: 'already-exists',
+  429: 'resource-exhausted',
+  499: 'cancelled',
+  500: 'internal',
+  501: 'unimplemented',
+  503: 'unavailable',
+  504: 'deadline-exceeded',
 };

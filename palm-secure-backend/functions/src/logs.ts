@@ -13,41 +13,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { logger } from 'firebase-functions';
-import { Config } from './config';
+import {logger} from 'firebase-functions';
+import {Config} from './config';
 
 export const APIKeyNeeded = () => {
-    logger.error("[palm-secure-backend] API key is not set. An API key with sufficient permissions is required to use this extension. See preinstall information.");
-}
-
+  logger.error(
+    '[palm-secure-backend] API key is not set. An API key with sufficient permissions is required to use this extension. See preinstall information.'
+  );
+};
 
 export const hideApiKey = (config: Config) => {
-    return config.apiKey ? {
+  return config.apiKey
+    ? {
         ...config,
-        apiKey: "********"
-    } : config;
-}
-
+        apiKey: '********',
+      }
+    : config;
+};
 
 export const init = (config: Config) => {
-    logger.info(`[palm-secure-backend] Initialized with config: ${JSON.stringify(hideApiKey(config))}`);
-}
+  logger.info(
+    `[palm-secure-backend] Initialized with config: ${JSON.stringify(
+      hideApiKey(config)
+    )}`
+  );
+};
 
 export const receivedAPIResponse = (path: string, duration: number) => {
-    logger.info(`[palm-secure-backend] Received API response for document '${path}' in ${duration}ms.`,
-        { duration }
-    );
-}
+  logger.info(
+    `[palm-secure-backend] Received API response for document '${path}' in ${duration}ms.`,
+    {duration}
+  );
+};
 
 export const errorCallingGLMAPI = (path: string, error: any) => {
-    logger.error(`[palm-secure-backend]  Error calling PaLM API for document '${path}': ${error.message || "UNKNOWN ERROR"}`);
-}
+  logger.error(
+    `[palm-secure-backend]  Error calling PaLM API for document '${path}': ${
+      error.message || 'UNKNOWN ERROR'
+    }`
+  );
+};
 
 export const functionStarted = (url: string) => {
-    logger.info(`[palm-secure-backend] Function started for URL '${url}'`);
-}
-export const functionCompleted = (url: string,duration: number) => {
-    logger.info(`[palm-secure-backend] Function completed. Called PaLM '${url}' in ${duration}ms.`,
-        { duration }
-    );
-}
+  logger.info(`[palm-secure-backend] Function started for URL '${url}'`);
+};
+export const functionCompleted = (url: string, duration: number) => {
+  logger.info(
+    `[palm-secure-backend] Function completed. Called PaLM '${url}' in ${duration}ms.`,
+    {duration}
+  );
+};

@@ -15,19 +15,21 @@
  */
 
 export interface Config {
-    apiKey: string;
-    palmEndpoint: string;
-    apiVersion: string;
+  apiKey: string;
+  palmEndpoint: string;
+  apiVersion: string;
 }
 
 if (!process.env.API_KEY) {
-    throw new Error("Cannot find API key. Please set the API_KEY environment variable.");
+  throw new Error(
+    'Cannot find API key. Please set the API_KEY environment variable.'
+  );
 }
 
 const config: Config = {
-    apiKey: process.env.API_KEY,
-    palmEndpoint: "generativelanguage.googleapis.com",
-    apiVersion: "v1beta2"
-}
+  apiKey: process.env.API_KEY,
+  palmEndpoint: 'generativelanguage.googleapis.com',
+  apiVersion: 'v1beta2',
+};
 
 export default config;

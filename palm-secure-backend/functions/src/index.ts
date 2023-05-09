@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import config from "./config";
-import * as logs from "./logs";
-import { HttpsError } from "firebase-functions/v1/https";
-import { fetchFromApi, onAuthenticatedCall } from "./util";
+import config from './config';
+import * as logs from './logs';
+import {HttpsError} from 'firebase-functions/v1/https';
+import {fetchFromApi, onAuthenticatedCall} from './util';
 
 logs.init(config);
 
-const { palmEndpoint, apiVersion } = config;
+const {palmEndpoint, apiVersion} = config;
 
 export const getModels = onAuthenticatedCall<void, any>(async () => {
   const url = `https://${palmEndpoint}/${apiVersion}/models`;
@@ -29,25 +29,23 @@ export const getModels = onAuthenticatedCall<void, any>(async () => {
   return response;
 });
 
-export const getModel = onAuthenticatedCall<{ name: string }, any>(
-  async (data) => {
-    const url = `https://${palmEndpoint}/${apiVersion}/models/${data.name}`;
-    const response = await fetchFromApi(url);
-    return response;
-  }
-);
+export const getModel = onAuthenticatedCall<{name: string}, any>(async data => {
+  const url = `https://${palmEndpoint}/${apiVersion}/models/${data.name}`;
+  const response = await fetchFromApi(url);
+  return response;
+});
 
-export const post = onAuthenticatedCall<any, any>(async (data) => {
-  const { model, method } = data;
+export const post = onAuthenticatedCall<any, any>(async data => {
+  const {model, method} = data;
 
   if (!model) {
-    throw new HttpsError("invalid-argument", "Model name is required");
+    throw new HttpsError('invalid-argument', 'Model name is required');
   }
 
   delete data.model;
 
   if (!method) {
-    throw new HttpsError("invalid-argument", "Method name is required.");
+    throw new HttpsError('invalid-argument', 'Method name is required.');
   }
 
   delete data.method;
@@ -55,9 +53,9 @@ export const post = onAuthenticatedCall<any, any>(async (data) => {
   const url = `https://${palmEndpoint}/${apiVersion}/models/${model}:${method}`;
 
   const options = {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
   };
