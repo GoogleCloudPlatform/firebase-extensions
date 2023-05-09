@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "noImplicitReturns": true,
+    "noUnusedLocals": false,
+    "outDir": "lib",
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2017",
+    "skipLibCheck": true,
+    "baseUrl": "./src",
+    "paths": {
+      "config": ["config.ts"],
+      "utils": ["common/utils.ts"],
+      "vertex": ["common/vertex.ts"],
+      "query": ["types/query.ts"],
+      "datapoints": ["common/datapoints.ts"]
+    }
+  },
+  "compileOnSave": true,
+  "include": ["src"]
+}
