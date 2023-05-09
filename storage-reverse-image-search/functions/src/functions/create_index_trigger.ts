@@ -52,9 +52,12 @@ export async function createIndexTriggerHandler(
     const operation = await createIndex(outputShape);
     functions.logger.log('Index creation initiated!', operation);
 
-    await admin.firestore().doc(config.metadataDoc).set({
-      status: IndexStatus.BUILDING,
-      operation,
-    });
+    await admin.firestore().doc(config.metadataDoc).set(
+      {
+        status: IndexStatus.BUILDING,
+        operation,
+      },
+      {merge: true}
+    );
   }
 }

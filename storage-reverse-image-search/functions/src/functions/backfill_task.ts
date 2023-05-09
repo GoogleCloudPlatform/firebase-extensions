@@ -88,9 +88,12 @@ export async function backfillEmbeddingsTaskHandler(data: any) {
 
   if (processedLength === totalLength) {
     // Update the metadata doc with the output shape to be used in the index creation.
-    await admin.firestore().doc(config.metadataDoc).update({
-      outputShape,
-    });
+    await admin.firestore().doc(config.metadataDoc).set(
+      {
+        outputShape,
+      },
+      {merge: true}
+    );
 
     await admin.firestore().doc(config.tasksDoc).update({
       status: BackfillStatus.DONE,
