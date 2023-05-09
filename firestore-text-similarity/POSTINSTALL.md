@@ -27,7 +27,7 @@ curl -X POST \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer $(gcloud auth print-access-token)" \
 -d '{"data": {"query": [""]} }' \
-https://${param:LOCATION}-${param:PROJECT_ID}.cloudfunctions.net/ext-firestore-text-similarity-queryIndex
+https://${param:LOCATION}-${param:PROJECT_ID}.cloudfunctions.net/${param:EXT_INSTANCE_ID}-queryIndex
 ```
 
 Sample request body:
