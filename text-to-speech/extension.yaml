@@ -123,18 +123,17 @@ params:
   - param: COLLECTION_PATH
     label: Collection path
     description: >
-      What collection path contains documents with text you want to synthesize?
-    example: translations
+      What collection path contains documents with text you want to convert?
+    example: docs_to_convert
     validationRegex: "^[^/]+(/[^/]+/[^/]+)*$"
     validationErrorMessage: Must be a valid Cloud Firestore Collection
     type: string
-    default: synthesize
     required: true
 
   - param: BUCKET_NAME
     label: Bucket name
     description: >
-      In which storage bucket do you want to keep synthesized text?
+      In which storage bucket do you want to keep converted text?
     type: selectResource
     resourceType: storage.googleapis.com/Bucket
     example: my-project-12345.appspot.com
@@ -146,7 +145,7 @@ params:
   - param: STORAGE_PATH
     label: Storage path
     description: >
-      What is the location in your storage bucket you would like to keep synthesized audio?
+      What is the location in your storage bucket you would like to keep converted audio?
       By default this will be the root of the bucket.
     type: string
     required: false
@@ -338,8 +337,8 @@ params:
   - param: ENABLE_PER_DOCUMENT_OVERRIDES
     label: Enable per document overrides.
     description: >-
-      If set to \"Yes\", options for synthesizing audio will be overwritten 
-      by fields in the document containing the text to be synthesized.
+      If set to \"Yes\", options for converting audio will be overwritten 
+      by fields in the document containing the text to be converted.
     type: select
     options:
       - label: Yes
@@ -353,6 +352,6 @@ params:
     label: Voice name
     description: >
       Alternatively you may specify a voice name, this will override other
-      extension synthesization parameters (language code, SSML Gender, Voice type).
+      extension conversion parameters (language code, SSML Gender, Voice type).
     type: string
     required: false

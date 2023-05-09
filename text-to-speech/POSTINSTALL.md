@@ -23,7 +23,7 @@ admin
 
 ## Access generated audio files
 
-Once the extension is installed, it will automatically process new documents in the ${param:COLLECTION_PATH} collection and store the resulting audio files in your ${param:BUCKET} Cloud Storage bucket.
+Once the extension is installed, it will automatically process new documents in the ${param:COLLECTION_PATH} collection and store the resulting audio files in your `${param:BUCKET_NAME}` Cloud Storage bucket at the `${param:STORAGE_PATH}` path.
 
 The files will be named using the document ID with an appropriate file extension (e.g., .mp3 for MP3 files).
 
