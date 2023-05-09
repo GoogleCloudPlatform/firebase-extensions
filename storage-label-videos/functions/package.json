@@ -20,7 +20,8 @@
   "dependencies": {
     "@google-cloud/video-intelligence": "^4.2.1",
     "firebase-admin": "^11.5.0",
-    "firebase-functions": "^4.2.1"
+    "firebase-functions": "^4.2.1",
+    "typescript": "^5.0.2"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",
@@ -31,8 +32,7 @@
     "eslint-plugin-import": "^2.22.0",
     "firebase-functions-test": "^3.0.0",
     "jest": "^29.5.0",
-    "ts-jest": "^29.0.5",
-    "typescript": "^5.0.2"
+    "ts-jest": "^29.0.5"
   },
   "private": true
 }
