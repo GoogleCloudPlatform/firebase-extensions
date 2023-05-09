@@ -1,12 +1,6 @@
 {
   "extensions": {
-    "firestore-schedule-writes": "../firestore-schedule-writes",
-    "storage-video-labeling": "../storage-video-labeling",
-    "storage-image-text-extraction": "../storage-image-text-extraction",
-    "firestore-record-user-acknowledgements": "../firestore-record-user-acknowledgements",
-    "firestore-bundle-server": "../firestore-bundle-server",
-    "api-keys-diagnostic": "../api-keys-diagnostic",
-    "text-to-speech": "../text-to-speech"
+    "storage-image-labeling": "../storage-video-labeling"
   },
   "storage": {
     "rules": "storage.rules"
