@@ -1,5 +1,5 @@
 name: speech-to-text
-version: 0.1.1
+version: 0.1.2
 specVersion: v1beta
 
 displayName: Transcribe Speech to Text

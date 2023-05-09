@@ -54,7 +54,7 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 * Cloud Storage bucket for input and output: The Cloud Storage bucket that the extension should be listening to. Files uploaded to this bucket will be transcribed by the extension. If cloud storage output is enabled, transcriptions will be written to this bucket.
 
 
-* Firestore collection for transcriptions: The Firestore collection that the extension will write transcriptions to. *This field is ignored if output to firestore is not selected.*
+* Storage path for transcriptions: The storage path in which to output transcriptions. If this is not set, the extension will output to the root of the bucket.
 
 
 * BCP-47 code of the transcription language: The BCP-47 code of the transcription language, as shown in the [Language support documentation](https://cloud.google.com/speech-to-text/docs/languages)

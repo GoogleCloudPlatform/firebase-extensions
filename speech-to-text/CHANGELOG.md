@@ -1,3 +1,7 @@
+## Version 0.1.2
+
+Fix incorrect parameters in extension.yaml.
+
 ##  Version 0.1.1
 
 Add releaseNotesUrl.
