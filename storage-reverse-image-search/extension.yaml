@@ -4,7 +4,8 @@ specVersion: v1beta
 
 icon: icon.png
 
-tags: [ai, search, images, vector-search, image-search, image-similarity, google-ai]
+tags:
+  [ai, search, images, vector-search, image-search, image-similarity, google-ai]
 
 displayName: Reverse Image Search with Vertex AI
 
@@ -214,6 +215,20 @@ params:
     validationRegex: ^[\w-]+(\/[\w-]+)*$
     validationErrorMessage: Invalid path
     immutable: true
+
+  - param: DO_BACKFILL
+    label: Do backfill?
+    description: >-
+      Whether to backfill embeddings for all documents currently in the
+      collection.
+    type: select
+    required: true
+    immutable: true
+    options:
+      - label: Yes
+        value: true
+      - label: No
+        value: false
 
   - param: MODEL_URL
     label: TF Model URL

@@ -28,7 +28,12 @@ const batchSize = config.embeddingMethod === 'palm' ? 50 : 500;
 export async function backfillTriggerHandler() {
   const runtime = getExtensions().runtime();
 
-  if (!config.doBackfill) return;
+  if (!config.doBackfill) {
+    return runtime.setProcessingState(
+      'PROCESSING_WARNING',
+      `Backfill is disabled, index setup will start with the first write operation to the collection ${config.collectionName}.`
+    );
+  }
 
   const queue = getFunctions().taskQueue(
     `locations/${config.location}/functions/backfillTask`,

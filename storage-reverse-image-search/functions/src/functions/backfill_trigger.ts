@@ -27,7 +27,12 @@ import {BackfillStatus} from '../types/backfill_status';
 export async function backfillTriggerHandler() {
   const runtime = getExtensions().runtime();
 
-  // TODO make backfill optional
+  if (!config.doBackfill) {
+    return runtime.setProcessingState(
+      'PROCESSING_WARNING',
+      'Backfill is disabled, index setup will start with the first image is added.'
+    );
+  }
 
   const queue = getFunctions().taskQueue('backfillTask', config.instanceId);
   let writer = admin.firestore().batch();
