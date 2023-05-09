@@ -1,5 +1,5 @@
 {
-  "name": "functions",
+  "name": "firestore-palm-summarize-text",
   "scripts": {
     "lint": "eslint \"src/**/*\"",
     "lint:fix": "eslint \"src/**/*\" --fix",
