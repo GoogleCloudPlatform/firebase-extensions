@@ -1,3 +1,3 @@
 ## Version 0.1.0
 
-Initial release of the _Chatbot with PaLM API_ extension.
+Initial release of the firestore-palm-chatbot extension.
