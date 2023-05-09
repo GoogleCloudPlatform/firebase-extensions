@@ -1,42 +1,32 @@
-This extension will label (classify) any images uploaded to a specific Cloud Storag bucket and write the labels to Firestore.
+## How This Extension Works
 
-# Detailed configuration information
+This extension extracts text from jpg or png images uploaded to Cloud Storage and writes the extracted labels to Firestore, using the Cloud Vision API.
 
-This extension provides the following paramters for you to configure its behaviour:
+On install, you will be asked to provide a Cloud Storage bucket where files will be uploaded, and a Firestore collection to write extracted labels back to.
 
-### Cloud Storage Bucket
-Set this configuration parameter to specify which Cloud Storage bucket will you upload images on which you want to perform labeling.
-### Include Path List
+Whenever a new jpg or png image is uploaded to the specified bucket, a Cloud Function will trigger that calls the Cloud Vision API to extract labels, and stores the result in a new document with the ID matching the name of the file which was uploaded.
 
-Setting this parameter will restrict storage-image-labeling to only label images in specific locations in your Storage bucket by supplying a comma-separated list of absolute paths.
+## Use Cases
 
-For example, specifying the paths `/users/pictures,/restaurants/menuItems` will label any images found in any subdirectories of `/users/pictures` and `/restaurants/menuItems`. You may also use wildcard notation for directories in the path.
+Here are some ways to use image labeling in your application:
 
-### Exclude Path List
+* **E-commerce:** Extract tags from product images for better search discovery and recommendations.
+* **Content filtering:** Analyze and understand image content to filter out irrelevant or inappropriate content from search results.
+* **Image and video search:** Enable search algorithms to understand image content and search results based on visual data.
+* **Surveillance and security:** Improve real-time alert systems in detecting anomalies or specific activities by interpreting image labels.
+* **Assistance for visually impaired users:** Provide accurate descriptions of images to enhance the digital experience for visually impaired users.
 
-This parameter is a list of absolute paths not included for labelled images.
+## Additional Setup
 
-Setting is will ensure storage-image-labeling does not label images in the specific locations.
+Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) and [Cloud Storage bucket](https://firebase.google.com/docs/storage) set up in your Firebase project.
 
-For example, to exclude the images stored in the `/foo/alpha` and its subdirectories and `/bar/beta` and its subdirectories, specify the paths `/foo/alpha,/bar/beta`. You may also use wildcard notation for directories in the path.
-
-### Collection Path
-
-Set this parameter to specify which collection in Firestore the extension should write labels to.
-
-### Label Mode
-
-This parameter sets how much label information should be written to Firestore. If set to "basic" the extension will simply write the list of labels as a string array. If set to "full" then the full information returned from Cloud Vision will be written to the Firestore document.
-
-# Billing
+## Billing
 
 This extension uses other Firebase or Google Cloud Platform services which may have associated charges:
 
-<!-- List all products the extension interacts with -->
-
-- Cloud Functions
-- Cloud Vision API
-- Cloud Storage
-- Cloud Firestore
+* Cloud Vision API
+* Cloud Storage
+* Cloud Firestore
+* Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
 
 When you use Firebase Extensions, you're only charged for the underlying resources that you use. A paid-tier (Blaze) billing plan is required because the extension uses Cloud Vision API.
