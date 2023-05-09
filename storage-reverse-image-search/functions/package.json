@@ -1,5 +1,5 @@
 {
-  "name": "functions",
+  "name": "storage-reverse-image-search",
   "scripts": {
     "lint": "eslint \"src/**/*\"",
     "lint:fix": "eslint \"src/**/*\" --fix",
@@ -25,7 +25,8 @@
     "firebase-functions": "^4.3.1",
     "fs-extra": "^11.1.1",
     "google-auth-library": "^8.8.0",
-    "googleapis": "^114.0.0"
+    "googleapis": "^114.0.0",
+    "typescript": "^5.0.4"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.1",
@@ -38,8 +39,7 @@
     "firebase-functions-test": "^3.1.0",
     "jest": "^29.5.0",
     "ts-jest": "^29.1.0",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.0.4"
+    "ts-node": "^10.9.1"
   },
   "files": [
     "lib"
