@@ -1,5 +1,3 @@
-## How this extension works
-
 > :warning: Note: The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 
 This extension allows you to summarize a field in a Firestore document using the PaLM API.
@@ -16,7 +14,7 @@ This extension will listen to the specified collection for new document writes a
 1. Call the PaLM API to generate a summary of the document field.
 2. Write the summary back to the triggering document in the response field.
 
-## Use cases
+### Use cases
 
 This extension can be used for a variety of use cases, including:
 
