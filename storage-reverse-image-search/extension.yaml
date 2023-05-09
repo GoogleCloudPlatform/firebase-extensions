@@ -1,5 +1,5 @@
 name: storage-reverse-image-search
-version: 0.0.1
+version: 0.1.0
 specVersion: v1beta
 
 icon: icon.png
@@ -24,7 +24,7 @@ contributors:
     email: oss@invertase.io
     url: https://github.com/invertase
 
-billingRequired: false
+billingRequired: true
 
 apis:
   - apiName: aiplatform.googleapis.com
@@ -299,7 +299,7 @@ params:
     validationRegex: ^(?:[1-5]?[0-9]|6[0-4])$
     validationErrorMessage: Invalid batch size
 
-  # Locations resdtricted to those that support Vertex AI & both gen 1 & 2 Cloud Functions.
+  # Locations restricted to those that support Vertex AI & both gen 1 & 2 Cloud Functions.
   # https://cloud.google.com/vertex-ai/docs/reference/rest#service-endpoint
   # https://cloud.google.com/functions/docs/locations
   - param: LOCATION
