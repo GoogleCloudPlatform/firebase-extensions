@@ -16,7 +16,7 @@ name: text-to-speech
 version: 0.1.0
 specVersion: v1beta
 
-icon: icon.jpg
+icon: icon.png
 
 tags: [ai, text-to-speech, speech-synthesis, google-ai, voice-generation, speech-generation]
 
