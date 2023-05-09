@@ -1,7 +1,5 @@
 > :warning: Note: The Vertex [Matching Engine public endpoints](https://cloud.google.com/vertex-ai/docs/matching-engine/deploy-index-public) are currently in public preview.
 
-## How this extension works
-
 This extension adds reverse image search to your Firebase application using Vertex AI’s [Matching Engine](https://cloud.google.com/vertex-ai/docs/matching-engine/overview) and Cloud Storage. Reverse image search relies on first generating feature vector representations of your original images which are stored in a Matching Engine index. Once these feature vectors are indexed, the Matching Engine can be used to calculate similar images to an original image from a large dataset of candidate images, based on vector distance measures.
 
 On installation, you will need to specify a Cloud Storage **bucket** and **files path** for indexing.
@@ -16,7 +14,7 @@ The query API endpoint is deployed as a [Firebase Callable Function](https://fir
 
 To detect whether an object in Storage is an image or not, the extension checks that the object’s extension matches one of the following supported file extensions: `jpg`, `jpeg`, `png`, `gif`, `bmp`.
 
-## Features vector models
+### Features vector models
 
 You can either use any pre-existing image [feature vector](https://tfhub.dev/s?module-type=image-feature-vector) model on TensorFlow Hub, or use your own custom model. The extension currently supports any custom TensorFlow.JS model that accepts images and return feature vectors.
 
@@ -52,15 +50,9 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 - Cloud Run
 - Cloud EventArc
 - [Vertex AI](https://cloud.google.com/vertex-ai/pricing#matchingengine)
-- Cloud Functions (Node.js 14+ runtime. See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
+- Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
 
 [Learn more about Firebase billing](https://firebase.google.com/pricing).
 
-> Note 
-> 
-> The extension does not delete the Matching Engine Index automatically when you uninstall the extension. 
-> 
-> Vertex AI charges by node hour when hosting a Matching Engine Index, so your project will continue to incur costs until you manually undeploy the index. Instructions for undeploying an index are available here.
->
-> You can [read more about Matching Engine pricing here](https://www.google.com/url?q=https://cloud.google.com/vertex-ai/pricing%23matchingengine&sa=D&source=docs&ust=1683194254385742&usg=AOvVaw1kYFVKa8gdagrau70Vzk6G).
+> :warning: The extension does not delete the Matching Engine Index automatically when you uninstall the extension. Vertex AI charges by node hour when hosting a Matching Engine Index, so your project will continue to incur costs until you manually undeploy the index. Instructions for undeploying an index are available here. You can [read more about Matching Engine pricing here](https://www.google.com/url?q=https://cloud.google.com/vertex-ai/pricing%23matchingengine&sa=D&source=docs&ust=1683194254385742&usg=AOvVaw1kYFVKa8gdagrau70Vzk6G).
 
