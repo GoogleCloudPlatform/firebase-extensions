@@ -7,10 +7,10 @@ Upon install you will be asked to provide a Firestore collection path and a Stor
 * Writes the path to the Storage object back in the same document.
 
 ## Use Cases
-* Accessibility: A key strength of TTS lies in fostering inclusive access to digital content for people with visual impairments or who face reading challenges. By utilizing TTS, we can work towards providing equal opportunities for everyone to obtain information, acknowledging and embracing the diverse abilities and requirements of all users.
-* Language learning: TTS can be a handy tool for language learners, as it can help users to practice their pronunciation and improve their listening comprehension. By providing accurate and natural-sounding speech, TTS can help language learners to develop their language skills in a more immersive and interactive way.
-* Navigation: In-car navigation systems often use TTS to give drivers turn-by-turn directions. TTS can help drivers keep their eyes on the road and avoid distractions by providing spoken instructions, improving safety.
-* Virtual assistants: Virtual assistants like Siri, Alexa, and Google Assistant rely heavily on TTS to provide users with helpful information and complete tasks. Using TTS, virtual assistants can create a more natural and conversational experience for users, enhancing their overall usability.
+* **Accessibility**: A key strength of TTS lies in fostering inclusive access to digital content for people with visual impairments or who face reading challenges. By utilizing TTS, we can work towards providing equal opportunities for everyone to obtain information, acknowledging and embracing the diverse abilities and requirements of all users.
+* **Language learning**: TTS can be a handy tool for language learners, as it can help users to practice their pronunciation and improve their listening comprehension. By providing accurate and natural-sounding speech, TTS can help language learners to develop their language skills in a more immersive and interactive way.
+* **Navigation**: In-car navigation systems often use TTS to give drivers turn-by-turn directions. TTS can help drivers keep their eyes on the road and avoid distractions by providing spoken instructions, improving safety.
+* **Virtual assistants**: Virtual assistants like Siri, Alexa, and Google Assistant rely heavily on TTS to provide users with helpful information and complete tasks. Using TTS, virtual assistants can create a more natural and conversational experience for users, enhancing their overall usability.
 
 ## Additional Setup
 
