@@ -7,6 +7,10 @@ description: Extracts text from images and saves to Firestore using Cloud Vision
 
 license: Apache-2.0 # The license you want for the extension
 
+icon: icon.png
+
+tags: [ai, image, text-extraction, cloud-vision, image-recognition, image-classification, text-recognition, character-recognition, ocr, google-ai, cloud-vision-api]
+
 author:
   authorName: Google Cloud
   url: https://cloud.google.com

@@ -16,6 +16,10 @@ name: text-to-speech
 version: 0.1.0
 specVersion: v1beta
 
+icon: icon.jpg
+
+tags: [ai, text-to-speech, speech-synthesis, google-ai, voice-generation, speech-generation]
+
 displayName: Convert Text to Speech
 description:
   Converts Firestore documents to audio files stored in Cloud Storage using Cloud Text to Speech.

@@ -9,6 +9,8 @@ description:
 
 icon: icon.png
 
+tags: [ai, speech-to-text, speech-transcription, google-ai]
+
 license: Apache-2.0 # The license you want for the extension
 
 author:

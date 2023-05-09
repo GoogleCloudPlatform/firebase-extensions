@@ -7,6 +7,10 @@ description: Extracts labels from videos and saves to Cloud Storage using Cloud 
 
 license: Apache-2.0
 
+icon: icon.png
+
+tags: [ai, cloud-video, video-recognition, video-classification, google-ai, video-intelligence-api]
+
 author:
   authorName: Google Cloud
   url: https://cloud.google.com/

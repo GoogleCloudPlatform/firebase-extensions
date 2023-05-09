@@ -9,6 +9,10 @@ license: Apache-2.0 # The license you want for the extension
 sourceUrl: https://github.com/FirebaseExtended/experimental-extensions/tree/main/storage-image-labeling
 releaseNotesUrl: https://github.com/FirebaseExtended/experimental-extensions/tree/main/storage-image-labeling/CHANGELOG.md
 
+icon: icon.png
+
+tags: [ai, videos, cloud-vision, image-recognition, image-classification, google-ai, cloud-vision-api]
+
 author:
   authorName: Google Cloud
   url: https://cloud.google.com/
