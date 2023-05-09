@@ -44,13 +44,13 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Cloud Functions location: Where do you want to deploy the functions created for this extension? You usually want a location close to your database. For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
 
-* Collection path: What collection path contains documents with text you want to synthesize?
+* Collection path: What collection path contains documents with text you want to convert?
 
 
-* Bucket name: In which storage bucket do you want to keep synthesized text?
+* Bucket name: In which storage bucket do you want to keep converted text?
 
 
-* Storage path: What is the location in your storage bucket you would like to keep synthesized audio? By default this will be the root of the bucket.
+* Storage path: What is the location in your storage bucket you would like to keep converted audio? By default this will be the root of the bucket.
 
 
 * Enable ssml: If set to \"Yes\", text processed by this extension will be assumed to be written in ssml.
@@ -63,9 +63,9 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * SSML Gender: What audio encoding do you want to use?
 
-* Enable per document overrides.: If set to \"Yes\", options for synthesizing audio will be overwritten  by fields in the document containing the text to be synthesized.
+* Enable per document overrides.: If set to \"Yes\", options for converting audio will be overwritten  by fields in the document containing the text to be converted.
 
-* Voice name: Alternatively you may specify a voice name, this will override other extension synthesization parameters (language code, SSML Gender, Voice type).
+* Voice name: Alternatively you may specify a voice name, this will override other extension conversion parameters (language code, SSML Gender, Voice type).
 
 
 
