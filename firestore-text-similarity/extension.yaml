@@ -1,8 +1,10 @@
-name: firestore-text-similarity
-version: 0.0.1
+name: firestore-semantic-search
+version: 0.1.0
 specVersion: v1beta
 
 icon: icon.png
+
+tags: []
 
 displayName: Semantic Search with Vertex AI
 
@@ -11,8 +13,8 @@ description: >-
 
 license: Apache-2.0  # https://spdx.org/licenses/
 
-sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/master/firestore-text-similarity
-releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/master/firestore-text-similarity/CHANGELOG.md
+sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/master/firestore-semantic-search
+releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/master/firestore-semantic-search/CHANGELOG.md
 
 author:
   authorName: Firebase
