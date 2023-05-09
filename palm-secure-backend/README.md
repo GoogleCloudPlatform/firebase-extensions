@@ -8,14 +8,18 @@
 
 **Details**: > :warning: Note: The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 
-This extension helps you call the PaLM API from your frontend client application without exposing your API key directly in the frontend code.
+This extension helps you call the PaLM API from your frontend client application without exposing your API key directly in the frontend code. 
 
-The extension provides API endpoints secured by App Check that you can use to call PaLM from your Firebase app. The deployed endpoint is a thin wrapper, so you can send the same request body as you would use when directly calling the PaLM Text API. The API key is stored as a secret in Cloud Secret Manager and can be directly accessed by the API endpoint deployed by the extension, so it does not need to be provided in the request. These API endpoints are deployed as [Firebase Callable Functions](https://firebase.google.com/docs/functions/callable), and require that you are signed in with a [Firebase Auth](https://firebase.google.com/docs/auth) user to successfully call the Functions from your client application.
+The extension provides API endpoints optionally secured by App Check that you can use to call PaLM from your Firebase app. The deployed endpoint is a thin wrapper, so you can send the same request body as you would use when directly calling the PaLM Text API. The API key is stored as a secret in Cloud Secret Manager and can be directly accessed by the API endpoint deployed by the extension, so it does not need to be provided in the request. These API endpoints are deployed as [Firebase Callable Functions](https://firebase.google.com/docs/functions/callable), and require that you are signed in with a [Firebase Auth](https://firebase.google.com/docs/auth) user to successfully call the Functions from your client application.
+
+The extension also allows you to configure App Check on the deployed Callable Functions, which can help you prevent unauthorized clients from accessing the Functions deployed by this extension. If you configure the extension to use App Check, you will need to follow [these instructions](https://firebase.google.com/docs/app-check) to also enable App Check in your Firebase app.
 
 Three Callable Functions are provided:
 * getModels takes no arguments and will respond with detailed information about all models on the PaLM API
 * getModel takes an object {name: string} as an argument and will return information about a specific model.
 * post takes an object as an argument. The object must have properties {model: string, method: string}. It will make a POST request to the PaLM API. Any other properties of the object will be used to populate the body of this request.
+
+
 
 ## Additional Setup
 

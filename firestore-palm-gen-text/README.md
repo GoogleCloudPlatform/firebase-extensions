@@ -99,7 +99,7 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 * Candidate count: The default value is one. When set to an integer higher than one, additional candidate responses, up to the specified number, will be stored in Firestore under the 'candidates' field.
 
-* Candidate count: The field in the message document into which to put the other candidate responses if the candidate count parameter is greater than one.
+* Candidates field: The field in the message document into which to put the other candidate responses if the candidate count parameter is greater than one.
 
 
 

@@ -6,9 +6,7 @@
 
 
 
-**Details**:
-
-> :warning: Note: The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
+**Details**: > :warning: Note: The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 
 Use this extension to easily deploy a chatbot using the PaLM API, stored and managed by Cloud Firestore.
 
@@ -59,6 +57,8 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 
 
+
+
 **Configuration Parameters:**
 
 * Collection Path: Path to a Cloud Firestore collection which will represent a discussion with a LLM on the PaLM API.
@@ -83,7 +83,7 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 * Candidate count: The default value is one. When set to an integer higher than one, additional candidate responses, up to the specified number, will be stored in Firestore under the 'candidates' field.
 
-* Candidate count: The field in the message document into which to put the other candidate responses if the candidate count parameter is greater than one.
+* Candidates field: The field in the message document into which to put the other candidate responses if the candidate count parameter is greater than one.
 
 * Enable per document overrides.: If set to \"Yes\", discussion parameters may be overwritten by fields in the discussion collection.
 
