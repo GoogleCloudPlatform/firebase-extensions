@@ -71,7 +71,7 @@ params:
     description: >-
       Path to a Cloud Firestore collection which will represent a discussion with a LLM on the PaLM API.
     type: string
-    default: users/{uid}/discussions/{discussionId}/messages
+    example: users/{uid}/discussions/{discussionId}/messages
     required: true
     immutable: false
   
@@ -81,6 +81,7 @@ params:
       The field in the message document that contains the prompt.
     type: string
     default: prompt
+    example: prompt
     required: true
     immutable: false
   
@@ -90,6 +91,7 @@ params:
       The field in the message document into which to put the response.
     type: string
     default: response
+    example: response
     required: true
     immutable: false
   
@@ -100,8 +102,8 @@ params:
       when processing begins, the current timestamp will be written to this
       field. Sorting will be in descending order.
     type: string
-    default: createTime
-    required: true
+    example: createTime
+    required: false
     immutable: false
   
   - param: LOCATION
@@ -219,7 +221,7 @@ params:
     immutable: false
 
   - param: CANDIDATES_FIELD
-    label: Candidate count
+    label: Candidates field
     description: >-
       The field in the message document into which to put the other candidate responses if the candidate count parameter is greater than one.
     type: string
