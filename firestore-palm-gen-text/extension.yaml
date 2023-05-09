@@ -71,6 +71,10 @@ params:
     type: string
     required: false
     immutable: false
+    validationRegex: ^[A-Za-z]+(,[A-Za-z]+)*$
+    validationErrorMessage:
+      Variables may only use uppercase and lowercase letters from A to Z, and may only be separated by commas.
+      Trailing commas and empty variable names are not allowed.
 
   - param: RESPONSE_FIELD
     label: Response Field
