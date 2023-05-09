@@ -27,19 +27,16 @@ export async function createIndexTriggerHandler(
 ) {
   const statusAfter = change.after.get('status');
   const statusBefore = change.before.get('status');
-  const outputShape = change.after.get('outputShape');
 
   if (!statusAfter || statusAfter === statusBefore) return;
+
+  const {outputShape} = (
+    await admin.firestore().doc(config.metadataDoc).get()
+  ).data() as {outputShape?: number};
 
   if (!outputShape) {
     functions.logger.error(
       'Could not trigger index creation, output shape is not defined in task document.'
-    );
-    return;
-  }
-  if (typeof outputShape !== 'number') {
-    functions.logger.error(
-      'Could not trigger index creation, output shape is not a number.'
     );
     return;
   }
