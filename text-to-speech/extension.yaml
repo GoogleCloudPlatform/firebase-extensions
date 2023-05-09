@@ -135,8 +135,13 @@ params:
     label: Bucket name
     description: >
       In which storage bucket do you want to keep synthesized text?
-    type: string
-    required: false
+    type: selectResource
+    resourceType: storage.googleapis.com/Bucket
+    example: my-project-12345.appspot.com
+    validationRegex: ^([0-9a-z_.-]*)$
+    validationErrorMessage: Invalid storage bucket
+    default: ${STORAGE_BUCKET}
+    required: true
 
   - param: STORAGE_PATH
     label: Storage path
