@@ -1,5 +1,5 @@
 name: speech-to-text
-version: 0.1.0
+version: 0.1.1
 specVersion: v1beta
 
 displayName: Transcribe Speech to Text
@@ -18,6 +18,7 @@ author:
   url: https://cloud.google.com/
 
 sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/speech-to-text
+releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/speech-to-text/CHANGELOG.md
 
 apis:
   - apiName: speech.googleapis.com

@@ -1,13 +1,13 @@
 name: storage-label-images
-version: 0.1.0
+version: 0.1.1
 specVersion: v1beta
 
 displayName: Label Images with Cloud Vision AI
 description: Extracts labels from images and saves to Firestore using Cloud Vision API.
 
 license: Apache-2.0 # The license you want for the extension
-sourceUrl: https://github.com/FirebaseExtended/experimental-extensions/tree/main/storage-image-labeling
-releaseNotesUrl: https://github.com/FirebaseExtended/experimental-extensions/tree/main/storage-image-labeling/CHANGELOG.md
+sourceUrl: https://github.com/FirebaseExtended/experimental-extensions/tree/main/storage-label-images
+releaseNotesUrl: https://github.com/FirebaseExtended/experimental-extensions/tree/main/storage-label-images/CHANGELOG.md
 
 icon: icon.png
 

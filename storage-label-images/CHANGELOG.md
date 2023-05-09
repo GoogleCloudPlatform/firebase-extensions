@@ -1,7 +1,7 @@
+## Version 0.1.1
+
+Update release notes and source URL.
+
 ## Version 0.1.0
 
-Initial publish by Google Cloud.
-
-## Version 0.0.2
-
-No changes.
+Initial release of the storage-label-images extension.
