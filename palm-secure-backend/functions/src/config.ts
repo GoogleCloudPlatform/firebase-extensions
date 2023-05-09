@@ -18,6 +18,7 @@ export interface Config {
   apiKey: string;
   palmEndpoint: string;
   apiVersion: string;
+  enforceAppCheck: boolean;
 }
 
 if (!process.env.API_KEY) {
@@ -30,6 +31,7 @@ const config: Config = {
   apiKey: process.env.API_KEY,
   palmEndpoint: 'generativelanguage.googleapis.com',
   apiVersion: 'v1beta2',
+  enforceAppCheck: process.env.ENFORCE_APP_CHECK === 'yes',
 };
 
 export default config;

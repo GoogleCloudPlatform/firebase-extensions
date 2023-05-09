@@ -136,3 +136,16 @@ params:
       Google Cloud API Key with PaLM API access enabled.
     type: secret
     required: true
+
+  - param: ENFORCE_APP_CHECK
+    label: Enforce App Check
+    description: >-
+      If enabled, App check will be enforced for function calls.
+    type: select
+    options:
+      - label: Yes
+        value: yes
+      - label: No
+        value: no
+    default: no
+    required: true

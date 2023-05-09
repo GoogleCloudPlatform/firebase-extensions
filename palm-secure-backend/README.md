@@ -42,6 +42,8 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 * API Key: Google Cloud API Key with PaLM API access enabled.
 
+* Enforce App Check: If enabled, App check will be enforced for function calls.
+
 
 
 **Cloud Functions:**
