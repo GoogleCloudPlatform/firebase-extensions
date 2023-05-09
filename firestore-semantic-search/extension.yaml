@@ -4,12 +4,12 @@ specVersion: v1beta
 
 icon: icon.png
 
-tags: []
+tags: [ai, search, semantic-search, vector-search, text-search, nlp, llm, large-language-models, palm, embeddings, google-ai]
 
 displayName: Semantic Search with Vertex AI
 
 description: >-
-  Search for similar text in Firestore using Vertex Matching Engine.
+  Search for semantically similar text documents in Firestore with PaLM API and Vertex AI Matching Engine.
 
 license: Apache-2.0  # https://spdx.org/licenses/
 
@@ -25,7 +25,7 @@ contributors:
     email: oss@invertase.io
     url: https://github.com/invertase
 
-billingRequired: false
+billingRequired: true
 
 apis:
   - apiName: aiplatform.googleapis.com

@@ -1,5 +1,5 @@
 {
-  "name": "functions",
+  "name": "firestore-semantic-search",
   "scripts": {
     "lint": "eslint \"src/**/*\"",
     "lint:fix": "eslint \"src/**/*\" --fix",
