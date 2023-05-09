@@ -45,7 +45,7 @@ const config: Config = {
     : 1,
   candidatesField: process.env.CANDIDATES_FIELD || 'candidates',
   variableFields: process.env.VARIABLE_FIELDS
-    ? process.env.VARIABLE_FIELDS.split(',')
+    ? [... new Set(process.env.VARIABLE_FIELDS.split(','))]
     : undefined,
 };
 
