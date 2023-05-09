@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { TextServiceClient } from "@google-ai/generativelanguage";
-import * as logs from "./logs";
-import { GoogleAuth } from "google-auth-library";
-import { APIGenerateTextRequest } from "./types";
+import {TextServiceClient} from '@google-ai/generativelanguage';
+import * as logs from './logs';
+import {GoogleAuth} from 'google-auth-library';
+import {APIGenerateTextRequest} from './types';
 
 export interface TextGeneratorOptions {
   model?: string;
@@ -31,15 +31,15 @@ export interface TextGeneratorOptions {
 
 export type TextGeneratorRequestOptions = Omit<
   APIGenerateTextRequest,
-  "prompt" | "model"
+  'prompt' | 'model'
 >;
-export type TextGeneratorResponse = { candidates: string[] };
+export type TextGeneratorResponse = {candidates: string[]};
 
 export class TextGenerator {
   private client: TextServiceClient;
   instruction?: string;
   context?: string;
-  model: string = "models/text-bison-001";
+  model = 'models/text-bison-001';
   temperature?: number;
   candidateCount?: number;
   topP?: number;
@@ -57,8 +57,8 @@ export class TextGenerator {
     logs.usingADC();
     const auth = new GoogleAuth({
       scopes: [
-        "https://www.googleapis.com/auth/userinfo.email",
-        "https://www.googleapis.com/auth/generative-language",
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/generative-language',
       ],
     });
     this.client = new TextServiceClient({
@@ -83,16 +83,16 @@ export class TextGenerator {
     const [result] = await this.client.generateText(request);
 
     if (!result.candidates || !result.candidates.length) {
-      throw new Error("No candidates returned from server.");
+      throw new Error('No candidates returned from server.');
     }
 
     //TODO: do we need to filter out empty strings? This seems to be a type issue with the API, why are they optional?
     const candidates = result.candidates
-      .map((candidate) => candidate.output)
-      .filter((output) => !!output) as string[];
+      .map(candidate => candidate.output)
+      .filter(output => !!output) as string[];
 
     if (!candidates.length) {
-      throw new Error("No candidates returned from server.");
+      throw new Error('No candidates returned from server.');
     }
 
     return {

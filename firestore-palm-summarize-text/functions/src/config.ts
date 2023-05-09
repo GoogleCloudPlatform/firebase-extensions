@@ -23,9 +23,9 @@ export interface Config {
 
 const config: Config = {
   collectionName:
-    process.env.COLLECTION_NAME || "summaries/{summaryId}/messages",
-  textField: process.env.TEXT_FIELD || "text",
-  responseField: process.env.RESPONSE_FIELD || "output",
+    process.env.COLLECTION_NAME || 'summaries/{summaryId}/messages',
+  textField: process.env.TEXT_FIELD || 'text',
+  responseField: process.env.RESPONSE_FIELD || 'output',
   targetSummaryLength: process.env.TARGET_SUMMARY_LENGTH
     ? parseInt(process.env.TARGET_SUMMARY_LENGTH)
     : undefined,

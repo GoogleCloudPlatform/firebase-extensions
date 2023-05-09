@@ -1,21 +1,21 @@
-import * as firebaseFunctionsTest from "firebase-functions-test";
-import * as admin from "firebase-admin";
-import config from "../src/config";
-import { generateSummary } from "../src/index";
-import { WrappedFunction } from "firebase-functions-test/lib/v1";
-import { Change } from "firebase-functions/v1";
+import * as firebaseFunctionsTest from 'firebase-functions-test';
+import * as admin from 'firebase-admin';
+import config from '../src/config';
+import {generateSummary} from '../src/index';
+import {WrappedFunction} from 'firebase-functions-test/lib/v1';
+import {Change} from 'firebase-functions/v1';
 
-process.env.GCLOUD_PROJECT = "dev-extensions-testing";
+process.env.GCLOUD_PROJECT = 'dev-extensions-testing';
 
-process.env.FIRESTORE_EMULATOR_HOST = "127.0.0.1:8080";
+process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 
 // // We mock out the config here instead of setting environment variables directly
-jest.mock("../src/config", () => ({
+jest.mock('../src/config', () => ({
   default: {
-    collectionName: "summariesTest/{summaryId}/messages",
-    model: "models/text-bison-001",
-    textField: "text",
-    responseField: "output",
+    collectionName: 'summariesTest/{summaryId}/messages',
+    model: 'models/text-bison-001',
+    textField: 'text',
+    responseField: 'output',
   },
 }));
 
@@ -23,9 +23,9 @@ jest.mock("../src/config", () => ({
 const mockAPI = jest.fn();
 
 // // Mock the video intelligence  clent
-jest.mock("@google-ai/generativelanguage", () => {
+jest.mock('@google-ai/generativelanguage', () => {
   return {
-    ...jest.requireActual("@google-ai/generativelanguage"),
+    ...jest.requireActual('@google-ai/generativelanguage'),
     TextServiceClient: function mockedClient() {
       return {
         generateText: async function generateText(args: unknown) {
@@ -34,7 +34,7 @@ jest.mock("@google-ai/generativelanguage", () => {
             {
               candidates: [
                 {
-                  output: "test response",
+                  output: 'test response',
                 },
               ],
             },
@@ -46,11 +46,11 @@ jest.mock("@google-ai/generativelanguage", () => {
 });
 
 const fft = firebaseFunctionsTest({
-  projectId: "dev-extensions-testing",
+  projectId: 'dev-extensions-testing',
 });
 
 admin.initializeApp({
-  projectId: "dev-extensions-testing",
+  projectId: 'dev-extensions-testing',
 });
 
 type DocumentReference = admin.firestore.DocumentReference;
@@ -68,34 +68,34 @@ const wrappedGenerateText = fft.wrap(
 
 const firestoreObserver = jest.fn();
 
-describe("generateText", () => {
+describe('generateText', () => {
   let unsubscribe: (() => void) | undefined;
-  const collectionName = config.collectionName.replace("{summaryId}", "1");
+  const collectionName = config.collectionName.replace('{summaryId}', '1');
 
   // clear firestore
   beforeEach(async () => {
     jest.clearAllMocks();
     await fetch(
       `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/dev-extensions-testing/databases/(default)/documents`,
-      { method: "DELETE" }
+      {method: 'DELETE'}
     );
     // set up observer on collection
     unsubscribe = admin
       .firestore()
       .collection(collectionName)
-      .onSnapshot((snap) => {
+      .onSnapshot(snap => {
         firestoreObserver(snap);
       });
   });
   afterEach(() => {
-    if (unsubscribe && typeof unsubscribe === "function") {
+    if (unsubscribe && typeof unsubscribe === 'function') {
       unsubscribe();
     }
   });
 
-  test("should not run if the text field is not set", async () => {
+  test('should not run if the text field is not set', async () => {
     const notMessage = {
-      notText: "hello text bison. hopefully you ignore this text.",
+      notText: 'hello text bison. hopefully you ignore this text.',
     };
     // Make a write to the collection. This won't trigger our wrapped function as it isn't deployed to the emulator.
     const ref = await admin
@@ -108,9 +108,9 @@ describe("generateText", () => {
     expectNoOp();
   });
 
-  test("should not run if the text field is empty", async () => {
+  test('should not run if the text field is empty', async () => {
     const notMessage = {
-      text: "",
+      text: '',
     };
 
     const ref = await admin
@@ -123,7 +123,7 @@ describe("generateText", () => {
     expectNoOp();
   });
 
-  test("should not run if the text field is not a string", async () => {
+  test('should not run if the text field is not a string', async () => {
     const notMessage = {
       text: 123,
     };
@@ -138,10 +138,10 @@ describe("generateText", () => {
     expectNoOp();
   });
 
-  test("should not run if response field is set from the start", async () => {
+  test('should not run if response field is set from the start', async () => {
     const message = {
-      text: "hello chat bison",
-      [config.responseField]: "user set response for some reason",
+      text: 'hello chat bison',
+      [config.responseField]: 'user set response for some reason',
     };
     const ref = await admin.firestore().collection(collectionName).add(message);
 
@@ -150,10 +150,10 @@ describe("generateText", () => {
     expectNoOp();
   });
 
-  test("should not run if status field is set from the start", async () => {
+  test('should not run if status field is set from the start', async () => {
     const message = {
-      text: "hello chat bison",
-      status: "user set status field for some reason",
+      text: 'hello chat bison',
+      status: 'user set status field for some reason',
     };
     const ref = await admin.firestore().collection(collectionName).add(message);
 
@@ -162,9 +162,9 @@ describe("generateText", () => {
     expectNoOp();
   });
 
-  test("should run when given correct trigger", async () => {
+  test('should run when given correct trigger', async () => {
     const message = {
-      text: "test generate text",
+      text: 'test generate text',
     };
 
     // Make a write to the collection. This won't trigger our wrapped function as it isn't deployed to the emulator.
@@ -175,23 +175,23 @@ describe("generateText", () => {
     // we expect the firestore observer to be called 4 times total.
     expect(firestoreObserver).toHaveBeenCalledTimes(3);
 
-    const firestoreCallData = firestoreObserver.mock.calls.map((call) =>
+    const firestoreCallData = firestoreObserver.mock.calls.map(call =>
       call[0].docs[0].data()
     );
 
     // This is left in just so we know our observer caught everything, sanity check:
-    expectToHaveKeys(firestoreCallData[0], ["text"]);
+    expectToHaveKeys(firestoreCallData[0], ['text']);
     expect(firestoreCallData[0].text).toEqual(message.text);
 
     // Then we expect the function to update the status to PROCESSING:
-    expectToHaveKeys(firestoreCallData[1], ["text", "status"]);
+    expectToHaveKeys(firestoreCallData[1], ['text', 'status']);
     expect(firestoreCallData[1].text).toEqual(message.text);
     expectToHaveKeys(firestoreCallData[1].status, [
-      "state",
-      "updateTime",
-      "startTime",
+      'state',
+      'updateTime',
+      'startTime',
     ]);
-    expect(firestoreCallData[1].status.state).toEqual("PROCESSING");
+    expect(firestoreCallData[1].status.state).toEqual('PROCESSING');
     expect(firestoreCallData[1].status.updateTime).toEqual(
       expect.any(Timestamp)
     );
@@ -199,20 +199,20 @@ describe("generateText", () => {
     expect(startTime).toEqual(expect.any(Timestamp));
 
     // Then we expect the function to update the status to COMPLETED, with the response field populated:
-    expectToHaveKeys(firestoreCallData[2], ["text", "output", "status"]);
+    expectToHaveKeys(firestoreCallData[2], ['text', 'output', 'status']);
     expect(firestoreCallData[2].text).toEqual(message.text);
     expect(firestoreCallData[2].status).toEqual({
       startTime,
-      state: "COMPLETED",
+      state: 'COMPLETED',
       error: null,
       completeTime: expect.any(Timestamp),
       updateTime: expect.any(Timestamp),
     });
-    expect(firestoreCallData[2].output).toEqual("test response");
+    expect(firestoreCallData[2].output).toEqual('test response');
 
     // verify SDK is called with expected arguments
     const expectedRequestData = {
-      model: "models/text-bison-001",
+      model: 'models/text-bison-001',
       prompt: {
         text: 'Summarize this text: "test generate text"',
       },
@@ -226,7 +226,7 @@ describe("generateText", () => {
 const simulateFunctionTriggered =
   (wrappedFunction: WrappedFirebaseFunction, collectionName: string) =>
   async (ref: DocumentReference, before?: DocumentSnapshot) => {
-    const data = (await ref.get()).data() as { [key: string]: any };
+    const data = (await ref.get()).data() as {[key: string]: any};
     const beforeFunctionExecution = fft.firestore.makeDocumentSnapshot(
       data,
       `${collectionName}/${ref.id}`
