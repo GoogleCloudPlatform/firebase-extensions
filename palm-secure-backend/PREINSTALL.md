@@ -1,5 +1,3 @@
-## How this extension works
-
 > :warning: Note: The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 
 This extension helps you call the PaLM API from your frontend client application without exposing your API key directly in the frontend code.
@@ -21,7 +19,7 @@ To use this extension, you will need to generate an API key from [MakerSuite](ht
 
 To install an extension, your project must be on the Blaze (pay as you go) plan. You will be charged a small amount (typically around $0.01/month) for the Firebase resources required by this extension (even if it is not used).
 This extension uses other Firebase and Google Cloud Platform services, which have associated charges if you exceed the service’s no-cost tier:
-* Cloud Functions (Node.js 14+ runtime. See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
+* Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
 
 [Learn more about Firebase billing.](https://firebase.google.com/pricing)
 
