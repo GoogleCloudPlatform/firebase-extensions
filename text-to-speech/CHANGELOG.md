@@ -1,3 +1,7 @@
+## Version 0.1.2
+
+Update docs.
+
 ## Version 0.1.1
 
 Fixed storage bucket param.
