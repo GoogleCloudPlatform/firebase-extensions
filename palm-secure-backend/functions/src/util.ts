@@ -30,7 +30,7 @@ const checkAuth = (context: CallableContext) => {
 };
 
 const checkAppCheck = (context: CallableContext) => {
-  if (!context.app) {
+  if (context.app == undefined) {
     throw new HttpsError(
       'failed-precondition',
       'The function must be called from an App Check verified app.'
