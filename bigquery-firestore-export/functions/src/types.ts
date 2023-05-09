@@ -3,13 +3,13 @@ export interface Config {
   bigqueryDatasetLocation: string;
   projectId: string;
   instanceId: string;
-  transferConfigName?: string;
+  transferConfigName: string;
   datasetId?: string;
   tableName?: string;
   queryString?: string;
   partitioningField?: string;
   schedule?: string;
   pubSubTopic: string;
-  firestoreCollection?: string;
+  firestoreCollection: string;
   displayName?: string;
 }

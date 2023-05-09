@@ -1,6 +1,6 @@
 import config from './config';
 import * as bigqueryDataTransfer from '@google-cloud/bigquery-data-transfer';
-import * as mapValues from 'lodash.mapvalues';
+const mapValues = require('lodash.mapvalues');
 import * as logs from './logs';
 import {Config} from './types';
 
@@ -19,22 +19,25 @@ export const createTransferConfigRequest = (config: Config) => {
     write_disposition: 'WRITE_TRUNCATE',
     partitioning_field: config.partitioningField || '',
   };
-  const transferConfigParams = mapValues(params, value => {
-    const error = Error(
-      `not implemented transfer config parameter type ${typeof value}`
-    );
-    switch (typeof value) {
-      case 'boolean':
-        return {boolValue: value};
-      case 'number':
-        return {numberValue: value};
-      case 'string':
-        return {stringValue: value};
-      default:
-        logs.error(error);
-        throw error;
+  const transferConfigParams = mapValues(
+    params,
+    (value: boolean | number | string | unknown) => {
+      const error = Error(
+        `not implemented transfer config parameter type ${typeof value}`
+      );
+      switch (typeof value) {
+        case 'boolean':
+          return {boolValue: value};
+        case 'number':
+          return {numberValue: value};
+        case 'string':
+          return {stringValue: value};
+        default:
+          logs.error(error);
+          throw error;
+      }
     }
-  });
+  );
   const transferConfig = {
     destinationDatasetId: config.datasetId,
     displayName: config.displayName,
@@ -61,7 +64,8 @@ export const createTransferConfig = async () => {
   //const converted = bigqueryDataTransfer.protos.google.cloud.bigquery.datatransfer.v1.TransferConfig.fromObject(transferConfig);
   logs.createTransferConfig();
   const response = await datatransferClient.createTransferConfig(request);
-  logs.transferConfigCreated(response[0].name);
+  //TODO - what if name is null or undefined?
+  logs.transferConfigCreated(response[0].name!);
   return response[0];
 };
 
@@ -72,7 +76,8 @@ export const constructUpdateTransferConfigRequest = async (
   const transferConfig = await getTransferConfig(transferConfigName);
   const updateMask = [];
   const updatedConfig = JSON.parse(JSON.stringify(transferConfig));
-  if (config.queryString !== transferConfig.params.fields.query.stringValue) {
+  //TODO - what if null or undefined?
+  if (config.queryString !== transferConfig.params!.fields!.query.stringValue) {
     updateMask.push('params');
     updatedConfig.params.fields.query.stringValue = config.queryString;
   }
@@ -80,7 +85,8 @@ export const constructUpdateTransferConfigRequest = async (
   const destinationTableNameTemplate = `${config.tableName}_{run_time|"%H%M%S"}`;
   if (
     destinationTableNameTemplate !==
-    transferConfig.params.fields.destination_table_name_template.stringValue
+    //TODO - what if null or undefined?
+    transferConfig.params!.fields!.destination_table_name_template.stringValue
   ) {
     updateMask.push('params');
     updatedConfig.params.fields.destination_table_name_template.stringValue =
@@ -89,7 +95,8 @@ export const constructUpdateTransferConfigRequest = async (
 
   if (
     config.partitioningField !==
-    transferConfig.params.fields.partitioning_field.stringValue
+    //TODO - what if null or undefined?
+    transferConfig.params!.fields!.partitioning_field.stringValue
   ) {
     updateMask.push('params');
     updatedConfig.params.fields.partitioning_field.stringValue =

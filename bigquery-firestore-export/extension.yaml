@@ -12,21 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: firestore-bigquery-scheduler
-version: 0.0.2
+name: bigquery-firestore-export
+version: 0.1.0
 specVersion: v1beta
 
-displayName: Schedule queries and push results to Firestore
-description: This extension uses configures the BigQuery Data Transfer Service to execute a scheduled BQ query at regular intervals and write results back to Firestore.
+displayName: Export BigQuery to Firestore
+description: Schedules BigQuery queries and exports the results to Firestore.
 
 license: Apache-2.0
 
-sourceUrl: https://github.com/firebase/extensions/tree/master/firestore-send-email
-releaseNotesUrl: https://github.com/firebase/extensions/blob/master/firestore-send-email/CHANGELOG.md
+sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/main/bigquery-firestore-export
+releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/main/bigquery-firestore-export/CHANGELOG.md
 
 author:
-  authorName: Firebase
-  url: https://firebase.google.com
+  authorName: Google Cloud
+  url: https://cloud.google.com
 
 contributors:
   - authorName: Jeff Huang

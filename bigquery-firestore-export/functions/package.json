@@ -38,6 +38,7 @@
   },
   "devDependencies": {
     "@google-cloud/pubsub": "^3.5.2",
+    "@types/lodash.mapvalues": "^4.6.7",
     "concurrently": "^7.2.1",
     "dotenv": "^16.0.3",
     "firebase-functions-test": "^0.2.3",
