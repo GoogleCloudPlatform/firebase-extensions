@@ -102,8 +102,9 @@ export const transcribeAudio = functions.storage
       logs.debug('uploading transcoded file');
       const transcodedUploadResult = await uploadTranscodedFile({
         localPath: transcodeResult.outputPath,
-        storagePath:
-          config.outputStoragePath ? `${config.outputStoragePath}${transcodeResult.outputPath}` : transcodeResult.outputPath.slice(1),
+        storagePath: config.outputStoragePath
+          ? `${config.outputStoragePath}${transcodeResult.outputPath}`
+          : transcodeResult.outputPath.slice(1),
         bucket: bucket,
       });
       if (transcodedUploadResult.status == Status.FAILURE) {
