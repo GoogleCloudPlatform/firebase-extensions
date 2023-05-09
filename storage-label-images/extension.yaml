@@ -7,6 +7,7 @@ description: Extracts labels from images and saves to Firestore using Cloud Visi
 
 license: Apache-2.0 # The license you want for the extension
 sourceUrl: https://github.com/FirebaseExtended/experimental-extensions/tree/main/storage-image-labeling
+releaseNotesUrl: https://github.com/FirebaseExtended/experimental-extensions/tree/main/storage-image-labeling/CHANGELOG.md
 
 author:
   authorName: Google Cloud
