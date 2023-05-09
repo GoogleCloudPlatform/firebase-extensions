@@ -8,7 +8,7 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "generate-readme": "node ../../generate-experimental-readme.js storage-extract-image-text > ../README.md"
+    "generate-readme": "firebase ext:info .. --markdown > ../README.md"
   },
   "engines": {
     "node": "16"
