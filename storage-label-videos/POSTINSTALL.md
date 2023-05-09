@@ -2,7 +2,7 @@
 
 This extension will annotate media that appears in the `${param:INPUT_VIDEOS_BUCKET}` storage bucket under the `${param:INPUT_VIDEOS_PATH}` folder.
 
-Results of the transcoding will appear in the `${param:OUTPUT_BUCKET}` storage bucket inside the `${param:OUTPUT_VIDEOS_PATH}` folder.
+Results of the transcoding will appear in the `${param:OUTPUT_BUCKET}` storage bucket inside the `${param:OUTPUT_PATH}` folder.
 
 Please see [supported_inputs_outputs](https://cloud.google.com/video-intelligence/docs/supported-formats) for valid media formats.
 
