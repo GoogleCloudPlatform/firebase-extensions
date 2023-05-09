@@ -1,0 +1,35 @@
+{
+  "name": "firestore-palm-chatbot",
+  "scripts": {
+    "lint": "eslint \"src/**/*\"",
+    "lint:fix": "eslint \"src/**/*\" --fix",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "generate-readme": "firebase ext:info .. --markdown > ../README.md",
+    "test": "jest"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "@google-ai/generativelanguage": "^0.1.0",
+    "firebase-admin": "^11.6.0",
+    "firebase-functions": "^4.3.0",
+    "google-auth-library": "^8.8.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
+    "@typescript-eslint/parser": "^5.12.0",
+    "eslint": "^8.15.1",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-import": "^2.26.0",
+    "firebase-functions-test": "^3.0.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "ts-node": "^10.4.0",
+    "typescript": "^5.0.4"
+  },
+  "files": [
+    "lib"
+  ],
+  "private": true
+}
