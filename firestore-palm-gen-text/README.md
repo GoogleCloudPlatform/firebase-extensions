@@ -6,9 +6,7 @@
 
 
 
-**Details**: ## How this extension works
-
-> :warning: Note: The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
+**Details**: > ⚠️ The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 
 This extension allows you to perform language tasks using the PaLM API, a custom prompt, and Firestore.
 

@@ -6,7 +6,7 @@
 
 
 
-**Details**: > :warning: Note: The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
+**Details**: > ⚠️ The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 
 Use this extension to easily deploy a chatbot using the PaLM API, stored and managed by Cloud Firestore.
 
