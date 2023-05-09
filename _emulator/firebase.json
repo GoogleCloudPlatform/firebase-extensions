@@ -1,5 +1,6 @@
 {
   "extensions": {
+    "storage-image-text-extraction": "../storage-image-text-extraction",
     "storage-image-labeling": "../storage-video-labeling"
   },
   "storage": {
