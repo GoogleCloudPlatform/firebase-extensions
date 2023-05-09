@@ -1,17 +1,23 @@
-name: storage-image-text-extraction
-version: 0.0.4
+name: storage-extract-image-text
+version: 0.1.0
 specVersion: v1beta
 
-displayName: Image Text Extraction
-description: Extracts text from images uploaded to storage and writes extracted text to Firestore.
+displayName: Extract Image Text with Cloud Vision AI
+description: Extracts text from images and saves to Firestore using Cloud Vision API.
 
 license: Apache-2.0 # The license you want for the extension
 
 author:
-  authorName: Firebase
-  url: https://firebase.google.com
+  authorName: Google Cloud
+  url: https://cloud.google.com
 
-sourceUrl: https://github.com/FirebaseExtended/experimental-extensions/tree/main/storage-extract-image-text
+contributors:
+- authorName: Invertase
+  email: oss@invertase.io
+  url: https://github.com/invertase
+
+sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/storage-extract-image-text
+releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/storage-extract-image-text/CHANGELOG.md
 
 billingRequired: true
 
