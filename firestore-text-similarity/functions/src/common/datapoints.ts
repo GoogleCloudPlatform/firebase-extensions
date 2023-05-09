@@ -1,4 +1,4 @@
-i/**
+/**
  * Copyright 2023 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,7 @@ i/**
  * limitations under the License.
  */
 
-mport * as admin from 'firebase-admin';
+import * as admin from 'firebase-admin';
 import {FormattedDatapoint} from '../types/formatted_datapoint';
 import config from '../config';
 import getEmbeddingsPaLM from './palm_embeddings';
