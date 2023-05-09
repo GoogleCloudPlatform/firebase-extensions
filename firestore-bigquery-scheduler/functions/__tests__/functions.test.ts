@@ -1,22 +1,23 @@
-import { BigQuery, Dataset, Table } from "@google-cloud/bigquery";
-import * as firebaseFunctionsTest from "firebase-functions-test";
-import * as admin from "firebase-admin";
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import {BigQuery, Dataset, Table} from '@google-cloud/bigquery';
+import * as firebaseFunctionsTest from 'firebase-functions-test';
+import * as admin from 'firebase-admin';
 
-import config from "../src/config";
-import * as functions from "../src";
+import config from '../src/config';
+import * as functions from '../src';
 import {
   deleteAllDocumentsInCollection,
   generateRandomString,
   setupDataset,
-} from "./helper";
-import { mockConfig, updateConfig } from "./__mocks__";
+} from './helper';
+import {mockConfig, updateConfig} from './__mocks__';
 
-const { wrap } = firebaseFunctionsTest();
+const {wrap} = firebaseFunctionsTest();
 const db = admin.firestore();
 
-const bq = new BigQuery({ projectId: "dev-extensions-testing" });
+const bq = new BigQuery({projectId: 'dev-extensions-testing'});
 
-jest.mock("firebase-admin/extensions", () => {
+jest.mock('firebase-admin/extensions', () => {
   return {
     getExtensions: jest.fn(() => {
       return {
@@ -30,29 +31,29 @@ jest.mock("firebase-admin/extensions", () => {
   };
 });
 
-jest.mock("../src/config", () => {
+jest.mock('../src/config', () => {
   return {
     default: {
-      projectId: "dev-extensions-testing",
-      location: "us-central1",
-      datasetId: "scheduled_writes",
-      tableName: "scheduled_writes",
-      topic: "firestore-bigquery-scheduler",
-      firestoreCollection: "dev-extensions-testing",
-      instanceId: "dev-extensions-testing",
-      pubSubTopic: "ext-dev-extensions-testing-processMessages",
+      projectId: 'dev-extensions-testing',
+      location: 'us-central1',
+      datasetId: 'scheduled_writes',
+      tableName: 'scheduled_writes',
+      topic: 'firestore-bigquery-scheduler',
+      firestoreCollection: 'dev-extensions-testing',
+      instanceId: 'dev-extensions-testing',
+      pubSubTopic: 'ext-dev-extensions-testing-processMessages',
     },
   };
 });
 
-xdescribe("e2e testing", () => {
-  describe("transfer configuration", () => {
+xdescribe('e2e testing', () => {
+  describe('transfer configuration', () => {
     let dataset: Dataset;
     let table: Table;
 
     beforeEach(() => {
       // Reset the config object before each test
-      Object.assign(config, { ...mockConfig });
+      Object.assign(config, {...mockConfig});
     });
 
     beforeAll(async () => {
@@ -63,54 +64,54 @@ xdescribe("e2e testing", () => {
         config.tableName
       );
 
-      await deleteAllDocumentsInCollection(db, "dev-extensions-testing");
+      await deleteAllDocumentsInCollection(db, 'dev-extensions-testing');
     });
 
     afterAll(async () => {
-      console.log("deleting dataset");
-      await dataset.delete({ force: true });
+      console.log('deleting dataset');
+      await dataset.delete({force: true});
     });
 
-    xtest("returns the correct output given the config", async () => {
+    xtest('returns the correct output given the config', async () => {
       //@ts-ignore
       const wrapped = wrap(functions.upsertTransferConfig);
 
-      await wrapped({ data: {} });
+      await wrapped({data: {}});
 
       /** assert data */
     });
 
-    test("throws an error if no transfer config provided", async () => {
+    test('throws an error if no transfer config provided', async () => {
       //@ts-ignore
       const wrapped = wrap(functions.upsertTransferConfig);
 
-      await expect(wrapped({ data: {} })).rejects.toThrowError(
-        "not implemented transfer config parameter type object"
+      await expect(wrapped({data: {}})).rejects.toThrowError(
+        'not implemented transfer config parameter type object'
       );
     });
 
-    test("successfully creates a new transfer config document", async () => {
-      updateConfig(config, { transferConfigName: "testTransferConfigName" });
+    test('successfully creates a new transfer config document', async () => {
+      updateConfig(config, {transferConfigName: 'testTransferConfigName'});
 
       //@ts-ignore
       const wrapped = wrap(functions.upsertTransferConfig);
 
-      await wrapped({ data: {} });
+      await wrapped({data: {}});
 
       const doc = await admin
         .firestore()
-        .collection("dev-extensions-testing")
-        .doc("testTransferConfigName")
+        .collection('dev-extensions-testing')
+        .doc('testTransferConfigName')
         .get();
 
-      const { extInstanceId } = doc.data();
+      const {extInstanceId} = doc.data();
 
-      expect(extInstanceId).toBe("test-instance-id");
+      expect(extInstanceId).toBe('test-instance-id');
     });
   });
 
-  describe("processing messages", () => {
-    test("successfully processes a message", async () => {
+  describe('processing messages', () => {
+    test('successfully processes a message', async () => {
       /** Set variables **/
       const collection = db.collection(config.firestoreCollection);
       const transfterConfigId = generateRandomString();
@@ -119,12 +120,12 @@ xdescribe("e2e testing", () => {
 
       /** Assign documents */
       const document = collection.doc(transfterConfigId);
-      const runDoc = document.collection("runs").doc(runId);
+      const runDoc = document.collection('runs').doc(runId);
 
       //@ts-ignore
       const wrapped = wrap(functions.processMessages);
 
-      await wrapped({ json: { name } });
+      await wrapped({json: {name}});
 
       /** Get the document */
       const result = await runDoc.get();

@@ -1,5 +1,5 @@
-xdescribe("config", () => {
-  test("true is true", () => {
+xdescribe('config', () => {
+  test('true is true', () => {
     expect(true).toBeTruthy();
   });
 });

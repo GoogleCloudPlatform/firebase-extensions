@@ -1,8 +1,8 @@
-import { Config } from "./types";
-import * as admin from "firebase-admin";
-import * as logs from "./logs";
-import { BigQuery } from "@google-cloud/bigquery";
-import config from "./config";
+import {Config} from './types';
+import * as admin from 'firebase-admin';
+import * as logs from './logs';
+import {BigQuery} from '@google-cloud/bigquery';
+import config from './config';
 
 export const getBigqueryResults = async (
   projectId: string,
@@ -37,15 +37,15 @@ export const writeRunResultsToFirestore = async (
   message
 ) => {
   const name = message.json.name;
-  const splitName = name.split("/");
+  const splitName = name.split('/');
   const transferConfigId = splitName[splitName.length - 3];
   const runId = splitName[splitName.length - 1];
   const runTime = new Date(message.json.runTime);
-  const hourStr = String(runTime.getUTCHours()).padStart(2, "0");
-  const minuteStr = String(runTime.getUTCMinutes()).padStart(2, "0");
-  const secondStr = String(runTime.getUTCSeconds()).padStart(2, "0");
+  const hourStr = String(runTime.getUTCHours()).padStart(2, '0');
+  const minuteStr = String(runTime.getUTCMinutes()).padStart(2, '0');
+  const secondStr = String(runTime.getUTCSeconds()).padStart(2, '0');
   const tableName = message.json.params.destination_table_name_template.replace(
-    `{run_time|"%H%M%S"}`,
+    '{run_time|"%H%M%S"}',
     `${hourStr}${minuteStr}${secondStr}`
   );
 
@@ -57,7 +57,7 @@ export const writeRunResultsToFirestore = async (
     datasetId,
     tableName
   );
-  console.log("rows", rows);
+  console.log('rows', rows);
   logs.writeRunResultsToFirestore(runId);
   const collection = db.collection(
     `${config.firestoreCollection}/${transferConfigId}/runs/${runId}/output`
@@ -66,7 +66,7 @@ export const writeRunResultsToFirestore = async (
   // Perform parallel individual writes to Firestore and calculate total number of successes
   // @TODO: Skip processing if the transfer run was already written to Firestore
   const successes = await Promise.all(
-    rows.map((row) => {
+    rows.map(row => {
       try {
         collection.add(row);
         return 1;
@@ -99,7 +99,7 @@ export const writeRunResultsToFirestore = async (
   // Update the latest run document in Firestore for this transfer config as well.
   const latest = await db
     .collection(`${config.firestoreCollection}/${transferConfigId}/runs`)
-    .doc("latest")
+    .doc('latest')
     .get();
   const docUpdate = {
     runMetadata: message.json,
@@ -110,7 +110,7 @@ export const writeRunResultsToFirestore = async (
   if (!latest.data()) {
     await db
       .collection(`${config.firestoreCollection}/${transferConfigId}/runs`)
-      .doc("latest")
+      .doc('latest')
       .set(docUpdate);
   } else if (
     !!latest.data().runMetadata &&
@@ -119,7 +119,7 @@ export const writeRunResultsToFirestore = async (
   ) {
     await db
       .collection(`${config.firestoreCollection}/${transferConfigId}/runs`)
-      .doc("latest")
+      .doc('latest')
       .set(docUpdate);
   }
 };
@@ -130,10 +130,10 @@ export const transferConfigAssociatedWithExtension = async (
 ) => {
   const q = db
     .collection(config.firestoreCollection)
-    .where("extInstanceId", "==", config.instanceId);
+    .where('extInstanceId', '==', config.instanceId);
   const results = await q.get();
 
-  return results.docs.filter((d) => d.id === transferConfigId).length > 0;
+  return results.docs.filter(d => d.id === transferConfigId).length > 0;
 };
 
 export const handleMessage = async (
@@ -142,7 +142,7 @@ export const handleMessage = async (
   message
 ) => {
   const name = message.json.name;
-  const splitName = name.split("/");
+  const splitName = name.split('/');
   const transferConfigId = splitName[splitName.length - 3];
 
   const hasValidConfig = await transferConfigAssociatedWithExtension(
@@ -159,7 +159,7 @@ export const handleMessage = async (
   }
 
   const runId = splitName[splitName.length - 1];
-  if (message.json.state === "SUCCEEDED") {
+  if (message.json.state === 'SUCCEEDED') {
     await writeRunResultsToFirestore(db, message);
   } else {
     await db

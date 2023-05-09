@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-import * as admin from "firebase-admin";
-import * as functions from "firebase-functions";
-import { getExtensions } from "firebase-admin/extensions";
+import * as admin from 'firebase-admin';
+import * as functions from 'firebase-functions';
+import {getExtensions} from 'firebase-admin/extensions';
 
-import * as logs from "./logs";
-import config from "./config";
-import * as helper from "./helper";
-import * as dts from "./dts";
+import * as logs from './logs';
+import config from './config';
+import * as helper from './helper';
+import * as dts from './dts';
 
 logs.init();
-
-let db: admin.firestore.Firestore;
 
 /**
  * Initializes Admin SDK & SMTP connection if not already initialized.
  */
 
-admin.initializeApp({ projectId: config.projectId });
-db = admin.firestore();
+admin.initializeApp({projectId: config.projectId});
+const db = admin.firestore();
 
 export const upsertTransferConfig = functions.tasks
   .taskQueue()
@@ -40,7 +38,7 @@ export const upsertTransferConfig = functions.tasks
     const runtime = getExtensions().runtime();
 
     if (config.transferConfigName) {
-      const nameSplit = config.transferConfigName.split("/");
+      const nameSplit = config.transferConfigName.split('/');
       const transferConfigId = nameSplit[nameSplit.length - 1];
 
       // Ensure the latest transfer config object is stored in Firestore.
@@ -56,8 +54,8 @@ export const upsertTransferConfig = functions.tasks
           ...transferConfig,
         });
       await runtime.setProcessingState(
-        "PROCESSING_COMPLETE",
-        "Transfer Config Name was provided to the extension, and Transfer Config object was successfully written to Firestore."
+        'PROCESSING_COMPLETE',
+        'Transfer Config Name was provided to the extension, and Transfer Config object was successfully written to Firestore.'
       );
     } else {
       // See if we have a transfer config in Firestore associated with this extension
@@ -66,7 +64,7 @@ export const upsertTransferConfig = functions.tasks
 
       const q = db
         .collection(config.firestoreCollection)
-        .where("extInstanceId", "==", config.instanceId);
+        .where('extInstanceId', '==', config.instanceId);
 
       const results = await q.get();
 
@@ -74,7 +72,7 @@ export const upsertTransferConfig = functions.tasks
       if (results.size > 0) {
         const existingTransferConfig = results.docs[0].data();
         const transferConfigName = existingTransferConfig.name;
-        const splitName = transferConfigName.split("/");
+        const splitName = transferConfigName.split('/');
         const transferConfigId = splitName[splitName.length - 1];
 
         await dts.updateTransferConfig(transferConfigName);
@@ -89,13 +87,13 @@ export const upsertTransferConfig = functions.tasks
             ...updatedConfig,
           });
         await runtime.setProcessingState(
-          "PROCESSING_COMPLETE",
-          "Transfer Config Name was not provided to the extension, and an existing Transfer Config found. Transfer Config object was successfully updated in BQ and Firestore."
+          'PROCESSING_COMPLETE',
+          'Transfer Config Name was not provided to the extension, and an existing Transfer Config found. Transfer Config object was successfully updated in BQ and Firestore.'
         );
         return;
       } else {
         const transferConfig = await dts.createTransferConfig();
-        const splitName = transferConfig.name.split("/");
+        const splitName = transferConfig.name.split('/');
         const transferConfigId = splitName[splitName.length - 1];
 
         await db
@@ -106,8 +104,8 @@ export const upsertTransferConfig = functions.tasks
             ...transferConfig,
           });
         await runtime.setProcessingState(
-          "PROCESSING_COMPLETE",
-          "Transfer Config Name was not provided to the extension, and no existing Transfer Config found. Transfer Config object was successfully created in BQ and Firestore."
+          'PROCESSING_COMPLETE',
+          'Transfer Config Name was not provided to the extension, and no existing Transfer Config found. Transfer Config object was successfully created in BQ and Firestore.'
         );
       }
     }
@@ -116,7 +114,7 @@ export const upsertTransferConfig = functions.tasks
 
 export const processMessages = functions.pubsub
   .topic(config.pubSubTopic)
-  .onPublish(async (message) => {
+  .onPublish(async message => {
     logs.pubsubMessage(message);
     await helper.handleMessage(db, config, message);
     logs.pubsubMessageHandled(message);
@@ -126,6 +124,6 @@ export const processMessagesHttp = functions.https.onRequest(
   async (req, res) => {
     const message = req.body;
     await helper.handleMessage(db, config, message);
-    res.send("OK");
+    res.send('OK');
   }
 );

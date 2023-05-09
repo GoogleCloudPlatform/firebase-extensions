@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Config } from "./types";
+import {Config} from './types';
 
 const config: Config = {
   location: process.env.LOCATION,

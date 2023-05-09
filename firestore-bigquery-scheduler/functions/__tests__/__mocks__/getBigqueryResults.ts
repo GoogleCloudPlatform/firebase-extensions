@@ -1,6 +1,6 @@
-import * as functionsTestInit from "firebase-functions-test";
+import * as functionsTestInit from 'firebase-functions-test';
 
 export const mockGetBigqueryResults = () => {
-  let functionsTest = functionsTestInit();
-  return functionsTest.wrap(require("../../src").getBigqueryResults);
+  const functionsTest = functionsTestInit();
+  return functionsTest.wrap(require('../../src').getBigqueryResults);
 };

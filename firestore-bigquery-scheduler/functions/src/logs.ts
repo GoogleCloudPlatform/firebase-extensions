@@ -14,32 +14,32 @@
  * limitations under the License.
  */
 
-import config from "./config";
-import { logger } from "firebase-functions";
-import { pubsub } from "firebase-functions";
+import config from './config';
+import {logger} from 'firebase-functions';
+import {pubsub} from 'firebase-functions';
 
 export const obfuscatedConfig = Object.assign({}, config, {
-  smtpConnectionUri: "<omitted>",
-  smtpPassword: "<omitted>",
+  smtpConnectionUri: '<omitted>',
+  smtpPassword: '<omitted>',
 });
 
 export function init() {
-  logger.log("Initializing extension with configuration", obfuscatedConfig);
+  logger.log('Initializing extension with configuration', obfuscatedConfig);
 }
 
 export function start() {
   logger.log(
-    "Started execution of extension with configuration",
+    'Started execution of extension with configuration',
     obfuscatedConfig
   );
 }
 
 export function error(err: Error) {
-  logger.error("Unhandled error occurred during processing:", err);
+  logger.error('Unhandled error occurred during processing:', err);
 }
 
 export function complete() {
-  logger.log("Completed execution of extension");
+  logger.log('Completed execution of extension');
 }
 
 export function bigqueryJobStarted(jobId: string) {
@@ -47,7 +47,7 @@ export function bigqueryJobStarted(jobId: string) {
 }
 
 export function createTransferConfig() {
-  logger.log(`Creating a new transfer config.`);
+  logger.log('Creating a new transfer config.');
 }
 
 export function transferConfigCreated(transferConfigName: string) {
