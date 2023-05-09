@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as generativeLanguage from '@google-cloud/generativelanguage'
+import * as generativeLanguage from '@google-ai/generativelanguage';
 
-export type APIGenerateMessageRequest = generativeLanguage.protos.google.ai.generativelanguage.v1beta2.IGenerateMessageRequest
-export type APIMessage = generativeLanguage.protos.google.ai.generativelanguage.v1beta2.IMessage
-export type APIExample = generativeLanguage.protos.google.ai.generativelanguage.v1beta2.IExample
+export type APIGenerateMessageRequest =
+  generativeLanguage.protos.google.ai.generativelanguage.v1beta2.IGenerateMessageRequest;
+export type APIMessage =
+  generativeLanguage.protos.google.ai.generativelanguage.v1beta2.IMessage;
+export type APIExample =
+  generativeLanguage.protos.google.ai.generativelanguage.v1beta2.IExample;

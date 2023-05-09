@@ -1,24 +1,24 @@
-import * as firebaseFunctionsTest from "firebase-functions-test";
-import * as admin from "firebase-admin";
-import config from "../src/config";
-import { generateMessage } from "../src/index";
-import { WrappedFunction } from "firebase-functions-test/lib/v1";
-import { Change } from "firebase-functions/v1";
+import * as firebaseFunctionsTest from 'firebase-functions-test';
+import * as admin from 'firebase-admin';
+import config from '../src/config';
+import {generateMessage} from '../src/index';
+import {WrappedFunction} from 'firebase-functions-test/lib/v1';
+import {Change} from 'firebase-functions/v1';
 
-process.env.GCLOUD_PROJECT = "dev-extensions-testing";
+process.env.GCLOUD_PROJECT = 'dev-extensions-testing';
 
-process.env.FIRESTORE_EMULATOR_HOST = "127.0.0.1:8080";
+process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 
 // // We mock out the config here instead of setting environment variables directly
-jest.mock("../src/config", () => ({
+jest.mock('../src/config', () => ({
   default: {
-    collectionName: "discussionsTest/{discussionId}/messages",
-    location: "us-central1",
-    orderField: "createTime",
-    promptField: "prompt",
-    responseField: "response",
+    collectionName: 'discussionsTest/{discussionId}/messages',
+    location: 'us-central1',
+    orderField: 'createTime',
+    promptField: 'prompt',
+    responseField: 'response',
     enableDiscussionOptionOverrides: true,
-    candidatesField: "candidates",
+    candidatesField: 'candidates',
   },
 }));
 
@@ -26,18 +26,18 @@ jest.mock("../src/config", () => ({
 const mockAPI = jest.fn();
 
 // // Mock the video intelligence  clent
-jest.mock("@google-ai/generativelanguage", () => {
+jest.mock('@google-ai/generativelanguage', () => {
   return {
-    ...jest.requireActual("@google-ai/generativelanguage"),
+    ...jest.requireActual('@google-ai/generativelanguage'),
     DiscussServiceClient: function mockedClient() {
       return {
-        generateMessage: async (args: any) => {
+        generateMessage: async (args: unknown) => {
           mockAPI(args);
           return [
             {
               candidates: [
                 {
-                  content: "test response",
+                  content: 'test response',
                 },
               ],
             },
@@ -49,11 +49,11 @@ jest.mock("@google-ai/generativelanguage", () => {
 });
 
 const fft = firebaseFunctionsTest({
-  projectId: "dev-extensions-testing",
+  projectId: 'dev-extensions-testing',
 });
 
 admin.initializeApp({
-  projectId: "dev-extensions-testing",
+  projectId: 'dev-extensions-testing',
 });
 
 type DocumentReference = admin.firestore.DocumentReference;
@@ -71,34 +71,34 @@ const wrappedGenerateMessage = fft.wrap(
 
 const firestoreObserver = jest.fn();
 
-describe("generateMessage", () => {
+describe('generateMessage', () => {
   let unsubscribe: (() => void) | undefined;
-  const collectionName = config.collectionName.replace("{discussionId}", "1");
+  const collectionName = config.collectionName.replace('{discussionId}', '1');
 
   // clear firestore
   beforeEach(async () => {
     jest.clearAllMocks();
     await fetch(
       `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/dev-extensions-testing/databases/(default)/documents`,
-      { method: "DELETE" }
+      {method: 'DELETE'}
     );
     // set up observer on collection
     unsubscribe = admin
       .firestore()
       .collection(collectionName)
-      .onSnapshot((snap) => {
+      .onSnapshot(snap => {
         firestoreObserver(snap);
       });
   });
   afterEach(() => {
-    if (unsubscribe && typeof unsubscribe === "function") {
+    if (unsubscribe && typeof unsubscribe === 'function') {
       unsubscribe();
     }
   });
 
-  test("should not run if the prompt field is not set", async () => {
+  test('should not run if the prompt field is not set', async () => {
     const notMessage = {
-      notPrompt: "hello chat bison",
+      notPrompt: 'hello chat bison',
     };
     // Make a write to the collection. This won't trigger our wrapped function as it isn't deployed to the emulator.
     const ref = await admin
@@ -111,9 +111,9 @@ describe("generateMessage", () => {
     expectNoOp();
   });
 
-  test("should not run if the prompt field is empty", async () => {
+  test('should not run if the prompt field is empty', async () => {
     const notMessage = {
-      prompt: "",
+      prompt: '',
     };
 
     const ref = await admin
@@ -126,7 +126,7 @@ describe("generateMessage", () => {
     expectNoOp();
   });
 
-  test("should not run if the prompt field is not a string", async () => {
+  test('should not run if the prompt field is not a string', async () => {
     const notMessage = {
       prompt: 123,
     };
@@ -141,10 +141,10 @@ describe("generateMessage", () => {
     expectNoOp();
   });
 
-  test("should not run if response field is set from the start", async () => {
+  test('should not run if response field is set from the start', async () => {
     const message = {
-      prompt: "hello chat bison",
-      [config.responseField]: "user set response for some reason",
+      prompt: 'hello chat bison',
+      [config.responseField]: 'user set response for some reason',
     };
     const ref = await admin.firestore().collection(collectionName).add(message);
 
@@ -153,10 +153,10 @@ describe("generateMessage", () => {
     expectNoOp();
   });
 
-  test("should not run if status field is set from the start", async () => {
+  test('should not run if status field is set from the start', async () => {
     const message = {
-      prompt: "hello chat bison",
-      status: "user set status field for some reason",
+      prompt: 'hello chat bison',
+      status: 'user set status field for some reason',
     };
     const ref = await admin.firestore().collection(collectionName).add(message);
 
@@ -167,19 +167,19 @@ describe("generateMessage", () => {
 
   test("should update initial record with createTime if it doesn't have it", async () => {
     const message = {
-      prompt: "hello chat bison",
+      prompt: 'hello chat bison',
     };
     const ref = await admin.firestore().collection(collectionName).add(message);
 
     await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
 
     expect(firestoreObserver).toHaveBeenCalledTimes(2);
-    const firestoreCallData = firestoreObserver.mock.calls.map((call) =>
+    const firestoreCallData = firestoreObserver.mock.calls.map(call =>
       call[0].docs[0].data()
     );
 
     // This is left in just so we know our observer caught everything, sanity check:
-    expectToHaveKeys(firestoreCallData[0], ["prompt"]);
+    expectToHaveKeys(firestoreCallData[0], ['prompt']);
     expect(firestoreCallData[0].prompt).toEqual(message.prompt);
 
     expectToHaveKeys(firestoreCallData[1], [
@@ -190,9 +190,9 @@ describe("generateMessage", () => {
     expect(firestoreCallData[1][config.orderField]).toBeInstanceOf(Timestamp);
   });
 
-  test("should run when given createTime", async () => {
+  test('should run when given createTime', async () => {
     const message = {
-      prompt: "hello chat bison",
+      prompt: 'hello chat bison',
       createTime: Timestamp.now(),
     };
     const ref = await admin.firestore().collection(collectionName).add(message);
@@ -201,61 +201,61 @@ describe("generateMessage", () => {
 
     expect(firestoreObserver).toHaveBeenCalledTimes(3);
 
-    const firestoreCallData = firestoreObserver.mock.calls.map((call) =>
+    const firestoreCallData = firestoreObserver.mock.calls.map(call =>
       call[0].docs[0].data()
     );
 
     // This is left in just so we know our observer caught everything, sanity check:
-    expectToHaveKeys(firestoreCallData[0], ["createTime", "prompt"]);
+    expectToHaveKeys(firestoreCallData[0], ['createTime', 'prompt']);
     expect(firestoreCallData[0].prompt).toEqual(message.prompt);
     const orderFieldValue = firestoreCallData[0].createTime;
     expect(orderFieldValue).toBeInstanceOf(Timestamp);
     expectToHaveKeys(firestoreCallData[1], [
       config.orderField,
       config.promptField,
-      "status",
+      'status',
     ]);
     expect(firestoreCallData[1][config.promptField]).toBe(message.prompt);
     expect(firestoreCallData[1][config.orderField]).toEqual(orderFieldValue);
 
     // Then we expect the function to update the status to PROCESSING:
     expectToHaveKeys(firestoreCallData[1].status, [
-      "state",
-      "updateTime",
-      "startTime",
+      'state',
+      'updateTime',
+      'startTime',
     ]);
-    expect(firestoreCallData[1].status.state).toEqual("PROCESSING");
+    expect(firestoreCallData[1].status.state).toEqual('PROCESSING');
     expect(firestoreCallData[1].status.updateTime).toBeInstanceOf(Timestamp);
     const startTime = firestoreCallData[1].status.startTime;
     expect(startTime).toEqual(expect.any(Timestamp));
 
     // Then we expect the function to update the status to COMPLETED, with the response field populated:
     expectToHaveKeys(firestoreCallData[2], [
-      "createTime",
-      "prompt",
-      "response",
-      "status",
+      'createTime',
+      'prompt',
+      'response',
+      'status',
     ]);
     expect(firestoreCallData[2].prompt).toEqual(message.prompt);
     expect(firestoreCallData[2].createTime).toEqual(orderFieldValue);
     expect(firestoreCallData[2].status).toEqual({
       startTime,
-      state: "COMPLETED",
+      state: 'COMPLETED',
       error: null,
       completeTime: expect.any(Timestamp),
       updateTime: expect.any(Timestamp),
     });
-    expect(firestoreCallData[2].response).toEqual("test response");
+    expect(firestoreCallData[2].response).toEqual('test response');
 
     // verify SDK is called with expected arguments
     const expectedRequestData = {
       candidateCount: undefined,
-      model: "models/chat-bison-001",
+      model: 'models/chat-bison-001',
       prompt: {
         messages: [
           {
-            author: "0",
-            content: "hello chat bison",
+            author: '0',
+            content: 'hello chat bison',
           },
         ],
         context: undefined,
@@ -270,9 +270,9 @@ describe("generateMessage", () => {
     expect(mockAPI).toBeCalledWith(expectedRequestData);
   });
 
-  test("should run when not given createTime", async () => {
+  test('should run when not given createTime', async () => {
     const message = {
-      prompt: "hello chat bison",
+      prompt: 'hello chat bison',
     };
 
     // Make a write to the collection. This won't trigger our wrapped function as it isn't deployed to the emulator.
@@ -289,30 +289,30 @@ describe("generateMessage", () => {
 
     // we expect the firestore observer to be called 4 times total.
     expect(firestoreObserver).toHaveBeenCalledTimes(4);
-    const firestoreCallData = firestoreObserver.mock.calls.map((call) =>
+    const firestoreCallData = firestoreObserver.mock.calls.map(call =>
       call[0].docs[0].data()
     );
 
     // This is left in just so we know our observer caught everything, sanity check:
-    expectToHaveKeys(firestoreCallData[0], ["prompt"]);
+    expectToHaveKeys(firestoreCallData[0], ['prompt']);
     expect(firestoreCallData[0].prompt).toEqual(message.prompt);
 
     // We expect the function to first add a createTime:
-    expectToHaveKeys(firestoreCallData[1], ["prompt", "createTime"]);
+    expectToHaveKeys(firestoreCallData[1], ['prompt', 'createTime']);
     expect(firestoreCallData[1].prompt).toEqual(message.prompt);
     const createTime = firestoreCallData[1].createTime;
     expect(createTime).toEqual(expect.any(Timestamp));
 
     // Then we expect the function to update the status to PROCESSING:
-    expectToHaveKeys(firestoreCallData[2], ["prompt", "createTime", "status"]);
+    expectToHaveKeys(firestoreCallData[2], ['prompt', 'createTime', 'status']);
     expect(firestoreCallData[2].prompt).toEqual(message.prompt);
     expect(firestoreCallData[2].createTime).toEqual(createTime);
     expectToHaveKeys(firestoreCallData[2].status, [
-      "state",
-      "updateTime",
-      "startTime",
+      'state',
+      'updateTime',
+      'startTime',
     ]);
-    expect(firestoreCallData[2].status.state).toEqual("PROCESSING");
+    expect(firestoreCallData[2].status.state).toEqual('PROCESSING');
     expect(firestoreCallData[2].status.updateTime).toEqual(
       expect.any(Timestamp)
     );
@@ -321,31 +321,31 @@ describe("generateMessage", () => {
 
     // Then we expect the function to update the status to COMPLETED, with the response field populated:
     expectToHaveKeys(firestoreCallData[3], [
-      "prompt",
-      "createTime",
-      "response",
-      "status",
+      'prompt',
+      'createTime',
+      'response',
+      'status',
     ]);
     expect(firestoreCallData[3].prompt).toEqual(message.prompt);
     expect(firestoreCallData[3].createTime).toEqual(createTime);
     expect(firestoreCallData[3].status).toEqual({
       startTime,
-      state: "COMPLETED",
+      state: 'COMPLETED',
       error: null,
       completeTime: expect.any(Timestamp),
       updateTime: expect.any(Timestamp),
     });
-    expect(firestoreCallData[3].response).toEqual("test response");
+    expect(firestoreCallData[3].response).toEqual('test response');
 
     // verify SDK is called with expected arguments
     const expectedRequestData = {
       candidateCount: undefined,
-      model: "models/chat-bison-001",
+      model: 'models/chat-bison-001',
       prompt: {
         messages: [
           {
-            author: "0",
-            content: "hello chat bison",
+            author: '0',
+            content: 'hello chat bison',
           },
         ],
         context: undefined,
@@ -364,7 +364,7 @@ describe("generateMessage", () => {
 const simulateFunctionTriggered =
   (wrappedFunction: WrappedFirebaseFunction) =>
   async (ref: DocumentReference, before?: DocumentSnapshot) => {
-    const data = (await ref.get()).data() as { [key: string]: any };
+    const data = (await ref.get()).data() as {[key: string]: unknown};
     const beforeFunctionExecution = fft.firestore.makeDocumentSnapshot(
       data,
       `discussionsTest/1/messages/${ref.id}`

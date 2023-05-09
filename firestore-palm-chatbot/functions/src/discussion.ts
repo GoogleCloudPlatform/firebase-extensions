@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-import { DiscussServiceClient } from "@google-ai/generativelanguage";
-import * as logs from "./logs";
-import { GoogleAuth } from "google-auth-library";
-import { APIGenerateMessageRequest, APIMessage, APIExample } from "./types";
+import {DiscussServiceClient} from '@google-ai/generativelanguage';
+import * as logs from './logs';
+import {GoogleAuth} from 'google-auth-library';
+import {APIGenerateMessageRequest, APIMessage, APIExample} from './types';
 export interface Message {
   prompt?: string;
   response?: string;
@@ -75,12 +75,12 @@ export interface GenerateMessageOptions {
    */
   temperature?: number;
   /**
- * Set or override temperature for this request.
- */
+   * Set or override temperature for this request.
+   */
   topP?: number;
   /**
- * Set or override temperature for this request.
- */
+   * Set or override temperature for this request.
+   */
   topK?: number;
   /**
    * Set or override context context for this request.
@@ -115,14 +115,14 @@ export class Discussion {
   private client: DiscussServiceClient;
   context?: string;
   examples?: Message[] = [];
-  model: string = "models/chat-bison-001";
+  model = 'models/chat-bison-001';
   temperature?: number;
   candidateCount?: number;
   topP?: number;
   topK?: number;
 
   constructor(options: DiscussionOptions = {}) {
-    this.context = options.context
+    this.context = options.context;
     this.examples = options.examples || [];
     this.temperature = options.temperature;
     this.topP = options.topP;
@@ -133,14 +133,13 @@ export class Discussion {
 
     const auth = new GoogleAuth({
       scopes: [
-        "https://www.googleapis.com/auth/userinfo.email",
-        "https://www.googleapis.com/auth/generative-language"
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/generative-language',
       ],
     });
     this.client = new DiscussServiceClient({
-      auth
-    })
-
+      auth,
+    });
   }
 
   async send(
@@ -157,12 +156,12 @@ export class Discussion {
 
     const messages = [
       ...this.messagesToApi(history),
-      { author: "0", content: prompt },
+      {author: '0', content: prompt},
     ];
 
     const request: APIGenerateMessageRequest = {
       prompt: {
-        messages
+        messages,
       },
       model: this.model,
       temperature: options.temperature || this.temperature,
@@ -172,24 +171,27 @@ export class Discussion {
     };
 
     request.prompt!.context = options.context || this.context;
-    request.prompt!.examples = this.messagesToExamples(options.examples || this.examples || []);
+    request.prompt!.examples = this.messagesToExamples(
+      options.examples || this.examples || []
+    );
 
-    return this.generateMessage(request)
+    return this.generateMessage(request);
   }
 
-  private async generateMessage(request: APIGenerateMessageRequest): Promise<GenerateMessageResponse> {
-
+  private async generateMessage(
+    request: APIGenerateMessageRequest
+  ): Promise<GenerateMessageResponse> {
     const [result] = await this.client.generateMessage(request);
     if (!result.candidates || !result.candidates.length) {
-      throw new Error("No candidates returned from server.");
+      throw new Error('No candidates returned from server.');
     }
 
     const content = result.candidates[0].content;
 
-    const candidates = result.candidates!.map(c => c.content!)
+    const candidates = result.candidates!.map(c => c.content!);
 
     if (!content) {
-      throw new Error("No content returned from server.");
+      throw new Error('No content returned from server.');
     }
     const messages = result.messages || [];
 
@@ -197,16 +199,14 @@ export class Discussion {
       response: content,
       candidates,
       history: this.messagesFromApi(messages),
-    }
+    };
   }
-
 
   private messagesToApi(messages: Message[]): APIMessage[] {
     const out: APIMessage[] = [];
     for (const message of messages) {
-      if (message.prompt) out.push({ author: "0", content: message.prompt });
-      if (message.response)
-        out.push({ author: "1", content: message.response });
+      if (message.prompt) out.push({author: '0', content: message.prompt});
+      if (message.response) out.push({author: '1', content: message.response});
     }
     return out;
   }
@@ -215,17 +215,17 @@ export class Discussion {
     const out = [];
     for (let i = 0; i < messages.length; i += 2) {
       out.push({
-        prompt: messages[i].content || "",
-        response: messages[i + 1]?.content || "",
+        prompt: messages[i].content || '',
+        response: messages[i + 1]?.content || '',
       });
     }
     return out;
   }
 
   private messagesToExamples(messages: Message[]): APIExample[] {
-    return messages.map((m) => ({
-      input: { author: "0", content: m.prompt! },
-      output: { author: "1", content: m.response! },
+    return messages.map(m => ({
+      input: {author: '0', content: m.prompt!},
+      output: {author: '1', content: m.response!},
     }));
   }
 }

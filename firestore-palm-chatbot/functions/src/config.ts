@@ -32,14 +32,14 @@ export interface Config {
 const config: Config = {
   collectionName:
     process.env.COLLECTION_NAME ||
-    "users/{uid}/discussions/{discussionId}/messages",
-  model: process.env.MODEL || "models/chat-bison-001",
+    'users/{uid}/discussions/{discussionId}/messages',
+  model: process.env.MODEL || 'models/chat-bison-001',
   context: process.env.CONTEXT,
-  promptField: process.env.PROMPT_FIELD || "prompt",
-  responseField: process.env.RESPONSE_FIELD || "response",
-  orderField: process.env.ORDER_FIELD || "createTime",
+  promptField: process.env.PROMPT_FIELD || 'prompt',
+  responseField: process.env.RESPONSE_FIELD || 'response',
+  orderField: process.env.ORDER_FIELD || 'createTime',
   enableDiscussionOptionOverrides:
-    process.env.ENABLE_DISCUSSION_OPTION_OVERRIDES === "yes",
+    process.env.ENABLE_DISCUSSION_OPTION_OVERRIDES === 'yes',
   temperature: process.env.TEMPERATURE
     ? parseFloat(process.env.TEMPERATURE)
     : undefined,
@@ -48,7 +48,7 @@ const config: Config = {
   candidateCount: process.env.CANDIDATE_COUNT
     ? parseInt(process.env.CANDIDATE_COUNT)
     : 1,
-  candidatesField: process.env.CANDIDATES_FIELD || "candidates",
+  candidatesField: process.env.CANDIDATES_FIELD || 'candidates',
 };
 
 export default config;

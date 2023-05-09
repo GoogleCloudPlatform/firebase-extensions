@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import * as functions from "firebase-functions";
-import * as logs from "./logs";
-import config from "./config";
-import { Discussion, GenerateMessageOptions, Message } from "./discussion";
-import { DocumentReference, FieldValue } from "firebase-admin/firestore";
+import * as functions from 'firebase-functions';
+import * as logs from './logs';
+import config from './config';
+import {Discussion, GenerateMessageOptions, Message} from './discussion';
+import {DocumentReference, FieldValue} from 'firebase-admin/firestore';
 
 const {
   model,
@@ -48,7 +48,7 @@ logs.init(config);
 
 export const generateMessage = functions.firestore
   .document(collectionName)
-  .onWrite(async (change) => {
+  .onWrite(async change => {
     if (!change.after) {
       return; // do nothing on delete
     }
@@ -58,9 +58,9 @@ export const generateMessage = functions.firestore
     // only make an API call if prompt is provided, response is missing, and there's no in-process status
     if (
       !newPrompt ||
-      typeof newPrompt !== "string" ||
+      typeof newPrompt !== 'string' ||
       (await change.after.get(responseField)) ||
-      (await change.after.get("status"))
+      (await change.after.get('status'))
     ) {
       return;
     }
@@ -80,19 +80,19 @@ export const generateMessage = functions.firestore
       status: {
         updateTime: FieldValue.serverTimestamp(),
         startTime: FieldValue.serverTimestamp(),
-        state: "PROCESSING",
+        state: 'PROCESSING',
       },
     });
 
     try {
       const t0 = performance.now();
-      let requestOptions: GenerateMessageOptions = { history };
+      let requestOptions: GenerateMessageOptions = {history};
 
       if (enableDiscussionOptionOverrides) {
         const discussionOptions = await fetchDiscussionOptions(ref);
 
         if (discussionOptions) {
-          requestOptions = { ...requestOptions, ...discussionOptions };
+          requestOptions = {...requestOptions, ...discussionOptions};
         }
       }
 
@@ -104,42 +104,42 @@ export const generateMessage = functions.firestore
       const addCandidateField =
         candidatesField && candidateCount && candidateCount > 1;
 
-      let completeData = addCandidateField
+      const completeData = addCandidateField
         ? {
             [responseField]: result.response,
             [candidatesField]: result.candidates,
-            "status.state": "COMPLETED",
-            "status.completeTime": FieldValue.serverTimestamp(),
-            "status.updateTime": FieldValue.serverTimestamp(),
-            "status.error": null,
+            'status.state': 'COMPLETED',
+            'status.completeTime': FieldValue.serverTimestamp(),
+            'status.updateTime': FieldValue.serverTimestamp(),
+            'status.error': null,
           }
         : {
             [responseField]: result.response,
-            "status.state": "COMPLETED",
-            "status.completeTime": FieldValue.serverTimestamp(),
-            "status.updateTime": FieldValue.serverTimestamp(),
-            "status.error": null,
+            'status.state': 'COMPLETED',
+            'status.completeTime': FieldValue.serverTimestamp(),
+            'status.updateTime': FieldValue.serverTimestamp(),
+            'status.error': null,
           };
       return ref.update(completeData);
-    } catch (e: any) {
+    } catch (e: unknown) {
       // TODO: this error log needs to be more specific, not necessarily an API error here.
       logs.errorCallingGLMAPI(ref.path, e);
       return ref.update({
-        "status.state": "ERRORED",
-        "status.completeTime": FieldValue.serverTimestamp(),
-        "status.updateTime": FieldValue.serverTimestamp(),
-        "status.error":
+        'status.state': 'ERRORED',
+        'status.completeTime': FieldValue.serverTimestamp(),
+        'status.updateTime': FieldValue.serverTimestamp(),
+        'status.error':
           // TODO: Probably have better errors here but still don't leak underlying error.
-          "An error occurred while processing the provided message.",
+          'An error occurred while processing the provided message.',
       });
     }
   });
 
 async function fetchHistory(ref: DocumentReference) {
-  const collSnap = await ref.parent.orderBy(orderField, "desc").get();
+  const collSnap = await ref.parent.orderBy(orderField, 'desc').get();
   return collSnap.docs
-    .filter((snap) => !snap.ref.isEqual(ref))
-    .map((snap) => ({
+    .filter(snap => !snap.ref.isEqual(ref))
+    .map(snap => ({
       prompt: snap.get(promptField),
       response: snap.get(responseField),
     }));
@@ -159,30 +159,30 @@ async function fetchDiscussionOptions(
   }
   let overrides = {};
 
-  for (const field of ["context", "model", "examples", "continue"]) {
-    overrides = { ...overrides, [field]: discussionDocSnap.get(field) };
+  for (const field of ['context', 'model', 'examples', 'continue']) {
+    overrides = {...overrides, [field]: discussionDocSnap.get(field)};
   }
 
-  for (const field of ["topK", "candidateCount"]) {
+  for (const field of ['topK', 'candidateCount']) {
     const value = parseInt(discussionDocSnap.get(field));
     if (value && !Number.isNaN(value)) {
-      overrides = { ...overrides, [field]: value };
+      overrides = {...overrides, [field]: value};
     }
   }
 
-  for (const field of ["topP", "temperature"]) {
+  for (const field of ['topP', 'temperature']) {
     const value = parseFloat(discussionDocSnap.get(field));
     if (value && !Number.isNaN(value)) {
-      overrides = { ...overrides, [field]: value };
+      overrides = {...overrides, [field]: value};
     }
   }
 
-  if (discussionDocSnap.get("examples")) {
-    const examples = discussionDocSnap.get("examples");
+  if (discussionDocSnap.get('examples')) {
+    const examples = discussionDocSnap.get('examples');
     if (examples) {
       const validatedExamples = validateExamples(examples);
       if (validatedExamples.length > 0) {
-        overrides = { ...overrides, examples: validatedExamples };
+        overrides = {...overrides, examples: validatedExamples};
       }
     }
   }
@@ -191,15 +191,15 @@ async function fetchDiscussionOptions(
 
 function validateExamples(examples: Record<string, unknown>[]): Message[] {
   if (!Array.isArray(examples)) {
-    throw new Error("Invalid examples: " + JSON.stringify(examples));
+    throw new Error('Invalid examples: ' + JSON.stringify(examples));
   }
-  let validExamples: Message[] = [];
+  const validExamples: Message[] = [];
   for (const example of examples) {
     // check obj has prompt or response
     const prompt = example.prompt;
     const response = example.response;
-    if (typeof prompt !== "string" || typeof response !== "string") {
-      throw new Error("Invalid example: " + JSON.stringify(example));
+    if (typeof prompt !== 'string' || typeof response !== 'string') {
+      throw new Error('Invalid example: ' + JSON.stringify(example));
     }
     validExamples.push(example);
   }

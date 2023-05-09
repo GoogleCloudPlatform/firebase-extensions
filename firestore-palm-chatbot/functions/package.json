@@ -12,7 +12,8 @@
   "dependencies": {
     "@google-ai/generativelanguage": "^0.1.0",
     "firebase-admin": "^11.6.0",
-    "firebase-functions": "^4.3.0"
+    "firebase-functions": "^4.3.0",
+    "google-auth-library": "^8.8.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",
@@ -27,5 +28,8 @@
     "ts-node": "^10.4.0",
     "typescript": "^5.0.4"
   },
+  "files": [
+    "lib"
+  ],
   "private": true
 }
