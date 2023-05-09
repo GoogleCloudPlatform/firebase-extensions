@@ -219,7 +219,7 @@ params:
     immutable: false
 
   - param: CANDIDATES_FIELD
-    label: Candidate count
+    label: Candidates field
     description: >-
       The field in the message document into which to put the other candidate responses if the candidate count parameter is greater than one.
     type: string
