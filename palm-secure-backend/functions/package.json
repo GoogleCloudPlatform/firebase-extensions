@@ -1,5 +1,5 @@
 {
-  "name": "palm-secure-backnd",
+  "name": "palm-secure-backend",
   "scripts": {
     "lint": "eslint \"src/**/*\"",
     "lint:fix": "eslint \"src/**/*\" --fix",

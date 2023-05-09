@@ -1,5 +1,5 @@
 {
-  "name": "storage-image-labeling",
+  "name": "storage-label-images",
   "scripts": {
     "lint": "eslint \"src/**/*\"",
     "build": "tsc",

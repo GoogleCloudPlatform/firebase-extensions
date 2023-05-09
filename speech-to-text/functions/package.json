@@ -1,5 +1,5 @@
 {
-  "name": "storage-transcribe-audio",
+  "name": "speech-to-text",
   "scripts": {
     "lint": "eslint --ext .js,.ts .",
     "build": "tsc",

@@ -1,5 +1,5 @@
 {
-  "name": "firestore-translate-text-functions",
+  "name": "text-to-speech",
   "description": "Firebase Cloud Functions for the Firestore Text to Speech in Firestore Extension",
   "main": "lib/index.js",
   "license": "Apache-2.0",
