@@ -4,7 +4,10 @@ specVersion: v1beta
 
 displayName: Transcribe Speech to Text
 description:
-  Transcribes audio files in Cloud Storage to .txt files using Cloud Speech To Text.
+  Transcribes audio files in Cloud Storage to .txt files using Cloud Speech To
+  Text.
+
+icon: icon.png
 
 license: Apache-2.0 # The license you want for the extension
 
