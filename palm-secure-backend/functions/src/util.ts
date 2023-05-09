@@ -29,13 +29,29 @@ const checkAuth = (context: CallableContext) => {
   }
 };
 
+const checkAppCheck = (context: CallableContext) => {
+  if (context.app == undefined) {
+    throw new HttpsError(
+      'failed-precondition',
+      'The function must be called from an App Check verified app.'
+    );
+  }
+};
+
 export function onAuthenticatedCall<TData, TResponse>(
   handler: (data: TData, context: functions.https.CallableContext) => TResponse
 ): functions.HttpsFunction & functions.Runnable<TData> {
-  return functions.https.onCall(async (data, context) => {
-    checkAuth(context);
-    return handler(data, context);
-  });
+  return functions
+    .runWith({
+      enforceAppCheck: config.enforceAppCheck, // Requests without valid App Check tokens will be rejected.
+    })
+    .https.onCall(async (data, context) => {
+      if (config.enforceAppCheck) {
+        checkAppCheck(context);
+      }
+      checkAuth(context);
+      return handler(data, context);
+    });
 }
 
 export const fetchFromApi = async (url: string, options?: RequestInit) => {
