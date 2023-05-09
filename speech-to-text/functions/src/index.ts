@@ -103,7 +103,7 @@ export const transcribeAudio = functions.storage
       const transcodedUploadResult = await uploadTranscodedFile({
         localPath: transcodeResult.outputPath,
         storagePath:
-          (config.outputCollection || '') + transcodeResult.outputPath,
+          config.outputStoragePath ? `${config.outputStoragePath}${transcodeResult.outputPath}` : transcodeResult.outputPath.slice(1),
         bucket: bucket,
       });
       if (transcodedUploadResult.status == Status.FAILURE) {
