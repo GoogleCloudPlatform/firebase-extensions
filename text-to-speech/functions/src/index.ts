@@ -27,6 +27,8 @@ admin.initializeApp();
 
 const ttsClient = new tts.TextToSpeechClient();
 
+logger.log('Initializing text-to-speech extension with config:', config);
+
 export const textToSpeech = functions.firestore
   .document(`${config.collectionPath}/{docId}`)
   .onCreate(async snap => {
@@ -48,7 +50,9 @@ export const textToSpeech = functions.firestore
         const speech = await processText(request);
         if (speech && speech.audioContent) {
           // Merge the address validity data with the address document.
-          const fileExtension = getFileExtension(audioEncoding);
+          const fileExtension = getFileExtension(
+            audioEncoding || config.audioEncoding
+          );
 
           const fileName = config.storagePath
             ? `${config.storagePath}/${snap.id}${fileExtension}`

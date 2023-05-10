@@ -24,6 +24,8 @@ Upon install you will be asked to provide a Firestore collection path and a Stor
 
 Before installing this extension, make sure that you've set up a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) and [Cloud Storage bucket](https://firebase.google.com/docs/storage) in your Firebase project.
 
+Keep in mind that not all SSML genders and voice types are supported for every language. The Text to Speech API documentation gives a comprehensive list of [supported voices and languages](https://cloud.google.com/text-to-speech/docs/voices).
+
 ## Billing
 
 To install an extension, your project must be on the Blaze (pay as you go) plan.
