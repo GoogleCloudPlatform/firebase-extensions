@@ -59,18 +59,29 @@ exports.extractText = functions.storage.object().onFinalize(async object => {
   if (textAnnotations.length === 0 || !textAnnotations[0].description) {
     logs.noTextFound(object.name!);
 
-    // replace slash with underscores
-    const documentName = object.name!.replace(/\//g, '_');
-
-    await admin
+    // check if document with file field filePath already exists
+    const snapshot = await admin
       .firestore()
       .collection(config.collectionPath)
-      .doc(documentName)
-      .set({
+      .where('file', '==', filePath)
+      .get();
+
+    // if document with file field filePath already exists, overwrite it
+    if (!snapshot.empty) {
+      const docId = snapshot.docs[0].id;
+      await admin.firestore().collection(config.collectionPath).doc(docId).set(
+        {
+          file: filePath,
+          text: null,
+        },
+        {merge: true}
+      );
+    } else {
+      await admin.firestore().collection(config.collectionPath).add({
         file: filePath,
         text: null,
       });
-
+    }
     return;
   }
 
@@ -87,11 +98,21 @@ exports.extractText = functions.storage.object().onFinalize(async object => {
           textAnnotations,
         };
 
-  const documentName = object.name!.replace(/\//g, '_');
-
-  await admin
+  const snapshot = await admin
     .firestore()
     .collection(config.collectionPath)
-    .doc(documentName)
-    .set(data);
+    .where('file', '==', filePath)
+    .get();
+
+  // if document with file field filePath already exists, overwrite it
+  if (!snapshot.empty) {
+    const docId = snapshot.docs[0].id;
+    await admin
+      .firestore()
+      .collection(config.collectionPath)
+      .doc(docId)
+      .set(data, {merge: true});
+  } else {
+    await admin.firestore().collection(config.collectionPath).add(data);
+  }
 });
