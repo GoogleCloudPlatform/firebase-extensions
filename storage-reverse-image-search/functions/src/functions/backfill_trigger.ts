@@ -24,7 +24,13 @@ import * as utils from '../common/utils';
 import {File} from '@google-cloud/storage';
 import {BackfillStatus} from '../types/backfill_status';
 
-export async function backfillTriggerHandler(forceCreateIndex = false) {
+export async function backfillTriggerHandler({
+  forceCreateIndex = false,
+  object,
+}: {
+  forceCreateIndex?: boolean;
+  object?: functions.storage.ObjectMetadata;
+}) {
   const runtime = getExtensions().runtime();
 
   if (!forceCreateIndex && !config.doBackfill) {
@@ -47,7 +53,7 @@ export async function backfillTriggerHandler(forceCreateIndex = false) {
   }
 
   try {
-    const objects = await utils.listImagesInBucket();
+    const objects = await utils.listImagesInBucket(object);
 
     if (objects.length === 0) {
       return runtime.setProcessingState(

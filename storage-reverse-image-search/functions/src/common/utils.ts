@@ -17,6 +17,7 @@
 import {google} from 'googleapis';
 import * as admin from 'firebase-admin';
 import {GoogleAuth} from 'google-auth-library';
+import * as functions from 'firebase-functions';
 import {Bucket, File} from '@google-cloud/storage';
 import * as os from 'os';
 import * as path from 'path';
@@ -134,8 +135,20 @@ export const isImage = (filename: string): boolean => {
   return imageExtensions.includes(fileExtension);
 };
 
-export async function listImagesInBucket(): Promise<File[]> {
+export async function listImagesInBucket(
+  object?: functions.storage.ObjectMetadata
+): Promise<File[]> {
   try {
+    if (object) {
+      const [file] = await admin
+        .storage()
+        .bucket(config.imgBucket)
+        .file(object.name!)
+        .get();
+
+      return [file];
+    }
+
     // Get a list of files in the bucket
     const [files] = await admin
       .storage()

@@ -25,7 +25,13 @@ import {BackfillStatus} from '../types/backfill_status';
 
 const batchSize = config.embeddingMethod === 'palm' ? 50 : 500;
 
-export async function backfillTriggerHandler(forceCreateIndex = false) {
+export async function backfillTriggerHandler({
+  forceCreateIndex = false,
+  document,
+}: {
+  forceCreateIndex?: boolean;
+  document?: functions.firestore.DocumentSnapshot;
+}) {
   const runtime = getExtensions().runtime();
 
   if (!forceCreateIndex && !config.doBackfill) {
@@ -54,7 +60,7 @@ export async function backfillTriggerHandler(forceCreateIndex = false) {
   try {
     const collection = admin.firestore().collection(config.collectionName);
 
-    const refs = await collection.listDocuments();
+    const refs = document ? [document.ref] : await collection.listDocuments();
 
     if (refs.length === 0) {
       return runtime.setProcessingState(
