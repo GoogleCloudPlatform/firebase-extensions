@@ -59,10 +59,13 @@ exports.extractText = functions.storage.object().onFinalize(async object => {
   if (textAnnotations.length === 0 || !textAnnotations[0].description) {
     logs.noTextFound(object.name!);
 
+    // replace slash with underscores
+    const documentName = object.name!.replace(/\//g, '_');
+
     await admin
       .firestore()
       .collection(config.collectionPath)
-      .doc(object.name!)
+      .doc(documentName)
       .set({
         file: filePath,
         text: null,
@@ -84,9 +87,11 @@ exports.extractText = functions.storage.object().onFinalize(async object => {
           textAnnotations,
         };
 
+  const documentName = object.name!.replace(/\//g, '_');
+
   await admin
     .firestore()
     .collection(config.collectionPath)
-    .doc(object.name!)
+    .doc(documentName)
     .set(data);
 });

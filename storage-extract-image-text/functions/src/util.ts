@@ -50,20 +50,6 @@ export const shouldExtractText = (
   return true;
 };
 
-export const startsWithArray = (
-  userInputPaths: string[],
-  imagePath: string
-) => {
-  for (const userPath of userInputPaths) {
-    const trimmedUserPath = userPath
-      .trim()
-      .replace(/\*/g, '([a-zA-Z0-9_\\-.\\s\\/]*)?');
-
-    const regex = new RegExp('^' + trimmedUserPath + '(?:/.*|$)');
-
-    if (regex.test(imagePath)) {
-      return true;
-    }
-  }
-  return false;
+export const startsWithArray = (array: string[], str: string): boolean => {
+  return array.some(p => str.startsWith(p));
 };
