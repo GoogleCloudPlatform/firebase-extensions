@@ -62,16 +62,29 @@ export const labelImage = functions.storage
 
     logs.writingToFirestore(object.name!);
     // prevent from creating a document with a slash in the name
-    const docName = object.name!.replace(/\//g, '_');
 
-    const labels = formatLabels(labelAnnotations);
+    const filePath = `gs://${object.bucket}/${object.name}`;
 
-    await admin
+    const data = {
+      file: filePath,
+      labels: formatLabels(labelAnnotations),
+    };
+
+    const snapshot = await admin
       .firestore()
       .collection(config.collectionPath)
-      .doc(docName)
-      .set({
-        file: `gs://${object.bucket}/${object.name}`,
-        labels,
-      });
+      .where('file', '==', filePath)
+      .get();
+
+    // if document with file field filePath already exists, overwrite it
+    if (!snapshot.empty) {
+      const docId = snapshot.docs[0].id;
+      await admin
+        .firestore()
+        .collection(config.collectionPath)
+        .doc(docId)
+        .set(data, {merge: true});
+    } else {
+      await admin.firestore().collection(config.collectionPath).add(data);
+    }
   });
