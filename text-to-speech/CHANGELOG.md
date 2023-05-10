@@ -1,3 +1,7 @@
+## Version 0.1.3
+
+Fix audio encoding.
+
 ## Version 0.1.2
 
 Update docs.
