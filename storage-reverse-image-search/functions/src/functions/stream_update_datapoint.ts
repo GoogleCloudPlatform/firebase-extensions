@@ -77,7 +77,10 @@ export async function streamUpdateDatapointHandler(
         'Index not found, creating a new one and retrying...'
       );
 
-      await backfillTriggerHandler(true);
+      await backfillTriggerHandler({
+        forceCreateIndex: true,
+        object: object,
+      });
       return;
     }
 
