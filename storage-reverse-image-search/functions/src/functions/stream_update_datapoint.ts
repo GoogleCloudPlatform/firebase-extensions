@@ -29,8 +29,11 @@ import {backfillTriggerHandler} from './backfill_trigger';
 export async function streamUpdateDatapointHandler(
   object: functions.storage.ObjectMetadata
 ) {
-  const indexStatus = await checkIndexStatus();
-  if (indexStatus !== IndexStatus.DEPLOYED) {
+  const {status, index} = await checkIndexStatus();
+  if (
+    (index && status !== IndexStatus.DEPLOYED) ||
+    status === IndexStatus.BUILDING
+  ) {
     functions.logger.info('Index not deployed yet, skipping...');
     const queue = getFunctions().taskQueue(
       'datapointWriteTask',
@@ -68,32 +71,23 @@ export async function streamUpdateDatapointHandler(
     // Get the index name from the metadata document.
     const metdata = await admin.firestore().doc(config.metadataDoc).get();
     const index = metdata.data()?.index;
+
     if (!index) {
-      functions.logger.error('Index not found');
+      functions.logger.error(
+        'Index not found, creating a new one and retrying...'
+      );
+
+      await backfillTriggerHandler(true);
       return;
     }
 
-    try {
-      // Upsert the datapoint to the index.
-      await upsertDatapoint(index, [
-        {
-          datapoint_id: object.name,
-          feature_vector: vector[0],
-        },
-      ]);
-    } catch (error) {
-      if ((error as AxiosError).response?.status === 404) {
-        functions.logger.error(
-          'Index not found, creating a new one and retrying...'
-        );
-
-        await backfillTriggerHandler();
-
-        return;
-      } else {
-        throw error;
-      }
-    }
+    // Upsert the datapoint to the index.
+    await upsertDatapoint(index, [
+      {
+        datapoint_id: object.name,
+        feature_vector: vector[0],
+      },
+    ]);
   } catch (error) {
     functions.logger.error((error as AxiosError).response);
   }

@@ -4,14 +4,28 @@ specVersion: v1beta
 
 icon: icon.png
 
-tags: [ai, search, semantic-search, vector-search, text-search, nlp, llm, large-language-models, palm, embeddings, google-ai]
+tags:
+  [
+    ai,
+    search,
+    semantic-search,
+    vector-search,
+    text-search,
+    nlp,
+    llm,
+    large-language-models,
+    palm,
+    embeddings,
+    google-ai,
+  ]
 
 displayName: Semantic Search with Vertex AI
 
 description: >-
-  Search for semantically similar text documents in Firestore with PaLM API and Vertex AI Matching Engine.
+  Search for semantically similar text documents in Firestore with PaLM API and
+  Vertex AI Matching Engine.
 
-license: Apache-2.0  # https://spdx.org/licenses/
+license: Apache-2.0 # https://spdx.org/licenses/
 
 sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/master/firestore-semantic-search
 releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/master/firestore-semantic-search/CHANGELOG.md
@@ -39,7 +53,7 @@ apis:
 
   - apiName: storage-component.googleapis.com
     reason: Needed to use Cloud Storage
-      
+
 roles:
   - role: datastore.user
     reason: >-
@@ -47,21 +61,24 @@ roles:
 
   - role: storage.admin
     reason: >-
-      This extension requires write access to Cloud Storage to create a bucket and upload embeddings files to it as part of the backfill.
+      This extension requires write access to Cloud Storage to create a bucket
+      and upload embeddings files to it as part of the backfill.
 
   - role: aiplatform.user
     reason: >-
-      This extension requires access to Vertex AI to create, update and query a Vertex Matching Engine index.
+      This extension requires access to Vertex AI to create, update and query a
+      Vertex Matching Engine index.
 
 resources:
   - name: backfillTrigger
     type: firebaseextensions.v1beta.function
     description: >-
-      Sets up the Vertex Matching Engine index and creates a private connection to it.
+      Sets up the Vertex Matching Engine index and creates a private connection
+      to it.
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: "nodejs16"
+      runtime: 'nodejs16'
       timeout: 540s
       taskQueueTrigger: {}
 
@@ -72,19 +89,20 @@ resources:
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: "nodejs16"
+      runtime: 'nodejs16'
       timeout: 540s
       taskQueueTrigger: {}
 
   - name: backfillTask
     type: firebaseextensions.v1beta.function
     description: >-
-      A task-triggered function that gets called before a Vertex Matching Engine index is created.
-      It backfills embeddings for all documents in the collection.
+      A task-triggered function that gets called before a Vertex Matching Engine
+      index is created. It backfills embeddings for all documents in the
+      collection.
     properties:
       availableMemoryMb: 1024
       location: ${LOCATION}
-      runtime: "nodejs16"
+      runtime: 'nodejs16'
       timeout: 540s
       taskQueueTrigger:
         retryConfig:
@@ -93,12 +111,13 @@ resources:
   - name: createIndexTrigger
     type: firebaseextensions.v1beta.function
     description: >-
-      An event-triggered function that gets called when a special metadata document updated.
-      It checks the status of the backfill every time, and once it's done it will trigger index creation.
+      An event-triggered function that gets called when a special metadata
+      document updated. It checks the status of the backfill every time, and
+      once it's done it will trigger index creation.
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: "nodejs16"
+      runtime: 'nodejs16'
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.update
         resource: projects/${param:PROJECT_ID}/databases/(default)/documents/_ext-${param:EXT_INSTANCE_ID}/tasks
@@ -106,7 +125,8 @@ resources:
   - name: onIndexCreated
     type: firebaseextensions.v1beta.v2function
     description: >-
-      An event-triggered function that gets called when a Vertex Matching Engine index is created.
+      An event-triggered function that gets called when a Vertex Matching Engine
+      index is created.
     properties:
       location: ${LOCATION}
       buildConfig:
@@ -125,7 +145,8 @@ resources:
   - name: onIndexDeployed
     type: firebaseextensions.v1beta.v2function
     description: >-
-      An event-triggered function that gets called when a Vertex Matching Engine index is deployed.
+      An event-triggered function that gets called when a Vertex Matching Engine
+      index is deployed.
     properties:
       location: ${LOCATION}
       buildConfig:
@@ -144,11 +165,12 @@ resources:
   - name: streamUpdateDatapoint
     type: firebaseextensions.v1beta.function
     description: >-
-      An event-triggered function that gets called when a document is created or updated.
-      It generates embeddings for the document and updates the Matching Engine index.
+      An event-triggered function that gets called when a document is created or
+      updated. It generates embeddings for the document and updates the Matching
+      Engine index.
     properties:
       location: ${LOCATION}
-      runtime: "nodejs16"
+      runtime: 'nodejs16'
       availableMemoryMb: 512
       timeout: 540s
       eventTrigger:
@@ -162,7 +184,7 @@ resources:
       It deleted the document's datapoint from the Matching Engine index.
     properties:
       location: ${LOCATION}
-      runtime: "nodejs16"
+      runtime: 'nodejs16'
       availableMemoryMb: 512
       timeout: 540s
       eventTrigger:
@@ -172,13 +194,13 @@ resources:
   - name: datapointWriteTask
     type: firebaseextensions.v1beta.function
     description: >-
-      A task-triggered function that gets scheduled when a new write operation is detected
-      but the index isn't ready.
-      It generates embeddings for the document and updates the Matching Engine index.
+      A task-triggered function that gets scheduled when a new write operation
+      is detected but the index isn't ready. It generates embeddings for the
+      document and updates the Matching Engine index.
     properties:
       availableMemoryMb: 1024
       location: ${LOCATION}
-      runtime: "nodejs16"
+      runtime: 'nodejs16'
       timeout: 540s
       taskQueueTrigger: {}
 
@@ -189,7 +211,7 @@ resources:
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: "nodejs16"
+      runtime: 'nodejs16'
       httpsTrigger: {}
 
 params:
@@ -204,16 +226,22 @@ params:
   - param: FIELDS
     label: Fields in a Document to index
     description: >-
-      Comma-separated list of field names to include in the search index.
-      If you leave this blank, all fields will be indexed.
+      Comma-separated list of field names to include in the search index. If you
+      leave this blank, all fields will be indexed.
     type: string
     required: false
     immutable: true
+    validationRegex: ^[a-z]+(,[a-z]+)*$
+    validationErrorMessage: >-
+      Variables may only use lowercase letters from A to Z, and may only be
+      separated by commas. Trailing commas and empty variable names are not
+      allowed.
 
   - param: DO_BACKFILL
     label: Do backfill?
     description: >-
-      Whether to backfill embeddings for all documents currently in the collection.
+      Whether to backfill embeddings for all documents currently in the
+      collection.
     type: select
     required: true
     immutable: true
@@ -226,8 +254,10 @@ params:
   - param: EMBEDDING_METHOD
     label: Embeddings method
     description: >-
-      Do you want to use [PaLM](https://developers.generativeai.google/guide/palm_api_overview) for embeddings 
-      or [Universal Sentence Encoder](https://tfhub.dev/google/universal-sentence-encoder/4)?
+      Do you want to use
+      [PaLM](https://developers.generativeai.google/guide/palm_api_overview) for
+      embeddings  or [Universal Sentence
+      Encoder](https://tfhub.dev/google/universal-sentence-encoder/4)?
     type: select
     options:
       - label: PaLM (Pathways Language Model)
@@ -240,8 +270,8 @@ params:
   - param: PALM_EMBEDDING_MODEL
     label: PaLM embeddings model
     description: >-
-      In case you chose PaLM embeddings, which model do you want to use?
-      Note that this will be ignored if you chose Universal Sentence Encoder.
+      In case you chose PaLM embeddings, which model do you want to use? Note
+      that this will be ignored if you chose Universal Sentence Encoder.
     type: select
     options:
       - label: embedding-gecko-001
@@ -251,8 +281,9 @@ params:
   - param: DISTANCE_MEASURE
     label: Distance measure type
     description: >-
-      The distance measure used in nearest neighbor search. The default is dot product. 
-      [Read more about distance measures here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#distance-measure-type).
+      The distance measure used in nearest neighbor search. The default is dot
+      product.  [Read more about distance measures
+      here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#distance-measure-type).
     type: select
     required: true
     default: DOT_PRODUCT_DISTANCE
@@ -265,12 +296,13 @@ params:
         value: COSINE_DISTANCE
       - label: Dot product
         value: DOT_PRODUCT_DISTANCE
-  
+
   - param: ALGORITHM_CONFIG
     label: Algorithm config
     description: >-
       The configuration with regard to the algorithms used for efficient search.
-      [Read more about algorithm config here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#tree-ah-config).
+      [Read more about algorithm config
+      here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#tree-ah-config).
     type: select
     required: true
     default: bruteForceConfig
@@ -283,8 +315,9 @@ params:
   - param: N_COUNT
     label: Approximate number of neighbors
     description: >-
-      The approximate number of neighbors to return in the response.
-      [Read more about this parameter here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#nearest-neighbor-search-config).
+      The approximate number of neighbors to return in the response. [Read more
+      about this parameter
+      here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#nearest-neighbor-search-config).
     default: 100
     required: true
     immutable: true
@@ -294,8 +327,8 @@ params:
   - param: LOCATION
     label: Cloud Functions location
     description: >-
-      Where do you want to deploy the functions created for this extension?
-      For help selecting a location, refer to the [location selection
+      Where do you want to deploy the functions created for this extension? For
+      help selecting a location, refer to the [location selection
       guide](https://firebase.google.com/docs/functions/locations).
     type: select
     options:

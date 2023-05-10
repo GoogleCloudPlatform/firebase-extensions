@@ -40,8 +40,13 @@ export async function datapointWriteTaskHandler(data: any) {
     config.instanceId
   );
 
-  const indexStatus = await checkIndexStatus();
-  if (indexStatus !== IndexStatus.DEPLOYED) {
+  const {index, status} = await checkIndexStatus();
+
+  // If the index exist but isn't deployed yet, or is still building retry in an hour.
+  if (
+    (index && status !== IndexStatus.DEPLOYED) ||
+    status === IndexStatus.BUILDING
+  ) {
     functions.logger.info('Index not deployed yet, skipping...');
 
     // Index isn't ready yet, retry in an hour.

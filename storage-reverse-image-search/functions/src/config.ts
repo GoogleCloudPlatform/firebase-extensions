@@ -23,12 +23,12 @@ export default {
   instanceId: process.env.EXT_INSTANCE_ID!,
 
   // User-defined vars
-
   path: process.env.IMG_PATH,
   modelUrl: process.env.MODEL_URL!,
   imgBucket: process.env.IMG_BUCKET!,
   neighbors: parseInt(process.env.N_COUNT!),
   batchSize: parseInt(process.env.BATCH_SIZE!),
+  doBackfill: process.env.DO_BACKFILL === 'true',
   distanceMeasureType: process.env.DISTANCE_MEASURE!,
   algorithmConfig: process.env.ALGORITHM_CONFIG! as AlgorithmConfig,
   inputShape: parseInt(process.env.INPUT_SHAPE!.split(',')[0]),

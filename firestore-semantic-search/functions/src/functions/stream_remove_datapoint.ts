@@ -26,8 +26,11 @@ import {checkIndexStatus, removeDatapoint} from '../common/vertex';
 export async function streamRemoveDatapointHandler(
   snap: FirebaseFirestore.DocumentSnapshot
 ) {
-  const indexStatus = await checkIndexStatus();
-  if (indexStatus !== IndexStatus.DEPLOYED) {
+  const {status, index} = await checkIndexStatus();
+  if (
+    (index && status !== IndexStatus.DEPLOYED) ||
+    status === IndexStatus.BUILDING
+  ) {
     functions.logger.info('Index not deployed yet, skipping...');
     const queue = getFunctions().taskQueue(
       'datapointWriteTask',
@@ -58,16 +61,7 @@ export async function streamRemoveDatapointHandler(
 
     functions.logger.info(`Removing datapoint ${snap.id}`);
 
-    try {
-      await removeDatapoint(index, [snap.id]);
-    } catch (error) {
-      if ((error as AxiosError).response?.status === 404) {
-        functions.logger.error('Index not found, nothing to remove');
-        return;
-      } else {
-        throw error;
-      }
-    }
+    await removeDatapoint(index, [snap.id]);
   } catch (error) {
     functions.logger.error((error as AxiosError).response);
   }
