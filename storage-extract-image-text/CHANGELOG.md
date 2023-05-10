@@ -1,3 +1,7 @@
+## Version 0.1.2
+
+Writes to Firestore with URL stored in "file" document field rather than as document ID.
+
 ## Version 0.1.1
 
 Fix bug with subfolders not writing back to Firestore
