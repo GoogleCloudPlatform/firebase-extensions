@@ -1,3 +1,7 @@
+## Version 0.1.2
+
+Updated docs.
+
 ## Version 0.1.1
 
 Update release notes and source URL.
