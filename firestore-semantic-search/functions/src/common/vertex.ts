@@ -335,7 +335,11 @@ export async function deleteOperationByName(operationName: string) {
   }
 }
 
-export async function checkIndexStatus(): Promise<IndexStatus | undefined> {
+export async function checkIndexStatus(): Promise<{
+  status?: IndexStatus;
+  index?: string;
+  indexEndpoint?: string;
+}> {
   const metdata = await admin.firestore().doc(config.metadataDoc).get();
-  return metdata.data()?.status as IndexStatus;
+  return metdata.data() ?? {};
 }

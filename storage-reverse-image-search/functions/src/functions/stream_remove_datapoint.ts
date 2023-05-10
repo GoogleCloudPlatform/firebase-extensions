@@ -27,8 +27,11 @@ import {checkIndexStatus, removeDatapoint} from '../common/vertex';
 export async function streamRemoveDatapointHandler(
   object: functions.storage.ObjectMetadata
 ) {
-  const indexStatus = await checkIndexStatus();
-  if (indexStatus !== IndexStatus.DEPLOYED) {
+  const {status, index} = await checkIndexStatus();
+  if (
+    (index && status !== IndexStatus.DEPLOYED) ||
+    status === IndexStatus.BUILDING
+  ) {
     functions.logger.info('Index not deployed yet, skipping...');
     const queue = getFunctions().taskQueue(
       'datapointWriteTask',
@@ -69,18 +72,8 @@ export async function streamRemoveDatapointHandler(
       return;
     }
 
-    try {
-      // Remove a datapoint from the index by its ID.
-      await removeDatapoint(index, [imagePath]);
-    } catch (error) {
-      if ((error as AxiosError).response?.status === 404) {
-        functions.logger.error('Index not found, nothing to remove');
-
-        return;
-      } else {
-        throw error;
-      }
-    }
+    // Remove a datapoint from the index by its ID.
+    await removeDatapoint(index, [imagePath]);
   } catch (error) {
     functions.logger.error((error as AxiosError).response);
   }

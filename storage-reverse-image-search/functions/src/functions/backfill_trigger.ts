@@ -24,10 +24,10 @@ import * as utils from '../common/utils';
 import {File} from '@google-cloud/storage';
 import {BackfillStatus} from '../types/backfill_status';
 
-export async function backfillTriggerHandler() {
+export async function backfillTriggerHandler(forceCreateIndex = false) {
   const runtime = getExtensions().runtime();
 
-  if (!config.doBackfill) {
+  if (!forceCreateIndex && !config.doBackfill) {
     return runtime.setProcessingState(
       'PROCESSING_WARNING',
       'Backfill is disabled, index setup will start with the first image is added.'

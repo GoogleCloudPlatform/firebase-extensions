@@ -25,10 +25,10 @@ import {BackfillStatus} from '../types/backfill_status';
 
 const batchSize = config.embeddingMethod === 'palm' ? 50 : 500;
 
-export async function backfillTriggerHandler() {
+export async function backfillTriggerHandler(forceCreateIndex = false) {
   const runtime = getExtensions().runtime();
 
-  if (!config.doBackfill) {
+  if (!forceCreateIndex && !config.doBackfill) {
     return runtime.setProcessingState(
       'PROCESSING_WARNING',
       `Backfill is disabled, index setup will start with the first write operation to the collection ${config.collectionName}.`

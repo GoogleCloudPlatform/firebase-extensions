@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import {getFunctions} from 'firebase-admin/functions';
 
@@ -29,8 +28,11 @@ import {backfillTriggerHandler} from './backfill_trigger';
 export async function streamUpdateDatapointHandler(
   snap: FirebaseFirestore.DocumentSnapshot
 ) {
-  const indexStatus = await checkIndexStatus();
-  if (indexStatus !== IndexStatus.DEPLOYED) {
+  const {status, index} = await checkIndexStatus();
+  if (
+    (index && status !== IndexStatus.DEPLOYED) ||
+    status === IndexStatus.BUILDING
+  ) {
     functions.logger.info('Index not deployed yet, skipping...');
     const queue = getFunctions().taskQueue(
       'datapointWriteTask',
@@ -67,36 +69,25 @@ export async function streamUpdateDatapointHandler(
   functions.logger.info('Datapoint generated 🎉');
   try {
     // Get the index name from the metadata document.
-    const metdata = await admin.firestore().doc(config.metadataDoc).get();
-    const index = metdata.data()?.index;
+    functions.logger.info('Upserting datapoint to index', datapoint);
+
     if (!index) {
-      functions.logger.error('Index not found');
+      functions.logger.error(
+        'Index not found, creating a new one and retrying...'
+      );
+
+      await backfillTriggerHandler(true);
+
       return;
     }
 
-    functions.logger.info('Upserting datapoint to index', datapoint);
-
-    try {
-      // Upsert the datapoint to the index.
-      await upsertDatapoint(index, [
-        {
-          datapoint_id: datapoint.id,
-          feature_vector: datapoint.embedding,
-        },
-      ]);
-    } catch (error) {
-      if ((error as AxiosError).response?.status === 404) {
-        functions.logger.error(
-          'Index not found, creating a new one and retrying...'
-        );
-
-        await backfillTriggerHandler();
-
-        return;
-      } else {
-        throw error;
-      }
-    }
+    // Upsert the datapoint to the index.
+    await upsertDatapoint(index, [
+      {
+        datapoint_id: datapoint.id,
+        feature_vector: datapoint.embedding,
+      },
+    ]);
   } catch (error) {
     functions.logger.error((error as AxiosError).response);
   }
