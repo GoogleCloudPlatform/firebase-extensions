@@ -1,4 +1,4 @@
-> :warning: Note: The Vertex Matching Engine Public Endpoints feature and PaLM API are currently in public preview. 
+> ⚠️ The Vertex Matching Engine Public Endpoints feature and PaLM API are currently in public preview. 
 > 
 > For details and limitations, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/matching-engine/deploy-index-public) and [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq). 
 > 
