@@ -1,3 +1,7 @@
+## Version 0.1.1
+
+Fix bug with subfolders not writing back to Firestore
+
 ## Version 0.1.0
 
 Version for release
