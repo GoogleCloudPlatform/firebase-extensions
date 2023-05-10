@@ -316,7 +316,7 @@ params:
     required: true
 
   - param: AUDIO_ENCODING
-    label: SSML Gender
+    label: Audio Encoding
     description: >-
       What audio encoding do you want to use?
     type: select

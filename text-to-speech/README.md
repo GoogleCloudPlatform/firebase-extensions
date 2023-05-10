@@ -61,7 +61,7 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * SSML Gender: What SSML Gender do you want to use?
 
-* SSML Gender: What audio encoding do you want to use?
+* Audio Encoding: What audio encoding do you want to use?
 
 * Enable per document overrides.: If set to \"Yes\", options for converting audio will be overwritten  by fields in the document containing the text to be converted.
 
