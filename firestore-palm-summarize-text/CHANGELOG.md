@@ -1,3 +1,7 @@
+## Version 0.1.3
+
+Add warning about waitlist.
+
 ## Version 0.1.2
 
 Updated docs.
