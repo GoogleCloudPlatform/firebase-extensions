@@ -71,6 +71,7 @@ export const writeRunResultsToFirestore = async (
         collection.add(row);
         return 1;
       } catch (err) {
+        logs.errorWritingToFirestore(err);
         return 0;
       }
     })

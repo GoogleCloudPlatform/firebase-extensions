@@ -3,7 +3,7 @@ export interface Config {
   bigqueryDatasetLocation: string;
   projectId: string;
   instanceId: string;
-  transferConfigName: string;
+  transferConfigName?: string;
   datasetId?: string;
   tableName?: string;
   queryString?: string;

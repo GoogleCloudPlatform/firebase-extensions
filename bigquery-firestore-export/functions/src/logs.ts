@@ -34,6 +34,10 @@ export function start() {
   );
 }
 
+export function errorWritingToFirestore(err: Error) {
+  logger.error('Error writing to Firestore:', err);
+}
+
 export function error(err: Error) {
   logger.error('Unhandled error occurred during processing:', err);
 }

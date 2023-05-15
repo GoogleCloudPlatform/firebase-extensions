@@ -21,7 +21,7 @@ const config: Config = {
   bigqueryDatasetLocation: process.env.BIGQUERY_DATASET_LOCATION!,
   projectId: process.env.PROJECT_ID!,
   instanceId: process.env.EXT_INSTANCE_ID!,
-  transferConfigName: process.env.TRANSFER_CONFIG_NAME!,
+  transferConfigName: process.env.TRANSFER_CONFIG_NAME,
   datasetId: process.env.DATASET_ID,
   tableName: process.env.TABLE_NAME,
   queryString: process.env.QUERY_STRING,
@@ -29,7 +29,7 @@ const config: Config = {
   partitioningField: process.env.PARTITIONING_FIELD,
   schedule: process.env.SCHEDULE,
   pubSubTopic: `ext-${process.env.EXT_INSTANCE_ID}-processMessages`,
-  firestoreCollection: process.env.FIRESTORE_COLLECTION!,
+  firestoreCollection: process.env.COLLECTION_PATH!,
 };
 
 export default config;

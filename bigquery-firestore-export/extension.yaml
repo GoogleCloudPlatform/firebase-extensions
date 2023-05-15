@@ -210,7 +210,7 @@ params:
   - param: TRANSFER_CONFIG_NAME
     label: Transfer Config Name
     description: >-
-      If you have a pre-existing transfer config you'd like to use, please enter the name here. If provided, all params except FIRESTORE_COLLECTION, LOCATION, and BIGQUERY_DATASET_LOCATION are ignored.
+      If you have a pre-existing transfer config you'd like to use, please enter the name here. If provided, all params except COLLECTION_PATH, LOCATION, and BIGQUERY_DATASET_LOCATION are ignored.
     type: string
     example: projects/<PROJECT_ID>/locations/<location>/642f3a36-0000-2fbb-ad1d-001a114e2fa6
     required: false
@@ -273,7 +273,7 @@ params:
     required: false
     immutable: true
 
-  - param: FIRESTORE_COLLECTION
+  - param: COLLECTION_PATH
     label: Firestore Collection
     description: >-
       What's the top-level Firestore Collection to store transfer configs, run metadata, and query output?
