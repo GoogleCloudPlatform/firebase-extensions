@@ -1,7 +1,7 @@
 import {Config} from './types';
 import * as admin from 'firebase-admin';
 import * as logs from './logs';
-import {BigQuery} from '@google-cloud/bigquery';
+import {BigQuery, BigQueryTimestamp} from '@google-cloud/bigquery';
 import config from './config';
 
 export const getBigqueryResults = async (
@@ -68,7 +68,7 @@ export const writeRunResultsToFirestore = async (
   const successes = await Promise.all(
     rows.map(row => {
       try {
-        collection.add(row);
+        collection.add(convertUnsupportedDataTypes(row));
         return 1;
       } catch (err) {
         logs.errorWritingToFirestore(err);
@@ -171,3 +171,18 @@ export const handleMessage = async (
       });
   }
 };
+
+function convertUnsupportedDataTypes(row: any) {
+  for (const [key, value] of Object.entries(row)) {
+    if (value instanceof BigQueryTimestamp) {
+      row[key] = admin.firestore.Timestamp.fromDate(new Date(value.value));
+    } else if (value instanceof Date) {
+      row[key] = admin.firestore.Timestamp.fromDate(value);
+    } else if (value instanceof Buffer) {
+      row[key] = new Uint8Array(value);
+    } else if (typeof value === 'object' && value !== null) {
+      row[key] = convertUnsupportedDataTypes(value);
+    }
+  }
+  return row;
+}
