@@ -72,9 +72,10 @@ params:
     required: false
     immutable: false
     validationRegex: ^[a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*$
-    validationErrorMessage:
-      Variables may only use uppercase and lowercase letters from A to Z, and may only be separated by commas.
-      Trailing commas and empty variable names are not allowed.
+    validationErrorMessage: >-
+      Field names may only use upper and lowercase letters from A to Z,
+      underscores, or numbers, and may only be separated by commas. Trailing
+      commas and empty variable names are not allowed.
 
   - param: RESPONSE_FIELD
     label: Response Field
