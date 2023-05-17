@@ -37,3 +37,8 @@ Once you have the latestRunId, you can query the results of the query within Fir
 const q = db.collection(`transferConfigs/${transferConfigId}/runs/${latestRunId}/output`)
 const results = await q.get();
 ```
+
+## Uninstalling the Extension
+The extension does not delete the BigQuery Transfer Config (scheduled query) automatically when you uninstall the extension. 
+
+BigQuery charges by data processed, so your project will continue to incur costs until you manually delete the scheduled query. You can manage your scheduled queries directly in [Cloud Console](https://console.cloud.google.com/bigquery/scheduled-queries).
