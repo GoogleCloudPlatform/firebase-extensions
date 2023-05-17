@@ -4,7 +4,7 @@ This extension helps developers to set up their frontend clients to subscribe to
 
 To use the extension, developers will configure a specific Firestore document for each query and have their frontends listen for updates, and the BigQuery table/query to execute. In the background, BigQuery will run the query on a schedule, and the extension will write the result back to the specified document. Schedules are managed as Transfer Configs using the [Data Transfer Service](https://cloud.google.com/bigquery/docs/scheduling-queries).
 
-Upon installation, a Transfer Config is created for you via the Data Transfer Service API. This Transfer Config will be updated if you update the extension parameters for the instance. You can also choose to use an existing Transfer Config, in which case the extension won’t manage the creation/updates for you.
+Upon installation, a Transfer Config is created for you via the Data Transfer Service API. This Transfer Config will be updated if you update the extension parameters for the instance. 
 
 If you would like to specify multiple queries at different intervals, you can create multiple instances of the extension.
 
