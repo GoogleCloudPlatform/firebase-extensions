@@ -1,3 +1,7 @@
+## Version 0.1.4
+
+Updated configuration regexes to allow more characters.
+
 ## Version 0.1.3
 
 Add warning about waitlist.
