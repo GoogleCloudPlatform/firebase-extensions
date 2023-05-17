@@ -71,7 +71,7 @@ params:
     type: string
     required: false
     immutable: false
-    validationRegex: ^[A-Za-z]+(,[A-Za-z]+)*$
+    validationRegex: ^[a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*$
     validationErrorMessage:
       Variables may only use uppercase and lowercase letters from A to Z, and may only be separated by commas.
       Trailing commas and empty variable names are not allowed.
