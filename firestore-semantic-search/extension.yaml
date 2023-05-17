@@ -231,12 +231,11 @@ params:
     type: string
     required: false
     immutable: true
-    validationRegex: ^[a-zA-Z_][a-zA-Z0-9_]{0,99}(,[a-zA-Z_][a-zA-Z0-9_]{0,99})*$
+    validationRegex: ^[a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*$
     validationErrorMessage: >-
-      Field names may only use upper and lowercase letters from A to Z or,
-      underscores, followed by any sequence of letters, nymbers, or underscores.
-      Field names shouldn't exceed 100 characters and may only be separated by
-      commas. Trailing commas and empty variable names are not allowed.
+      Field names may only use upper and lowercase letters from A to Z,
+      underscores, or numbers, and may only be separated by commas. Trailing
+      commas and empty variable names are not allowed.
 
   - param: DO_BACKFILL
     label: Do backfill?
