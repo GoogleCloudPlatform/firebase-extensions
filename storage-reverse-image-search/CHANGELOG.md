@@ -1,3 +1,7 @@
+## Version 0.1.3
+
+Updated PREINSTALL to include link Google Cloud docs on undeploying indexes.
+
 ## Version 0.1.2
 
 Fixed a bug where disabling backfill still tries to process images prior to extension installation.

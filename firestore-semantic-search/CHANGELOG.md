@@ -1,3 +1,7 @@
+## Version 0.1.4
+
+Updated PREINSTALL to include link Google Cloud docs on undeploying indexes.
+
 ## Version 0.1.3
 
 Updated the validation for the `Fields` parameter to allow more Firestore field names format.
