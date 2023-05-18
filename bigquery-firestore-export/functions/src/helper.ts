@@ -1,7 +1,14 @@
+/* eslint-disable node/no-unsupported-features/es-builtins */
 import {Config} from './types';
 import * as admin from 'firebase-admin';
 import * as logs from './logs';
-import {BigQuery, BigQueryTimestamp} from '@google-cloud/bigquery';
+import {
+  BigQuery,
+  BigQueryTimestamp,
+  BigQueryDate,
+  BigQueryDatetime,
+  BigQueryTime,
+} from '@google-cloud/bigquery';
 import config from './config';
 
 export const getBigqueryResults = async (
@@ -57,32 +64,39 @@ export const writeRunResultsToFirestore = async (
     datasetId,
     tableName
   );
-  console.log('rows', rows);
   logs.writeRunResultsToFirestore(runId);
   const collection = db.collection(
     `${config.firestoreCollection}/${transferConfigId}/runs/${runId}/output`
   );
+  // break rows up into chunks of at most 10000
+  const CHUNK_SIZE = 10000;
 
-  // Perform parallel individual writes to Firestore and calculate total number of successes
-  // @TODO: Skip processing if the transfer run was already written to Firestore
-  const successes = await Promise.all(
-    rows.map(row => {
-      try {
-        collection.add(convertUnsupportedDataTypes(row));
-        return 1;
-      } catch (err) {
-        logs.errorWritingToFirestore(err);
-        return 0;
+  const rowLength = rows.length;
+
+  let succeededRowCount = 0;
+
+  for (let i = 0; i < rowLength; i += CHUNK_SIZE) {
+    const promises = [];
+
+    for (let j = i; j < i + CHUNK_SIZE && j < rowLength; j++) {
+      promises.push(collection.add(convertUnsupportedDataTypes(rows[j])));
+    }
+
+    const results = await Promise.allSettled<
+      admin.firestore.DocumentReference<admin.firestore.DocumentData>
+    >(promises);
+
+    for (let k = 0; k < results.length; k++) {
+      const result = results[k];
+      if (result.status === 'fulfilled') {
+        succeededRowCount++;
+      } else {
+        logs.errorWritingToFirestore(result.reason);
       }
-    })
-  );
+    }
+  }
 
-  const succeededRowCount = successes.reduce(
-    (partialSum, a) => partialSum + a,
-    0
-  );
-
-  const failedRowCount = rows.length - succeededRowCount;
+  const failedRowCount = rowLength - succeededRowCount;
   logs.runResultsWrittenToFirestore(runId, succeededRowCount, rows.length);
 
   // @TODO: Update run docs in a single transaction
@@ -175,6 +189,12 @@ export const handleMessage = async (
 function convertUnsupportedDataTypes(row: any) {
   for (const [key, value] of Object.entries(row)) {
     if (value instanceof BigQueryTimestamp) {
+      row[key] = admin.firestore.Timestamp.fromDate(new Date(value.value));
+    } else if (value instanceof BigQueryDate) {
+      row[key] = admin.firestore.Timestamp.fromDate(new Date(value.value));
+    } else if (value instanceof BigQueryTime) {
+      row[key] = admin.firestore.Timestamp.fromDate(new Date(value.value));
+    } else if (value instanceof BigQueryDatetime) {
       row[key] = admin.firestore.Timestamp.fromDate(new Date(value.value));
     } else if (value instanceof Date) {
       row[key] = admin.firestore.Timestamp.fromDate(value);

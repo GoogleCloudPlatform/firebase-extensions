@@ -21,7 +21,7 @@ const config: Config = {
   bigqueryDatasetLocation: process.env.BIGQUERY_DATASET_LOCATION!,
   projectId: process.env.PROJECT_ID!,
   instanceId: process.env.EXT_INSTANCE_ID!,
-  transferConfigName: process.env.TRANSFER_CONFIG_NAME,
+  transferConfigName: undefined,
   datasetId: process.env.DATASET_ID,
   tableName: process.env.TABLE_NAME,
   queryString: process.env.QUERY_STRING,

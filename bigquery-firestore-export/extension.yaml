@@ -207,38 +207,30 @@ params:
     default: US
     required: true
 
-  - param: TRANSFER_CONFIG_NAME
-    label: Transfer Config Name
-    description: >-
-      If you have a pre-existing transfer config you'd like to use, please enter the name here. If provided, all params except COLLECTION_PATH, LOCATION, and BIGQUERY_DATASET_LOCATION are ignored.
-    type: string
-    example: projects/<PROJECT_ID>/locations/<location>/642f3a36-0000-2fbb-ad1d-001a114e2fa6
-    required: false
-
   - param: DISPLAY_NAME
     label: Display Name
     description: >-
-      What display name would you like to use? Only enter a value if not using a pre-existing transfer config, otherwise this parameter will be ignored.
+      What display name would you like to use?
     type: string
     example: Daily Rollup - Customer Transactions
-    required: false
+    required: true
     immutable: true
 
   - param: DATASET_ID
     label: Dataset ID
     description: >-
-      What's the BigQuery destination dataset you'd like to use? Each transfer run will write to a table in this destination dataset. Only enter a value if not using a pre-existing transfer config, otherwise this parameter will be ignored.
+      What's the BigQuery destination dataset you'd like to use? Each transfer run will write to a table in this destination dataset.
     type: string
     example: customer_data
-    required: false
+    required: true
 
   - param: TABLE_NAME
     label: Table Name
     description: >-
-      What's the destination table name prefix you'd like to use? Each transfer run will write to the table with this name, postfixed with the runtime. Only enter a value if not using a pre-existing transfer config, otherwise this parameter will be ignored.
+      What's the destination table name prefix you'd like to use? Each transfer run will write to the table with this name, postfixed with the runtime.
     type: string
     example: transactions
-    required: false
+    required: true
 
   - param: QUERY_STRING
     label: Query String
@@ -246,12 +238,12 @@ params:
       What's the BQ query you'd like to execute?
     type: string
     example: SELECT * from <PROJECT_ID>.customer_data.transactions
-    required: false
+    required: true
 
   - param: PARTITIONING_FIELD
     label: Partitioning Field
     description: >-
-      What's the partitioning field on the destination table ID? Leave empty if not using a partitioning field. Only enter a value if not using a pre-existing transfer config, otherwise this parameter will be ignored.
+      What's the partitioning field on the destination table ID? Leave empty if not using a partitioning field.
     type: string
     example: timestamp
     required: false
@@ -259,18 +251,18 @@ params:
   - param: SCHEDULE
     label: Schedule
     description: >-
-      What's the execution schedule you'd like to use for this query? Only enter a value if not using a pre-existing transfer config, otherwise this parameter will be ignored.
+      What's the execution schedule you'd like to use for this query?
     type: string
     example: every 15 minutes
-    required: false
+    required: true
 
   - param: PUB_SUB_TOPIC
     label: Pub Sub Topic
     description: >-
-      What's the Pub Sub topic to write messages to when the scheduled query finishes executing? Only enter a value if not using a pre-existing transfer config, otherwise this parameter will be ignored.
+      What's the Pub Sub topic to write messages to when the scheduled query finishes executing?
     type: string
     example: test
-    required: false
+    required: true
     immutable: true
 
   - param: COLLECTION_PATH
