@@ -1,6 +1,6 @@
 ## Version 0.1.4
 
-Updated configuration regexes to allow more characters.
+Updated the validation for the `Fields` parameter to allow more Firestore field names format.
 
 ## Version 0.1.3
 
