@@ -5,13 +5,13 @@ On install, you will be asked to provide a Cloud Storage bucket where files will
 Whenever a new jpg or png image is uploaded to the specified bucket, a Cloud Function is triggered that calls the Cloud Vision API to extract labels, and stores the result in document that has a `file` field with the full `gs://` path of the file in Cloud Storage.
 
 To access the resulting labels, you will need to use a query to find the correct document. In JavaScript the query would look like this:
-
-    firebase
-      .firestore()
-      .collection(config.collectionPath) // 👈 the collection you configured
-      .where('file', '==', filePath)     // 👈 the uploaded file, in format: "gs://${object.bucket}/${object.name}"
-      .get();
-
+```js
+firebase
+  .firestore()
+  .collection(config.collectionPath) // 👈 the collection you configured
+  .where('file', '==', filePath)     // 👈 the uploaded file, in format: "gs://${object.bucket}/${object.name}"
+  .get();
+```
 ### Use Cases
 
 Here are some ways to use image labeling in your application:
