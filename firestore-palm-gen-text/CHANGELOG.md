@@ -1,3 +1,7 @@
+## Version 0.1.4
+
+Updated the validation for the `Fields` parameter to allow more Firestore field names format.
+
 ## Version 0.1.3
 
 Add warning about waitlist.

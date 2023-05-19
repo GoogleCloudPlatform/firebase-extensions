@@ -1,6 +1,10 @@
+## Version 0.1.4
+
+Corrected the description of where the output is written, and add a code sample of how to find the result.
+
 ## Version 0.1.3
 
-Writes to Firestore with URL stored in "file" document field rather than as document ID.
+Updated so that writes back to Firestore have URL stored in "file" document field rather than as document ID.
 
 ## Version 0.1.2
 
