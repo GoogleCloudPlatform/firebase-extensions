@@ -10,7 +10,7 @@
 
 If you’d like to keep a subscribed listener for real-time updates and propagate the latest query results to the frontend, here’s a simple way to do that.
 
-First you will need to identify the transfer config that was created. That can be done either by manually visiting Pantheon and identifying the relevant transfer config, or by running a query like this on Firestore:
+First you will need to identify the transfer config that was created. That can be done either by manually visiting Google Cloud Console and identifying the relevant transfer config, or by running a query like this on Firestore:
 
 ```javascript
 const q = db.collection(config.firestoreCollection).where("extInstanceId", "==", <MY_INSTANCE_ID>);

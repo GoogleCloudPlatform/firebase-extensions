@@ -12,7 +12,7 @@ This extension helps developers to set up their frontend clients to subscribe to
 
 To use the extension, developers will configure a specific Firestore document for each query and have their frontends listen for updates, and the BigQuery table/query to execute. In the background, BigQuery will run the query on a schedule, and the extension will write the result back to the specified document. Schedules are managed as Transfer Configs using the [Data Transfer Service](https://cloud.google.com/bigquery/docs/scheduling-queries).
 
-Upon installation, a Transfer Config is created for you via the Data Transfer Service API. This Transfer Config will be updated if you update the extension parameters for the instance. You can also choose to use an existing Transfer Config, in which case the extension won’t manage the creation/updates for you.
+Upon installation, a Transfer Config is created for you via the Data Transfer Service API. This Transfer Config will be updated if you update the extension parameters for the instance. 
 
 If you would like to specify multiple queries at different intervals, you can create multiple instances of the extension.
 
@@ -65,7 +65,11 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 * Cloud Pub/Sub
 * Cloud Firestore
 * BigQuery
-* Cloud Functions (Node.js 14+ runtime. See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
+* Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
+  
+> :warning: Note: The extension does not delete the BigQuery Transfer Config (scheduled query) automatically when you uninstall the extension. 
+> 
+> BigQuery charges by data processed, so your project will continue to incur costs until you manually delete the scheduled query. You can manage your scheduled queries directly in [Cloud Console](https://console.cloud.google.com/bigquery/scheduled-queries).
 
 
 
@@ -76,21 +80,19 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * BigQuery Dataset Location: What is the location of the BigQuery dataset referenced in the query?
 
-* Transfer Config Name: If you have a pre-existing transfer config you'd like to use, please enter the name here. If provided, all params except FIRESTORE_COLLECTION, LOCATION, and BIGQUERY_DATASET_LOCATION are ignored.
+* Display Name: What display name would you like to use?
 
-* Display Name: What display name would you like to use? Only enter a value if not using a pre-existing transfer config, otherwise this parameter will be ignored.
+* Dataset ID: What's the BigQuery destination dataset you'd like to use? Each transfer run will write to a table in this destination dataset.
 
-* Dataset ID: What's the BigQuery destination dataset you'd like to use? Each transfer run will write to a table in this destination dataset. Only enter a value if not using a pre-existing transfer config, otherwise this parameter will be ignored.
-
-* Table Name: What's the destination table name prefix you'd like to use? Each transfer run will write to the table with this name, postfixed with the runtime. Only enter a value if not using a pre-existing transfer config, otherwise this parameter will be ignored.
+* Table Name: What's the destination table name prefix you'd like to use? Each transfer run will write to the table with this name, postfixed with the runtime.
 
 * Query String: What's the BQ query you'd like to execute?
 
-* Partitioning Field: What's the partitioning field on the destination table ID? Leave empty if not using a partitioning field. Only enter a value if not using a pre-existing transfer config, otherwise this parameter will be ignored.
+* Partitioning Field: What's the partitioning field on the destination table ID? Leave empty if not using a partitioning field.
 
-* Schedule: What's the execution schedule you'd like to use for this query? Only enter a value if not using a pre-existing transfer config, otherwise this parameter will be ignored.
+* Schedule: What's the execution schedule you'd like to use for this query?
 
-* Pub Sub Topic: What's the Pub Sub topic to write messages to when the scheduled query finishes executing? Only enter a value if not using a pre-existing transfer config, otherwise this parameter will be ignored.
+* Pub Sub Topic: What's the Pub Sub topic to write messages to when the scheduled query finishes executing?
 
 * Firestore Collection: What's the top-level Firestore Collection to store transfer configs, run metadata, and query output?
 
