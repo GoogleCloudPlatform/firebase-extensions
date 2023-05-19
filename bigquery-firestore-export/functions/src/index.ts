@@ -17,7 +17,7 @@
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import {getExtensions} from 'firebase-admin/extensions';
-
+import { pubsub } from 'firebase-functions/v2';
 import * as logs from './logs';
 import config from './config';
 import * as helper from './helper';
@@ -112,9 +112,8 @@ export const upsertTransferConfig = functions.tasks
     return;
   });
 
-export const processMessages = functions.pubsub
-  .topic(config.pubSubTopic)
-  .onPublish(async message => {
+export const processMessages = pubsub.onMessagePublished(config.pubSubTopic, async (event) => {
+  const message = event.data.message;
     logs.pubsubMessage(message);
     await helper.handleMessage(db, config, message);
     logs.pubsubMessageHandled(message);
