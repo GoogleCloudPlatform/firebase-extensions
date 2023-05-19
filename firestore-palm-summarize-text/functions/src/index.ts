@@ -19,6 +19,7 @@ import * as logs from './logs';
 import config from './config';
 import {TextGenerator, TextGeneratorRequestOptions} from './generator';
 import {DocumentReference, FieldValue} from 'firebase-admin/firestore';
+import {createErrorMessage} from './errors';
 
 const {textField, responseField, collectionName, targetSummaryLength} = config;
 
@@ -78,15 +79,13 @@ export const generateSummary = functions.firestore
         'status.error': null,
       });
     } catch (e: any) {
-      // TODO: this error log needs to be more specific, not necessarily an API error here.
       logs.errorCallingGLMAPI(ref.path, e);
+      const errorMessage = createErrorMessage(e);
       return ref.update({
         'status.state': 'ERRORED',
         'status.completeTime': FieldValue.serverTimestamp(),
         'status.updateTime': FieldValue.serverTimestamp(),
-        'status.error':
-          // TODO: Probably have better errors here but still don't leak underlying error.
-          'An error occurred while processing the provided message.',
+        'status.error': errorMessage,
       });
     }
   });
