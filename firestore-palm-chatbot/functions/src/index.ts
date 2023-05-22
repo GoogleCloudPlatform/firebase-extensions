@@ -55,13 +55,8 @@ export const generateMessage = functions.firestore
 
     const ref: DocumentReference = change.after.ref;
     const newPrompt = await change.after.get(promptField);
-    // only make an API call if prompt is provided, response is missing, and there's no in-process status
-    if (
-      !newPrompt ||
-      typeof newPrompt !== 'string' ||
-      (await change.after.get(responseField)) ||
-      (await change.after.get('status'))
-    ) {
+
+    if (!newPrompt || typeof newPrompt !== 'string' || !isRegenerate(change)) {
       return;
     }
 
@@ -137,8 +132,15 @@ export const generateMessage = functions.firestore
 
 async function fetchHistory(ref: DocumentReference) {
   const collSnap = await ref.parent.orderBy(orderField, 'desc').get();
+
+  const refData = await ref.get();
+  const refOrderFieldVal = refData.get(orderField);
+  //filter any docs that don't have an order field or have an order field that is greater than the current doc
+
   return collSnap.docs
-    .filter(snap => !snap.ref.isEqual(ref))
+    .filter(
+      snap => snap.get(orderField) && snap.get(orderField) < refOrderFieldVal
+    )
     .filter(
       snap => snap.get('status') && snap.get('status.state') === 'COMPLETED'
     )
@@ -208,3 +210,16 @@ function validateExamples(examples: Record<string, unknown>[]): Message[] {
   }
   return validExamples;
 }
+
+const isRegenerate = (
+  change: functions.Change<functions.firestore.DocumentSnapshot>
+): boolean => {
+  const statusBefore = change.before.get('status');
+  const status = change.after.get('status');
+  return (
+    statusBefore &&
+    status &&
+    statusBefore.state === 'COMPLETED' &&
+    status.state === 'REGENERATE'
+  );
+};
