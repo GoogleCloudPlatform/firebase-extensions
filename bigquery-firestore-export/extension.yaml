@@ -225,7 +225,7 @@ params:
     required: true
 
   - param: TABLE_NAME
-    label: Table Name
+    label: Destination Table Name
     description: >-
       What's the destination table name prefix you'd like to use? Each transfer run will write to the table with this name, postfixed with the runtime.
     type: string
