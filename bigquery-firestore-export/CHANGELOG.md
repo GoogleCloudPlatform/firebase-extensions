@@ -1,3 +1,7 @@
+## Version 0.1.1
+
+Fix PREINSTALL formatting.
+
 ## Version 0.1.0
 
 Initial release.
