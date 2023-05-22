@@ -1,3 +1,8 @@
+## Version 0.1.1
+
+- Fix PREINSTALL formatting.
+- Fix processing message during install/update/configure lifecycle hooks.
+
 ## Version 0.1.0
 
 Initial release.
