@@ -1,3 +1,7 @@
+## Version 0.1.0
+
+Initial release.
+
 ## Version 0.0.2
 
 Updated configuration descriptions
