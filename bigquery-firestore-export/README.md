@@ -21,26 +21,23 @@ The extension will parse the message to identify the correct destination table b
 Each run will write to a document with ID “latest”:
 
 ```
-**COLLECTION:** transferConfigs/<configId>/runs/latest
-
-**DOCUMENT:** {
+COLLECTION: transferConfigs/<configId>/runs/latest
+DOCUMENT: {
   runMetadata: { },
   totalRowCount: 779,
   failedRowCount: 0,
-  latestRunId: 648762e0-0000-28ef-9109-001a11446b2a,
+  latestRunId: 648762e0-0000-28ef-9109-001a11446b2a
 } 
 ```
 
 Each run will also write to a “runs” subcollection with runID as the document ID, to preserve history:
 
 ```
-**COLLECTION:** transferConfigs/<configId>/runs/<runId>
-
-**DOCUMENT:** {
+COLLECTION: transferConfigs/<configId>/runs/<runId>
+DOCUMENT: {
   runMetadata: { },
   totalRowCount: 779,
-  failedRowCount: 0,
-  expireAt: …
+  failedRowCount: 0
 }
 ```
 
