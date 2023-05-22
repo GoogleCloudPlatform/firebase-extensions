@@ -6,9 +6,7 @@
 
 
 
-**Details**: ## How This Extension Works
-
-This extension helps developers to set up their frontend clients to subscribe to BQ queries that periodically refresh on a scheduled basis. A canonical use case is election results, where you might have a frontend that needs to refresh live to show the latest results. This extension would be useful in any scenario where an app developer needs to push analytical data back to users.
+**Details**: This extension helps developers to set up their frontend clients to subscribe to BQ queries that periodically refresh on a scheduled basis. A canonical use case is election results, where you might have a frontend that needs to refresh live to show the latest results. This extension would be useful in any scenario where an app developer needs to push analytical data back to users.
 
 To use the extension, developers will configure a specific Firestore document for each query and have their frontends listen for updates, and the BigQuery table/query to execute. In the background, BigQuery will run the query on a schedule, and the extension will write the result back to the specified document. Schedules are managed as Transfer Configs using the [Data Transfer Service](https://cloud.google.com/bigquery/docs/scheduling-queries).
 
