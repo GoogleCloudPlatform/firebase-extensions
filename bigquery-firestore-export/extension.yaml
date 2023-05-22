@@ -277,10 +277,10 @@ params:
 lifecycleEvents:
   onInstall:
     function: upsertTransferConfig
-    processingMessage: Resizing existing images in ${param:IMG_BUCKET}
+    processingMessage: Creating a new transfer config and scheduling the query.
   onUpdate:
     function: upsertTransferConfig
-    processingMessage: Resizing existing images in ${param:IMG_BUCKET}
+    processingMessage: Creating or updating the transfer config associated with this extension.
   onConfigure:
     function: upsertTransferConfig
-    processingMessage: Resizing existing images in ${param:IMG_BUCKET}
+    processingMessage: Creating or updating the transfer config associated with this extension.
