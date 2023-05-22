@@ -1,3 +1,8 @@
+## Version 0.1.2
+
+- Fix icon.
+- Fix PREINSTALL and README docs.
+
 ## Version 0.1.1
 
 - Fix PREINSTALL formatting.
