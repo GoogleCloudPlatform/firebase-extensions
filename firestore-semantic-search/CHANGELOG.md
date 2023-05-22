@@ -1,7 +1,10 @@
+## Version 0.1.5
+
+Fixed CHANGELOG to reflect current state of extension.
+
 ## Version 0.1.4
 
 - Updated PREINSTALL to include link Google Cloud docs on undeploying indexes.
-- Added better error handling by writing the error messages back to Firestore and documenting it in PREINSTALL.
 - Documented model limits better in POSTINSTALL.
 
 ## Version 0.1.3
