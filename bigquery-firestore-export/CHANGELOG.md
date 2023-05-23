@@ -1,3 +1,7 @@
+## Version 0.1.3
+
+Add icon and tags to extension.yaml.
+
 ## Version 0.1.2
 
 - Fix icon.

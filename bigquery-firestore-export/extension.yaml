@@ -1,4 +1,4 @@
-# Copyright 2019 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,11 +13,13 @@
 # limitations under the License.
 
 name: bigquery-firestore-export
-version: 0.1.2
+version: 0.1.3
 specVersion: v1beta
 
 displayName: Export BigQuery to Firestore
 description: Schedules BigQuery queries and exports the results to Firestore.
+icon: icon.png
+tags: [utilities]
 
 license: Apache-2.0
 
