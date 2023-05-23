@@ -1,4 +1,4 @@
-name: CI
+name: Check READMEs are up to date
 
 on:
   pull_request:
@@ -16,7 +16,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: 18
+          node-version: 16
           cache: 'npm'
 
       - name: Set up global dependencies directory
@@ -47,7 +47,9 @@ jobs:
 
       - name: Check for changes
         run: |
-          if [[ ! -z $(git status -s) ]]; then
-            echo "Changes detected, failing CI"
+          changed_files=$(git status -s -- '*/README.md' | cut -c4-)
+          if [[ ! -z $changed_files ]]; then
+            echo "Changes detected in README.md files:"
+            echo "$changed_files"
             exit 1
           fi
