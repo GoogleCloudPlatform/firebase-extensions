@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Set up global dependencies directory
+        id: global-deps-setup
+        run: |
+          mkdir -p ~/.npm-global
+          npm config set prefix '~/.npm-global'
+          echo "::set-output name=dir::$(npm config get prefix)"
+          
+      - name: Cache global dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.global-deps-setup.outputs.dir }}
+          key: ${{ runner.os }}-npm-global-deps-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-global-deps-
+
+      - name: Install Firebase and Lerna
+        run: |
+          echo "${{ steps.global-deps-setup.outputs.dir }}/bin" >> $GITHUB_PATH
+          npm install -g firebase-tools lerna
+
+      - name: Install local dependencies
+        run: npm ci
+
+      - name: Run Lerna generate-readme
+        run: lerna run --parallel generate-readme
+
+      - name: Check for changes
+        run: |
+          if [[ ! -z $(git status -s) ]]; then
+            echo "Changes detected, failing CI"
+            exit 1
+          fi
