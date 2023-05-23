@@ -143,6 +143,7 @@ async function fetchHistory(ref: DocumentReference) {
       snap => snap.get('status') && snap.get('status.state') === 'COMPLETED'
     )
     .map(snap => ({
+      path: snap.ref.path,
       prompt: snap.get(promptField),
       response: snap.get(responseField),
     }));
