@@ -35,7 +35,7 @@ jobs:
         with:
           node-version: 16
           cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
+          cache-dependency-path: '**/functions/package-lock.json'
 
       - name: Set up global dependencies directory
         id: global-deps-setup
@@ -83,7 +83,8 @@ jobs:
             git config --global user.name "github-actions[bot]"
             git config --global user.email "github-action@github.com"
 
+            git checkout ${{ env.BRANCH_NAME }}
             git add **/README.md
             git commit -m "chore(*): Update READMEs"
-            git push -u origin ${{ env.BRANCH_NAME }}
+            git push origin ${{ env.BRANCH_NAME }}
           fi
