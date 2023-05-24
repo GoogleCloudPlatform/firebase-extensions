@@ -11,6 +11,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    with:
+      fetch-depth: 0 # fetch all branches and tags
 
     steps:
       - name: Checkout repository
@@ -28,12 +30,14 @@ jobs:
           mkdir -p ~/.npm-global
           npm config set prefix '~/.npm-global'
           echo "::set-output name=dir::$(npm config get prefix)"
-          
+
       - name: Cache global dependencies
         uses: actions/cache@v2
         with:
           path: ${{ steps.global-deps-setup.outputs.dir }}
-          key: ${{ runner.os }}-npm-global-deps-${{ hashFiles('**/package-lock.json') }}
+          key:
+            ${{ runner.os }}-npm-global-deps-${{
+            hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-npm-global-deps-
 
@@ -51,10 +55,14 @@ jobs:
       - name: Check READMEs are up to date and push changes if possible.
         run: |
           changed_files=$(git status -s -- '**/*/README.md' | cut -c4-)
-          if [[ ! -z $changed_files ]]; then
+          if [[ ! -z "$changed_files" ]]; then
             echo "Changes detected in README.md files:"
             echo "$changed_files"
-            if ${{ github.repository }} != "GoogleCloudPlatform/firebase-extensions"; then
+            if [[ ${{ github.event.pull_request.head.repo.fork }} == true ]]; then
+              echo "Skipping action for forked repositories."
+              exit 0
+            fi
+            if [[ ${{ github.repository }} != "GoogleCloudPlatform/firebase-extensions" ]]; then
               echo "Please run 'lerna run --parallel generate-readme' locally and commit the changes."
               exit 1
             fi
@@ -63,5 +71,5 @@ jobs:
 
             git add .
             git commit -m "chore(*): Update READMEs"
-            git push
+            git push origin ${{ github.head_ref }}
           fi
