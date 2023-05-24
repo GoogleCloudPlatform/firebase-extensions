@@ -81,5 +81,5 @@ jobs:
 
             git add **/README.md
             git commit -m "chore(*): Update READMEs"
-            git push origin HEAD:${{ github.head_ref }}
+            git push origin ${{ github.head_ref }}
           fi
