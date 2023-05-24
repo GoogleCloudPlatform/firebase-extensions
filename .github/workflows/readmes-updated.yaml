@@ -80,7 +80,7 @@ jobs:
             git config --global user.name "github-actions[bot]"
             git config --global user.email "github-action@github.com"
 
-            git add .
+            git add **/README.md
             git commit -m "chore(*): Update READMEs"
             git push origin HEAD:${{ github.head_ref }}
           fi
