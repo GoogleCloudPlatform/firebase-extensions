@@ -6,7 +6,8 @@
 
 
 
-**Details**: > ⚠️ The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq). **Please ensure that you have already signed up for the [waitlist](https://makersuite.google.com/waitlist) and have been approved before installing the extension.**
+**Details**: > ⚠️ The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq). 
+> **Please ensure that you have already signed up for the [waitlist](https://makersuite.google.com/waitlist) and have been approved before installing the extension.**
 
 Use this extension to easily deploy a chatbot using the PaLM API, stored and managed by Cloud Firestore.
 
@@ -35,6 +36,10 @@ I want you to act as a travel guide. I will ask you questions about various trav
 ```
 
 You can also configure the model to return different results by tweaking model parameters (temperature, candidate count, etc.), which are exposed as configuration during install as well.
+
+### Regenerating a response
+
+Changing the state field of a document's status from `COMPLETE` to `REGENERATE` will regenerate the corresponding message of the conversation.
 
 ## Additional Setup
 
