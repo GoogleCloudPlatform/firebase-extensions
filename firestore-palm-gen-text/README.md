@@ -6,7 +6,8 @@
 
 
 
-**Details**: > ⚠️ The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq). **Please ensure that you have already signed up for the [waitlist](https://makersuite.google.com/waitlist) and have been approved before installing the extension.**
+**Details**: > ⚠️ The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq). 
+> **Please ensure that you have already signed up for the [waitlist](https://makersuite.google.com/waitlist) and have been approved before installing the extension.**
 
 This extension allows you to perform language tasks using the PaLM API, a custom prompt, and Firestore.
 
@@ -51,6 +52,10 @@ Provide a star rating from 1-5 of the following review text: \“{{review_text}}
 ```
 
 In this case, review_text is a field of the Firestore document and will be substituted into the prompt when querying PaLM.
+
+### Regenerating a response
+
+Changing the state field of a document's status from `COMPLETE` to `REGENERATE` will regenerate the corresponding message of the conversation.
 
 ## Additional Setup
 

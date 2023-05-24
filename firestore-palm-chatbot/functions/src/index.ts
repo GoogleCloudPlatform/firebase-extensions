@@ -19,6 +19,7 @@ import * as logs from './logs';
 import config from './config';
 import {Discussion, GenerateMessageOptions, Message} from './discussion';
 import {DocumentReference, FieldValue} from 'firebase-admin/firestore';
+import {createErrorMessage} from './errors';
 
 const {
   model,
@@ -55,13 +56,8 @@ export const generateMessage = functions.firestore
 
     const ref: DocumentReference = change.after.ref;
     const newPrompt = await change.after.get(promptField);
-    // only make an API call if prompt is provided, response is missing, and there's no in-process status
-    if (
-      !newPrompt ||
-      typeof newPrompt !== 'string' ||
-      (await change.after.get(responseField)) ||
-      (await change.after.get('status'))
-    ) {
+
+    if (!newPrompt || typeof newPrompt !== 'string' || !isRegenerate(change)) {
       return;
     }
 
@@ -124,25 +120,34 @@ export const generateMessage = functions.firestore
     } catch (e: unknown) {
       // TODO: this error log needs to be more specific, not necessarily an API error here.
       logs.errorCallingGLMAPI(ref.path, e);
+
+      const errorMessage = createErrorMessage(e);
+
       return ref.update({
         'status.state': 'ERRORED',
         'status.completeTime': FieldValue.serverTimestamp(),
         'status.updateTime': FieldValue.serverTimestamp(),
-        'status.error':
-          // TODO: Probably have better errors here but still don't leak underlying error.
-          'An error occurred while processing the provided message.',
+        'status.error': errorMessage,
       });
     }
   });
 
 async function fetchHistory(ref: DocumentReference) {
   const collSnap = await ref.parent.orderBy(orderField, 'desc').get();
+
+  const refData = await ref.get();
+  const refOrderFieldVal = refData.get(orderField);
+  //filter any docs that don't have an order field or have an order field that is greater than the current doc
+
   return collSnap.docs
-    .filter(snap => !snap.ref.isEqual(ref))
+    .filter(
+      snap => snap.get(orderField) && snap.get(orderField) < refOrderFieldVal
+    )
     .filter(
       snap => snap.get('status') && snap.get('status.state') === 'COMPLETED'
     )
     .map(snap => ({
+      path: snap.ref.path,
       prompt: snap.get(promptField),
       response: snap.get(responseField),
     }));
@@ -208,3 +213,16 @@ function validateExamples(examples: Record<string, unknown>[]): Message[] {
   }
   return validExamples;
 }
+
+const isRegenerate = (
+  change: functions.Change<functions.firestore.DocumentSnapshot>
+): boolean => {
+  const statusBefore = change.before.get('status');
+  const status = change.after.get('status');
+  return (
+    statusBefore &&
+    status &&
+    statusBefore.state === 'COMPLETED' &&
+    status.state === 'REGENERATE'
+  );
+};
