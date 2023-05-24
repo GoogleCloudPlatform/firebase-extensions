@@ -1,7 +1,9 @@
+TEST
+
 This extension converts text from Firestore documents into speech using the Google Cloud Text-to-Speech API.
 
 Upon install you will be asked to provide a Firestore collection path and a Storage path. Any document writes to this collection will trigger a Cloud Function that does the following:
-t
+
 * Generates an audio version of the same text
 * Stores it in Cloud Storage in the specified path
 * Writes the path to the Storage object back in the same document.
