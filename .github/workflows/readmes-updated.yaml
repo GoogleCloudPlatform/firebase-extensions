@@ -16,6 +16,9 @@ concurrency:
     ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -65,6 +68,8 @@ jobs:
         run: |
           changed_files=$(git status -s -- '**/README.md' | cut -c4-)
 
+          echo git show-ref
+
           if [[ ! -z "$changed_files" ]]; then
             echo "Changes detected in README.md files:"
             echo "$changed_files"
@@ -78,5 +83,5 @@ jobs:
 
             git add **/README.md
             git commit -m "chore(*): Update READMEs"
-            git push origin ${{ github.head_ref }}
+            git push origin ${{ env.BRANCH_NAME }}
           fi
