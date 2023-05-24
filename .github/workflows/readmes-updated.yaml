@@ -5,8 +5,16 @@ on:
     branches:
       - next
   pull_request:
+    types:
+      - opened
+      - synchronize
     branches:
-      - next
+      - '**'
+
+concurrency:
+  group:
+    ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -14,7 +22,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -28,12 +39,14 @@ jobs:
           mkdir -p ~/.npm-global
           npm config set prefix '~/.npm-global'
           echo "::set-output name=dir::$(npm config get prefix)"
-          
+
       - name: Cache global dependencies
         uses: actions/cache@v2
         with:
           path: ${{ steps.global-deps-setup.outputs.dir }}
-          key: ${{ runner.os }}-npm-global-deps-${{ hashFiles('**/package-lock.json') }}
+          key:
+            ${{ runner.os }}-npm-global-deps-${{
+            hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-npm-global-deps-
 
@@ -48,11 +61,26 @@ jobs:
       - name: Run Lerna generate-readme
         run: lerna run --parallel generate-readme
 
-      - name: Check for changes
+      - name: Check READMEs are up to date and push changes if possible.
         run: |
-          changed_files=$(git status -s -- '*/README.md' | cut -c4-)
-          if [[ ! -z $changed_files ]]; then
+          changed_files=$(git status -s -- '**/README.md' | cut -c4-)
+
+          if [[ ! -z "$changed_files" ]]; then
             echo "Changes detected in README.md files:"
             echo "$changed_files"
-            exit 1
+            if [[ ${{ github.event.pull_request.head.repo.fork }} == true ]]; then
+              echo "Skipping action for forked repositories."
+              exit 0
+            fi
+            if [[ ${{ github.repository }} != "GoogleCloudPlatform/firebase-extensions" ]]; then
+              echo "Please run 'lerna run --parallel generate-readme' locally and commit the changes."
+              exit 1
+            fi
+
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-action@github.com"
+
+            git add **/README.md
+            git commit -m "chore(*): Update READMEs"
+            git push origin HEAD:${{ github.head_ref }}
           fi
