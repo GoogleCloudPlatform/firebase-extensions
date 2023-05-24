@@ -83,5 +83,5 @@ jobs:
 
             git add **/README.md
             git commit -m "chore(*): Update READMEs"
-            git push origin ${{ env.BRANCH_NAME }}
+            git push -u origin ${{ env.BRANCH_NAME }}
           fi
