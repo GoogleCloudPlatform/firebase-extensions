@@ -37,6 +37,10 @@ Here are some examples of how this extension can be used:
 * A news website could use this extension to summarize articles, helping readers decide whether they want to invest their time in reading the full article.
 * A social media platform could use this extension to provide summaries of user-generated content, improving content discoverability and user engagement.
 
+### Regenerating a response
+
+Changing the state field of a document's status from `COMPLETE` to `REGENERATE` will regenerate the corresponding message of the conversation.
+
 ## Additional Setup
 
 If you have not already done so, you will first need to apply for access to the PaLM API via this [waitlist](https://makersuite.google.com/waitlist). 

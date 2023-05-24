@@ -53,6 +53,10 @@ Provide a star rating from 1-5 of the following review text: \“{{review_text}}
 
 In this case, review_text is a field of the Firestore document and will be substituted into the prompt when querying PaLM.
 
+### Regenerating a response
+
+Changing the state field of a document's status from `COMPLETE` to `REGENERATE` will regenerate the corresponding message of the conversation.
+
 ## Additional Setup
 
 If you have not already done so, you will first need to apply for access to the PaLM API via this [waitlist](https://makersuite.google.com/waitlist). 
