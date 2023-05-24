@@ -47,7 +47,7 @@ export const generateSummary = functions.firestore
       !text ||
       typeof text !== 'string' ||
       change.after.get(responseField) ||
-      change.after.get('status')
+      !isRegenerate(change)
     ) {
       return;
     }
@@ -95,4 +95,17 @@ const createSummaryPrompt = (text: string, targetSummaryLength?: number) => {
     return `Summarize this text: "${text}"`;
   }
   return `Summarize this text in exactly ${targetSummaryLength} sentences: "${text}"`;
+};
+
+const isRegenerate = (
+  change: functions.Change<functions.firestore.DocumentSnapshot>
+): boolean => {
+  const statusBefore = change.before.get('status');
+  const status = change.after.get('status');
+  return (
+    statusBefore &&
+    status &&
+    statusBefore.state === 'COMPLETED' &&
+    status.state === 'REGENERATE'
+  );
 };
