@@ -20,7 +20,11 @@ import config from './config';
 import {TextGenerator, TextGeneratorRequestOptions} from './generator';
 import {DocumentReference, FieldValue} from 'firebase-admin/firestore';
 import * as Mustache from 'mustache';
-import {missingVariableError, variableTypeError} from './errors';
+import {
+  createErrorMessage,
+  missingVariableError,
+  variableTypeError,
+} from './errors';
 
 const {
   model,
@@ -64,11 +68,7 @@ export const generateText = functions.firestore
     }
 
     // only make an API call if prompt exists and is non-empty, response is missing, and there's no in-process status
-    if (
-      !prompt ||
-      change.after.get(responseField) ||
-      change.after.get('status')
-    ) {
+    if (!prompt || change.after.get(responseField) || !isRegenerate(change)) {
       // TODO add logging
       return;
     }
@@ -129,17 +129,26 @@ export const generateText = functions.firestore
           };
       return ref.update(completeData);
     } catch (e: any) {
-      // TODO: this error log needs to be more specific, not necessarily an API error here.
-      // logs.errorCallingGLMAPI(ref.path, e);
+      logs.errorCallingGLMAPI(ref.path, e);
+      const errorMessage = createErrorMessage(e);
       return ref.update({
         'status.state': 'ERRORED',
         'status.completeTime': FieldValue.serverTimestamp(),
         'status.updateTime': FieldValue.serverTimestamp(),
-        'status.error':
-          // TODO: Probably have better errors here but still don't leak underlying error.
-          e.message
-            ? e.message
-            : 'An error occurred while processing the provided text.',
+        'status.error': errorMessage,
       });
     }
   });
+
+const isRegenerate = (
+  change: functions.Change<functions.firestore.DocumentSnapshot>
+): boolean => {
+  const statusBefore = change.before.get('status');
+  const status = change.after.get('status');
+  return (
+    statusBefore &&
+    status &&
+    statusBefore.state === 'COMPLETED' &&
+    status.state === 'REGENERATE'
+  );
+};
