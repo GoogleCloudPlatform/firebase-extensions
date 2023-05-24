@@ -3,10 +3,11 @@ name: Check READMEs are up to date
 on:
   push:
     branches:
-      - '**'
+      - 'next'
   pull_request:
     types:
       - opened
+      - synchronize
     branches:
       - '**'
 
