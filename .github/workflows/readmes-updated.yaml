@@ -69,7 +69,7 @@ jobs:
         run: |
           changed_files=$(git status -s -- '**/README.md' | cut -c4-)
 
-          echo git show-ref
+          git show-ref
 
           if [[ ! -z "$changed_files" ]]; then
             echo "Changes detected in README.md files:"
@@ -78,6 +78,8 @@ jobs:
               echo "Please run 'lerna run --parallel generate-readme' locally and commit the changes."
               exit 1
             fi
+
+            git remote add origin https://${{secrets.ACCESS_TOKEN}}@github.com/GoogleCloudPlatform/firebase-extensions.git
 
             git config --global user.name "github-actions[bot]"
             git config --global user.email "github-action@github.com"
