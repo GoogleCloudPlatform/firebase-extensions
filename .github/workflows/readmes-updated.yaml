@@ -48,11 +48,20 @@ jobs:
       - name: Run Lerna generate-readme
         run: lerna run --parallel generate-readme
 
-      - name: Check for changes
+      - name: Check READMEs are up to date and push changes if possible.
         run: |
-          changed_files=$(git status -s -- '*/README.md' | cut -c4-)
+          changed_files=$(git status -s -- '**/*/README.md' | cut -c4-)
           if [[ ! -z $changed_files ]]; then
             echo "Changes detected in README.md files:"
             echo "$changed_files"
-            exit 1
+            if ${{ github.repository }} != "GoogleCloudPlatform/firebase-extensions"; then
+              echo "Please run 'lerna run --parallel generate-readme' locally and commit the changes."
+              exit 1
+            fi
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-action@github.com"
+
+            git add .
+            git commit -m "chore(*): Update READMEs"
+            git push
           fi
