@@ -6,7 +6,8 @@
 
 
 
-**Details**: > ⚠️ The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq). **Please ensure that you have already signed up for the [waitlist](https://makersuite.google.com/waitlist) and have been approved before installing the extension.**
+**Details**: > ⚠️ The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq). 
+> **Please ensure that you have already signed up for the [waitlist](https://makersuite.google.com/waitlist) and have been approved before installing the extension.**
 
 This extension allows you to summarize a field in a Firestore document using the PaLM API.
 
@@ -35,6 +36,10 @@ Here are some examples of how this extension can be used:
 * An e-commerce platform could use this extension to automatically generate summaries of customer feedback, giving customers a quick overview of the feedback before they decide whether to read the full content.
 * A news website could use this extension to summarize articles, helping readers decide whether they want to invest their time in reading the full article.
 * A social media platform could use this extension to provide summaries of user-generated content, improving content discoverability and user engagement.
+
+### Regenerating a response
+
+Changing the state field of a document's status from `COMPLETE` to `REGENERATE` will regenerate the corresponding message of the conversation.
 
 ## Additional Setup
 

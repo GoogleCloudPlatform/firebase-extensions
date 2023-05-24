@@ -6,11 +6,12 @@
 
 
 
-**Details**: > :warning: Note: The Vertex Matching Engine Public Endpoints feature and PaLM API are currently in public preview. 
+**Details**: > ⚠️ The Vertex Matching Engine Public Endpoints feature and PaLM API are currently in public preview. 
 > 
 > For details and limitations, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/matching-engine/deploy-index-public) and [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq). 
 > 
 > PaLM API is an optional feature of this extension. **If you choose to use the PaLM model, please ensure that you have already signed up for the [waitlist](https://makersuite.google.com/waitlist) and have been approved.**
+
 
 This extension adds text similarity search to your Firestore application using Vertex AI’s [Matching Engine](https://cloud.google.com/vertex-ai/docs/matching-engine/overview). Text similarity search relies on first generating embeddings (vector representations of your original text) which are stored in a Matching Engine index. Once these embeddings are indexed, the Matching Engine can be used to calculate semantically similar documents to an original document from a large corpus of candidate documents, based on vector distance measures.
 

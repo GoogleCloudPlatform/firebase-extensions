@@ -24,6 +24,12 @@ export const init = (config: Config) => {
   );
 };
 
+export const warnMissingPromptOrResponse = (path: string) => {
+  logger.warn(
+    `[firestore-palm-chatbot] Document '${path}' is missing either a prompt or response field, will not be included in history!`
+  );
+};
+
 export const missingField = (field: string, path: string) => {
   logger.info(
     `[firestore-palm-chatbot] Missing ordering field '${field}' on document '${path}', setting to current timestamp.`
