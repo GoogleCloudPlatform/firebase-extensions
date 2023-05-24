@@ -79,7 +79,7 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Dataset ID: What's the BigQuery destination dataset you'd like to use? Each transfer run will write to a table in this destination dataset.
 
-* Table Name: What's the destination table name prefix you'd like to use? Each transfer run will write to the table with this name, postfixed with the runtime.
+* Destination Table Name: What's the destination table name prefix you'd like to use? Each transfer run will write to the table with this name, postfixed with the runtime.
 
 * Query String: What's the BQ query you'd like to execute?
 
