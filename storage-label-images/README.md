@@ -56,7 +56,7 @@ When you use Firebase Extensions, you're only charged for the underlying resourc
 
 
 * Paths that contain images you want to label: Restrict storage-image-labeling to only label images in specific locations in your Storage bucket by  supplying a comma-separated list of absolute paths. For example, specifying the paths `/users/pictures,/restaurants/menuItems` will label any images found in any subdirectories of `/users/pictures` and `/restaurants/menuItems`.
-You may also use wildcard notation for directories in the path. For example, `/users/*/pictures` would exclude any images in any subdirectories of `/users/foo/pictures` as well as any images in subdirectories of `/users/bar/pictures`, but also any images in subdirectories of `/users/any/level/of/subdirectories/pictures`. 
+You may also use wildcard notation for directories in the path. For example, `/users/*/pictures` would include any images in any subdirectories of `/users/foo/pictures` as well as any images in subdirectories of `/users/bar/pictures`, but also any images in subdirectories of `/users/any/level/of/subdirectories/pictures`. 
 If you prefer not to explicitly exclude any directories of your Storage bucket, leave this field empty.
 
 
