@@ -68,10 +68,6 @@ jobs:
       - name: Check READMEs are up to date and push changes if possible.
         run: |
           changed_files=$(git status -s -- '**/README.md' | cut -c4-)
-
-          git show-ref
-          git rev-parse --abbrev-ref HEAD
-
           if [[ ! -z "$changed_files" ]]; then
             echo "Changes detected in README.md files:"
             echo "$changed_files"
