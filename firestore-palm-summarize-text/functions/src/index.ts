@@ -48,7 +48,7 @@ export const generateSummary = functions.firestore
     if (
       !text ||
       typeof text !== 'string' ||
-      ['PROCESSING', 'COMPLETED'].includes(state)
+      ['PROCESSING', 'COMPLETED', 'ERRORED'].includes(state)
     ) {
       return;
     }
