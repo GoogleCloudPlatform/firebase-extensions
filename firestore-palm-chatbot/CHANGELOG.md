@@ -1,6 +1,9 @@
 ## Version 0.1.4
 
-Improve error handling.
+- Improve error handling.
+- Reduce unnecessary triggering of generateMessage function
+- allow for regenerating responses by changing "status.state" field
+- skip messages in history which do not have both a promptField and a responseField
 
 ## Version 0.1.3
 
