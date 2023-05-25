@@ -1,3 +1,7 @@
+## Version 0.1.4
+
+Improve error handling.
+
 ## Version 0.1.3
 
 Add warning about waitlist.
