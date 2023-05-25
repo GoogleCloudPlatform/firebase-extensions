@@ -57,7 +57,14 @@ export const generateMessage = functions.firestore
     const ref: DocumentReference = change.after.ref;
     const newPrompt = await change.after.get(promptField);
 
-    if (!newPrompt || typeof newPrompt !== 'string' || !isRegenerate(change)) {
+    const state = change.after.get('status.state');
+
+    if (
+      !newPrompt ||
+      typeof newPrompt !== 'string' ||
+      ['PROCESSING', 'COMPLETED'].includes(state)
+    ) {
+      // noop if the prompt is missing or not a string or if the document is already processing or completed.
       return;
     }
 
@@ -70,8 +77,6 @@ export const generateMessage = functions.firestore
       });
     }
 
-    const history = await fetchHistory(ref);
-
     await ref.update({
       status: {
         updateTime: FieldValue.serverTimestamp(),
@@ -79,6 +84,8 @@ export const generateMessage = functions.firestore
         state: 'PROCESSING',
       },
     });
+
+    const history = await fetchHistory(ref);
 
     try {
       const t0 = performance.now();
@@ -142,9 +149,6 @@ async function fetchHistory(ref: DocumentReference) {
   return collSnap.docs
     .filter(
       snap => snap.get(orderField) && snap.get(orderField) < refOrderFieldVal
-    )
-    .filter(
-      snap => snap.get('status') && snap.get('status.state') === 'COMPLETED'
     )
     .map(snap => ({
       path: snap.ref.path,
@@ -213,16 +217,3 @@ function validateExamples(examples: Record<string, unknown>[]): Message[] {
   }
   return validExamples;
 }
-
-const isRegenerate = (
-  change: functions.Change<functions.firestore.DocumentSnapshot>
-): boolean => {
-  const statusBefore = change.before.get('status');
-  const status = change.after.get('status');
-  return (
-    statusBefore &&
-    status &&
-    statusBefore.state === 'COMPLETED' &&
-    status.state === 'REGENERATE'
-  );
-};
