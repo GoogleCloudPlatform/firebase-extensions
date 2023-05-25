@@ -4,8 +4,10 @@
 
 **Description**: Search for semantically similar text documents in Firestore with PaLM API and Vertex AI Matching Engine.
 
-**Details**: > ⚠️ The Vertex Matching Engine Public Endpoints feature and PaLM API are currently in public preview.
 
+
+**Details**: > ⚠️ The Vertex Matching Engine Public Endpoints feature and PaLM API are currently in public preview.
+>
 > For details and limitations, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/matching-engine/deploy-index-public) and [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 >
 > PaLM API is an optional feature of this extension. **If you choose to use the PaLM model, please ensure that you have already signed up for the [waitlist](https://makersuite.google.com/waitlist) and have been approved.**
@@ -80,66 +82,79 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 >
 > You can [read more about Matching Engine pricing here](https://www.google.com/url?q=https://cloud.google.com/vertex-ai/pricing%23matchingengine&sa=D&source=docs&ust=1683194254385742&usg=AOvVaw1kYFVKa8gdagrau70Vzk6G).
 
+
+
+
 **Configuration Parameters:**
 
-- Collection to index: The Firestore collection to include in the search index.
+* Collection to index: The Firestore collection to include in the search index.
 
-- Fields in a Document to index: Comma-separated list of field names to include in the search index. If you leave this blank, all fields will be indexed.
+* Fields in a Document to index: Comma-separated list of field names to include in the search index. If you leave this blank, all fields will be indexed.
 
-- Do backfill?: Whether to backfill embeddings for all documents currently in the collection.
+* Do backfill?: Whether to backfill embeddings for all documents currently in the collection.
 
-- Embeddings method: Do you want to use [PaLM](https://developers.generativeai.google/guide/palm_api_overview) for embeddings or [Universal Sentence Encoder](https://tfhub.dev/google/universal-sentence-encoder/4)?
+* Embeddings method: Do you want to use [PaLM](https://developers.generativeai.google/guide/palm_api_overview) for embeddings  or [Universal Sentence Encoder](https://tfhub.dev/google/universal-sentence-encoder/4)?
 
-- PaLM embeddings model: In case you chose PaLM embeddings, which model do you want to use? Note that this will be ignored if you chose Universal Sentence Encoder.
+* PaLM embeddings model: In case you chose PaLM embeddings, which model do you want to use? Note that this will be ignored if you chose Universal Sentence Encoder.
 
-- Distance measure type: The distance measure used in nearest neighbor search. The default is dot product. [Read more about distance measures here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#distance-measure-type).
+* Distance measure type: The distance measure used in nearest neighbor search. The default is dot product.  [Read more about distance measures here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#distance-measure-type).
 
-- Algorithm config: The configuration with regard to the algorithms used for efficient search. [Read more about algorithm config here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#tree-ah-config).
+* Algorithm config: The configuration with regard to the algorithms used for efficient search. [Read more about algorithm config here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#tree-ah-config).
 
-- Approximate number of neighbors: The approximate number of neighbors to return in the response. [Read more about this parameter here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#nearest-neighbor-search-config).
+* Approximate number of neighbors: The approximate number of neighbors to return in the response. [Read more about this parameter here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#nearest-neighbor-search-config).
 
-- Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
+* Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
+
+
 
 **Cloud Functions:**
 
-- **backfillTrigger:** Sets up the Vertex Matching Engine index and creates a private connection to it.
+* **backfillTrigger:** Sets up the Vertex Matching Engine index and creates a private connection to it.
 
-- **updateIndexConfig:** Updates the configuration of the Vertex Matching Engine index.
+* **updateIndexConfig:** Updates the configuration of the Vertex Matching Engine index.
 
-- **backfillTask:** A task-triggered function that gets called before a Vertex Matching Engine index is created. It backfills embeddings for all documents in the collection.
+* **backfillTask:** A task-triggered function that gets called before a Vertex Matching Engine index is created. It backfills embeddings for all documents in the collection.
 
-- **createIndexTrigger:** An event-triggered function that gets called when a special metadata document updated. It checks the status of the backfill every time, and once it's done it will trigger index creation.
+* **createIndexTrigger:** An event-triggered function that gets called when a special metadata document updated. It checks the status of the backfill every time, and once it's done it will trigger index creation.
 
-- **streamUpdateDatapoint:** An event-triggered function that gets called when a document is created or updated. It generates embeddings for the document and updates the Matching Engine index.
+* **streamUpdateDatapoint:** An event-triggered function that gets called when a document is created or updated. It generates embeddings for the document and updates the Matching Engine index.
 
-- **streamRemoveDatapoint:** An event-triggered function that gets called when a document is deleted. It deleted the document's datapoint from the Matching Engine index.
+* **streamRemoveDatapoint:** An event-triggered function that gets called when a document is deleted. It deleted the document's datapoint from the Matching Engine index.
 
-- **datapointWriteTask:** A task-triggered function that gets scheduled when a new write operation is detected but the index isn't ready. It generates embeddings for the document and updates the Matching Engine index.
+* **datapointWriteTask:** A task-triggered function that gets scheduled when a new write operation is detected but the index isn't ready. It generates embeddings for the document and updates the Matching Engine index.
 
-- **queryIndex:** A function that queries the Vertex Matching Engine index.
+* **queryIndex:** A function that queries the Vertex Matching Engine index.
+
+
 
 **Other Resources**:
 
-- onIndexCreated (firebaseextensions.v1beta.v2function)
+* onIndexCreated (firebaseextensions.v1beta.v2function)
 
-- onIndexDeployed (firebaseextensions.v1beta.v2function)
+* onIndexDeployed (firebaseextensions.v1beta.v2function)
+
+
 
 **APIs Used**:
 
-- aiplatform.googleapis.com (Reason: Powers Vertex Matching Engine)
+* aiplatform.googleapis.com (Reason: Powers Vertex Matching Engine)
 
-- eventarc.googleapis.com (Reason: Powers all events and triggers)
+* eventarc.googleapis.com (Reason: Powers all events and triggers)
 
-- run.googleapis.com (Reason: Powers v2 Cloud Functions)
+* run.googleapis.com (Reason: Powers v2 Cloud Functions)
 
-- storage-component.googleapis.com (Reason: Needed to use Cloud Storage)
+* storage-component.googleapis.com (Reason: Needed to use Cloud Storage)
+
+
 
 **Access Required**:
 
+
+
 This extension will operate with the following project IAM roles:
 
-- datastore.user (Reason: This extension requires read/write access to Firestore.)
+* datastore.user (Reason: This extension requires read/write access to Firestore.)
 
-- storage.admin (Reason: This extension requires write access to Cloud Storage to create a bucket and upload embeddings files to it as part of the backfill.)
+* storage.admin (Reason: This extension requires write access to Cloud Storage to create a bucket and upload embeddings files to it as part of the backfill.)
 
-- aiplatform.user (Reason: This extension requires access to Vertex AI to create, update and query a Vertex Matching Engine index.)
+* aiplatform.user (Reason: This extension requires access to Vertex AI to create, update and query a Vertex Matching Engine index.)

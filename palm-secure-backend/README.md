@@ -4,8 +4,9 @@
 
 **Description**: Protects your API key and prevents resource abuse by deploying a backend to call the PaLM API, secured by App Check.
 
-**Details**: > ⚠️ The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 
+
+**Details**: > ⚠️ The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 > **Please ensure that you have already signed up for the [waitlist](https://makersuite.google.com/waitlist) and have been approved before installing the extension.**
 
 This extension helps you call the PaLM API from your frontend client application without exposing your API key directly in the frontend code.
@@ -37,18 +38,23 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 Additionally, this extension uses the PaLM API, which is currently in public preview. During the preview period, developers can try the PaLM API at no cost. Pricing will be announced closer to general availability. For more information on the PaLM API public preview, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 
+
+
+
 **Configuration Parameters:**
 
-- Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
+* Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
 
-- API Key: Google Cloud API Key with PaLM API access enabled.
+* API Key: Google Cloud API Key with PaLM API access enabled.
 
-- Enforce App Check: If enabled, App check will be enforced for function calls.
+* Enforce App Check: If enabled, App check will be enforced for function calls.
+
+
 
 **Cloud Functions:**
 
-- **post:** https endpoint wrapping the PaLM API
+* **post:** https endpoint wrapping the PaLM API
 
-- **getModels:** https endpoint wrapping the PaLM API
+* **getModels:** https endpoint wrapping the PaLM API
 
-- **getModel:** https endpoint wrapping the PaLM API
+* **getModel:** https endpoint wrapping the PaLM API

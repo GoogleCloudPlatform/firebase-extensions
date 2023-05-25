@@ -4,6 +4,8 @@
 
 **Description**: Schedules BigQuery queries and exports the results to Firestore.
 
+
+
 **Details**: This extension helps developers to set up their frontend clients to subscribe to BQ queries that periodically refresh on a scheduled basis. A canonical use case is election results, where you might have a frontend that needs to refresh live to show the latest results. This extension would be useful in any scenario where an app developer needs to push analytical data back to users.
 
 To use the extension, developers will configure a specific Firestore document for each query and have their frontends listen for updates, and the BigQuery table/query to execute. In the background, BigQuery will run the query on a schedule, and the extension will write the result back to the specified document. Schedules are managed as Transfer Configs using the [Data Transfer Service](https://cloud.google.com/bigquery/docs/scheduling-queries).
@@ -64,46 +66,57 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 >
 > BigQuery charges by data processed, so your project will continue to incur costs until you manually delete the scheduled query. You can manage your scheduled queries directly in [Cloud Console](https://console.cloud.google.com/bigquery/scheduled-queries).
 
+
+
+
 **Configuration Parameters:**
 
-- Cloud Functions location: Where do you want to deploy the functions created for this extension? You usually want a location close to your database. For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
+* Cloud Functions location: Where do you want to deploy the functions created for this extension? You usually want a location close to your database. For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
 
-- BigQuery Dataset Location: What is the location of the BigQuery dataset referenced in the query?
+* BigQuery Dataset Location: What is the location of the BigQuery dataset referenced in the query?
 
-- Display Name: What display name would you like to use?
+* Display Name: What display name would you like to use?
 
-- Dataset ID: What's the BigQuery destination dataset you'd like to use? Each transfer run will write to a table in this destination dataset.
+* Dataset ID: What's the BigQuery destination dataset you'd like to use? Each transfer run will write to a table in this destination dataset.
 
-- Destination Table Name: What's the destination table name prefix you'd like to use? Each transfer run will write to the table with this name, postfixed with the runtime.
+* Destination Table Name: What's the destination table name prefix you'd like to use? Each transfer run will write to the table with this name, postfixed with the runtime.
 
-- Query String: What's the BQ query you'd like to execute?
+* Query String: What's the BQ query you'd like to execute?
 
-- Partitioning Field: What's the partitioning field on the destination table ID? Leave empty if not using a partitioning field.
+* Partitioning Field: What's the partitioning field on the destination table ID? Leave empty if not using a partitioning field.
 
-- Schedule: What's the execution schedule you'd like to use for this query?
+* Schedule: What's the execution schedule you'd like to use for this query?
 
-- Pub Sub Topic: What's the Pub Sub topic to write messages to when the scheduled query finishes executing?
+* Pub Sub Topic: What's the Pub Sub topic to write messages to when the scheduled query finishes executing?
 
-- Firestore Collection: What's the top-level Firestore Collection to store transfer configs, run metadata, and query output?
+* Firestore Collection: What's the top-level Firestore Collection to store transfer configs, run metadata, and query output?
+
+
 
 **Cloud Functions:**
 
-- **processMessages:** undefined
+* **processMessages:** undefined
 
-- **upsertTransferConfig:** Creates transfer config if doesn't exist yet.
+* **upsertTransferConfig:** Creates transfer config if doesn't exist yet.
+
+
 
 **APIs Used**:
 
-- bigquery.googleapis.com (Reason: Running queries)
+* bigquery.googleapis.com (Reason: Running queries)
 
-- bigquerydatatransfer.googleapis.com (Reason: Scheduling data transfers)
+* bigquerydatatransfer.googleapis.com (Reason: Scheduling data transfers)
+
+
 
 **Access Required**:
 
+
+
 This extension will operate with the following project IAM roles:
 
-- datastore.user (Reason: Allows this extension to access Cloud Firestore to write query results from BQ.)
+* datastore.user (Reason: Allows this extension to access Cloud Firestore to write query results from BQ.)
 
-- bigquery.admin (Reason: Allows this extension to create transfer configs in BQ, and query BQ destination tables.)
+* bigquery.admin (Reason: Allows this extension to create transfer configs in BQ, and query BQ destination tables.)
 
-- pubsub.admin (Reason: Allows DTS to grant DTS service account permission to send notifications to Pub/Sub topic)
+* pubsub.admin (Reason: Allows DTS to grant DTS service account permission to send notifications to Pub/Sub topic)

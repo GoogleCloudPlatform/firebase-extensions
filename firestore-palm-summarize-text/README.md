@@ -4,8 +4,9 @@
 
 **Description**: Summarizes text in Firestore documents using PaLM API.
 
-**Details**: > ⚠️ The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 
+
+**Details**: > ⚠️ The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 > **Please ensure that you have already signed up for the [waitlist](https://makersuite.google.com/waitlist) and have been approved before installing the extension.**
 
 This extension allows you to summarize a field in a Firestore document using the PaLM API.
@@ -60,24 +61,33 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 Additionally, this extension uses the PaLM API, which is currently in public preview. During the preview period, developers can try the PaLM API at no cost. Pricing will be announced closer to general availability. For more information on the PaLM API public preview, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 
+
+
+
 **Configuration Parameters:**
 
-- Collection Name: Path to the Firestore collection where messages will be generated.
+* Collection Name: Path to the Firestore collection where messages will be generated.
 
-- Text field: The field of the document containing text to summarize.
+* Text field: The field of the document containing text to summarize.
 
-- Response Field: The field in the message document into which to put the response.
+* Response Field: The field in the message document into which to put the response.
 
-- Target Summary Length: Number of sentences you would like the summary to be.
+* Target Summary Length: Number of sentences you would like the summary to be.
 
-- Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
+* Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
+
+
 
 **Cloud Functions:**
 
-- **generateSummary:** Listens to Firestore data writes to generate summaries.
+* **generateSummary:** Listens to Firestore data writes to generate summaries.
+
+
 
 **Access Required**:
 
+
+
 This extension will operate with the following project IAM roles:
 
-- datastore.user (Reason: Allows this extension to access Cloud Firestore to read and process added text.)
+* datastore.user (Reason: Allows this extension to access Cloud Firestore to read and process added text.)

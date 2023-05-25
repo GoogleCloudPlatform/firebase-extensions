@@ -4,6 +4,8 @@
 
 **Description**: Converts Firestore documents to audio files stored in Cloud Storage using Cloud Text to Speech.
 
+
+
 **Details**: This extension converts text from Firestore documents into speech using the Google Cloud Text-to-Speech API.
 
 Upon install you will be asked to provide a Firestore collection path and a Storage path. Any document writes to this collection will trigger a Cloud Function that does the following:
@@ -38,42 +40,57 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 - Cloud Storage
 - Cloud Functions (Node.js 14+ runtime. See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
 
+
+
+
 **Configuration Parameters:**
 
-- Cloud Functions location: Where do you want to deploy the functions created for this extension? You usually want a location close to your database. For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
+* Cloud Functions location: Where do you want to deploy the functions created for this extension? You usually want a location close to your database. For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
 
-- Collection path: What collection path contains documents with text you want to convert?
+* Collection path: What collection path contains documents with text you want to convert?
 
-- Bucket name: In which storage bucket do you want to keep converted text?
 
-- Storage path: What is the location in your storage bucket you would like to keep converted audio? By default this will be the root of the bucket.
+* Bucket name: In which storage bucket do you want to keep converted text?
 
-- Enable ssml: If set to \"Yes\", text processed by this extension will be assumed to be written in ssml.
 
-- Language code: What language code do you want to use?
+* Storage path: What is the location in your storage bucket you would like to keep converted audio? By default this will be the root of the bucket.
 
-- Voice type: What voice type do you want to use?
 
-- SSML Gender: What SSML Gender do you want to use?
+* Enable ssml: If set to \"Yes\", text processed by this extension will be assumed to be written in ssml.
 
-- Audio Encoding: What audio encoding do you want to use?
+* Language code: What language code do you want to use?
 
-- Enable per document overrides.: If set to \"Yes\", options for converting audio will be overwritten by fields in the document containing the text to be converted.
+* Voice type: What voice type do you want to use?
 
-- Voice name: Alternatively you may specify a voice name, this will override other extension conversion parameters (language code, SSML Gender, Voice type).
+* SSML Gender: What SSML Gender do you want to use?
+
+* Audio Encoding: What audio encoding do you want to use?
+
+* Enable per document overrides.: If set to \"Yes\", options for converting audio will be overwritten  by fields in the document containing the text to be converted.
+
+* Voice name: Alternatively you may specify a voice name, this will override other extension conversion parameters (language code, SSML Gender, Voice type).
+
+
+
 
 **Cloud Functions:**
 
-- **textToSpeech:** Processes document changes in the specified Cloud Firestore collection, writing synthesized natural speech files to Cloud Storage
+* **textToSpeech:** Processes document changes in the specified Cloud Firestore collection, writing synthesized natural speech files to Cloud Storage
+
+
 
 **APIs Used**:
 
-- texttospeech.googleapis.com (Reason: To use Google Text to Speech to generate natural sounding speech from your strings in Firestore.)
+* texttospeech.googleapis.com (Reason: To use Google Text to Speech to generate natural sounding speech from your strings in Firestore.)
+
+
 
 **Access Required**:
 
+
+
 This extension will operate with the following project IAM roles:
 
-- datastore.user (Reason: Allows the extension to write translated strings to Cloud Firestore.)
+* datastore.user (Reason: Allows the extension to write translated strings to Cloud Firestore.)
 
-- storage.objectAdmin (Reason: Allows the extension to write translated strings to Cloud Storage.)
+* storage.objectAdmin (Reason: Allows the extension to write translated strings to Cloud Storage.)
