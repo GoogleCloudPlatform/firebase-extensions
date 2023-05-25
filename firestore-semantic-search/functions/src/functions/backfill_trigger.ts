@@ -51,7 +51,15 @@ export async function backfillTriggerHandler({
   // This might be a left-over from a previous installation.
   try {
     const bucket = admin.storage().bucket(config.bucketName);
-    await bucket.deleteFiles({prefix: 'datapoints', autoPaginate: false});
+
+    if (await bucket.exists()) {
+      functions.logger.info(
+        `Found an existing bucket ${config.bucketName}, deleting it...`
+      );
+
+      await bucket.deleteFiles({prefix: 'datapoints', autoPaginate: false});
+      await bucket.delete({ignoreNotFound: true});
+    }
   } catch (error) {
     // Ignore the error if the bucket doesn't exist.
     functions.logger.debug(error);

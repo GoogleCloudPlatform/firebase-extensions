@@ -3,6 +3,7 @@
 - Fixed CHANGELOG to reflect current state of extension.
 - Fixed an issue with `queryIndex` where it didn't accept a list as documented.
 - Fixed an issue when uninstalling the extension and installing again where it complains about the Firestore metdata collection already existing.
+- Fixed an issue when uninstalling the extension and installing again with a different location.
 
 ## Version 0.1.4
 
