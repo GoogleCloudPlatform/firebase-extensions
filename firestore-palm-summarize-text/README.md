@@ -39,7 +39,7 @@ Here are some examples of how this extension can be used:
 
 ### Regenerating a response
 
-Changing the state field of a document's status from `COMPLETE` to `REGENERATE` will regenerate the corresponding message of the conversation.
+Changing the state field of a completed document's status from `COMPLETED` to anything else will retrigger the extension for that document.
 
 ## Additional Setup
 

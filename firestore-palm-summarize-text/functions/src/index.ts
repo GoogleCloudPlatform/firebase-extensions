@@ -42,12 +42,13 @@ export const generateSummary = functions.firestore
 
     const text = change.after.get(textField);
 
-    // only make an API call if text exists and is non-empty, response is missing, and there's no in-process status
+    const state = change.after.get('status.state');
+
+    // only make an API call if text exists and is non-empty, and state is not PROCESSING or COMPLETED
     if (
       !text ||
       typeof text !== 'string' ||
-      change.after.get(responseField) ||
-      !isRegenerate(change)
+      ['PROCESSING', 'COMPLETED'].includes(state)
     ) {
       return;
     }
@@ -95,17 +96,4 @@ const createSummaryPrompt = (text: string, targetSummaryLength?: number) => {
     return `Summarize this text: "${text}"`;
   }
   return `Summarize this text in exactly ${targetSummaryLength} sentences: "${text}"`;
-};
-
-const isRegenerate = (
-  change: functions.Change<functions.firestore.DocumentSnapshot>
-): boolean => {
-  const statusBefore = change.before.get('status');
-  const status = change.after.get('status');
-  return (
-    statusBefore &&
-    status &&
-    statusBefore.state === 'COMPLETED' &&
-    status.state === 'REGENERATE'
-  );
 };

@@ -67,8 +67,10 @@ export const generateText = functions.firestore
       return;
     }
 
+    const state = change.after.get('status.state');
+
     // only make an API call if prompt exists and is non-empty, response is missing, and there's no in-process status
-    if (!prompt || change.after.get(responseField) || !isRegenerate(change)) {
+    if (!prompt || ['PROCESSING', 'COMPLETED'].includes(state)) {
       // TODO add logging
       return;
     }
@@ -139,16 +141,3 @@ export const generateText = functions.firestore
       });
     }
   });
-
-const isRegenerate = (
-  change: functions.Change<functions.firestore.DocumentSnapshot>
-): boolean => {
-  const statusBefore = change.before.get('status');
-  const status = change.after.get('status');
-  return (
-    statusBefore &&
-    status &&
-    statusBefore.state === 'COMPLETED' &&
-    status.state === 'REGENERATE'
-  );
-};
