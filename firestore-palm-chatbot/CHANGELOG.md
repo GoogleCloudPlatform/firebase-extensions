@@ -1,6 +1,6 @@
 ## Version 0.1.4
 
-Improve error handling
+Improve error handling.
 
 ## Version 0.1.3
 
