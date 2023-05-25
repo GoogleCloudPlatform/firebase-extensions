@@ -6,7 +6,7 @@ Update docs.
 
 Fix incorrect parameters in extension.yaml.
 
-##  Version 0.1.1
+## Version 0.1.1
 
 Add releaseNotesUrl.
 
