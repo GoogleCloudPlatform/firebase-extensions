@@ -18,11 +18,20 @@ specVersion: v1beta
 
 icon: icon.png
 
-tags: [ai, text-to-speech, speech-synthesis, google-ai, voice-generation, speech-generation]
+tags:
+  [
+    ai,
+    text-to-speech,
+    speech-synthesis,
+    google-ai,
+    voice-generation,
+    speech-generation,
+  ]
 
 displayName: Convert Text to Speech
 description:
-  Converts Firestore documents to audio files stored in Cloud Storage using Cloud Text to Speech.
+  Converts Firestore documents to audio files stored in Cloud Storage using
+  Cloud Text to Speech.
 
 license: Apache-2.0
 
@@ -42,7 +51,9 @@ billingRequired: true
 
 apis:
   - apiName: texttospeech.googleapis.com
-    reason: To use Google Text to Speech to generate natural sounding speech from your strings in Firestore.
+    reason:
+      To use Google Text to Speech to generate natural sounding speech from your
+      strings in Firestore.
 
 roles:
   - role: datastore.user
@@ -54,7 +65,8 @@ resources:
   - name: textToSpeech
     type: firebaseextensions.v1beta.function
     description:
-      Processes document changes in the specified Cloud Firestore collection, writing synthesized natural speech files to Cloud Storage
+      Processes document changes in the specified Cloud Firestore collection,
+      writing synthesized natural speech files to Cloud Storage
     properties:
       location: ${param:LOCATION}
       runtime: nodejs16
@@ -66,8 +78,8 @@ params:
   - param: LOCATION
     label: Cloud Functions location
     description: >-
-      Where do you want to deploy the functions created for this extension?
-      You usually want a location close to your database. For help selecting a
+      Where do you want to deploy the functions created for this extension? You
+      usually want a location close to your database. For help selecting a
       location, refer to the [location selection
       guide](https://firebase.google.com/docs/functions/locations).
     type: select
@@ -125,7 +137,7 @@ params:
     description: >
       What collection path contains documents with text you want to convert?
     example: docs_to_convert
-    validationRegex: "^[^/]+(/[^/]+/[^/]+)*$"
+    validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
     validationErrorMessage: Must be a valid Cloud Firestore Collection
     type: string
     required: true
@@ -145,15 +157,16 @@ params:
   - param: STORAGE_PATH
     label: Storage path
     description: >
-      What is the location in your storage bucket you would like to keep converted audio?
-      By default this will be the root of the bucket.
+      What is the location in your storage bucket you would like to keep
+      converted audio? By default this will be the root of the bucket.
     type: string
     required: false
 
   - param: ENABLE_SSML
     label: Enable ssml
     description: >-
-      If set to \"Yes\", text processed by this extension will be assumed to be written in ssml.
+      If set to \"Yes\", text processed by this extension will be assumed to be
+      written in ssml.
     type: select
     options:
       - label: Yes
@@ -321,24 +334,24 @@ params:
       What audio encoding do you want to use?
     type: select
     options:
-    - label: LINEAR16
-      value: LINEAR16
-    - label: MP3
-      value: MP3
-    - label: OGG_OPUS
-      value: OGG_OPUS
-    - label: MULAW
-      value: MULAW
-    - label: ALAW
-      value: ALAW
+      - label: LINEAR16
+        value: LINEAR16
+      - label: MP3
+        value: MP3
+      - label: OGG_OPUS
+        value: OGG_OPUS
+      - label: MULAW
+        value: MULAW
+      - label: ALAW
+        value: ALAW
     default: MP3
     required: true
-    
+
   - param: ENABLE_PER_DOCUMENT_OVERRIDES
     label: Enable per document overrides.
     description: >-
-      If set to \"Yes\", options for converting audio will be overwritten 
-      by fields in the document containing the text to be converted.
+      If set to \"Yes\", options for converting audio will be overwritten  by
+      fields in the document containing the text to be converted.
     type: select
     options:
       - label: Yes

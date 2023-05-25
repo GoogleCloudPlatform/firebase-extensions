@@ -23,7 +23,7 @@ If you would like to use a pre-trained model, you simply need to copy the Tensor
 You may want to use your own custom model, or fine-tune an existing model to achieve better results. To do so, follow these steps:
 
 1. Export your model using the Tensorflow SDK. [You can find more information about exporting the correct format here](https://www.tensorflow.org/js/guide/save_load). After exporting, you should have a `[model].json` file and `[model].weights.bin` file. The `.bin` file might be sharded into multiple binary files, you will need all of them.
-2. Upload both the `.json` and `.bin` file(s) to a Cloud Storage page, and make sure both objects are publicly accessible. 
+2. Upload both the `.json` and `.bin` file(s) to a Cloud Storage page, and make sure both objects are publicly accessible.
 3. Copy the public URL of the .json file and paste that in the extension configuration during installation. The extension will automatically load the `.bin` file(s) based on an inferred relative path to the `.json` file.
 
 You need to know the input dimensionality that your model supports, as the extension needs to resize images before feeding them into the image feature vector model.
@@ -31,6 +31,7 @@ You need to know the input dimensionality that your model supports, as the exten
 ## Additional Setup
 
 First, before installing the extension, you need to enable data read & write access in Cloud Audit Log for Vertex AI API. The instructions to enable are as follows:
+
 - [Visit this page](https://console.cloud.google.com/iam-admin/audit?cloudshell=false) and ensure that you have selected the project you’d like to install this extension in, using the project picker.
 - Filter for “Vertex AI API” and click on the checkbox next to it. A new panel should appear on the right side of the page.
 - On the new panel, click on the checkboxes next to “Data Read” and “Data Write”, and click Save.
@@ -45,6 +46,7 @@ Note that the extension itself will take **~2h** to finish installing & processi
 
 To install an extension, your project must be on the Blaze (pay as you go) plan. You will be charged a small amount (typically around $0.01/month) for the Firebase resources required by this extension (even if it is not used).
 This extension uses other Firebase and Google Cloud Platform services, which have associated charges if you exceed the service's no-cost tier:
+
 - Cloud Firestore
 - Cloud Storage
 - Cloud Run
@@ -55,4 +57,3 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 [Learn more about Firebase billing](https://firebase.google.com/pricing).
 
 > ⚠️ The extension does not delete the Matching Engine Index automatically when you uninstall the extension. Vertex AI charges by node hour when hosting a Matching Engine Index, so your project will continue to incur costs until you manually undeploy the index. Instructions for undeploying an index are available [here](https://cloud.google.com/vertex-ai/docs/matching-engine/deploy-index-public#undeploy-index). You can [read more about Matching Engine pricing here](https://www.google.com/url?q=https://cloud.google.com/vertex-ai/pricing%23matchingengine&sa=D&source=docs&ust=1683194254385742&usg=AOvVaw1kYFVKa8gdagrau70Vzk6G).
-

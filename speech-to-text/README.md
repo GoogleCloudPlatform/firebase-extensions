@@ -4,8 +4,6 @@
 
 **Description**: Transcribes audio files in Cloud Storage to .txt files using Cloud Speech To Text.
 
-
-
 **Details**: This extension transcribes audio in Cloud Storage using Google Cloud Speech-to-Text API, and writes the resulting text output back to Cloud Storage.
 
 Upon installation, you will be asked to provide a Storage path. New audio files (Storage objects) added to this path will trigger a Cloud Function that transcribes the audio to text, and writes it back to the same Storage path as a .txt file.
@@ -16,10 +14,10 @@ To determine if a given Storage object is an audio file, the extension checks th
 
 Here are a few examples of how you could use the Firebase Storage Transcribe Audio Extension:
 
-* A podcast hosting platform could use the extension to automatically transcribe podcast episodes and make them searchable on its website.
-* A company could use the extension to transcribe audio files from customer support calls and store them in Firestore for future reference.
-* An education platform could use the extension to transcribe lectures and create closed captions for their students.
-* A journalist could use the extension to transcribe interviews and save them in Storage for later reference.
+- A podcast hosting platform could use the extension to automatically transcribe podcast episodes and make them searchable on its website.
+- A company could use the extension to transcribe audio files from customer support calls and store them in Firestore for future reference.
+- An education platform could use the extension to transcribe lectures and create closed captions for their students.
+- A journalist could use the extension to transcribe interviews and save them in Storage for later reference.
 
 ## Additional Setup
 
@@ -39,51 +37,36 @@ You will be charged a small amount (typically around $0.01/month) for the Fireba
 
 This extension uses other Firebase and Google Cloud Platform services, which have associated charges if you exceed the service's no-cost tier:
 
-* [Cloud Speech-to-Text API](https://cloud.google.com/speech-to-text#section-12)
-* Cloud Storage
-* Eventarc (optional)
-* Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
-
-
-
+- [Cloud Speech-to-Text API](https://cloud.google.com/speech-to-text#section-12)
+- Cloud Storage
+- Eventarc (optional)
+- Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
 
 **Configuration Parameters:**
 
-* Cloud Functions location: Where do you want to deploy the functions created for this extension? You usually want a location close to your database. Realtime Database instances are located in `us-central1`. For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
+- Cloud Functions location: Where do you want to deploy the functions created for this extension? You usually want a location close to your database. Realtime Database instances are located in `us-central1`. For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
 
-* Cloud Storage bucket for input and output: The Cloud Storage bucket that the extension should be listening to. Files uploaded to this bucket will be transcribed by the extension. If cloud storage output is enabled, transcriptions will be written to this bucket.
+- Cloud Storage bucket for input and output: The Cloud Storage bucket that the extension should be listening to. Files uploaded to this bucket will be transcribed by the extension. If cloud storage output is enabled, transcriptions will be written to this bucket.
 
+- Storage path for transcriptions: The storage path in which to output transcriptions. If this is not set, the extension will output to the root of the bucket.
 
-* Storage path for transcriptions: The storage path in which to output transcriptions. If this is not set, the extension will output to the root of the bucket.
+- BCP-47 code of the transcription language: The BCP-47 code of the transcription language, as shown in the [Language support documentation](https://cloud.google.com/speech-to-text/docs/languages)
 
-
-* BCP-47 code of the transcription language: The BCP-47 code of the transcription language, as shown in the [Language support documentation](https://cloud.google.com/speech-to-text/docs/languages)
-
-
-* Language model used for transcription: Which kind of use-case should the speech-to-text transcription algorithm be honed for? For details, see [the model field in the documentation](https://cloud.google.com/speech-to-text/docs/reference/rest/v1/RecognitionConfig)
-If you're not sure, just use the default.
-
-
-
+- Language model used for transcription: Which kind of use-case should the speech-to-text transcription algorithm be honed for? For details, see [the model field in the documentation](https://cloud.google.com/speech-to-text/docs/reference/rest/v1/RecognitionConfig)
+  If you're not sure, just use the default.
 
 **Cloud Functions:**
 
-* **transcribeAudio:** Listens for new audio files uploaded to a specified Cloud Storage bucket, transcribes the speech in those files, then stores the transcription in storage, or in firestore, or in both.
-
-
+- **transcribeAudio:** Listens for new audio files uploaded to a specified Cloud Storage bucket, transcribes the speech in those files, then stores the transcription in storage, or in firestore, or in both.
 
 **APIs Used**:
 
-* speech.googleapis.com (Reason: Used for transcribing the audio of sound files.)
-
-
+- speech.googleapis.com (Reason: Used for transcribing the audio of sound files.)
 
 **Access Required**:
 
-
-
 This extension will operate with the following project IAM roles:
 
-* storage.objectAdmin (Reason: Allows the extension to write to your Cloud Storage.)
+- storage.objectAdmin (Reason: Allows the extension to write to your Cloud Storage.)
 
-* datastore.user (Reason: Allows the extension to write to your Firestore Database instance.)
+- datastore.user (Reason: Allows the extension to write to your Firestore Database instance.)
