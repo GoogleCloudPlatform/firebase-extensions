@@ -62,7 +62,7 @@ export const generateMessage = functions.firestore
     if (
       !newPrompt ||
       typeof newPrompt !== 'string' ||
-      ['PROCESSING', 'COMPLETED'].includes(state)
+      ['PROCESSING', 'COMPLETED', 'ERRORED'].includes(state)
     ) {
       // noop if the prompt is missing or not a string or if the document is already processing or completed.
       return;

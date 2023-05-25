@@ -70,7 +70,7 @@ export const generateText = functions.firestore
     const state = change.after.get('status.state');
 
     // only make an API call if prompt exists and is non-empty, response is missing, and there's no in-process status
-    if (!prompt || ['PROCESSING', 'COMPLETED'].includes(state)) {
+    if (!prompt || ['PROCESSING', 'COMPLETED', 'ERRORED'].includes(state)) {
       // TODO add logging
       return;
     }
