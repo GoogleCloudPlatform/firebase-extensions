@@ -65,6 +65,10 @@ jobs:
       - name: Run Lerna generate-readme
         run: lerna run --parallel generate-readme
 
+      - name: Checkout to ${{ env.BRANCH_NAME }}
+        if: ${{ github.event_name == 'pull_request' }}
+        run: git checkout ${{ env.BRANCH_NAME }}
+
       - name: Check READMEs are up to date and push changes if possible.
         run: |
           changed_files=$(git status -s -- '**/README.md' | cut -c4-)
