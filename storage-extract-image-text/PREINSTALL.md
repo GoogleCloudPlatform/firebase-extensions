@@ -6,9 +6,9 @@ Whenever a new jpg or png image is uploaded to the specified bucket, a Cloud Fun
 
 ### Use Cases
 
-* **Optical character recognition (OCR) for scanned documents**: Extract and store text from scanned documents to make them searchable and accessible in your application.
-* **Reading text from images in a social media app**: Automatically extract and analyze text from user images to identify trends or inappropriate content.
-* **Extracting menu items from restaurant images**: Create a food ordering app that allows users to upload images of menus and automatically extracts and displays the menu items in a structured format.
+- **Optical character recognition (OCR) for scanned documents**: Extract and store text from scanned documents to make them searchable and accessible in your application.
+- **Reading text from images in a social media app**: Automatically extract and analyze text from user images to identify trends or inappropriate content.
+- **Extracting menu items from restaurant images**: Create a food ordering app that allows users to upload images of menus and automatically extracts and displays the menu items in a structured format.
 
 ### Including Cloud Storage paths
 
@@ -38,9 +38,9 @@ Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/fi
 
 This extension uses other Firebase or Google Cloud Platform services which may have associated charges:
 
-* [Cloud Vision AI](https://cloud.google.com/vision#section-11)
-* Cloud Storage
-* Cloud Firestore
-* Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
+- [Cloud Vision AI](https://cloud.google.com/vision#section-11)
+- Cloud Storage
+- Cloud Firestore
+- Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
 
 When you use Firebase Extensions, you're only charged for the underlying resources that you use. A paid-tier (Blaze) billing plan is required because the extension uses Cloud Vision API.

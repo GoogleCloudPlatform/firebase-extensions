@@ -1,7 +1,8 @@
 {
   "extensions": {
     "storage-image-text-extraction": "../storage-image-text-extraction",
-    "storage-image-labeling": "../storage-video-labeling"
+    "storage-image-labeling": "../storage-video-labeling",
+    "firestore-semantic-search": "../firestore-semantic-search"
   },
   "storage": {
     "rules": "storage.rules"

@@ -9,21 +9,18 @@ If you enabled per-document overrides during installation, you can also include 
 ## Example Usage
 
 ```javascript
-admin
-  .firestore()
-  .collection("${param:COLLECTION_PATH}")
-  .add({
-    text: "Hello, world!",
-    languageCode: "en-US", // Optional if per-document overrides are enabled
-    ssmlGender: "FEMALE", // Optional if per-document overrides are enabled
-    audioEncoding: "MP3", // Optional if per-document overrides are enabled
-    voiceName: "en-US-Wavenet-A" // Optional if per-document overrides are enabled
-  });
+admin.firestore().collection('${param:COLLECTION_PATH}').add({
+  text: 'Hello, world!',
+  languageCode: 'en-US', // Optional if per-document overrides are enabled
+  ssmlGender: 'FEMALE', // Optional if per-document overrides are enabled
+  audioEncoding: 'MP3', // Optional if per-document overrides are enabled
+  voiceName: 'en-US-Wavenet-A', // Optional if per-document overrides are enabled
+});
 ```
 
 ## Access generated audio files
 
-Once the extension is installed, it will automatically process new documents in the ${param:COLLECTION_PATH} collection and store the resulting audio files in your `${param:BUCKET_NAME}` Cloud Storage bucket at the `${param:STORAGE_PATH}` path.
+Once the extension is installed, it will automatically process new documents in the ${param:COLLECTION_PATH} collection and store the resulting audio files in your `${param:BUCKET_NAME}`Cloud Storage bucket at the`${param:STORAGE_PATH}` path.
 
 The files will be named using the document ID with an appropriate file extension (e.g., .mp3 for MP3 files).
 

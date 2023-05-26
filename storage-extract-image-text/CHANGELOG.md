@@ -1,3 +1,7 @@
+## Version 0.1.3
+
+Fix description of `INCLUDE_PATH_LIST` parameter in extension.yaml
+
 ## Version 0.1.2
 
 Writes to Firestore with URL stored in "file" document field rather than as document ID.
