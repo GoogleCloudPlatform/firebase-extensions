@@ -1,15 +1,27 @@
 name: firestore-palm-gen-text
-version: 0.1.4
+version: 0.1.5
 specVersion: v1beta
 
 displayName: Language Tasks with PaLM API
 
 description: >-
-  Performs AI/ML tasks on text, customizable with prompt engineering, using PaLM API and Firestore.
+  Performs AI/ML tasks on text, customizable with prompt engineering, using PaLM
+  API and Firestore.
 
 icon: icon.png
 
-tags: [ai, palm, generative-ai, text-ai, language-ai, large-language-models, llm, nlp, google-ai]
+tags:
+  [
+    ai,
+    palm,
+    generative-ai,
+    text-ai,
+    language-ai,
+    large-language-models,
+    llm,
+    nlp,
+    google-ai,
+  ]
 
 license: Apache-2.0 # https://spdx.org/licenses/
 
