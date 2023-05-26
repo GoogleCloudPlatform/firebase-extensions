@@ -76,8 +76,8 @@ jobs:
               exit 1
             fi
 
-            git config --global user.name "github-actions[bot]"
-            git config --global user.email "github-action@github.com"
+            git config --global user.name "google-cloud-firebase-extensions-bot"
+            git config --global user.email "google-cloud-firebase-extensions-bot@google.com"
 
             git checkout ${{ env.BRANCH_NAME }}
             git add **/README.md
