@@ -3,10 +3,11 @@ name: Check READMEs are up to date
 on:
   push:
     branches:
-      - '**'
+      - 'next'
   pull_request:
     types:
       - opened
+      - synchronize
     branches:
       - '**'
 
@@ -14,6 +15,9 @@ concurrency:
   group:
     ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
+
+env:
+  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
 jobs:
   build:
@@ -27,10 +31,11 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'npm'
+          cache-dependency-path: '**/functions/package-lock.json'
 
       - name: Set up global dependencies directory
         id: global-deps-setup
@@ -57,13 +62,16 @@ jobs:
       - name: Install local dependencies
         run: npm ci
 
+      - name: Checkout to ${{ env.BRANCH_NAME }}
+        if: ${{ github.event_name == 'pull_request' }}
+        run: git checkout ${{ env.BRANCH_NAME }}
+
       - name: Run Lerna generate-readme
         run: lerna run --parallel generate-readme
 
       - name: Check READMEs are up to date and push changes if possible.
         run: |
           changed_files=$(git status -s -- '**/README.md' | cut -c4-)
-
           if [[ ! -z "$changed_files" ]]; then
             echo "Changes detected in README.md files:"
             echo "$changed_files"
@@ -72,10 +80,11 @@ jobs:
               exit 1
             fi
 
-            git config --global user.name "github-actions[bot]"
-            git config --global user.email "github-action@github.com"
+            git config --global user.name "google-cloud-firebase-extensions-bot"
+            git config --global user.email "google-cloud-firebase-extensions-bot@google.com"
 
+            git checkout ${{ env.BRANCH_NAME }}
             git add **/README.md
             git commit -m "chore(*): Update READMEs"
-            git push origin ${{ github.ref }}
+            git push origin ${{ env.BRANCH_NAME }}
           fi
