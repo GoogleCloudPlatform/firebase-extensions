@@ -1,9 +1,10 @@
 name: storage-label-images
-version: 0.1.4
+version: 0.1.5
 specVersion: v1beta
 
 displayName: Label Images with Cloud Vision AI
-description: Extracts labels from images and saves to Firestore using Cloud Vision API.
+description:
+  Extracts labels from images and saves to Firestore using Cloud Vision API.
 
 license: Apache-2.0 # The license you want for the extension
 sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/storage-label-images
@@ -11,7 +12,16 @@ releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree
 
 icon: icon.png
 
-tags: [ai, videos, cloud-vision, image-recognition, image-classification, google-ai, cloud-vision-api]
+tags:
+  [
+    ai,
+    videos,
+    cloud-vision,
+    image-recognition,
+    image-classification,
+    google-ai,
+    cloud-vision-api,
+  ]
 
 author:
   authorName: Google Cloud
@@ -26,23 +36,25 @@ apis:
 resources:
   - name: labelImage
     type: firebaseextensions.v1beta.function
-    description: Listens to incoming Storage documents, executes image labeling on them and writes labels back to Storage into a preconfigured location.
+    description:
+      Listens to incoming Storage documents, executes image labeling on them and
+      writes labels back to Storage into a preconfigured location.
     properties:
       location: ${param:LOCATION}
       availableMemoryMb: 1024
       eventTrigger:
         eventType: google.storage.object.finalize
         resource: projects/_/buckets/${param:IMG_BUCKET}
-      runtime: "nodejs16"
+      runtime: 'nodejs16'
 
 params:
   - param: LOCATION
     label: Cloud Functions location
     description: >-
-      Where do you want to deploy the functions created for this extension?
-      You usually want a location close to your database. Realtime Database
-      instances are located in `us-central1`. For help selecting a
-      location, refer to the [location selection
+      Where do you want to deploy the functions created for this extension? You
+      usually want a location close to your database. Realtime Database
+      instances are located in `us-central1`. For help selecting a location,
+      refer to the [location selection
       guide](https://firebase.google.com/docs/functions/locations).
     type: select
     options:
@@ -69,28 +81,34 @@ params:
   - param: IMG_BUCKET
     label: Cloud Storage bucket for images
     description: >
-      To which Cloud Storage bucket will you upload images on which you want to perform labelling?
+      To which Cloud Storage bucket will you upload images on which you want to
+      perform labelling?
     type: string
     example: my-project-12345.appspot.com
     validationRegex: ^([0-9a-z_.-]*)$
     validationErrorMessage: Invalid storage bucket
     default: ${STORAGE_BUCKET}
     required: true
-  
+
   - param: INCLUDE_PATH_LIST
     label: Paths that contain images you want to label
     description: >
-      Restrict storage-image-labeling to only label images in specific locations in your Storage bucket by 
-      supplying a comma-separated list of absolute paths. For example, specifying the paths `/users/pictures,/restaurants/menuItems`
-      will label any images found in any subdirectories of `/users/pictures` and `/restaurants/menuItems`.
-      
-      You may also use wildcard notation for directories in the path. For example, `/users/*/pictures`
-      would exclude any images in any subdirectories of `/users/foo/pictures` as well as any images in
-      subdirectories of `/users/bar/pictures`, but also any images in subdirectories of `/users/any/level/of/subdirectories/pictures`. 
-      
-      If you prefer not to explicitly exclude any directories of your Storage bucket, leave this field empty.
+      Restrict storage-image-labeling to only label images in specific locations
+      in your Storage bucket by  supplying a comma-separated list of absolute
+      paths. For example, specifying the paths
+      `/users/pictures,/restaurants/menuItems` will label any images found in
+      any subdirectories of `/users/pictures` and `/restaurants/menuItems`.
+
+      You may also use wildcard notation for directories in the path. For
+      example, `/users/*/pictures` would include any images in any
+      subdirectories of `/users/foo/pictures` as well as any images in
+      subdirectories of `/users/bar/pictures`, but also any images in
+      subdirectories of `/users/any/level/of/subdirectories/pictures`. 
+
+      If you prefer not to explicitly exclude any directories of your Storage
+      bucket, leave this field empty.
     type: string
-    example: "/users/avatars,/design/pictures"
+    example: '/users/avatars,/design/pictures'
     validationRegex: ^(\/[^\s\/\,]+)+(\,(\/[^\s\/\,]+)+)*$
     validationErrorMessage:
       Invalid paths, must be a comma-separated list of absolute path values.
@@ -99,19 +117,22 @@ params:
   - param: EXCLUDE_PATH_LIST
     label: List of absolute paths not included for labelled images
     description: >
-      Ensure storage-image-labeling does *not* label images in _specific locations_ in your Storage bucket by 
-      supplying a comma-separated list of absolute paths. For example, to *exclude* the images 
-      stored in the `/foo/alpha` and its subdirectories and `/bar/beta` and its subdirectories, specify the
-      paths `/foo/alpha,/bar/beta`.
-      
-      You may also use wildcard notation for directories in the path. For example, `/users/*/pictures` would
-      exclude any images in any subdirectories of `/users/foo/pictures` as well as any images in subdirectories of
-      `/users/bar/pictures`, but also any images in subdirectories of `/users/any/level/of/subdirectories/pictures`.
-      
-      If you prefer to label every image uploaded to your Storage bucket, 
-      leave this field empty.
+      Ensure storage-image-labeling does *not* label images in _specific
+      locations_ in your Storage bucket by  supplying a comma-separated list of
+      absolute paths. For example, to *exclude* the images  stored in the
+      `/foo/alpha` and its subdirectories and `/bar/beta` and its
+      subdirectories, specify the paths `/foo/alpha,/bar/beta`.
+
+      You may also use wildcard notation for directories in the path. For
+      example, `/users/*/pictures` would exclude any images in any
+      subdirectories of `/users/foo/pictures` as well as any images in
+      subdirectories of `/users/bar/pictures`, but also any images in
+      subdirectories of `/users/any/level/of/subdirectories/pictures`.
+
+      If you prefer to label every image uploaded to your Storage bucket,  leave
+      this field empty.
     type: string
-    example: "/users/avatars/thumbs,/design/pictures/thumbs"
+    example: '/users/avatars/thumbs,/design/pictures/thumbs'
     validationRegex: ^(\/[^\s\/\,]+)+(\,(\/[^\s\/\,]+)+)*$
     validationErrorMessage:
       Invalid paths, must be a comma-separated list of absolute path values.
@@ -122,7 +143,7 @@ params:
     description: >
       What is the path to the collection where labels will be written to?
     example: imageLabels
-    validationRegex: "^[^/]+(/[^/]+/[^/]+)*$"
+    validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
     validationErrorMessage: Must be a valid Cloud Firestore Collection
     default: imageLabels
     required: true
@@ -130,8 +151,9 @@ params:
   - param: LABEL_MODE
     label: Amount of label information to write to firestore.
     description: >
-      How much label information should be written to firestore? Do you want just the label descriptions written to firestore, 
-      or the full label annotation? Select \"basic\" for the former, \"full\" for the later.
+      How much label information should be written to firestore? Do you want
+      just the label descriptions written to firestore,  or the full label
+      annotation? Select \"basic\" for the former, \"full\" for the later.
     type: select
     options:
       - label: Basic

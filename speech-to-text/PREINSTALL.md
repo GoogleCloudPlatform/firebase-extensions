@@ -8,10 +8,10 @@ To determine if a given Storage object is an audio file, the extension checks th
 
 Here are a few examples of how you could use the Firebase Storage Transcribe Audio Extension:
 
-* A podcast hosting platform could use the extension to automatically transcribe podcast episodes and make them searchable on its website.
-* A company could use the extension to transcribe audio files from customer support calls and store them in Firestore for future reference.
-* An education platform could use the extension to transcribe lectures and create closed captions for their students.
-* A journalist could use the extension to transcribe interviews and save them in Storage for later reference.
+- A podcast hosting platform could use the extension to automatically transcribe podcast episodes and make them searchable on its website.
+- A company could use the extension to transcribe audio files from customer support calls and store them in Firestore for future reference.
+- An education platform could use the extension to transcribe lectures and create closed captions for their students.
+- A journalist could use the extension to transcribe interviews and save them in Storage for later reference.
 
 ## Additional Setup
 
@@ -31,7 +31,7 @@ You will be charged a small amount (typically around $0.01/month) for the Fireba
 
 This extension uses other Firebase and Google Cloud Platform services, which have associated charges if you exceed the service's no-cost tier:
 
-* [Cloud Speech-to-Text API](https://cloud.google.com/speech-to-text#section-12)
-* Cloud Storage
-* Eventarc (optional)
-* Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
+- [Cloud Speech-to-Text API](https://cloud.google.com/speech-to-text#section-12)
+- Cloud Storage
+- Eventarc (optional)
+- Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))

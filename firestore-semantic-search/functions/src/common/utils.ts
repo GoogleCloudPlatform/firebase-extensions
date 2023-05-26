@@ -40,11 +40,9 @@ export async function getEmbeddingsBucket(): Promise<Bucket> {
   } catch (error) {
     // If the bucket doesn't exist, create it with the specified location
     if ((error as any)?.code === 404) {
-      console.log(error);
       const [bucket] = await admin.storage().bucket(bucketName).create({
         location: config.location,
       });
-      console.log(`Bucket ${bucketName} created in the specified location.`);
       return bucket;
     } else {
       // If the error is not related to the bucket's existence, rethrow the error

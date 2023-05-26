@@ -47,11 +47,17 @@ apis:
 
 roles:
   - role: datastore.user
-    reason: Allows this extension to access Cloud Firestore to write query results from BQ.
+    reason:
+      Allows this extension to access Cloud Firestore to write query results
+      from BQ.
   - role: bigquery.admin
-    reason: Allows this extension to create transfer configs in BQ, and query BQ destination tables.
+    reason:
+      Allows this extension to create transfer configs in BQ, and query BQ
+      destination tables.
   - role: pubsub.admin
-    reason: Allows DTS to grant DTS service account permission to send notifications to Pub/Sub topic
+    reason:
+      Allows DTS to grant DTS service account permission to send notifications
+      to Pub/Sub topic
 
 resources:
   - name: processMessages
@@ -76,8 +82,8 @@ params:
   - param: LOCATION
     label: Cloud Functions location
     description: >-
-      Where do you want to deploy the functions created for this extension?
-      You usually want a location close to your database. For help selecting a
+      Where do you want to deploy the functions created for this extension? You
+      usually want a location close to your database. For help selecting a
       location, refer to the [location selection
       guide](https://firebase.google.com/docs/functions/locations).
     type: select
@@ -221,7 +227,8 @@ params:
   - param: DATASET_ID
     label: Dataset ID
     description: >-
-      What's the BigQuery destination dataset you'd like to use? Each transfer run will write to a table in this destination dataset.
+      What's the BigQuery destination dataset you'd like to use? Each transfer
+      run will write to a table in this destination dataset.
     type: string
     example: customer_data
     required: true
@@ -229,7 +236,8 @@ params:
   - param: TABLE_NAME
     label: Destination Table Name
     description: >-
-      What's the destination table name prefix you'd like to use? Each transfer run will write to the table with this name, postfixed with the runtime.
+      What's the destination table name prefix you'd like to use? Each transfer
+      run will write to the table with this name, postfixed with the runtime.
     type: string
     example: transactions
     required: true
@@ -245,7 +253,8 @@ params:
   - param: PARTITIONING_FIELD
     label: Partitioning Field
     description: >-
-      What's the partitioning field on the destination table ID? Leave empty if not using a partitioning field.
+      What's the partitioning field on the destination table ID? Leave empty if
+      not using a partitioning field.
     type: string
     example: timestamp
     required: false
@@ -261,7 +270,8 @@ params:
   - param: PUB_SUB_TOPIC
     label: Pub Sub Topic
     description: >-
-      What's the Pub Sub topic to write messages to when the scheduled query finishes executing?
+      What's the Pub Sub topic to write messages to when the scheduled query
+      finishes executing?
     type: string
     example: test
     required: true
@@ -270,7 +280,8 @@ params:
   - param: COLLECTION_PATH
     label: Firestore Collection
     description: >-
-      What's the top-level Firestore Collection to store transfer configs, run metadata, and query output?
+      What's the top-level Firestore Collection to store transfer configs, run
+      metadata, and query output?
     type: string
     example: transferConfigs
     default: transferConfigs
@@ -282,7 +293,9 @@ lifecycleEvents:
     processingMessage: Creating a new transfer config and scheduling the query.
   onUpdate:
     function: upsertTransferConfig
-    processingMessage: Creating or updating the transfer config associated with this extension.
+    processingMessage:
+      Creating or updating the transfer config associated with this extension.
   onConfigure:
     function: upsertTransferConfig
-    processingMessage: Creating or updating the transfer config associated with this extension.
+    processingMessage:
+      Creating or updating the transfer config associated with this extension.

@@ -42,12 +42,13 @@ export const generateSummary = functions.firestore
 
     const text = change.after.get(textField);
 
-    // only make an API call if text exists and is non-empty, response is missing, and there's no in-process status
+    const state = change.after.get('status.state');
+
+    // only make an API call if text exists and is non-empty, and state is not PROCESSING or COMPLETED
     if (
       !text ||
       typeof text !== 'string' ||
-      change.after.get(responseField) ||
-      change.after.get('status')
+      ['PROCESSING', 'COMPLETED', 'ERRORED'].includes(state)
     ) {
       return;
     }
