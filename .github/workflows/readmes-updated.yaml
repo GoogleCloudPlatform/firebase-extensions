@@ -62,12 +62,12 @@ jobs:
       - name: Install local dependencies
         run: npm ci
 
-      - name: Run Lerna generate-readme
-        run: lerna run --parallel generate-readme
-
       - name: Checkout to ${{ env.BRANCH_NAME }}
         if: ${{ github.event_name == 'pull_request' }}
         run: git checkout ${{ env.BRANCH_NAME }}
+
+      - name: Run Lerna generate-readme
+        run: lerna run --parallel generate-readme
 
       - name: Check READMEs are up to date and push changes if possible.
         run: |
