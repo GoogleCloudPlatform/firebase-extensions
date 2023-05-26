@@ -10,13 +10,25 @@ displayName: Call PaLM API Securely
 
 # Brief description of the task your extension performs (~1 sentence)
 description: >-
-  Protects your API key and prevents resource abuse by deploying a backend to call the PaLM API, secured by App Check.
+  Protects your API key and prevents resource abuse by deploying a backend to
+  call the PaLM API, secured by App Check.
 
 license: Apache-2.0 # https://spdx.org/licenses/
 
 icon: icon.png
 
-tags: [ai, palm, generative-ai, text-ai, language-ai, large-language-models, llm, nlp, google-ai]
+tags:
+  [
+    ai,
+    palm,
+    generative-ai,
+    text-ai,
+    language-ai,
+    large-language-models,
+    llm,
+    nlp,
+    google-ai,
+  ]
 
 author:
   authorName: Google Cloud

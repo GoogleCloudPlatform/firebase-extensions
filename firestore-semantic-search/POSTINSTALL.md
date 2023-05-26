@@ -16,6 +16,12 @@ service cloud.firestore {
 }
 ```
 
+Finally, make sure you enabled data **read & write access in Cloud Audit Log** for Vertex AI API. The instructions to enable are as follows:
+
+- [Visit this page](https://console.cloud.google.com/iam-admin/audit?cloudshell=false) and ensure that you have selected the project you’d like to install this extension in, using the project picker.
+- Filter for “Vertex AI API” and click on the checkbox next to it. A new panel should appear on the right side of the page.
+- On the new panel, click on the checkboxes next to “Data Read” and “Data Write”, and click Save.
+
 ## Try it out
 
 Once processing is complete, a Callable function will be available to the user to use for queries. Queries are just a string that will be matched against all data in the Index.
@@ -23,11 +29,7 @@ Once processing is complete, a Callable function will be available to the user t
 Calling the function using the gcloud CLI:
 
 ```bash
-curl -X POST \
--H "Content-Type: application/json" \
--H "Authorization: Bearer $(gcloud auth print-access-token)" \
--d '{"data": {"query": [""]} }' \
-https://${param:LOCATION}-${param:PROJECT_ID}.cloudfunctions.net/${param:EXT_INSTANCE_ID}-queryIndex
+gcloud functions --project ${param:PROJECT_ID} call ext-${param:EXT_INSTANCE_ID}-queryIndex --data '{"data": {"query":[""]}}'
 ```
 
 Sample request body:
@@ -97,6 +99,7 @@ await search({ query: searchQuery })
     // fetch documents from Firestore using the ids...
 });
 ```
+
 Depending on your security rules, you may need to add additional filters to the Firestore query for retrieving the actual document content to prevent Firestore from returning permission errors.
 
 ### Error Handling

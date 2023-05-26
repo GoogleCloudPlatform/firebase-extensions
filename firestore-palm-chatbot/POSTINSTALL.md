@@ -41,7 +41,7 @@ If the extension encounters an error, it will write an error message to the docu
 
 If the error message is `The project or service account likely does not have access to the PaLM API`, please ensure that you have already signed up for the [waitlist](https://makersuite.google.com/waitlist) and have been approved before installing the extension.
 
-Then, you need to add the PaLM API to your project. You can do this by going to the [PaLM API page](https://console.cloud.google.com/apis/library/language.googleapis.com) in the Google Cloud Console and clicking "Enable". 
+Then, you need to add the PaLM API to your project. You can do this by going to the [PaLM API page](https://console.cloud.google.com/apis/library/language.googleapis.com) in the Google Cloud Console and clicking "Enable".
 
 ## Monitoring
 

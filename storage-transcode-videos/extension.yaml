@@ -3,7 +3,8 @@ version: 0.0.1
 specVersion: v1beta
 
 displayName: Transcode Videos on Google Cloud Storage
-description: Transcode video files into formats suitable for consumer distribution.
+description:
+  Transcode video files into formats suitable for consumer distribution.
 
 license: Apache-2.0
 
@@ -22,14 +23,16 @@ apis:
 resources:
   - name: transcodevideo
     type: firebaseextensions.v1beta.function
-    description: Listens to incoming Storage documents that are videos and executes a video transcoding job on them.
+    description:
+      Listens to incoming Storage documents that are videos and executes a video
+      transcoding job on them.
     properties:
       location: ${param:LOCATION}
       availableMemoryMb: 128
       eventTrigger:
         eventType: google.storage.object.finalize
         resource: projects/_/buckets/${param:INPUT_VIDEOS_BUCKET}
-      runtime: "nodejs10"
+      runtime: 'nodejs10'
 
 params:
   - param: LOCATION
@@ -80,7 +83,8 @@ params:
   - param: INPUT_VIDEOS_PATH
     label: Input videos path
     description: >
-      A Storage path in the input video bucket that the extension should process videos from.
+      A Storage path in the input video bucket that the extension should process
+      videos from.
     type: string
     example: /video_transcoding_input/
     validationRegex: ^\/([0-9a-zA-Z_\/\-]*\/){0,1}$
@@ -91,7 +95,8 @@ params:
   - param: OUTPUT_VIDEOS_PATH
     label: Output videos path
     description: >
-      A Storage path in the output video bucket that the processed videos should be output to.
+      A Storage path in the output video bucket that the processed videos should
+      be output to.
     type: string
     example: /video_transcoding_output/
     validationRegex: ^\/([0-9a-zA-Z_\/\-]*\/){0,1}$
@@ -102,10 +107,12 @@ params:
   - param: DEFAULT_TEMPLATE_ID
     label: The default transcoding template ID to use for transcoding jobs.
     description: >
-       A template id for populating a job configuration.
+      A template id for populating a job configuration.
     example: preset/web-hd
     validationRegex: ^[a-zA-Z0-9\/\-_]+$
-    validationErrorMessage: Must be an alphanumeric string. Dashes, underscores and forward slashes are also allowed
+    validationErrorMessage:
+      Must be an alphanumeric string. Dashes, underscores and forward slashes
+      are also allowed
     default: preset/web-hd
     required: true
 

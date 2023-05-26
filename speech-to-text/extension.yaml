@@ -87,7 +87,8 @@ params:
   - param: OUTPUT_STORAGE_PATH
     label: Storage path for transcriptions
     description: >
-      The storage path in which to output transcriptions. If this is not set, the extension will output to the root of the bucket.
+      The storage path in which to output transcriptions. If this is not set,
+      the extension will output to the root of the bucket.
     example: transcriptions
     required: false
 
