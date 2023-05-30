@@ -94,7 +94,7 @@ export const transcribeAudio = functions.storage
       if (transcodeResult.status == Status.FAILURE) {
         logs.transcodingFailed(transcodeResult);
         if (eventChannel) {
-          await publishFailureEvent(eventChannel, transcodeResult);
+          await publishFailureEvent(eventChannel, transcodeResult, object.name);
         }
         return;
       }
@@ -110,7 +110,11 @@ export const transcribeAudio = functions.storage
       if (transcodedUploadResult.status == Status.FAILURE) {
         logs.transcodeUploadFailed(transcodedUploadResult);
         if (eventChannel) {
-          await publishFailureEvent(eventChannel, transcodedUploadResult);
+          await publishFailureEvent(
+            eventChannel,
+            transcodedUploadResult,
+            object.name
+          );
         }
         return;
       }
@@ -129,13 +133,21 @@ export const transcribeAudio = functions.storage
       if (transcriptionResult.status == Status.FAILURE) {
         logs.transcribingFailed(transcriptionResult);
         if (eventChannel) {
-          await publishFailureEvent(eventChannel, transcriptionResult);
+          await publishFailureEvent(
+            eventChannel,
+            transcriptionResult,
+            object.name
+          );
         }
         return;
       }
 
       if (eventChannel) {
-        await publishCompleteEvent(eventChannel, transcriptionResult);
+        await publishCompleteEvent(
+          eventChannel,
+          transcriptionResult,
+          object.name
+        );
       }
       return;
     } catch (err) {

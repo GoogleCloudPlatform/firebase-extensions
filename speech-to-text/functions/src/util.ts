@@ -91,24 +91,28 @@ export const probePromise = util.promisify<string, ffmpeg.FfprobeData>(
 
 export async function publishFailureEvent(
   eventChannel: Channel,
-  {...contents}: Failure
+  {...contents}: Failure,
+  objectName: string
 ): Promise<void> {
   return eventChannel.publish({
     type: 'firebase.extensions.storage-transcribe-audio.v1.fail',
     data: {
       ...contents,
+      objectName,
     },
   });
 }
 
 export async function publishCompleteEvent(
   eventChannel: Channel,
-  {...contents}: TranscribeAudioSuccess
+  {...contents}: TranscribeAudioSuccess,
+  objectName: string
 ): Promise<void> {
   return eventChannel.publish({
     type: 'firebase.extensions.storage-transcribe-audio.v1.complete',
     data: {
       ...contents,
+      objectName,
     },
   });
 }
