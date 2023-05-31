@@ -84,6 +84,8 @@ params:
       Path to a Cloud Firestore collection which will represent a discussion
       with a LLM on the PaLM API.
     type: string
+    validationRegex: "^[^/]+(/[^/]+/[^/]+)*$"
+    validationErrorMessage: Must be a valid Cloud Firestore Collection
     example: users/{uid}/discussions/{discussionId}/messages
     required: true
     immutable: false
