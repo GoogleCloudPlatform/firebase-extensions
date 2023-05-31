@@ -29,6 +29,7 @@ curl -X POST \
 -d '{"data": {"query": ["..."]} }' \
 https://${param:LOCATION}-${param:PROJECT_ID}.cloudfunctions.net/ext-${param:EXT_INSTANCE_ID}-queryIndex
 ```
+
 Sample request body:
 
 Image data is base64 encoded.
@@ -98,6 +99,7 @@ await search({ query: searchQuery })
     // do something with the paths...
 });
 ```
+
 ### Error Handling
 
 If there are any errors during the query process, the extension will log the error message in the Cloud Functions logs. Make sure to monitor these logs and handle any errors appropriately in your application.

@@ -1,3 +1,9 @@
+## Version 0.1.4
+
+- Improve error handling.
+- Reduce unnecessary triggering of function
+- allow for regenerating responses by changing "status.state" field
+
 ## Version 0.1.3
 
 Add warning about waitlist.

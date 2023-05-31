@@ -14,6 +14,7 @@ Custom templates can be created [here](https://cloud.google.com/transcoder/docs/
 
 
 
+
 **Configuration Parameters:**
 
 * Cloud Functions location: Cloud region where transcoding should take place. For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
