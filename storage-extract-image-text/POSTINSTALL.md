@@ -5,8 +5,8 @@ You can test out this extension right away!
 1.  Go to your [Storage dashboard](https://console.firebase.google.com/project/${param:PROJECT_ID}/storage) in the Firebase console.
 
 1.  Upload an image file to the bucket: `${param:IMG_BUCKET}`
-    
-    Note the file must be within the directories `${param:INCLUDE_PATH_LIST}` if set, and not in the directories `${param:EXCLUDE_PATH_LIST}` if it set. 
+
+    Note the file must be within the directories `${param:INCLUDE_PATH_LIST}` if set, and not in the directories `${param:EXCLUDE_PATH_LIST}` if it set.
 
 1.  In a few seconds, the extracted text will appear in the `${param:COLLECTION_PATH}` Firestore collection.
 

@@ -1,9 +1,12 @@
 name: Check READMEs are up to date
 
 on:
+  push:
+    branches:
+      - next
   pull_request:
     branches:
-      - main
+      - next
 
 jobs:
   build:
@@ -25,12 +28,14 @@ jobs:
           mkdir -p ~/.npm-global
           npm config set prefix '~/.npm-global'
           echo "::set-output name=dir::$(npm config get prefix)"
-          
+
       - name: Cache global dependencies
         uses: actions/cache@v2
         with:
           path: ${{ steps.global-deps-setup.outputs.dir }}
-          key: ${{ runner.os }}-npm-global-deps-${{ hashFiles('**/package-lock.json') }}
+          key:
+            ${{ runner.os }}-npm-global-deps-${{
+            hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-npm-global-deps-
 

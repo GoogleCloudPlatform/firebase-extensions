@@ -56,13 +56,15 @@ export const generateMessage = functions.firestore
 
     const ref: DocumentReference = change.after.ref;
     const newPrompt = await change.after.get(promptField);
-    // only make an API call if prompt is provided, response is missing, and there's no in-process status
+
+    const state = change.after.get('status.state');
+
     if (
       !newPrompt ||
       typeof newPrompt !== 'string' ||
-      (await change.after.get(responseField)) ||
-      (await change.after.get('status'))
+      ['PROCESSING', 'COMPLETED', 'ERRORED'].includes(state)
     ) {
+      // noop if the prompt is missing or not a string or if the document is already processing or completed.
       return;
     }
 
@@ -75,8 +77,6 @@ export const generateMessage = functions.firestore
       });
     }
 
-    const history = await fetchHistory(ref);
-
     await ref.update({
       status: {
         updateTime: FieldValue.serverTimestamp(),
@@ -84,6 +84,8 @@ export const generateMessage = functions.firestore
         state: 'PROCESSING',
       },
     });
+
+    const history = await fetchHistory(ref);
 
     try {
       const t0 = performance.now();
@@ -139,12 +141,17 @@ export const generateMessage = functions.firestore
 
 async function fetchHistory(ref: DocumentReference) {
   const collSnap = await ref.parent.orderBy(orderField, 'desc').get();
+
+  const refData = await ref.get();
+  const refOrderFieldVal = refData.get(orderField);
+  //filter any docs that don't have an order field or have an order field that is greater than the current doc
+
   return collSnap.docs
-    .filter(snap => !snap.ref.isEqual(ref))
     .filter(
-      snap => snap.get('status') && snap.get('status.state') === 'COMPLETED'
+      snap => snap.get(orderField) && snap.get(orderField) < refOrderFieldVal
     )
     .map(snap => ({
+      path: snap.ref.path,
       prompt: snap.get(promptField),
       response: snap.get(responseField),
     }));

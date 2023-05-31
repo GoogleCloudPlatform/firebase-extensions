@@ -19,6 +19,7 @@ import * as logs from './logs';
 import {GoogleAuth} from 'google-auth-library';
 import {APIGenerateMessageRequest, APIMessage, APIExample} from './types';
 export interface Message {
+  path?: string;
   prompt?: string;
   response?: string;
 }
@@ -111,7 +112,6 @@ export interface GenerateMessageResponse {
 }
 
 export class Discussion {
-  private apiKey: string | null = null;
   private client: DiscussServiceClient;
   context?: string;
   examples?: Message[] = [];
@@ -205,8 +205,12 @@ export class Discussion {
   private messagesToApi(messages: Message[]): APIMessage[] {
     const out: APIMessage[] = [];
     for (const message of messages) {
-      if (message.prompt) out.push({author: '0', content: message.prompt});
-      if (message.response) out.push({author: '1', content: message.response});
+      if (!message.prompt || !message.response) {
+        logs.warnMissingPromptOrResponse(message.path!);
+        continue;
+      }
+      out.push({author: '0', content: message.prompt});
+      out.push({author: '1', content: message.response});
     }
     return out;
   }
