@@ -29,36 +29,45 @@ export const getModels = onAuthenticatedCall<void, any>(async () => {
   return response;
 });
 
-export const getModel = onAuthenticatedCall<{name: string}, any>(async data => {
-  const url = `https://${palmEndpoint}/${apiVersion}/models/${data.name}`;
-  const response = await fetchFromApi(url);
-  return response;
-});
-
-export const post = onAuthenticatedCall<any, any>(async data => {
-  const {model, method} = data;
-
-  if (!model) {
-    throw new HttpsError('invalid-argument', 'Model name is required');
+export const getModel = onAuthenticatedCall<{name: string}, any>(
+  async request => {
+    if (!request.data.name) {
+      throw new HttpsError('invalid-argument', 'Model name is required');
+    }
+    const url = `https://${palmEndpoint}/${apiVersion}/models/${request.data.name}`;
+    const response = await fetchFromApi(url);
+    return response;
   }
+);
 
-  delete data.model;
+export const post = onAuthenticatedCall<{model?: string; method?: string}, any>(
+  async request => {
+    const data = request.data;
 
-  if (!method) {
-    throw new HttpsError('invalid-argument', 'Method name is required.');
+    const {model, method} = data;
+
+    if (!model) {
+      throw new HttpsError('invalid-argument', 'Model name is required');
+    }
+
+    delete data.model;
+
+    if (!method) {
+      throw new HttpsError('invalid-argument', 'Method name is required.');
+    }
+
+    delete data.method;
+
+    const url = `https://${palmEndpoint}/${apiVersion}/models/${model}:${method}`;
+
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    };
+
+    return fetchFromApi(url, options);
   }
-
-  delete data.method;
-
-  const url = `https://${palmEndpoint}/${apiVersion}/models/${model}:${method}`;
-
-  const options = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  };
-
-  return fetchFromApi(url, options);
-});
+);

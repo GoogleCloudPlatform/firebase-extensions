@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v2';
 import fetch, {Response, RequestInit} from 'node-fetch';
-import {CallableContext, HttpsError} from 'firebase-functions/v1/https';
+import {HttpsError} from 'firebase-functions/v1/https';
 import {FunctionsErrorCode} from 'firebase-functions/v1/https';
 import config from './config';
+import {CallableRequest} from 'firebase-functions/v2/https';
 
-const checkAuth = (context: CallableContext) => {
-  if (!context.auth) {
+const checkAuth = (request: CallableRequest) => {
+  if (!request.auth) {
     throw new HttpsError(
       'unauthenticated',
       'The function must be called while authenticated.'
@@ -29,8 +30,8 @@ const checkAuth = (context: CallableContext) => {
   }
 };
 
-const checkAppCheck = (context: CallableContext) => {
-  if (context.app == undefined) {
+const checkAppCheck = (request: CallableRequest) => {
+  if (request.app == undefined) {
     throw new HttpsError(
       'failed-precondition',
       'The function must be called from an App Check verified app.'
@@ -38,20 +39,22 @@ const checkAppCheck = (context: CallableContext) => {
   }
 };
 
-export function onAuthenticatedCall<TData, TResponse>(
-  handler: (data: TData, context: functions.https.CallableContext) => TResponse
-): functions.HttpsFunction & functions.Runnable<TData> {
-  return functions
-    .runWith({
-      enforceAppCheck: config.enforceAppCheck, // Requests without valid App Check tokens will be rejected.
-    })
-    .https.onCall(async (data, context) => {
+export function onAuthenticatedCall<TData, Return>(
+  handler: (request: CallableRequest<TData>) => Return
+): CallableFunction {
+  return functions.https.onCall(
+    {
+      enforceAppCheck: config.enforceAppCheck,
+      consumeAppCheckToken: config.enforceAppCheck,
+    },
+    async (request: CallableRequest<TData>) => {
       if (config.enforceAppCheck) {
-        checkAppCheck(context);
+        checkAppCheck(request);
       }
-      checkAuth(context);
-      return handler(data, context);
-    });
+      checkAuth(request);
+      return handler(request);
+    }
+  );
 }
 
 export const fetchFromApi = async (url: string, options?: RequestInit) => {
@@ -68,18 +71,18 @@ export const fetchFromApi = async (url: string, options?: RequestInit) => {
     throw new HttpsError('internal', 'Unknown error');
   }
 
-  const body = await getDataFromResponse(response);
+  const data = await getDataFromResponse(response);
 
   if (!response.ok) {
     let message: string;
     let details: any;
-    if (typeof body !== 'string' && body.error) {
-      message = body.error.message;
+    if (data.error) {
+      message = data.error.message;
 
-      if (body.error.details && body.error.details.length > 0) {
-        details = {...body.error.details[0], httpErrorCode: response.status};
-      } else if (body.error.details) {
-        details = {...body.error.details, httpErrorCode: response.status};
+      if (data.error.details && data.error.details.length > 0) {
+        details = {...data.error.details[0], httpErrorCode: response.status};
+      } else if (data.error.details) {
+        details = {...data.error.details, httpErrorCode: response.status};
       }
     } else {
       message = response.statusText ?? 'Unknown error, see details';
@@ -93,17 +96,26 @@ export const fetchFromApi = async (url: string, options?: RequestInit) => {
       details
     );
   }
-  return body;
+  return data;
 };
+
+interface ExpectedBody {
+  error?: {
+    message: string;
+    details?: any;
+  };
+  [key: string]: unknown;
+}
 
 const getDataFromResponse = async (
   response: Response
-): Promise<{error: Record<string, any>} | string> => {
+): Promise<ExpectedBody> => {
   const contentType = response.headers.get('content-type');
   if (contentType && contentType.indexOf('application/json') !== -1) {
-    return response.json();
+    return (await response.json()) as Record<string, unknown>;
   } else {
-    return await response.text();
+    const parsedResponse = JSON.parse(await response.text());
+    return parsedResponse as Record<string, unknown>;
   }
 };
 
