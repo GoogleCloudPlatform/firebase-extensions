@@ -17,7 +17,11 @@
 import config from './config';
 import * as logs from './logs';
 import {HttpsError} from 'firebase-functions/v1/https';
-import {fetchFromApi, onAuthenticatedCall} from './util';
+import {
+  callCustomHookIfEnabled,
+  fetchFromApi,
+  onAuthenticatedCall,
+} from './util';
 import {
   recordOnErrorEvent,
   recordOnRequestEvent,
@@ -128,19 +132,3 @@ export const post = onAuthenticatedCall<any, any>(async (data, context) => {
     throw error;
   }
 });
-
-function callCustomHookIfEnabled(
-  fetchArgs: {url?: string; options?: Record<string, unknown>},
-  responseOrError: unknown,
-  uid: string
-) {
-  if (config.customHookUrl) {
-    fetch(config.customHookUrl, {
-      body: JSON.stringify({
-        fetchArgs,
-        responseOrError,
-        uid,
-      }),
-    });
-  }
-}
