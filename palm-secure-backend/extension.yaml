@@ -161,3 +161,11 @@ params:
         value: no
     default: no
     required: true
+
+  - param: CUSTOM_HOOK_URL
+    label: Custom hook function url
+    description: >
+      An HTTPS callable function that will be called with the request and response body of the PaLM API call, as well as user context.
+    type: string
+    example: https://us-west1-my-project-id.cloudfunctions.net/customHook
+    required: false
