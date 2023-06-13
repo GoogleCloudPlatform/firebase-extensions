@@ -169,3 +169,16 @@ params:
     type: string
     example: https://us-west1-my-project-id.cloudfunctions.net/customHook
     required: false
+
+events:
+  - type: firebase.extensions.palm-secure-backend.v1.onStart
+    description: Occurs when any of the extensions functions receive a request.
+
+  - type: firebase.extensions.firestore-send-email.v1.onRequest
+    description: Occurs when the extension attempts to fetch a response from the PaLM API.
+
+  - type: firebase.extensions.firestore-send-email.v1.onResponse
+    description: Occurs when the extension successfully receives a reponse from the PaLM API.
+
+  - type: firebase.extensions.firestore-send-email.v1.onError
+    description: Occurs when the extension fails to complete execution.
