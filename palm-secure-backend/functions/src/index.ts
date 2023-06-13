@@ -23,33 +23,64 @@ logs.init(config);
 
 const {palmEndpoint, apiVersion} = config;
 
-export const getModels = onAuthenticatedCall<void, any>(async () => {
-  const url = `https://${palmEndpoint}/${apiVersion}/models`;
-  const response = await fetchFromApi(url);
-  return response;
-});
+export const getModels = onAuthenticatedCall<void, any>(
+  async (_data, context) => {
+    const url = `https://${palmEndpoint}/${apiVersion}/models`;
+    // get uid from context
+    const uid = context.auth!.uid;
 
-export const getModel = onAuthenticatedCall<{name: string}, any>(async data => {
-  const url = `https://${palmEndpoint}/${apiVersion}/models/${data.name}`;
-  const response = await fetchFromApi(url);
-  return response;
-});
+    try {
+      const response = await fetchFromApi(url);
 
-export const post = onAuthenticatedCall<any, any>(async data => {
+      callCustomHookIfEnabled({url}, response, uid);
+
+      return response;
+    } catch (error) {
+      callCustomHookIfEnabled({url}, error, uid);
+      throw error;
+    }
+  }
+);
+
+export const getModel = onAuthenticatedCall<{name: string}, any>(
+  async (data, context) => {
+    const url = `https://${palmEndpoint}/${apiVersion}/models/${data.name}`;
+
+    // get uid from context
+    const uid = context.auth!.uid;
+
+    try {
+      const response = await fetchFromApi(url);
+
+      callCustomHookIfEnabled({url}, response, uid);
+
+      return response;
+    } catch (error) {
+      callCustomHookIfEnabled({url}, error, uid);
+      throw error;
+    }
+  }
+);
+
+export const post = onAuthenticatedCall<any, any>(async (data, context) => {
   const {model, method} = data;
+  const uid = context.auth!.uid;
 
   if (!model) {
-    throw new HttpsError('invalid-argument', 'Model name is required');
+    const error = new HttpsError('invalid-argument', 'Model name is required');
+    callCustomHookIfEnabled({}, error, uid);
+    throw error;
   }
 
   delete data.model;
 
   if (!method) {
-    throw new HttpsError('invalid-argument', 'Method name is required.');
+    const error = new HttpsError('invalid-argument', 'Method name is required');
+    callCustomHookIfEnabled({}, error, uid);
+    throw error;
   }
 
   delete data.method;
-
   const url = `https://${palmEndpoint}/${apiVersion}/models/${model}:${method}`;
 
   const options = {
@@ -60,5 +91,24 @@ export const post = onAuthenticatedCall<any, any>(async data => {
     body: JSON.stringify(data),
   };
 
-  return fetchFromApi(url, options);
+  const response = await fetchFromApi(url, options);
+  callCustomHookIfEnabled({url, options}, response, uid);
+
+  return response;
 });
+
+function callCustomHookIfEnabled(
+  fetchArgs: {url?: string; options?: Record<string, unknown>},
+  responseOrError: unknown,
+  uid: string
+) {
+  if (config.customHookUrl) {
+    fetch(config.customHookUrl, {
+      body: JSON.stringify({
+        fetchArgs,
+        responseOrError,
+        uid,
+      }),
+    });
+  }
+}
