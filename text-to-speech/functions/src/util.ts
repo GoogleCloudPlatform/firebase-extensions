@@ -16,6 +16,7 @@
 import {
   AudioEncoding,
   ISynthesizeSpeechRequest,
+  IVoice,
   SsmlVoiceGender,
 } from './types';
 import config from './config';
@@ -26,6 +27,7 @@ export interface BuildRequestOptions {
   ssmlGender?: SsmlVoiceGender;
   audioEncoding?: AudioEncoding;
   voiceName?: string;
+  voices?: IVoice[],
 }
 
 export function buildRequest({
@@ -34,14 +36,35 @@ export function buildRequest({
   ssmlGender = config.ssmlGender,
   audioEncoding = config.audioEncoding,
   voiceName = config.voiceName,
+  voices,
 }: BuildRequestOptions): ISynthesizeSpeechRequest {
   return {
     input: config.ssml ? {ssml: text} : {text: text},
-    voice: voiceName ? {name: voiceName} : {languageCode, ssmlGender},
+    voice: isValidVoiceName(voiceName, voices) 
+      ? {
+          name: voiceName, 
+          languageCode: getLanguageCodeFromVoiceName(voiceName)
+        } 
+      : {languageCode, ssmlGender},
     audioConfig: {
       audioEncoding,
     },
   };
+}
+
+function isValidVoiceName(
+  voiceName: string,
+  voices: IVoice[]
+) {
+  if (!voices) {
+    return false;
+  }
+  return voices.some((voice) => voice.name === voiceName);
+}
+
+function getLanguageCodeFromVoiceName(voiceName: string) {
+  const voiceNameParts = voiceName.split('-');
+  return `${voiceNameParts[0]}-${voiceNameParts[1]}`;
 }
 
 export function getFileExtension(audioEncoding: AudioEncoding): string {
