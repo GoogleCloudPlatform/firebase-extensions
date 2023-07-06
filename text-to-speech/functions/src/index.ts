@@ -18,7 +18,12 @@ import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import config from './config';
 import * as tts from '@google-cloud/text-to-speech';
-import {ISynthesizeSpeechRequest, ISynthesizeSpeechResponse, IListVoicesResponse, IVoice} from './types';
+import {
+  ISynthesizeSpeechRequest,
+  ISynthesizeSpeechResponse,
+  IListVoicesResponse,
+  IVoice,
+} from './types';
 import {buildRequest, BuildRequestOptions, getFileExtension} from './util';
 
 const logger = functions.logger;
@@ -39,7 +44,7 @@ export const textToSpeech = functions.firestore
       let voices: IVoice[];
       if (voiceName) {
         voices = await listVoices();
-      } 
+      }
 
       const request = config.enablePerDocumentOverrides
         ? buildRequest({

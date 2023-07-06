@@ -30,5 +30,6 @@ export type AudioEncoding =
   | 'ALAW';
 export type SsmlVoiceGender =
   tts.protos.google.cloud.texttospeech.v1.SsmlVoiceGender;
-export type IListVoicesResponse = tts.protos.google.cloud.texttospeech.v1.IListVoicesResponse;
-export type IVoice = tts.protos.google.cloud.texttospeech.v1.IVoice
+export type IListVoicesResponse =
+  tts.protos.google.cloud.texttospeech.v1.IListVoicesResponse;
+export type IVoice = tts.protos.google.cloud.texttospeech.v1.IVoice;

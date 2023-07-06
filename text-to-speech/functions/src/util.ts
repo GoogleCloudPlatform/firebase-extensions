@@ -27,7 +27,7 @@ export interface BuildRequestOptions {
   ssmlGender?: SsmlVoiceGender;
   audioEncoding?: AudioEncoding;
   voiceName?: string;
-  voices?: IVoice[],
+  voices?: IVoice[];
 }
 
 export function buildRequest({
@@ -38,14 +38,14 @@ export function buildRequest({
   voiceName = config.voiceName,
   voices,
 }: BuildRequestOptions): ISynthesizeSpeechRequest {
-  const validatedVoiceName = validateVoiceName(voiceName, voices) 
+  const validatedVoiceName = validateVoiceName(voiceName, voices);
   return {
     input: config.ssml ? {ssml: text} : {text: text},
     voice: validatedVoiceName.isValid
       ? {
-          name: voiceName, 
-          languageCode: validatedVoiceName.languageCode
-        } 
+          name: voiceName,
+          languageCode: validatedVoiceName.languageCode,
+        }
       : {languageCode, ssmlGender},
     audioConfig: {
       audioEncoding,
@@ -53,33 +53,35 @@ export function buildRequest({
   };
 }
 
-export type ValidateVoiceNameResponse = {
-  isValid: false;
-  languageCode?: undefined;
-} | {
-  isValid: true;
-  languageCode: string;
-}
+export type ValidateVoiceNameResponse =
+  | {
+      isValid: false;
+      languageCode?: undefined;
+    }
+  | {
+      isValid: true;
+      languageCode: string;
+    };
 
 function validateVoiceName(
   voiceName: string,
   voices?: IVoice[]
 ): ValidateVoiceNameResponse {
   if (!voices) {
-    return { 
+    return {
       isValid: false,
-    }
+    };
   }
-  const voice = voices.find((voice) => voice.name === voiceName)
+  const voice = voices.find(voice => voice.name === voiceName);
   if (!voice || !voice.languageCodes?.[0]) {
-    return { 
+    return {
       isValid: false,
     };
   }
   return {
     isValid: true,
-    languageCode: voice.languageCodes[0]
-  }
+    languageCode: voice.languageCodes[0],
+  };
 }
 
 export function getFileExtension(audioEncoding: AudioEncoding): string {
