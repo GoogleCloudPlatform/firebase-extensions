@@ -324,6 +324,23 @@ params:
     validationRegex: ^\d+$
     validationErrorMessage: Invalid number
 
+  - param: SHARD_SIZE
+    label: Shard size
+    description: >-
+      The size of the shard, which correlates to the machine type used. [Read
+      more about shards config
+      here](https://cloud.google.com/vertex-ai/docs/matching-engine/create-manage-index#create-index).
+    type: select
+    required: true
+    default: SHARD_SIZE_SMALL
+    options:
+      - label: small
+        value: SHARD_SIZE_SMALL
+      - label: medium
+        value: SHARD_SIZE_MEDIUM
+      - label: large
+        value: SHARD_SIZE_LARGE
+
   - param: LOCATION
     label: Cloud Functions location
     description: >-

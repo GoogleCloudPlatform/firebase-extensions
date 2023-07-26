@@ -79,6 +79,7 @@ function buildIndexMetdata(updateMetdata = false) {
               },
               approximateNeighborsCount: {numberValue: config.neighbors},
               distanceMeasureType: {stringValue: config.distanceMeasureType},
+              shardSize: {stringValue: config.shardSize},
               featureNormType: {stringValue: config.featureNormType},
               algorithmConfig: {},
             },

@@ -28,6 +28,7 @@ export default {
   palmModel: process.env.PALM_EMBEDDING_MODEL!,
   collectionName: process.env.COLLECTION_NAME!,
   embeddingMethod: process.env.EMBEDDING_METHOD!,
+  shardSize: process.env.SHARD_SIZE!,
   distanceMeasureType: process.env.DISTANCE_MEASURE!,
   fields: Array.from(process.env.FIELDS?.split(',') ?? []),
   algorithmConfig: process.env.ALGORITHM_CONFIG! as AlgorithmConfig,
