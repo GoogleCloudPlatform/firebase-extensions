@@ -103,6 +103,8 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 * Approximate number of neighbors: The approximate number of neighbors to return in the response. [Read more about this parameter here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#nearest-neighbor-search-config).
 
+* Shard size: The size of the shard, which correlates to the machine type used. [Read more about shards config here](https://cloud.google.com/vertex-ai/docs/matching-engine/create-manage-index#create-index).
+
 * Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
 
 
