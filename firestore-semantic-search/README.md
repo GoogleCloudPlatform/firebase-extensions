@@ -105,6 +105,20 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 * Shard size: The size of the shard, which correlates to the machine type used. [Read more about shards config here](https://cloud.google.com/vertex-ai/docs/matching-engine/create-manage-index#create-index).
 
+* Machine type: The type of machine that is deployed for the index endpoint. [Read more about machine types config here](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#g2-series).
+
+* Acceletaor type: The accelerator type for the deployed index endpoint. [Read more about accelerator types config here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec#AcceleratorType).
+
+* Accelerator Count: The number of accelerators to attach to the the deployed index endpoint machine. [Read more about accelerator counts config here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec).
+
+* Min replica count: The minimum number of machine replicas for the deployed index endpoint. [Read more about min replica counts config here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/DedicatedResources).
+
+* Max replica count: The maxiumum number of machine replicas for the deployed index endpoint when the traffic against it increases. [Read more about max replica config here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/DedicatedResources).
+
+* Autoscaling accelerator count: The number of accelerators to attach to the deployed index endpoint machine. Must be assoicated with a Metric Name [Read more about autoscaling config here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/DedicatedResources).
+
+* Autoscaling metric name: A comma delimated list that overrides a resource utilization metric on the deployed index endpoint. Must be associated with an accelerator count. [Read more about autoscaling metric names config here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/DedicatedResources#AutoscalingMetricSpec.FIELDS.metric_name).
+
 * Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
 
 
