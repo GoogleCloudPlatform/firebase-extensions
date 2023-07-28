@@ -3,7 +3,7 @@ const {compilerOptions} = require('./tsconfig.json');
 
 module.exports = {
   preset: 'ts-jest',
-  testMatch: ['**/vertex/index.test.ts'],
+  testMatch: ['**/*.test.ts'],
   testEnvironment: 'node',
   collectCoverage: true,
   collectCoverageFrom: ['src/**/*.ts', '!src/functions/cleanup.ts'],
