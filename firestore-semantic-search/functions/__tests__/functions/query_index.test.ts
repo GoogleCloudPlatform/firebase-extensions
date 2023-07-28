@@ -85,7 +85,7 @@ describe('queryIndex', () => {
 
     try {
       await wrappedQueryIndex({
-        query: 'test query',
+        query: ['test query'],
       });
     } catch (e) {
       expect(e).toEqual(new Error('Endpoint or index endpoint is not found.'));
@@ -104,7 +104,7 @@ describe('queryIndex', () => {
     });
 
     const result = await wrappedQueryIndex({
-      query: 'test query',
+      query: ['test query'],
     });
 
     expect(result).toEqual({

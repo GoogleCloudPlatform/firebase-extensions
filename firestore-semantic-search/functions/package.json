@@ -12,7 +12,7 @@
   "main": "lib/index.js",
   "dependencies": {
     "@google-ai/generativelanguage": "^0.1.0",
-    "@google-cloud/aiplatform": "^2.10.0",
+    "@google-cloud/aiplatform": "^2.17.0",
     "@google-cloud/logging": "^10.4.0",
     "@google-cloud/resource-manager": "^4.2.1",
     "@google-cloud/storage": "^6.9.5",

@@ -41,11 +41,18 @@ const mockDeployIndex = jest.fn();
 
 jest.mock('@google-cloud/aiplatform', () => ({
   ...jest.requireActual('@google-cloud/aiplatform'),
-  IndexServiceClient: () => ({
-    createIndex: () => mockCreateIndex(),
-    createIndexEndpoint: (args: unknown) => mockCreateIndexEndpoint(args),
-    deployIndex: () => mockDeployIndex(),
-  }),
+  v1beta1: {
+    IndexServiceClient: jest.fn(() => ({
+      createIndex: () => mockCreateIndex(),
+      createIndexEndpoint: (args: unknown) => mockCreateIndexEndpoint(args),
+      deployIndex: (args: unknown) => mockDeployIndex(args),
+    })),
+    IndexEndpointServiceClient: jest.fn(() => ({
+      createIndex: () => mockCreateIndex(),
+      createIndexEndpoint: (args: unknown) => mockCreateIndexEndpoint(args),
+      deployIndex: (args: unknown) => mockDeployIndex(args),
+    })),
+  },
 }));
 
 admin.initializeApp({
@@ -87,7 +94,7 @@ describe('createIndexEndpoint', () => {
   });
 });
 
-describe('deployIndex', () => {
+describe.only('deployIndex', () => {
   afterEach(async () => {
     jest.clearAllMocks();
   });
@@ -102,6 +109,78 @@ describe('deployIndex', () => {
     } catch (e) {
       expect(e.message).toEqual('test error');
     }
+  });
+
+  test('should return an empty array for autoscalingMetricSpecs with no autoscaling config', async () => {
+    /** set config values */
+    config.maxReplicaCount = 1;
+    config.minReplicaCount = 1;
+    config.acceleratorCount = 1;
+    config.acceleratorType = 1;
+    config.machineType = 'test-machine-type';
+
+    /** Ensure no autoscaling config set */
+    config.autoscalingMetricSpecsAcceleratorCount = 0;
+    config.autoscalingMetricSpecsMetricName = '';
+
+    mockDeployIndex.mockImplementationOnce(() =>
+      Promise.resolve([{name: 'test-name'}])
+    );
+
+    await deployIndex('test-endpoint', 'test-index');
+
+    expect(mockDeployIndex).toHaveBeenCalledWith({
+      deployedIndex: {
+        dedicatedResources: {
+          autoscalingMetricSpecs: [],
+          machineSpec: {
+            acceleratorCount: 1,
+            acceleratorType: 1,
+            machineType: 'test-machine-type',
+          },
+          maxReplicaCount: 1,
+          minReplicaCount: 1,
+        },
+        id: 'ext_test_instance_index',
+        index: 'test-index',
+      },
+      indexEndpoint: 'test-endpoint',
+    });
+  });
+
+  test('should return an empty array for autoscalingMetricSpecs with an invalid accelerator count', async () => {
+    /** set config values */
+    config.autoscalingMetricSpecsAcceleratorCount = 0;
+    config.autoscalingMetricSpecsMetricName = '';
+    config.maxReplicaCount = 1;
+    config.minReplicaCount = 1;
+    config.acceleratorCount = 1;
+    config.acceleratorType = 1;
+    config.machineType = 'test-machine-type';
+
+    mockDeployIndex.mockImplementationOnce(() =>
+      Promise.resolve([{name: 'test-name'}])
+    );
+
+    await deployIndex('test-endpoint', 'test-index');
+
+    expect(mockDeployIndex).toHaveBeenCalledWith({
+      deployedIndex: {
+        dedicatedResources: {
+          autoscalingMetricSpecs: [],
+          machineSpec: {
+            acceleratorCount: 1,
+            acceleratorType: 1,
+            machineType: 'test-machine-type',
+          },
+          maxReplicaCount: 1,
+          minReplicaCount: 1,
+        },
+        id: 'ext_test_instance_index',
+        index: 'test-index',
+      },
+      indexEndpoint: 'test-endpoint',
+    });
   });
 });
 

@@ -97,7 +97,7 @@ describe('backfillTriggerHandler', () => {
     firestoreObserver.mockClear();
   });
   test('should handle non-existing collection ', async () => {
-    await backfillTriggerHandler();
+    await backfillTriggerHandler({});
 
     expect(mockQueue).not.toHaveBeenCalled();
   });

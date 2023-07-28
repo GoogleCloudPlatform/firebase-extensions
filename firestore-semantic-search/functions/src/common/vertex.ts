@@ -156,23 +156,67 @@ export async function createIndexEndpoint() {
   return operation;
 }
 
+const getMetricSpecs = () => {
+  console.log('here 2 >>>>', config);
+  const {
+    autoscalingMetricSpecsAcceleratorCount,
+    autoscalingMetricSpecsMetricName,
+  } = config;
+
+  if (
+    autoscalingMetricSpecsAcceleratorCount > 0 &&
+    autoscalingMetricSpecsMetricName.length
+  ) {
+    return [
+      {
+        metricName: autoscalingMetricSpecsMetricName,
+        targetValue: autoscalingMetricSpecsAcceleratorCount,
+      },
+    ];
+  }
+
+  return [];
+};
+
 /**
  *
  * @param indexEndpoint format: projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}
  * @param index format: projects/{project}/locations/{location}/indexes/{index}
  */
 export async function deployIndex(indexEndpoint: string, index: string) {
+  console.log('here >>>>');
   const [operation] = await indexEndpointClient.deployIndex({
     indexEndpoint: indexEndpoint,
     deployedIndex: {
       id: `ext_${config.instanceId.replace(/-/g, '_')}_index`,
       index: index,
+      dedicatedResources: {
+        /** DedicatedResources machineSpec */
+        machineSpec: {
+          machineType: config.machineType,
+          acceleratorType: config.acceleratorType,
+          acceleratorCount: config.acceleratorCount,
+        },
+
+        /** DedicatedResources minReplicaCount */
+        minReplicaCount: config.minReplicaCount,
+
+        /** DedicatedResources maxReplicaCount */
+        maxReplicaCount: config.maxReplicaCount,
+
+        /** DedicatedResources autoscalingMetricSpecs */
+        autoscalingMetricSpecs: getMetricSpecs(),
+      },
     },
   });
+
+  console.log('here 2 >>>>');
 
   if (operation.error) {
     throw new Error(operation.error.message);
   }
+
+  console.log('here 3 >>>>');
 
   return operation.name;
 }

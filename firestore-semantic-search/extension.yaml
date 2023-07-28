@@ -341,6 +341,288 @@ params:
       - label: large
         value: SHARD_SIZE_LARGE
 
+  - param: MACHINE_TYPE
+    label: Machine type
+    description: >-
+      The type of machine that is deployed for the index endpoint. [Read more
+      about machine types config
+      here](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#g2-series).
+    type: select
+    required: true
+    immutable: true
+    default: e2-standard-2
+    options:
+      - label: e2-standard-2
+        value: e2-standard-2
+      - label: e2-standard-4
+        value: e2-standard-4
+      - label: e2-standard-8
+        value: e2-standard-8
+      - label: e2-standard-16
+        value: e2-standard-16
+      - label: e2-standard-32
+        value: e2-standard-32
+      - label: e2-highmem-2
+        value: e2-highmem-2
+      - label: e2-highmem-4
+        value: e2-highmem-4
+      - label: e2-highmem-8
+        value: e2-highmem-8
+      - label: e2-highmem-16
+        value: e2-highmem-16
+      - label: e2-highcpu-2
+        value: e2-highcpu-2
+      - label: e2-highcpu-4
+        value: e2-highcpu-4
+      - label: e2-highcpu-8
+        value: e2-highcpu-8
+      - label: e2-highcpu-16
+        value: e2-highcpu-16
+      - label: e2-highcpu-32
+        value: e2-highcpu-32
+      - label: n1-standard-2
+        value: n1-standard-2
+      - label: n1-standard-4
+        value: n1-standard-4
+      - label: n1-standard-8
+        value: n1-standard-8
+      - label: n1-standard-16
+        value: n1-standard-16
+      - label: n1-standard-32
+        value: n1-standard-32
+      - label: n1-highmem-2
+        value: n1-highmem-2
+      - label: n1-highmem-4
+        value: n1-highmem-4
+      - label: n1-highmem-8
+        value: n1-highmem-8
+      - label: n1-highmem-16
+        value: n1-highmem-16
+      - label: n1-highmem-32
+        value: n1-highmem-32
+      - label: n1-highcpu-4
+        value: n1-highcpu-4
+      - label: n1-highcpu-8
+        value: n1-highcpu-8
+      - label: n1-highcpu-16
+        value: n1-highcpu-16
+      - label: n1-highcpu-32
+        value: n1-highcpu-32
+      - label: n2-standard-2
+        value: n2-standard-2
+      - label: n2-standard-4
+        value: n2-standard-4
+      - label: n2-standard-8
+        value: n2-standard-8
+      - label: n2-standard-16
+        value: n2-standard-16
+      - label: n2-standard-32
+        value: n2-standard-32
+      - label: n2-standard-48
+        value: n2-standard-48
+      - label: n2-standard-64
+        value: n2-standard-64
+      - label: n2-standard-80
+        value: n2-standard-80
+      - label: n2-standard-96
+        value: n2-standard-96
+      - label: n2-standard-128
+        value: n2-standard-128
+      - label: n2-highmem-2
+        value: n2-highmem-2
+      - label: n2-highmem-4
+        value: n2-highmem-4
+      - label: n2-highmem-8
+        value: n2-highmem-8
+      - label: n2-highmem-16
+        value: n2-highmem-16
+      - label: n2-highmem-32
+        value: n2-highmem-32
+      - label: n2-highmem-48
+        value: n2-highmem-48
+      - label: n2-highmem-64
+        value: n2-highmem-64
+      - label: n2-highmem-80
+        value: n2-highmem-80
+      - label: n2-highmem-96
+        value: n2-highmem-96
+      - label: n2-highmem-128
+        value: n2-highmem-128
+      - label: n2-highcpu-2
+        value: n2-highcpu-2
+      - label: n2-highcpu-4
+        value: n2-highcpu-4
+      - label: n2-highcpu-8
+        value: n2-highcpu-8
+      - label: n2-highcpu-16
+        value: n2-highcpu-16
+      - label: n2-highcpu-32
+        value: n2-highcpu-32
+      - label: n2d-standard-2
+        value: n2d-standard-2
+      - label: n2d-standard-4
+        value: n2d-standard-4
+      - label: n2d-standard-8
+        value: n2d-standard-8
+      - label: n2d-standard-16
+        value: n2d-standard-16
+      - label: n2d-standard-32
+        value: n2d-standard-32
+      - label: n2d-standard-48
+        value: n2d-standard-48
+      - label: n2d-standard-64
+        value: n2d-standard-64
+      - label: n2d-standard-80
+        value: n2d-standard-80
+      - label: n2d-standard-96
+        value: n2d-standard-96
+      - label: n2d-standard-128
+        value: n2d-standard-128
+      - label: n2d-highmem-2
+        value: n2d-highmem-2
+      - label: n2d-highmem-4
+        value: n2d-highmem-4
+      - label: n2d-highmem-8
+        value: n2d-highmem-8
+      - label: n2d-highmem-16
+        value: n2d-highmem-16
+      - label: n2d-highmem-32
+        value: n2d-highmem-32
+      - label: n2d-highmem-48
+        value: n2d-highmem-48
+      - label: n2d-highmem-64
+        value: n2d-highmem-64
+      - label: n2d-highmem-80
+        value: n2d-highmem-80
+      - label: n2d-highmem-96
+        value: n2d-highmem-96
+      - label: n2d-highmem-128
+        value: n2d-highmem-128
+      - label: n2d-highcpu-2
+        value: n2d-highcpu-2
+      - label: n2d-highcpu-4
+        value: n2d-highcpu-4
+      - label: n2d-highcpu-8
+        value: n2d-highcpu-8
+      - label: n2d-highcpu-16
+        value: n2d-highcpu-16
+      - label: n2d-highcpu-32
+        value: n2d-highcpu-32
+      - label: a2-highgpu-1g
+        value: a2-highgpu-1g
+      - label: a2-highgpu-2g
+        value: a2-highgpu-2g
+      - label: a2-highgpu-4g
+        value: a2-highgpu-4g
+      - label: a2-highgpu-8g
+        value: a2-highgpu-8g
+      - label: a2-megagpu-16g
+        value: a2-megagpu-16g
+      - label: g2-standard-4
+        value: g2-standard-4
+      - label: g2-standard-8
+        value: g2-standard-8
+      - label: g2-standard-12
+        value: g2-standard-12
+      - label: g2-standard-16
+        value: g2-standard-16
+
+  - param: ACCELERATOR_TYPE
+    label: Acceletaor type
+    description: >-
+      The accelerator type for the deployed index endpoint. [Read more about
+      accelerator types config
+      here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec#AcceleratorType).
+    type: select
+    required: true
+    immutable: true
+    default: ACCELERATOR_TYPE_UNSPECIFIED
+    options:
+      - label: ACCELERATOR_TYPE_UNSPECIFIED
+        value: 0
+      - label: NVIDIA_TESLA_K80
+        value: 1
+      - label: NVIDIA_TESLA_P100
+        value: 2
+      - label: NVIDIA_TESLA_V100
+        value: 3
+      - label: NVIDIA_TESLA_P4
+        value: 4
+      - label: NVIDIA_TESLA_T4
+        value: 5
+      - label: NVIDIA_TESLA_A100
+        value: 6
+      - label: NVIDIA_A100_80GB
+        value: 7
+      - label: NVIDIA_L4
+        value: 8
+      - label: TPU_V2
+        value: 9
+      - label: TPU_V3
+        value: 10
+      - label: TPU_V4_POD
+        value: 11
+
+  - param: ACCELERATOR_COUNT
+    label: Accelerator Count
+    description: >-
+      The number of accelerators to attach to the the deployed index endpoint
+      machine. [Read more about accelerator counts config
+      here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec).
+    default: 1
+    required: true
+    immutable: true
+    validationRegex: ^\d+$
+    validationErrorMessage: Invalid number
+
+  - param: MIN_REPLICA_COUNT
+    label: Min replica count
+    description: >-
+      The minimum number of machine replicas for the deployed index endpoint.
+      [Read more about min replica counts config
+      here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/DedicatedResources).
+    default: 1
+    required: true
+    immutable: true
+    validationRegex: ^\d+$
+    validationErrorMessage: Invalid number
+
+  - param: MAX_REPLICA_COUNT
+    label: Max replica count
+    description: >-
+      The maxiumum number of machine replicas for the deployed index endpoint
+      when the traffic against it increases. [Read more about max replica config
+      here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/DedicatedResources).
+    default: 1
+    required: true
+    immutable: true
+    validationRegex: ^\d+$
+    validationErrorMessage: Invalid number
+
+  - param: AUTOSCALING_ACCELERATOR_COUNT
+    label: Autoscaling accelerator count
+    description: >-
+      The number of accelerators to attach to the deployed index endpoint
+      machine. Must be assoicated with a Metric Name [Read more about
+      autoscaling config
+      here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/DedicatedResources).
+    default: 0
+    required: true
+    immutable: true
+    validationRegex: ^\d+$
+    validationErrorMessage: Invalid number
+
+  - param: AUTOSCALING_METRIC_NAME
+    label: Autoscaling metric name
+    description: >-
+      A comma delimated list that overrides a resource utilization metric on the
+      deployed index endpoint. Must be associated with an accelerator count.
+      [Read more about autoscaling metric names config
+      here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/DedicatedResources#AutoscalingMetricSpec.FIELDS.metric_name).
+    type: string
+    required: false
+    immutable: true
+
   - param: LOCATION
     label: Cloud Functions location
     description: >-
