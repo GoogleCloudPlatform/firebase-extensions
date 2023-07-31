@@ -30,7 +30,7 @@ export default {
   embeddingMethod: process.env.EMBEDDING_METHOD!,
   shardSize: process.env.SHARD_SIZE!,
   machineType: process.env.MACHINE_TYPE!,
-  acceleratorType: parseInt(process.env.ACCELERATOR_TYPE!),
+  acceleratorType: process.env.ACCELERATOR_TYPE!,
   acceleratorCount: parseInt(process.env.ACCELERATOR_COUNT!),
   minReplicaCount: parseInt(process.env.MIN_REPLICA_COUNT!),
   maxReplicaCount: parseInt(process.env.MAX_REPLICA_COUNT!),

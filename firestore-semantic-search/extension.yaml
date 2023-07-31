@@ -538,30 +538,30 @@ params:
     immutable: true
     default: ACCELERATOR_TYPE_UNSPECIFIED
     options:
-      - label: ACCELERATOR_TYPE_UNSPECIFIED
-        value: 0
-      - label: NVIDIA_TESLA_K80
-        value: 1
-      - label: NVIDIA_TESLA_P100
-        value: 2
-      - label: NVIDIA_TESLA_V100
-        value: 3
-      - label: NVIDIA_TESLA_P4
-        value: 4
-      - label: NVIDIA_TESLA_T4
-        value: 5
-      - label: NVIDIA_TESLA_A100
-        value: 6
-      - label: NVIDIA_A100_80GB
-        value: 7
-      - label: NVIDIA_L4
-        value: 8
-      - label: TPU_V2
-        value: 9
-      - label: TPU_V3
-        value: 10
-      - label: TPU_V4_POD
-        value: 11
+      - label: Unspecified
+        value: ACCELERATOR_TYPE_UNSPECIFIED
+      - label: Nvidia Tesla K80 GPU
+        value: NVIDIA_TESLA_K80
+      - label: Nvidia Tesla P100 GPU
+        value: NVIDIA_TESLA_P100
+      - label: Nvidia Tesla V100 GPU
+        value: NVIDIA_TESLA_V100
+      - label: Nvidia Tesla P4 GPU
+        value: NVIDIA_TESLA_P4
+      - label: Nvidia Tesla T4 GPU
+        value: NVIDIA_TESLA_T4
+      - label: Nvidia Tesla A100 GPU
+        value: NVIDIA_TESLA_A100
+      - label: Nvidia A100 80GB GPU
+        value: NVIDIA_A100_80GB
+      - label: Nvidia L4 GPU
+        value: NVIDIA_L4
+      - label: TPU v2
+        value: TPU_V2
+      - label: TPU v3
+        value: TPU_V3
+      - label: TPU v4
+        value: TPU_V4_POD
 
   - param: ACCELERATOR_COUNT
     label: Accelerator Count
@@ -594,7 +594,6 @@ params:
       when the traffic against it increases. [Read more about max replica config
       here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/DedicatedResources).
     default: 1
-    required: true
     immutable: true
     validationRegex: ^\d+$
     validationErrorMessage: Invalid number

@@ -27,6 +27,8 @@ import {AlgorithmConfig} from '../types/algorithm_config';
 
 const apiEndpoint = `${config.location}-aiplatform.googleapis.com`;
 
+const AcceleratorType = protos.google.cloud.aiplatform.v1.AcceleratorType;
+
 export const indexClient = new aiplatform.IndexServiceClient({
   apiEndpoint: apiEndpoint,
   fallback: 'rest',
@@ -156,8 +158,7 @@ export async function createIndexEndpoint() {
   return operation;
 }
 
-const getMetricSpecs = () => {
-  console.log('here 2 >>>>', config);
+function getMetricSpecs() {
   const {
     autoscalingMetricSpecsAcceleratorCount,
     autoscalingMetricSpecsMetricName,
@@ -176,7 +177,7 @@ const getMetricSpecs = () => {
   }
 
   return [];
-};
+}
 
 /**
  *
@@ -184,7 +185,15 @@ const getMetricSpecs = () => {
  * @param index format: projects/{project}/locations/{location}/indexes/{index}
  */
 export async function deployIndex(indexEndpoint: string, index: string) {
-  console.log('here >>>>');
+  const acceleratorType =
+    AcceleratorType[config.acceleratorType as keyof typeof AcceleratorType];
+
+  // If acceleratorType is unspecified, acceleratorCount must be undefined.
+  const acceleratorCount =
+    acceleratorType !== AcceleratorType.ACCELERATOR_TYPE_UNSPECIFIED
+      ? config.acceleratorCount
+      : undefined;
+
   const [operation] = await indexEndpointClient.deployIndex({
     indexEndpoint: indexEndpoint,
     deployedIndex: {
@@ -194,8 +203,8 @@ export async function deployIndex(indexEndpoint: string, index: string) {
         /** DedicatedResources machineSpec */
         machineSpec: {
           machineType: config.machineType,
-          acceleratorType: config.acceleratorType,
-          acceleratorCount: config.acceleratorCount,
+          acceleratorType: acceleratorType,
+          acceleratorCount: acceleratorCount,
         },
 
         /** DedicatedResources minReplicaCount */
@@ -205,18 +214,14 @@ export async function deployIndex(indexEndpoint: string, index: string) {
         maxReplicaCount: config.maxReplicaCount,
 
         /** DedicatedResources autoscalingMetricSpecs */
-        autoscalingMetricSpecs: getMetricSpecs(),
+        // autoscalingMetricSpecs: getMetricSpecs(),
       },
     },
   });
 
-  console.log('here 2 >>>>');
-
   if (operation.error) {
     throw new Error(operation.error.message);
   }
-
-  console.log('here 3 >>>>');
 
   return operation.name;
 }
