@@ -77,7 +77,7 @@ describe('backfillTriggerHandler', () => {
     jest.resetAllMocks();
     firestoreObserver.mockReset();
     await fetch(
-      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/dev-extensions-testing/databases/(default)/documents`,
+      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
       {method: 'DELETE'}
     );
     // set up observer on collection

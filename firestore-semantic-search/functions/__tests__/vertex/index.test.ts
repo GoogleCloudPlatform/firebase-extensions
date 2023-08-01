@@ -35,6 +35,10 @@ jest.mock('config', () => ({
   },
 }));
 
+/** Setup env */
+process.env.GCLOUD_PROJECT = 'demo-gcp';
+process.env.FIRESTORE_EMULATOR_HOST = 'localhost:8080';
+
 const mockCreateIndex = jest.fn();
 const mockCreateIndexEndpoint = jest.fn();
 const mockDeployIndex = jest.fn();
@@ -56,7 +60,7 @@ jest.mock('@google-cloud/aiplatform', () => ({
 }));
 
 admin.initializeApp({
-  projectId: 'dev-extension-testing',
+  projectId: 'demo-gcp',
   storageBucket: config.bucketName,
 });
 
@@ -67,11 +71,11 @@ describe('createIndex', () => {
 
   test('should error out if operation from client has error property', async () => {
     mockCreateIndex.mockImplementation(() =>
-      Promise.resolve({error: new Error('test error')})
+      Promise.resolve([{error: new Error('test error')}])
     );
     try {
-      createIndex();
-    } catch (e) {
+      await createIndex();
+    } catch (e: any) {
       expect(e.message).toEqual('test error');
     }
   });
@@ -83,12 +87,12 @@ describe('createIndexEndpoint', () => {
 
   test('should error out if operation from client has error property', async () => {
     mockCreateIndexEndpoint.mockImplementation(() =>
-      Promise.resolve({error: new Error('test error')})
+      Promise.resolve([{error: new Error('test error')}])
     );
 
     try {
       createIndexEndpoint();
-    } catch (e) {
+    } catch (e: any) {
       expect(e.message).toEqual('test error');
     }
   });
@@ -101,12 +105,12 @@ describe('deployIndex', () => {
 
   test('should error out if operation from client has error property', async () => {
     mockDeployIndex.mockImplementationOnce(() =>
-      Promise.resolve({error: new Error('test error')})
+      Promise.resolve([{error: new Error('test error')}])
     );
 
     try {
-      deployIndex('test-endpoint', 'test-index');
-    } catch (e) {
+      await deployIndex('test-endpoint', 'test-index');
+    } catch (e: any) {
       expect(e.message).toEqual('test error');
     }
   });
@@ -116,12 +120,8 @@ describe('deployIndex', () => {
     config.maxReplicaCount = 1;
     config.minReplicaCount = 1;
     config.acceleratorCount = 1;
-    config.acceleratorType = 1;
+    config.acceleratorType = 'NVIDIA_TESLA_K80';
     config.machineType = 'test-machine-type';
-
-    /** Ensure no autoscaling config set */
-    config.autoscalingMetricSpecsAcceleratorCount = 0;
-    config.autoscalingMetricSpecsMetricName = '';
 
     mockDeployIndex.mockImplementationOnce(() =>
       Promise.resolve([{name: 'test-name'}])
@@ -132,7 +132,6 @@ describe('deployIndex', () => {
     expect(mockDeployIndex).toHaveBeenCalledWith({
       deployedIndex: {
         dedicatedResources: {
-          autoscalingMetricSpecs: [],
           machineSpec: {
             acceleratorCount: 1,
             acceleratorType: 1,
@@ -150,12 +149,10 @@ describe('deployIndex', () => {
 
   test('should return an empty array for autoscalingMetricSpecs with an invalid accelerator count', async () => {
     /** set config values */
-    config.autoscalingMetricSpecsAcceleratorCount = 0;
-    config.autoscalingMetricSpecsMetricName = '';
     config.maxReplicaCount = 1;
     config.minReplicaCount = 1;
     config.acceleratorCount = 1;
-    config.acceleratorType = 1;
+    config.acceleratorType = 'NVIDIA_TESLA_K80';
     config.machineType = 'test-machine-type';
 
     mockDeployIndex.mockImplementationOnce(() =>
@@ -167,7 +164,6 @@ describe('deployIndex', () => {
     expect(mockDeployIndex).toHaveBeenCalledWith({
       deployedIndex: {
         dedicatedResources: {
-          autoscalingMetricSpecs: [],
           machineSpec: {
             acceleratorCount: 1,
             acceleratorType: 1,
@@ -393,7 +389,7 @@ describe('checkIndexStatus', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     await fetch(
-      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/dev-extensions-testing/databases/(default)/documents`,
+      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
       {method: 'DELETE'}
     );
   });
@@ -402,9 +398,7 @@ describe('checkIndexStatus', () => {
     await admin.firestore().doc(config.metadataDoc).set({
       status: 'test-status',
     });
-
     const result = await checkIndexStatus();
-
-    expect(result).toEqual('test-status');
+    expect(result).toEqual({status: 'test-status'});
   });
 });
