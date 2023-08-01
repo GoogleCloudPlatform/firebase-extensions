@@ -94,7 +94,7 @@ describe('createIndexEndpoint', () => {
   });
 });
 
-describe.only('deployIndex', () => {
+describe('deployIndex', () => {
   afterEach(async () => {
     jest.clearAllMocks();
   });
