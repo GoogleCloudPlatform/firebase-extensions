@@ -89,7 +89,7 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Approximate number of neighbors: The approximate number of neighbors to return in the response. [Read more about this parameter here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#nearest-neighbor-search-config).
 
-* Batch size: The batch size used to generate feature vectors for existing images. The larger the batch size, the more time and memory are required. Do not sit a size larger than 64.
+* Batch size: The batch size used to generate feature vectors for existing images. The larger the batch size, the more time and memory are required. Do not set a size larger than 64.
 
 * Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
 
