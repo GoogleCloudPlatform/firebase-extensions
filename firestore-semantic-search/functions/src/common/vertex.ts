@@ -158,27 +158,6 @@ export async function createIndexEndpoint() {
   return operation;
 }
 
-function getMetricSpecs() {
-  const {
-    autoscalingMetricSpecsAcceleratorCount,
-    autoscalingMetricSpecsMetricName,
-  } = config;
-
-  if (
-    autoscalingMetricSpecsAcceleratorCount > 0 &&
-    autoscalingMetricSpecsMetricName.length
-  ) {
-    return [
-      {
-        metricName: autoscalingMetricSpecsMetricName,
-        targetValue: autoscalingMetricSpecsAcceleratorCount,
-      },
-    ];
-  }
-
-  return [];
-}
-
 /**
  *
  * @param indexEndpoint format: projects/{project}/locations/{location}/indexEndpoints/{index_endpoint}
@@ -212,9 +191,6 @@ export async function deployIndex(indexEndpoint: string, index: string) {
 
         /** DedicatedResources maxReplicaCount */
         maxReplicaCount: config.maxReplicaCount,
-
-        /** DedicatedResources autoscalingMetricSpecs */
-        // autoscalingMetricSpecs: getMetricSpecs(),
       },
     },
   });

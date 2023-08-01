@@ -34,10 +34,6 @@ export default {
   acceleratorCount: parseInt(process.env.ACCELERATOR_COUNT!),
   minReplicaCount: parseInt(process.env.MIN_REPLICA_COUNT!),
   maxReplicaCount: parseInt(process.env.MAX_REPLICA_COUNT!),
-  autoscalingMetricSpecsAcceleratorCount: parseInt(
-    process.env.AUTOSCALING_ACCELERATOR_COUNT!
-  ),
-  autoscalingMetricSpecsMetricName: process.env.AUTOSCALING_METRIC_NAME!,
   distanceMeasureType: process.env.DISTANCE_MEASURE!,
   fields: Array.from(process.env.FIELDS?.split(',') ?? []),
   algorithmConfig: process.env.ALGORITHM_CONFIG! as AlgorithmConfig,

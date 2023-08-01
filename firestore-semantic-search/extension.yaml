@@ -332,6 +332,7 @@ params:
       here](https://cloud.google.com/vertex-ai/docs/matching-engine/create-manage-index#create-index).
     type: select
     required: true
+    immutable: true
     default: SHARD_SIZE_SMALL
     options:
       - label: small
@@ -348,7 +349,6 @@ params:
       about machine types config
       here](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#g2-series).
     type: select
-    required: true
     immutable: true
     default: e2-standard-2
     options:
@@ -534,7 +534,6 @@ params:
       accelerator types config
       here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec#AcceleratorType).
     type: select
-    required: true
     immutable: true
     default: ACCELERATOR_TYPE_UNSPECIFIED
     options:
@@ -570,7 +569,6 @@ params:
       machine. [Read more about accelerator counts config
       here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec).
     default: 1
-    required: true
     immutable: true
     validationRegex: ^\d+$
     validationErrorMessage: Invalid number
@@ -582,7 +580,6 @@ params:
       [Read more about min replica counts config
       here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/DedicatedResources).
     default: 1
-    required: true
     immutable: true
     validationRegex: ^\d+$
     validationErrorMessage: Invalid number
@@ -597,30 +594,6 @@ params:
     immutable: true
     validationRegex: ^\d+$
     validationErrorMessage: Invalid number
-
-  - param: AUTOSCALING_ACCELERATOR_COUNT
-    label: Autoscaling accelerator count
-    description: >-
-      The number of accelerators to attach to the deployed index endpoint
-      machine. Must be assoicated with a Metric Name [Read more about
-      autoscaling config
-      here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/DedicatedResources).
-    default: 0
-    required: true
-    immutable: true
-    validationRegex: ^\d+$
-    validationErrorMessage: Invalid number
-
-  - param: AUTOSCALING_METRIC_NAME
-    label: Autoscaling metric name
-    description: >-
-      A comma delimated list that overrides a resource utilization metric on the
-      deployed index endpoint. Must be associated with an accelerator count.
-      [Read more about autoscaling metric names config
-      here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/DedicatedResources#AutoscalingMetricSpec.FIELDS.metric_name).
-    type: string
-    required: false
-    immutable: true
 
   - param: LOCATION
     label: Cloud Functions location
