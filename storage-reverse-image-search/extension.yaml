@@ -10,7 +10,7 @@ tags:
 displayName: Reverse Image Search with Vertex AI
 
 description: >-
-  Search for similar images in Cloud Storage with Vertex AI Matching Engine.
+  Search for similar images in Cloud Storage with Vertex AI Matching Engine. HELLO WORLD
 
 license: Apache-2.0 # https://spdx.org/licenses/
 sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/storage-reverse-image-search
