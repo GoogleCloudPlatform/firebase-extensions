@@ -29,7 +29,8 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
-
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -62,10 +63,6 @@ jobs:
       - name: Install local dependencies
         run: npm ci
 
-      - name: Checkout to ${{ env.BRANCH_NAME }}
-        if: ${{ github.event_name == 'pull_request' }}
-        run: git checkout ${{ env.BRANCH_NAME }}
-
       - name: Run Lerna generate-readme
         run: lerna run --parallel generate-readme
 
@@ -75,7 +72,7 @@ jobs:
           if [[ ! -z "$changed_files" ]]; then
             echo "Changes detected in README.md files:"
             echo "$changed_files"
-            if [[ ${{ github.repository }} != "GoogleCloudPlatform/firebase-extensions" ]]; then
+            if [[ ${{ github.event.pull_request.head.repo.full_name }} != "GoogleCloudPlatform/firebase-extensions" ]]; then
               echo "Please run 'lerna run --parallel generate-readme' locally and commit the changes."
               exit 1
             fi
