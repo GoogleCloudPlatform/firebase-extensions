@@ -29,6 +29,8 @@ import {AlgorithmConfig} from '../types/algorithm_config';
 
 const apiEndpoint = `${config.location}-aiplatform.googleapis.com`;
 
+const AcceleratorType = protos.google.cloud.aiplatform.v1.AcceleratorType;
+
 export const indexClient = new aiplatform.IndexServiceClient({
   apiEndpoint: apiEndpoint,
   fallback: 'rest',
@@ -80,6 +82,7 @@ export async function createIndex(
           stringValue: `gs://${config.bucketName}/datapoints`,
         },
         isCompleteOverwrite: {boolValue: false},
+        shardSize: {stringValue: config.shardSize},
         config: {
           structValue: {
             fields: {
@@ -140,11 +143,34 @@ export async function createIndexEndpoint() {
  * @param index format: projects/{project}/locations/{location}/indexes/{index}
  */
 export async function deployIndex(indexEndpoint: string, index: string) {
+  const acceleratorType =
+    AcceleratorType[config.acceleratorType as keyof typeof AcceleratorType];
+
+  // If acceleratorType is unspecified, acceleratorCount must be undefined.
+  const acceleratorCount =
+    acceleratorType !== AcceleratorType.ACCELERATOR_TYPE_UNSPECIFIED
+      ? config.acceleratorCount
+      : undefined;
+
   const [operation] = await indexEndpointClient.deployIndex({
     indexEndpoint: indexEndpoint,
     deployedIndex: {
       id: `ext_${config.instanceId.replace(/-/g, '_')}_index`,
       index: index,
+      dedicatedResources: {
+        /** DedicatedResources machineSpec */
+        machineSpec: {
+          machineType: config.machineType,
+          acceleratorType: acceleratorType,
+          acceleratorCount: acceleratorCount,
+        },
+
+        /** DedicatedResources minReplicaCount */
+        minReplicaCount: config.minReplicaCount,
+
+        /** DedicatedResources maxReplicaCount */
+        maxReplicaCount: config.maxReplicaCount,
+      },
     },
   });
 
