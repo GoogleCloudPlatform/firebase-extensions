@@ -304,7 +304,7 @@ params:
     label: Batch size
     description: >-
       The batch size used to generate feature vectors for existing images. The
-      larger the batch size, the more time and memory are required. Do not sit a
+      larger the batch size, the more time and memory are required. Do not set a
       size larger than 64.
     type: string
     required: true
