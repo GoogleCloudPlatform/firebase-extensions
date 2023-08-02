@@ -15,9 +15,16 @@
  */
 
 import {DiscussServiceClient} from '@google-ai/generativelanguage';
+import {helpers, v1} from '@google-cloud/aiplatform';
 import * as logs from './logs';
 import {GoogleAuth} from 'google-auth-library';
-import {APIGenerateMessageRequest, APIMessage, APIExample} from './types';
+import {
+  APIGenerateMessageRequest,
+  APIMessage,
+  APIExample,
+  VertexPredictRequest,
+} from './types';
+import config from './config';
 export interface Message {
   path?: string;
   prompt?: string;
@@ -111,11 +118,19 @@ export interface GenerateMessageResponse {
   candidates: string[];
 }
 
+interface PaLMPrompt {
+  messages: APIMessage[];
+  context?: string;
+  examples?: APIExample[];
+}
+
 export class Discussion {
-  private client: DiscussServiceClient;
+  private generativeClient: DiscussServiceClient | null = null;
+  private vertexClient: v1.PredictionServiceClient | null = null;
+  private endpoint: string;
   context?: string;
   examples?: Message[] = [];
-  model = 'models/chat-bison-001';
+  model = config.useVertex ? 'chat-bison@001' : 'models/chat-bison-001';
   temperature?: number;
   candidateCount?: number;
   topP?: number;
@@ -129,23 +144,31 @@ export class Discussion {
     this.topK = options.topK;
     this.candidateCount = options.candidateCount;
     if (options.model) this.model = options.model;
+
+    this.endpoint = `projects/${config.projectId}/locations/${config.location}/publishers/google/models/${this.model}`;
+
     logs.usingADC();
 
-    const auth = new GoogleAuth({
-      scopes: [
-        'https://www.googleapis.com/auth/userinfo.email',
-        'https://www.googleapis.com/auth/generative-language',
-      ],
-    });
-    this.client = new DiscussServiceClient({
-      auth,
-    });
+    if (config.useVertex) {
+      const clientOptions = {
+        apiEndpoint: `${config.location}-prediction-aiplatform.googleapis.com`,
+      };
+
+      this.vertexClient = new v1.PredictionServiceClient(clientOptions);
+    } else {
+      const auth = new GoogleAuth({
+        scopes: [
+          'https://www.googleapis.com/auth/userinfo.email',
+          'https://www.googleapis.com/auth/generative-language',
+        ],
+      });
+      this.generativeClient = new DiscussServiceClient({
+        auth,
+      });
+    }
   }
 
-  async send(
-    prompt: string,
-    options: GenerateMessageOptions = {}
-  ): Promise<GenerateMessageResponse> {
+  private getHistory(options: GenerateMessageOptions) {
     let history: Message[] = [];
     if (options.continue) {
       history = [...options.continue.history];
@@ -153,35 +176,94 @@ export class Discussion {
     } else if (options.history) {
       history = options.history;
     }
+    return history;
+  }
+
+  async send(
+    message: string,
+    options: GenerateMessageOptions = {}
+  ): Promise<GenerateMessageResponse> {
+    const history = this.getHistory(options);
 
     const messages = [
       ...this.messagesToApi(history),
-      {author: '0', content: prompt},
+      {author: '0', content: message},
     ];
 
+    const prompt: PaLMPrompt = {
+      messages,
+      context: options.context || this.context || '',
+      examples: this.messagesToExamples(
+        options.examples || this.examples || []
+      ),
+    };
+
+    if (config.useVertex) {
+      const request = this.createVertexRequest(prompt, options);
+      return this.generateMessageVertex(request);
+    }
+
+    const request = this.createGenerativeRequest(prompt, options);
+    return this.generateMessageGenerative(request);
+  }
+
+  private createVertexRequest(
+    prompt: PaLMPrompt,
+    options: GenerateMessageOptions
+  ) {
+    const temperature = options.temperature || this.temperature;
+    const topP = options.topP || this.topP;
+    const topK = options.topK || this.topK;
+
+    const parameter: Record<string, string | number> = {};
+
+    // We have to set these conditionally or they get nullified and the request fails with a serialization error.
+    if (temperature) {
+      parameter.temperature = temperature;
+    }
+    if (topP) {
+      parameter.top_p = topP;
+    }
+    if (topK) {
+      parameter.top_k = topK;
+    }
+
+    const parameters = helpers.toValue(parameter);
+    const instanceValue = helpers.toValue(prompt);
+    const instances = [instanceValue!];
+
+    const request = {
+      endpoint: this.endpoint,
+      instances,
+      parameters,
+    };
+    return request;
+  }
+
+  private createGenerativeRequest(
+    prompt: PaLMPrompt,
+    options: GenerateMessageOptions
+  ) {
     const request: APIGenerateMessageRequest = {
-      prompt: {
-        messages,
-      },
+      prompt,
       model: this.model,
       temperature: options.temperature || this.temperature,
       topP: options.topP || this.topP,
       topK: options.topK || this.topK,
       candidateCount: options.candidateCount || this.candidateCount,
     };
-
-    request.prompt!.context = options.context || this.context;
-    request.prompt!.examples = this.messagesToExamples(
-      options.examples || this.examples || []
-    );
-
-    return this.generateMessage(request);
+    return request;
   }
 
-  private async generateMessage(
+  private async generateMessageGenerative(
     request: APIGenerateMessageRequest
   ): Promise<GenerateMessageResponse> {
-    const [result] = await this.client.generateMessage(request);
+    if (!this.generativeClient) {
+      throw new Error('Generative client not initialized.');
+    }
+
+    const [result] = await this.generativeClient.generateMessage(request);
+
     if (!result.candidates || !result.candidates.length) {
       throw new Error('No candidates returned from server.');
     }
@@ -194,6 +276,44 @@ export class Discussion {
       throw new Error('No content returned from server.');
     }
     const messages = result.messages || [];
+
+    return {
+      response: content,
+      candidates,
+      history: this.messagesFromApi(messages),
+    };
+  }
+
+  private async generateMessageVertex(
+    request: VertexPredictRequest
+  ): Promise<GenerateMessageResponse> {
+    if (!this.vertexClient) {
+      throw new Error('Vertex client not initialized.');
+    }
+
+    const [result] = await this.vertexClient.predict(request);
+
+    const prediction = result.predictions![0];
+
+    // TODO: fix type casting
+    const value = helpers.fromValue(prediction as protobuf.common.IValue) as {
+      candidates: APIMessage[];
+    };
+
+    if (!value.candidates || !value.candidates.length) {
+      throw new Error('No candidates returned from server.');
+    }
+
+    const content = value.candidates[0].content;
+
+    if (!content && content !== '') {
+      throw new Error('No content returned in candidate.');
+    }
+
+    // TODO: fix assertion on content value
+    const candidates = value.candidates.map(c => c.content!) || [];
+
+    const messages = [] as APIMessage[];
 
     return {
       response: content,

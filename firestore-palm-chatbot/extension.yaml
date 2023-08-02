@@ -51,6 +51,10 @@ billingRequired: true
 # required for your extension to operate.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#apis-field
 
+apis:
+  - apiName: aiplatform.googleapis.com
+    reason: For access to the PaLM API if this provider is chosen.
+
 # In a `roles` field, list any IAM access roles required for your extension to operate.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#roles-field
 roles:
@@ -58,7 +62,9 @@ roles:
     reason:
       Allows this extension to access Cloud Firestore to read and process added
       messages.
-
+  - role: aiplatform.user
+    reason:
+      Allows this extension to access the PaLM API via Vertex AI if this provider is chosen.
 # In the `resources` field, list each of your extension's functions, including the trigger for each function.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#resources-field
 resources:
@@ -179,7 +185,7 @@ params:
     type: select
     options:
       - label: chat-bison-001
-        value: models/chat-bison-001
+        value: chat-bison-001
     required: true
     immutable: false
 
@@ -266,3 +272,17 @@ params:
         value: no
     default: no
     required: true
+
+  - param: PALM_API_PROVIDER
+    label: Palm API Provider
+    description: >-
+      There are two services which provide access to the PaLM API. Which would you like to use? Keep in mind you will need to enable the service in your GCP project.
+    type: select
+    options:
+      - label: Vertex AI
+        value: vertex
+      - label: Generative AI for Developers
+        value: generative
+    required: true
+    default: vertex
+    immutable: false

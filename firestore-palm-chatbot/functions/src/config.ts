@@ -15,6 +15,9 @@
  */
 
 export interface Config {
+  location: string;
+  projectId: string;
+  instanceId: string;
   model: string;
   context?: string;
   promptField: string;
@@ -27,13 +30,35 @@ export interface Config {
   topK?: number;
   candidateCount?: number;
   candidatesField?: string;
+  useVertex: boolean;
+}
+
+const useVertex = process.env.PALM_API_PROVIDER === 'vertex'
+
+function getModel() {
+  if (useVertex) {
+    switch (process.env.MODEL) {
+      default:
+        return 'chat-bison@001'
+    }
+  } else {
+    switch (process.env.MODEL) {
+      default:
+        return 'models/chat-bison-001'
+    }
+  }
 }
 
 const config: Config = {
+  // system defined
+  location: process.env.LOCATION!,
+  projectId: process.env.PROJECT_ID!,
+  instanceId: process.env.EXT_INSTANCE_ID!,
+  // user defined
   collectionName:
     process.env.COLLECTION_NAME ||
     'users/{uid}/discussions/{discussionId}/messages',
-  model: process.env.MODEL || 'models/chat-bison-001',
+  model: getModel(),
   context: process.env.CONTEXT,
   promptField: process.env.PROMPT_FIELD || 'prompt',
   responseField: process.env.RESPONSE_FIELD || 'response',
@@ -49,6 +74,7 @@ const config: Config = {
     ? parseInt(process.env.CANDIDATE_COUNT)
     : 1,
   candidatesField: process.env.CANDIDATES_FIELD || 'candidates',
+  useVertex
 };
 
 export default config;
