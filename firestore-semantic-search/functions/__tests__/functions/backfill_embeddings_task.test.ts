@@ -45,14 +45,14 @@ jest.mock('config', () => ({
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 process.env.STORAGE_EMULATOR_HOST = '127.0.0.1:9199';
 admin.initializeApp({
-  projectId: 'dev-extensions-testing',
+  projectId: 'demo-gcp',
 });
 
 describe('onIndexDeployed', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     await fetch(
-      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/dev-extensions-testing/databases/(default)/documents`,
+      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
       {method: 'DELETE'}
     );
   });
