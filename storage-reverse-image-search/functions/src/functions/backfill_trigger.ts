@@ -25,12 +25,12 @@ import {File} from '@google-cloud/storage';
 import {BackfillStatus} from '../types/backfill_status';
 
 export async function backfillTriggerHandler({
-  forceCreateIndex = false,
+  forceCreateIndex,
   object,
 }: {
   forceCreateIndex?: boolean;
   object?: functions.storage.ObjectMetadata;
-}) {
+} = {}) {
   const runtime = getExtensions().runtime();
 
   if (!forceCreateIndex && !config.doBackfill) {
