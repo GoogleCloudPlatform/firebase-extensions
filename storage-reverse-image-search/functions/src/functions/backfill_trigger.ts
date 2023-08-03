@@ -92,14 +92,11 @@ export async function backfillTriggerHandler({
 
       try {
         // Create a task document to track the progress of the task.
-        writer.create(
-          admin.firestore().doc(`${config.tasksDoc}/enqueues/${id}`),
-          {
-            taskId: id,
-            status: BackfillStatus.PENDING,
-            objects: chunk.map(object => object.name),
-          }
-        );
+        writer.set(admin.firestore().doc(`${config.tasksDoc}/enqueues/${id}`), {
+          taskId: id,
+          status: BackfillStatus.PENDING,
+          objects: chunk.map(object => object.name),
+        });
 
         if (
           counter % config.batchSize === 0 ||
