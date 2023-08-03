@@ -88,7 +88,6 @@ export async function createIndex(
               dimensions: {
                 numberValue: dimensions,
               },
-              // TODO make this configurable
               approximateNeighborsCount: {numberValue: config.neighbors},
               distanceMeasureType: {stringValue: config.distanceMeasureType},
               shardSize: {stringValue: config.shardSize},
