@@ -82,7 +82,6 @@ export async function createIndex(
           stringValue: `gs://${config.bucketName}/datapoints`,
         },
         isCompleteOverwrite: {boolValue: false},
-        shardSize: {stringValue: config.shardSize},
         config: {
           structValue: {
             fields: {
@@ -92,6 +91,7 @@ export async function createIndex(
               // TODO make this configurable
               approximateNeighborsCount: {numberValue: config.neighbors},
               distanceMeasureType: {stringValue: config.distanceMeasureType},
+              shardSize: {stringValue: config.shardSize},
               featureNormType: {stringValue: config.featureNormType},
               algorithmConfig: {},
             },
