@@ -15,13 +15,23 @@
  */
 
 export interface Config {
+  location: string;
+  projectId: string;
+  instanceId: string;
   collectionName: string;
   textField: string;
   responseField: string;
   targetSummaryLength?: number;
+  useVertex?: boolean;
 }
 
+const useVertex = process.env.PALM_API_PROVIDER === 'vertex';
+
+
 const config: Config = {
+  location: process.env.LOCATION!,
+  projectId: process.env.PROJECT_ID!,
+  instanceId: process.env.EXT_INSTANCE_ID!,
   collectionName:
     process.env.COLLECTION_NAME || 'summaries/{summaryId}/messages',
   textField: process.env.TEXT_FIELD || 'text',
@@ -29,6 +39,7 @@ const config: Config = {
   targetSummaryLength: process.env.TARGET_SUMMARY_LENGTH
     ? parseInt(process.env.TARGET_SUMMARY_LENGTH)
     : undefined,
+  useVertex: useVertex,
 };
 
 export default config;

@@ -23,7 +23,7 @@ import {createErrorMessage} from './errors';
 
 const {textField, responseField, collectionName, targetSummaryLength} = config;
 
-const MODEL = 'models/text-bison-001';
+const MODEL = config.useVertex ? 'text-bison@001': 'models/text-bison-001';
 
 const textGenerator = new TextGenerator({
   model: MODEL,

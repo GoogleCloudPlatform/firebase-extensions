@@ -15,9 +15,12 @@
  */
 
 import {TextServiceClient} from '@google-ai/generativelanguage';
+import {helpers, v1} from '@google-cloud/aiplatform';
+
 import * as logs from './logs';
 import {GoogleAuth} from 'google-auth-library';
 import {APIGenerateTextRequest} from './types';
+import config from './config';
 
 export interface TextGeneratorOptions {
   model?: string;
@@ -36,10 +39,12 @@ export type TextGeneratorRequestOptions = Omit<
 export type TextGeneratorResponse = {candidates: string[]};
 
 export class TextGenerator {
-  private client: TextServiceClient;
+  private generativeClient: TextServiceClient | null = null;
+  private vertexClient: v1.PredictionServiceClient | null = null;
+  private endpoint: string;
   instruction?: string;
   context?: string;
-  model = 'models/text-bison-001';
+  model = config.useVertex ? 'text-bison@001' : 'models/text-bison-001';
   temperature?: number;
   candidateCount?: number;
   topP?: number;
@@ -54,33 +59,101 @@ export class TextGenerator {
     this.candidateCount = options.candidateCount;
     this.instruction = options.instruction;
     if (options.model) this.model = options.model;
-    logs.usingADC();
-    const auth = new GoogleAuth({
-      scopes: [
-        'https://www.googleapis.com/auth/userinfo.email',
-        'https://www.googleapis.com/auth/generative-language',
-      ],
-    });
-    this.client = new TextServiceClient({
-      auth,
-    });
+
+    this.endpoint = `projects/${config.projectId}/locations/${config.location}/publishers/google/models/${this.model}`;
+
+    if (config.useVertex) {
+      const clientOptions = {
+        apiEndpoint: `${config.location}-prediction-aiplatform.googleapis.com`,
+      };
+
+      this.vertexClient = new v1.PredictionServiceClient(clientOptions);
+    } else {
+
+      logs.usingADC();
+
+      const auth = new GoogleAuth({
+        scopes: [
+          'https://www.googleapis.com/auth/userinfo.email',
+          'https://www.googleapis.com/auth/generative-language',
+        ],
+      });
+      this.generativeClient = new TextServiceClient({
+        auth,
+      });
+    }
   }
 
   async generate(
-    prompt: string,
+    promptText: string,
     options: TextGeneratorRequestOptions = {}
   ): Promise<TextGeneratorResponse> {
-    // remove the colon from the end of instruction if it exists
+
+    if (config.useVertex) {
+      if (!this.vertexClient) {
+        throw new Error('Vertex client not initialized.');
+      }
+      const prompt = {
+        prompt: promptText
+      }
+      const instanceValue = helpers.toValue(prompt);
+      const instances = [instanceValue!];
+
+      const temperature = options.temperature || this.temperature
+      const topP = options.topP || this.topP
+      const topK = options.topK || this.topK
+
+      const parameter: Record<string,string | number> = {};
+      // We have to set these conditionally or they get nullified and the request fails with a serialization error.
+      if (temperature) {
+        parameter.temperature = temperature;
+      }
+      if (topP) {
+        parameter.top_p = topP;
+      }
+      if (topK) {
+        parameter.top_k = topK;
+      }
+      parameter.maxOutputTokens = 100;
+
+      const parameters = helpers.toValue(parameter);
+
+      const request = {
+        endpoint: this.endpoint,
+        instances,
+        parameters,
+      };
+
+      const [result] = await this.vertexClient.predict(request);
+
+      const prediction = result.predictions![0];
+
+
+      const content = prediction.structValue?.fields?.content
+
+      if (!content?.stringValue && !(content?.stringValue !== '')) {
+        throw new Error('No prediction returned from Vertex AI.');
+      }
+
+      const candidate = content!.stringValue!
+
+      return {candidates: [candidate]};
+    }
+
 
     const request = {
       prompt: {
-        text: prompt,
+        text: promptText,
       },
       model: this.model,
       ...options,
     };
 
-    const [result] = await this.client.generateText(request);
+    if (!this.generativeClient) {
+      throw new Error('Generative Language Client not initialized.');
+    }
+
+    const [result] = await this.generativeClient.generateText(request);
 
     if (!result.candidates || !result.candidates.length) {
       throw new Error('No candidates returned from server.');
