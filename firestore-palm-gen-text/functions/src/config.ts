@@ -31,6 +31,7 @@ export interface Config {
   variableFields?: string[];
   useVertex: boolean;
   maxOutputTokensVertex?: number;
+  apiKey?: string;
 }
 
 const useVertex = process.env.PALM_API_PROVIDER === 'vertex';
@@ -72,6 +73,7 @@ const config: Config = {
     : undefined,
   useVertex,
   maxOutputTokensVertex: process.env.MAX_OUTPUT_TOKENS ? parseInt(process.env.MAX_OUTPUT_TOKENS) : 100,
+  apiKey: process.env.API_KEY,
 };
 
 export default config;

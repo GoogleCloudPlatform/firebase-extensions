@@ -19,7 +19,11 @@ import {helpers, v1} from '@google-cloud/aiplatform';
 
 import * as logs from './logs';
 import {GoogleAuth} from 'google-auth-library';
-import {APIGenerateTextRequest} from './types';
+import {
+  APIGenerateTextRequest,
+  VertexPredictResponse,
+  APIGenerateTextResponse,
+} from './types';
 import config from './config';
 
 export interface TextGeneratorOptions {
@@ -39,8 +43,8 @@ export type TextGeneratorRequestOptions = Omit<
 export type TextGeneratorResponse = {candidates: string[]};
 
 export class TextGenerator {
-  private generativeClient: TextServiceClient | null = null;
-  private vertexClient: v1.PredictionServiceClient | null = null;
+  private generativeClient?: TextServiceClient;
+  private vertexClient?: v1.PredictionServiceClient;
   private endpoint: string;
   instruction?: string;
   context?: string;
@@ -63,15 +67,23 @@ export class TextGenerator {
     this.endpoint = `projects/${config.projectId}/locations/${config.location}/publishers/google/models/${this.model}`;
 
     if (config.useVertex) {
-      const clientOptions = {
-        apiEndpoint: `${config.location}-prediction-aiplatform.googleapis.com`,
-      };
-
-      this.vertexClient = new v1.PredictionServiceClient(clientOptions);
+      this.initVertexClient();
     } else {
-      
-      logs.usingADC();
+      this.initGenerativeClient();
+    }
+  }
   
+  private initVertexClient() {
+    const clientOptions = {
+      apiEndpoint: `${config.location}-prediction-aiplatform.googleapis.com`,
+    };
+
+    this.vertexClient = new v1.PredictionServiceClient(clientOptions);
+  }
+
+  private initGenerativeClient() {
+    logs.usingADC();
+
       const auth = new GoogleAuth({
         scopes: [
           'https://www.googleapis.com/auth/userinfo.email',
@@ -81,66 +93,20 @@ export class TextGenerator {
       this.generativeClient = new TextServiceClient({
         auth,
       });
-    }
-
-
   }
 
   async generate(
     promptText: string,
     options: TextGeneratorRequestOptions = {}
   ): Promise<TextGeneratorResponse> {
-    // remove the colon from the end of instruction if it exists
-
-
     if (config.useVertex) {
       if (!this.vertexClient) {
         throw new Error('Vertex client not initialized.');
       }
-      const prompt = {
-        prompt: promptText
-      }
-      const instanceValue = helpers.toValue(prompt);
-      const instances = [instanceValue!];
-
-      const temperature = options.temperature || this.temperature
-      const topP = options.topP || this.topP
-      const topK = options.topK || this.topK
-
-      const parameter: Record<string,string | number> = {};
-      // We have to set these conditionally or they get nullified and the request fails with a serialization error.
-      if (temperature) {
-        parameter.temperature = temperature;
-      }
-      if (topP) {
-        parameter.top_p = topP;
-      }
-      if (topK) {
-        parameter.top_k = topK;
-      }
-      if (config.maxOutputTokensVertex) {
-        parameter.maxOutputTokens = config.maxOutputTokensVertex;
-      }
-
-      const parameters = helpers.toValue(parameter);
-
-      const request = {
-        endpoint: this.endpoint,
-        instances,
-        parameters,
-      };
+      const request = this.createVertexRequest(promptText, options);
       const [result] = await this.vertexClient.predict(request);
 
-      const prediction = result.predictions![0];
-
-
-      const content = prediction.structValue?.fields?.content
-
-      if (!content?.stringValue && !(content?.stringValue !== '')) {
-        throw new Error('No prediction returned from Vertex AI.');
-      }
-
-      const candidate = content!.stringValue!
+      const candidate = this.extractVertexCandidateResponse(result);
 
       return {candidates: [candidate]};
     }
@@ -149,6 +115,21 @@ export class TextGenerator {
       throw new Error('Generative client not initialized.');
     }
 
+    const request = this.createGenerativeRequest(promptText, options);
+
+    const [result] = await this.generativeClient.generateText(request);
+
+    const candidates = this.extractGenerativeCandidationResponse(result);
+
+    return {
+      candidates,
+    };
+  }
+
+  private createGenerativeRequest(
+    promptText: string,
+    options: TextGeneratorRequestOptions = {}
+  ) {
     const request = {
       prompt: {
         text: promptText,
@@ -161,9 +142,12 @@ export class TextGenerator {
       maxOutputTokens: this.maxOutputTokens,
       ...options,
     };
+    return request;
+  }
 
-    const [result] = await this.generativeClient.generateText(request);
-
+  private extractGenerativeCandidationResponse(
+    result: APIGenerateTextResponse
+  ) {
     if (!result.candidates || !result.candidates.length) {
       throw new Error('No candidates returned from server.');
     }
@@ -176,9 +160,61 @@ export class TextGenerator {
     if (!candidates.length) {
       throw new Error('No candidates returned from server.');
     }
+    return candidates;
+  }
 
-    return {
-      candidates,
+  private createVertexRequest(
+    promptText: string,
+    options: TextGeneratorRequestOptions = {}
+  ) {
+    const prompt = {
+      prompt: promptText,
     };
+    const instanceValue = helpers.toValue(prompt);
+    const instances = [instanceValue!];
+
+    const temperature = options.temperature || this.temperature;
+    const topP = options.topP || this.topP;
+    const topK = options.topK || this.topK;
+
+    const parameter: Record<string, string | number> = {};
+    // We have to set these conditionally or they get nullified and the request fails with a serialization error.
+    if (temperature) {
+      parameter.temperature = temperature;
+    }
+    if (topP) {
+      parameter.top_p = topP;
+    }
+    if (topK) {
+      parameter.top_k = topK;
+    }
+    if (config.maxOutputTokensVertex) {
+      parameter.maxOutputTokens = config.maxOutputTokensVertex;
+    }
+
+    const parameters = helpers.toValue(parameter);
+
+    const request = {
+      endpoint: this.endpoint,
+      instances,
+      parameters,
+    };
+    return request;
+  }
+
+  private extractVertexCandidateResponse(result: VertexPredictResponse) {
+    const prediction = result.predictions![0];
+
+    const content = prediction.structValue?.fields?.content;
+
+    if (!content) {
+      throw new Error('No content returned in prediction from Vertex AI.');
+    }
+
+    if (!content?.stringValue && !(content?.stringValue !== '')) {
+      throw new Error('Error with content returned from Vertex AI.');
+    }
+
+    return content!.stringValue!;
   }
 }

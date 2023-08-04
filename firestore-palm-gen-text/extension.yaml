@@ -80,6 +80,15 @@ params:
     default: vertex
     immutable: false
 
+  - param: API_KEY
+    label: API Key (Generative Language AI for Developers Provider ONLY)
+    description: >-
+      If you selected Generative AI for Developers as your PaLM API provider, you can optionally choose to provide an API key.
+      If you do not provide an API key, the extension will use Application Default Credentials.
+    type: secret
+    required: false
+    immutable: false
+
   - param: COLLECTION_NAME
     label: Collection Path
     description: >-
