@@ -29,7 +29,6 @@ export type VertexPredictRequest =
 export type VertexPredictResponse =
   vertex.protos.google.cloud.aiplatform.v1beta1.IPredictResponse;
 
-
 // our own types
 
 export interface Message {

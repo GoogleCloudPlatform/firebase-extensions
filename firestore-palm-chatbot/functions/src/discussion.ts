@@ -17,7 +17,7 @@
 import {DiscussServiceClient} from '@google-ai/generativelanguage';
 import {helpers, v1} from '@google-cloud/aiplatform';
 import * as logs from './logs';
-import {GoogleAuth, JWT} from 'google-auth-library';
+import {GoogleAuth} from 'google-auth-library';
 import {
   APIGenerateMessageRequest,
   APIMessage,
@@ -217,7 +217,6 @@ export class Discussion {
 
     const prediction = result.predictions![0];
 
-    // TODO: fix type casting
     const value = helpers.fromValue(prediction as protobuf.common.IValue) as {
       candidates: APIMessage[];
     };

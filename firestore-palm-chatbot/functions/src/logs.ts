@@ -17,10 +17,9 @@ import {logger} from 'firebase-functions';
 import {Config} from './config';
 
 export const init = (config: Config) => {
-
   const obfuscatedConfig = {
     ...config,
-    apiKey: '[REDACTED]'
+    apiKey: '[REDACTED]',
   };
 
   logger.info(
@@ -66,4 +65,4 @@ export const usingADC = () => {
 
 export const usingAPIKey = () => {
   logger.log('using API key provided.');
-}
+};

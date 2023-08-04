@@ -34,18 +34,18 @@ export interface Config {
   apiKey?: string;
 }
 
-const useVertex = process.env.PALM_API_PROVIDER === 'vertex'
+const useVertex = process.env.PALM_API_PROVIDER === 'vertex';
 
 function getModel() {
   if (useVertex) {
     switch (process.env.MODEL) {
       default:
-        return 'chat-bison@001'
+        return 'chat-bison@001';
     }
   } else {
     switch (process.env.MODEL) {
       default:
-        return 'models/chat-bison-001'
+        return 'models/chat-bison-001';
     }
   }
 }
@@ -76,7 +76,7 @@ const config: Config = {
     : 1,
   candidatesField: process.env.CANDIDATES_FIELD || 'candidates',
   useVertex,
-  apiKey: process.env.API_KEY
+  apiKey: process.env.API_KEY,
 };
 
 export default config;
