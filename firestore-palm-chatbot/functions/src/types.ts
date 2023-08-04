@@ -28,3 +28,105 @@ export type VertexPredictRequest =
 
 export type VertexPredictResponse =
   vertex.protos.google.cloud.aiplatform.v1beta1.IPredictResponse;
+
+
+// our own types
+
+export interface Message {
+  path?: string;
+  prompt?: string;
+  response?: string;
+}
+
+export interface DiscussionOptions {
+  /**
+   * Any text that should be provided to the model to ground the response.
+   * If not empty, this will be the given to the model first.
+   * This can be a description of your prompt to the model to help provide
+   * context and guide the responses. Examples: "Translate the phrase from
+   * English to French." or "Given a statement, classify the sentiment as happy,
+   * sad or neutral."
+   */
+  context?: string;
+  /**
+   * Instructions or examples of what the model should generate in response to
+   * the input message. This includes both sample user input and model output
+   * the model should emulate.
+   */
+  examples?: Message[];
+  /**
+   * Overrides the default API endpoint.
+   */
+  apiOrigin?: string;
+  /**
+   * Provide a model id to use for this discussion. Defaults to 'lamda_api'.
+   */
+  model?: string;
+  /**
+   * Set temperature for this discussion.
+   */
+  temperature?: number;
+  /**
+   * Set P for this discussion.
+   */
+  topP?: number;
+  /**
+   * Set topK for this discussion.
+   */
+  topK?: number;
+  /**
+   * Set candidateCount for this discussion.
+   **/
+  candidateCount?: number;
+}
+
+export interface GenerateMessageOptions {
+  /**
+   * Provide a message history to continue a conversation.
+   */
+  history?: Message[];
+  /**
+   * Set or override temperature for this request.
+   */
+  temperature?: number;
+  /**
+   * Set or override temperature for this request.
+   */
+  topP?: number;
+  /**
+   * Set or override temperature for this request.
+   */
+  topK?: number;
+  /**
+   * Set or override context context for this request.
+   */
+  context?: string;
+  /**
+   * Adds additional examples if specified.
+   */
+  examples?: Message[];
+  /**
+   * Select or override the model for this request.
+   */
+  model?: string;
+  /**
+   * Set candidateCount for this discussion.
+   **/
+  candidateCount?: number;
+  /**
+   * Pass a previously returned response to continue a conversation.
+   */
+  continue?: GenerateMessageResponse;
+}
+
+export interface GenerateMessageResponse {
+  response: string;
+  history: Message[];
+  candidates: string[];
+}
+
+export interface PaLMPrompt {
+  messages: APIMessage[];
+  context?: string;
+  examples?: APIExample[];
+}

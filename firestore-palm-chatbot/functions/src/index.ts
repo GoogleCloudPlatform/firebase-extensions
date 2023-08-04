@@ -17,7 +17,8 @@
 import * as functions from 'firebase-functions';
 import * as logs from './logs';
 import config from './config';
-import {Discussion, GenerateMessageOptions, Message} from './discussion';
+import {Discussion} from './discussion';
+import { Message, GenerateMessageOptions } from './types';
 import {DocumentReference, FieldValue} from 'firebase-admin/firestore';
 import {createErrorMessage} from './errors';
 
