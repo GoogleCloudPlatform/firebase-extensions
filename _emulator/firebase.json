@@ -1,9 +1,5 @@
 {
-  "extensions": {
-    "storage-image-text-extraction": "../storage-image-text-extraction",
-    "storage-image-labeling": "../storage-video-labeling",
-    "firestore-semantic-search": "../firestore-semantic-search"
-  },
+  "extensions": {},
   "storage": {
     "rules": "storage.rules"
   },
@@ -36,5 +32,17 @@
   "firestore": {
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
-  }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log"
+      ]
+    }
+  ]
 }

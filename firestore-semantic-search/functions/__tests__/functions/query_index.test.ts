@@ -51,7 +51,7 @@ describe('queryIndex', () => {
   afterEach(async () => {
     jest.clearAllMocks();
     await fetch(
-      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/dev-extensions-testing/databases/(default)/documents`,
+      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
       {method: 'DELETE'}
     );
   });
@@ -59,7 +59,7 @@ describe('queryIndex', () => {
   test('should return 400 if no query is provided', async () => {
     try {
       await wrappedQueryIndex({});
-    } catch (e) {
+    } catch (e: any) {
       expect(e.code).toEqual('invalid-argument');
     }
   });
@@ -68,7 +68,7 @@ describe('queryIndex', () => {
       await wrappedQueryIndex({
         query: 123,
       });
-    } catch (e) {
+    } catch (e: any) {
       expect(e.code).toEqual('invalid-argument');
     }
   });
@@ -85,7 +85,7 @@ describe('queryIndex', () => {
 
     try {
       await wrappedQueryIndex({
-        query: 'test query',
+        query: ['test query'],
       });
     } catch (e) {
       expect(e).toEqual(new Error('Endpoint or index endpoint is not found.'));
@@ -104,7 +104,7 @@ describe('queryIndex', () => {
     });
 
     const result = await wrappedQueryIndex({
-      query: 'test query',
+      query: ['test query'],
     });
 
     expect(result).toEqual({
