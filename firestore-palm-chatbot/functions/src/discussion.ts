@@ -114,7 +114,8 @@ export class Discussion {
 
     const prompt: PaLMPrompt = {
       messages,
-      context: options.context || this.context || '',
+      context:
+        options.context || this.context || config.useVertex ? '' : undefined,
       examples: this.messagesToExamples(
         options.examples || this.examples || []
       ),
@@ -231,7 +232,6 @@ export class Discussion {
       throw new Error('No content returned in candidate.');
     }
 
-    // TODO: fix assertion on content value
     const candidates = value.candidates.map(c => c.content!) || [];
 
     const messages = [] as APIMessage[];

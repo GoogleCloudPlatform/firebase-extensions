@@ -6,7 +6,7 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "generate-readme": "firebase ext:info .. --markdown > ../README.md",
-    "test": "jest"
+    "test": "jest --runInBand"
   },
   "main": "lib/index.js",
   "dependencies": {
