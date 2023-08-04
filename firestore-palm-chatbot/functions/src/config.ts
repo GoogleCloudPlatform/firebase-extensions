@@ -31,6 +31,7 @@ export interface Config {
   candidateCount?: number;
   candidatesField?: string;
   useVertex: boolean;
+  apiKey?: string;
 }
 
 const useVertex = process.env.PALM_API_PROVIDER === 'vertex'
@@ -74,7 +75,8 @@ const config: Config = {
     ? parseInt(process.env.CANDIDATE_COUNT)
     : 1,
   candidatesField: process.env.CANDIDATES_FIELD || 'candidates',
-  useVertex
+  useVertex,
+  apiKey: process.env.API_KEY
 };
 
 export default config;

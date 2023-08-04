@@ -17,7 +17,7 @@
 import {DiscussServiceClient} from '@google-ai/generativelanguage';
 import {helpers, v1} from '@google-cloud/aiplatform';
 import * as logs from './logs';
-import {GoogleAuth} from 'google-auth-library';
+import {GoogleAuth, JWT} from 'google-auth-library';
 import {
   APIGenerateMessageRequest,
   APIMessage,
@@ -70,16 +70,24 @@ export class Discussion {
   }
 
   private initGenerativeClient() {
-    logs.usingADC();
-    const auth = new GoogleAuth({
-      scopes: [
-        'https://www.googleapis.com/auth/userinfo.email',
-        'https://www.googleapis.com/auth/generative-language',
-      ],
-    });
-    this.generativeClient = new DiscussServiceClient({
-      auth,
-    });
+    if (config.apiKey) {
+      logs.usingAPIKey();
+      const authClient = new GoogleAuth().fromAPIKey(config.apiKey);
+      this.generativeClient = new DiscussServiceClient({
+        authClient,
+      });
+    } else {
+      logs.usingADC();
+      const auth = new GoogleAuth({
+        scopes: [
+          'https://www.googleapis.com/auth/userinfo.email',
+          'https://www.googleapis.com/auth/generative-language',
+        ],
+      });
+      this.generativeClient = new DiscussServiceClient({
+        auth,
+      });
+    }
   }
 
   private getHistory(options: GenerateMessageOptions) {

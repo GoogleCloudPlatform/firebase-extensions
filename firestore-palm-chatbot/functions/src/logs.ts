@@ -17,9 +17,15 @@ import {logger} from 'firebase-functions';
 import {Config} from './config';
 
 export const init = (config: Config) => {
+
+  const obfuscatedConfig = {
+    ...config,
+    apiKey: '[REDACTED]'
+  };
+
   logger.info(
     `[firestore-palm-chatbot] Initialized with config: ${JSON.stringify(
-      config
+      obfuscatedConfig
     )}`
   );
 };
@@ -57,3 +63,7 @@ export const errorCallingGLMAPI = (path: string, error: unknown) => {
 export const usingADC = () => {
   logger.log('no API key provided, using application default credentials.');
 };
+
+export const usingAPIKey = () => {
+  logger.log('using API key provided.');
+}
