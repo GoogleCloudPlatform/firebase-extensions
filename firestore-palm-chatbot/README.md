@@ -68,6 +68,10 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 **Configuration Parameters:**
 
+* Palm API Provider: There are two services which provide access to the PaLM API. Which would you like to use? Keep in mind you will need to enable the service in your GCP project.
+
+* API Key (Generative Language AI for Developers Provider ONLY): If you selected Generative AI for Developers as your PaLM API provider, you can optionally choose to provide an API key. If you do not provide an API key, the extension will use Application Default Credentials.
+
 * Collection Path: Path to a Cloud Firestore collection which will represent a discussion with a LLM on the PaLM API.
 
 * Prompt Field: The field in the message document that contains the prompt.
@@ -93,8 +97,6 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 * Candidates field: The field in the message document into which to put the other candidate responses if the candidate count parameter is greater than one.
 
 * Enable per document overrides.: If set to \"Yes\", discussion parameters may be overwritten by fields in the discussion collection.
-
-* Palm API Provider: There are two services which provide access to the PaLM API. Which would you like to use? Keep in mind you will need to enable the service in your GCP project.
 
 
 
