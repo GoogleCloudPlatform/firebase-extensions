@@ -94,11 +94,19 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 * Enable per document overrides.: If set to \"Yes\", discussion parameters may be overwritten by fields in the discussion collection.
 
+* Palm API Provider: There are two services which provide access to the PaLM API. Which would you like to use? Keep in mind you will need to enable the service in your GCP project.
+
 
 
 **Cloud Functions:**
 
 * **generateMessage:** Listens to Firestore data writes to generate conversations.
+
+
+
+**APIs Used**:
+
+* aiplatform.googleapis.com (Reason: For access to the PaLM API if this provider is chosen.)
 
 
 
@@ -109,3 +117,5 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 This extension will operate with the following project IAM roles:
 
 * datastore.user (Reason: Allows this extension to access Cloud Firestore to read and process added messages.)
+
+* aiplatform.user (Reason: Allows this extension to access the PaLM API via Vertex AI if this provider is chosen.)
