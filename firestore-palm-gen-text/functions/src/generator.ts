@@ -66,13 +66,13 @@ export class TextGenerator {
 
     this.endpoint = `projects/${config.projectId}/locations/${config.location}/publishers/google/models/${this.model}`;
 
-    if (config.useVertex) {
+    if (config.provider === 'vertex') {
       this.initVertexClient();
     } else {
       this.initGenerativeClient();
     }
   }
-  
+
   private initVertexClient() {
     const clientOptions = {
       apiEndpoint: `${config.location}-prediction-aiplatform.googleapis.com`,
@@ -84,22 +84,22 @@ export class TextGenerator {
   private initGenerativeClient() {
     logs.usingADC();
 
-      const auth = new GoogleAuth({
-        scopes: [
-          'https://www.googleapis.com/auth/userinfo.email',
-          'https://www.googleapis.com/auth/generative-language',
-        ],
-      });
-      this.generativeClient = new TextServiceClient({
-        auth,
-      });
+    const auth = new GoogleAuth({
+      scopes: [
+        'https://www.googleapis.com/auth/userinfo.email',
+        'https://www.googleapis.com/auth/generative-language',
+      ],
+    });
+    this.generativeClient = new TextServiceClient({
+      auth,
+    });
   }
 
   async generate(
     promptText: string,
     options: TextGeneratorRequestOptions = {}
   ): Promise<TextGeneratorResponse> {
-    if (config.useVertex) {
+    if (config.provider === 'vertex') {
       if (!this.vertexClient) {
         throw new Error('Vertex client not initialized.');
       }
@@ -134,7 +134,7 @@ export class TextGenerator {
       prompt: {
         text: promptText,
       },
-      model: this.model,
+      model: `models/${this.model}`,
       topP: this.topP,
       topK: this.topK,
       temperature: this.temperature,

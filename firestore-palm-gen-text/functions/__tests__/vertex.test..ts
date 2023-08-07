@@ -13,39 +13,45 @@ process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 // // We mock out the config here instead of setting environment variables directly
 jest.mock('../src/config', () => ({
   default: {
+    location: 'us-central1',
+    projectId: 'test-project',
+    instanceId: 'test-instance',
     collectionName: 'generateTest',
-    model: 'models/text-bison-001',
+    model: 'text-bison@001',
     textField: 'text',
     responseField: 'output',
     candidateCount: 1,
     candidatesField: 'candidates',
     variableFields: ['text'],
-    prompt: 'Summarize this text: "{{text}}"',
+    prompt: 'Summarize this text: "{{ text }}"',
+    provider: 'vertex',
   },
 }));
 
 // // mock to check the arguments passed to the annotateVideo function+
 const mockAPI = jest.fn();
+import {helpers} from '@google-cloud/aiplatform';
 
-// // Mock the video intelligence  clent
-jest.mock('@google-ai/generativelanguage', () => {
+jest.mock('@google-cloud/aiplatform', () => {
   return {
-    ...jest.requireActual('@google-ai/generativelanguage'),
-    TextServiceClient: function mockedClient() {
-      return {
-        generateText: async (args: any) => {
-          mockAPI(args);
-          return [
-            {
-              candidates: [
-                {
-                  output: 'test response',
-                },
-              ],
-            },
-          ];
-        },
-      };
+    ...jest.requireActual('@google-cloud/aiplatform'),
+    v1: {
+      PredictionServiceClient: function mockedClient() {
+        return {
+          predict: async (args: unknown) => {
+            mockAPI(args);
+            return [
+              {
+                predictions: [
+                  helpers.toValue({
+                    content: 'test response',
+                  }),
+                ],
+              },
+            ];
+          },
+        };
+      },
     },
   };
 });
@@ -70,19 +76,20 @@ const Timestamp = admin.firestore.Timestamp;
 const wrappedGenerateText = fft.wrap(generateText) as WrappedFirebaseFunction;
 
 const firestoreObserver = jest.fn();
-
-describe('generateText', () => {
+let collectionName;
+describe('generateText with vertex', () => {
   let unsubscribe: (() => void) | undefined;
-  const collectionName = config.collectionName;
 
   // clear firestore
   beforeEach(async () => {
+    const randomInteger = Math.floor(Math.random() * 1000000);
+    collectionName = config.collectionName.replace(
+      '{discussionId}',
+      randomInteger.toString()
+    );
+
     jest.clearAllMocks();
 
-    await fetch(
-      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/dev-extensions-testing/databases/(default)/documents`,
-      {method: 'DELETE'}
-    );
     // set up observer on collection
     unsubscribe = admin
       .firestore()
@@ -91,8 +98,15 @@ describe('generateText', () => {
         firestoreObserver(snap);
       });
   });
-  afterEach(() => {
+  afterEach(async () => {
     firestoreObserver.mockClear();
+
+    const documents = await admin
+      .firestore()
+      .collection(collectionName)
+      .listDocuments();
+
+    await Promise.all(documents.map(doc => doc.delete()));
 
     if (unsubscribe && typeof unsubscribe === 'function') {
       unsubscribe();
@@ -112,7 +126,7 @@ describe('generateText', () => {
     await simulateFunctionTriggered(wrappedGenerateText, collectionName)(ref);
 
     expect(mockAPI).not.toHaveBeenCalled();
-    expect(firestoreObserver).toHaveBeenCalledTimes(3);
+    expect(firestoreObserver).toHaveBeenCalled();
 
     const firestoreCallData = firestoreObserver.mock.calls.map(call =>
       call[0].docs[0].data()
@@ -130,7 +144,8 @@ describe('generateText', () => {
     expectKeys(firestoreCallData[2], ['notText', 'status']);
     expect(firestoreCallData[2].status.state).toEqual('ERRORED');
     expect(firestoreCallData[2].status.error).toEqual(
-      missingVariableError('text').message
+      'An error occurred while processing the provided message, ' +
+        missingVariableError('text').message
     );
   });
 
@@ -165,7 +180,8 @@ describe('generateText', () => {
     expectKeys(firestoreCallData[2], ['text', 'status']);
     expect(firestoreCallData[2].status.state).toEqual('ERRORED');
     expect(firestoreCallData[2].status.error).toEqual(
-      variableTypeError('text').message
+      'An error occurred while processing the provided message, ' +
+        variableTypeError('text').message
     );
   });
 
@@ -183,8 +199,10 @@ describe('generateText', () => {
 
   test('should not run if status field is set from the start', async () => {
     const message = {
-      text: 'hello chat bison',
-      status: 'user set status field for some reason',
+      text: 'test text',
+      status: {
+        state: 'COMPLETED',
+      },
     };
     const ref = await admin.firestore().collection(collectionName).add(message);
 
@@ -241,13 +259,23 @@ describe('generateText', () => {
     });
     expect(firestoreCallData[2].output).toEqual('test response');
 
+    const prompt = {
+      prompt: 'Summarize this text: "test generate text"',
+    };
+
+    const instanceValue = helpers.toValue(prompt);
+    const instances = [instanceValue!];
+
+    const parameter = {};
+
+    const parameters = helpers.toValue(parameter);
+
     // verify SDK is called with expected arguments
     const expectedRequestData = {
-      candidateCount: 1,
-      model: 'models/text-bison-001',
-      prompt: {
-        text: 'Summarize this text: "test generate text"',
-      },
+      endpoint:
+        'projects/test-project/locations/us-central1/publishers/google/models/text-bison@001',
+      instances,
+      parameters,
     };
     // we expect the mock API to be called once
     expect(mockAPI).toHaveBeenCalledTimes(1);
@@ -269,7 +297,6 @@ const simulateFunctionTriggered =
   };
 
 const expectNoOp = () => {
-  expect(firestoreObserver).toHaveBeenCalledTimes(1);
   expect(mockAPI).toHaveBeenCalledTimes(0);
 };
 

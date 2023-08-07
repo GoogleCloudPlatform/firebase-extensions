@@ -29,23 +29,23 @@ export interface Config {
   candidatesField?: string;
   maxOutputTokens?: number;
   variableFields?: string[];
-  useVertex: boolean;
   maxOutputTokensVertex?: number;
+  provider?: string;
   apiKey?: string;
 }
 
-const useVertex = process.env.PALM_API_PROVIDER === 'vertex';
-
 function getModel() {
-  if (useVertex) {
-    switch (process.env.MODEL) {
-      default:
-        return 'text-bison@001'
-    }
-  } 
-  switch (process.env.MODEL) {
+  switch (process.env.PALM_API_PROVIDER) {
+    case 'generative':
+      switch (process.env.MODEL) {
+        default:
+          return 'text-bison-001';
+      }
     default:
-      return 'models/text-bison-001';
+      switch (process.env.MODEL) {
+        default:
+          return 'text-bison@001';
+      }
   }
 }
 
@@ -71,8 +71,10 @@ const config: Config = {
   variableFields: process.env.VARIABLE_FIELDS
     ? process.env.VARIABLE_FIELDS.split(',')
     : undefined,
-  useVertex,
-  maxOutputTokensVertex: process.env.MAX_OUTPUT_TOKENS ? parseInt(process.env.MAX_OUTPUT_TOKENS) : 100,
+  provider: process.env.PALM_API_PROVIDER,
+  maxOutputTokensVertex: process.env.MAX_OUTPUT_TOKENS
+    ? parseInt(process.env.MAX_OUTPUT_TOKENS)
+    : 100,
   apiKey: process.env.API_KEY,
 };
 

@@ -67,10 +67,17 @@ export const generateText = functions.firestore
       return;
     }
 
-    const state = change.after.get('status.state');
+    const status = data.status || {};
+
+    const state = status.state;
+    const response = data[responseField];
 
     // only make an API call if prompt exists and is non-empty, response is missing, and there's no in-process status
-    if (!prompt || ['PROCESSING', 'COMPLETED', 'ERRORED'].includes(state)) {
+    if (
+      !prompt ||
+      response ||
+      ['PROCESSING', 'COMPLETED', 'ERRORED'].includes(state)
+    ) {
       // TODO add logging
       return;
     }
