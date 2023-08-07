@@ -22,11 +22,24 @@ export interface Config {
   textField: string;
   responseField: string;
   targetSummaryLength?: number;
-  useVertex?: boolean;
+  provider: string;
+  model: string;
 }
 
-const useVertex = process.env.PALM_API_PROVIDER === 'vertex';
-
+function getModel() {
+  switch (process.env.PALM_API_PROVIDER) {
+    case 'generative':
+      switch (process.env.MODEL) {
+        default:
+          return 'text-bison-001';
+      }
+    default:
+      switch (process.env.MODEL) {
+        default:
+          return 'text-bison@001';
+      }
+  }
+}
 
 const config: Config = {
   location: process.env.LOCATION!,
@@ -39,7 +52,8 @@ const config: Config = {
   targetSummaryLength: process.env.TARGET_SUMMARY_LENGTH
     ? parseInt(process.env.TARGET_SUMMARY_LENGTH)
     : undefined,
-  useVertex: useVertex,
+  provider: process.env.PALM_API_PROVIDER || 'vertex',
+  model: getModel(),
 };
 
 export default config;

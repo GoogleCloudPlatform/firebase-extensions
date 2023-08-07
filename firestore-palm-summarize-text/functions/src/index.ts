@@ -23,10 +23,8 @@ import {createErrorMessage} from './errors';
 
 const {textField, responseField, collectionName, targetSummaryLength} = config;
 
-const MODEL = config.useVertex ? 'text-bison@001': 'models/text-bison-001';
-
 const textGenerator = new TextGenerator({
-  model: MODEL,
+  model: config.model,
 });
 
 logs.init(config);
@@ -34,21 +32,25 @@ logs.init(config);
 export const generateSummary = functions.firestore
   .document(collectionName)
   .onWrite(async change => {
-    if (!change.after) {
-      return; // do nothing on delete
+    const data = change.after.data();
+
+    if (!data) {
+      // TODO add logging
+      return;
     }
 
     const ref: DocumentReference = change.after.ref;
 
-    const text = change.after.get(textField);
-
-    const state = change.after.get('status.state');
-
+    const status = data.status;
+    const state = status?.state;
+    const text = data[textField];
+    const response = data[responseField];
     // only make an API call if text exists and is non-empty, and state is not PROCESSING or COMPLETED
     if (
       !text ||
       typeof text !== 'string' ||
-      ['PROCESSING', 'COMPLETED', 'ERRORED'].includes(state)
+      ['PROCESSING', 'COMPLETED', 'ERRORED'].includes(state) ||
+      response
     ) {
       return;
     }

@@ -44,7 +44,7 @@ export class TextGenerator {
   private endpoint: string;
   instruction?: string;
   context?: string;
-  model = config.useVertex ? 'text-bison@001' : 'models/text-bison-001';
+  model: string = config.model;
   temperature?: number;
   candidateCount?: number;
   topP?: number;
@@ -62,14 +62,13 @@ export class TextGenerator {
 
     this.endpoint = `projects/${config.projectId}/locations/${config.location}/publishers/google/models/${this.model}`;
 
-    if (config.useVertex) {
+    if (config.provider === 'vertex') {
       const clientOptions = {
         apiEndpoint: `${config.location}-prediction-aiplatform.googleapis.com`,
       };
 
       this.vertexClient = new v1.PredictionServiceClient(clientOptions);
     } else {
-
       logs.usingADC();
 
       const auth = new GoogleAuth({
@@ -88,22 +87,21 @@ export class TextGenerator {
     promptText: string,
     options: TextGeneratorRequestOptions = {}
   ): Promise<TextGeneratorResponse> {
-
-    if (config.useVertex) {
+    if (config.provider === 'vertex') {
       if (!this.vertexClient) {
         throw new Error('Vertex client not initialized.');
       }
       const prompt = {
-        prompt: promptText
-      }
+        prompt: promptText,
+      };
       const instanceValue = helpers.toValue(prompt);
       const instances = [instanceValue!];
 
-      const temperature = options.temperature || this.temperature
-      const topP = options.topP || this.topP
-      const topK = options.topK || this.topK
+      const temperature = options.temperature || this.temperature;
+      const topP = options.topP || this.topP;
+      const topK = options.topK || this.topK;
 
-      const parameter: Record<string,string | number> = {};
+      const parameter: Record<string, string | number> = {};
       // We have to set these conditionally or they get nullified and the request fails with a serialization error.
       if (temperature) {
         parameter.temperature = temperature;
@@ -128,18 +126,16 @@ export class TextGenerator {
 
       const prediction = result.predictions![0];
 
-
-      const content = prediction.structValue?.fields?.content
+      const content = prediction.structValue?.fields?.content;
 
       if (!content?.stringValue && !(content?.stringValue !== '')) {
         throw new Error('No prediction returned from Vertex AI.');
       }
 
-      const candidate = content!.stringValue!
+      const candidate = content!.stringValue!;
 
       return {candidates: [candidate]};
     }
-
 
     const request = {
       prompt: {
