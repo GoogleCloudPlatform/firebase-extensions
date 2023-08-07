@@ -220,6 +220,8 @@ params:
     description: >-
       The Firestore collection to include in the search index.
     type: string
+    validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
+    validationErrorMessage: Must be a valid Cloud Firestore Collection
     required: true
     immutable: true
 

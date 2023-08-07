@@ -82,7 +82,7 @@ params:
     description: >-
       Path to the Firestore collection where messages will be generated.
     type: string
-    validationRegex: "^[^/]+(/[^/]+/[^/]+)*$"
+    validationRegex: "^[^\/]+(\/[^\/]+\/[^\/]+)*$"
     validationErrorMessage: Must be a valid Cloud Firestore Collection
     example: text_documents
     required: true
