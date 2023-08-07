@@ -66,6 +66,8 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 **Configuration Parameters:**
 
+* Palm API Provider: There are two services which provide access to the PaLM API. Which would you like to use? Keep in mind you will need to enable the service in your GCP project.
+
 * Collection Name: Path to the Firestore collection where messages will be generated.
 
 * Text field: The field of the document containing text to summarize.
@@ -84,6 +86,12 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 
 
+**APIs Used**:
+
+* aiplatform.googleapis.com (Reason: For access to the PaLM API if the Vertex AI PaLM provider is chosen.)
+
+
+
 **Access Required**:
 
 
@@ -91,3 +99,5 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 This extension will operate with the following project IAM roles:
 
 * datastore.user (Reason: Allows this extension to access Cloud Firestore to read and process added text.)
+
+* aiplatform.user (Reason: Allows this extension to access the PaLM API via Vertex AI if this provider is chosen.)
