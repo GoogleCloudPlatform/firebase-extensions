@@ -37,7 +37,7 @@ export class Discussion {
   private endpoint?: string;
   context?: string;
   examples?: Message[] = [];
-  model = config.useVertex ? 'chat-bison@001' : 'models/chat-bison-001';
+  model?: string;
   temperature?: number;
   candidateCount?: number;
   topP?: number;
@@ -50,9 +50,9 @@ export class Discussion {
     this.topP = options.topP;
     this.topK = options.topK;
     this.candidateCount = options.candidateCount;
-    if (options.model) this.model = options.model;
+    this.model = options.model;
 
-    if (config.useVertex) {
+    if (config.provider === 'vertex') {
       this.initVertexClient();
     } else {
       this.initGenerativeClient();
@@ -115,13 +115,15 @@ export class Discussion {
     const prompt: PaLMPrompt = {
       messages,
       context:
-        options.context || this.context || config.useVertex ? '' : undefined,
+        options.context || this.context || config.provider === 'vertex'
+          ? ''
+          : undefined,
       examples: this.messagesToExamples(
         options.examples || this.examples || []
       ),
     };
 
-    if (config.useVertex) {
+    if (config.provider === 'vertex') {
       const request = this.createVertexRequest(prompt, options);
       return this.generateMessageVertex(request);
     }
@@ -169,7 +171,7 @@ export class Discussion {
   ) {
     const request: APIGenerateMessageRequest = {
       prompt,
-      model: this.model,
+      model: `models/${this.model}`,
       temperature: options.temperature || this.temperature,
       topP: options.topP || this.topP,
       topK: options.topK || this.topK,

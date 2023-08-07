@@ -19,7 +19,8 @@ jest.mock('../src/config', () => ({
     promptField: 'prompt',
     responseField: 'response',
     enableDiscussionOptionOverrides: true,
-    useVertex: true,
+    provider: 'vertex',
+    model: 'chat-bison@001',
   },
 }));
 

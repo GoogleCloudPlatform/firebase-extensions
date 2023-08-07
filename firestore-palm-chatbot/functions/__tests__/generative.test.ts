@@ -19,6 +19,8 @@ jest.mock('../src/config', () => ({
     responseField: 'response',
     enableDiscussionOptionOverrides: true,
     candidatesField: 'candidates',
+    provider: 'generative',
+    model: 'chat-bison-001',
   },
 }));
 

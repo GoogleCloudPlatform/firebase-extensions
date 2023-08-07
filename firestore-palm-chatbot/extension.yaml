@@ -208,8 +208,10 @@ params:
       Which language model do you want to use?
     type: select
     options:
-      - label: chat-bison-001
-        value: chat-bison-001
+      - label: chat-bison
+        value: chat-bison
+      - label: codechat-bison (Vertex Only)
+        value: codechat-bison
     required: true
     immutable: false
 
