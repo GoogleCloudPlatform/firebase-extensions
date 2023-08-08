@@ -68,6 +68,8 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 * Palm API Provider: There are two services which provide access to the PaLM API. Which would you like to use? Keep in mind you will need to enable the service in your GCP project.
 
+* API Key (Generative Language AI for Developers Provider ONLY): If you selected Generative AI for Developers as your PaLM API provider, you can optionally choose to provide an API key. If you do not provide an API key, the extension will use Application Default Credentials.
+
 * Collection Name: Path to the Firestore collection where messages will be generated.
 
 * Text field: The field of the document containing text to summarize.
