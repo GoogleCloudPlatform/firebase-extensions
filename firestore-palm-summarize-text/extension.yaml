@@ -62,7 +62,8 @@ roles:
 
   - role: aiplatform.user
     reason:
-      Allows this extension to access the PaLM API via Vertex AI if this provider is chosen.
+      Allows this extension to access the PaLM API via Vertex AI if this
+      provider is chosen.
 
 # In the `resources` field, list each of your extension's functions, including the trigger for each function.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#resources-field
@@ -83,11 +84,12 @@ resources:
 # In the `params` field, set up your extension's user-configured parameters.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#params-field
 params:
-
   - param: PALM_API_PROVIDER
     label: Palm API Provider
     description: >-
-      There are two services which provide access to the PaLM API. Which would you like to use? Keep in mind you will need to enable the service in your GCP project.
+      There are two services which provide access to the PaLM API. Which would
+      you like to use? Keep in mind you will need to enable the service in your
+      GCP project.
     type: select
     options:
       - label: Vertex AI
@@ -98,12 +100,22 @@ params:
     default: vertex
     immutable: false
 
+  - param: API_KEY
+    label: API Key (Generative Language AI for Developers Provider ONLY)
+    description: >-
+      If you selected Generative AI for Developers as your PaLM API provider,
+      you can optionally choose to provide an API key. If you do not provide an
+      API key, the extension will use Application Default Credentials.
+    type: secret
+    required: false
+    immutable: false
+
   - param: COLLECTION_NAME
     label: Collection Name
     description: >-
       Path to the Firestore collection where messages will be generated.
     type: string
-    validationRegex: "^[^/]+(/[^/]+/[^/]+)*$"
+    validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
     validationErrorMessage: Must be a valid Cloud Firestore Collection
     example: text_documents
     required: true

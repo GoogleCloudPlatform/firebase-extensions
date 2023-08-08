@@ -24,6 +24,7 @@ export interface Config {
   targetSummaryLength?: number;
   provider: string;
   model: string;
+  apiKey?: string;
 }
 
 function getModel() {
@@ -54,6 +55,7 @@ const config: Config = {
     : undefined,
   provider: process.env.PALM_API_PROVIDER || 'vertex',
   model: getModel(),
+  apiKey: process.env.API_KEY,
 };
 
 export default config;

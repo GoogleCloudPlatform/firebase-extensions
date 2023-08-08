@@ -69,17 +69,24 @@ export class TextGenerator {
 
       this.vertexClient = new v1.PredictionServiceClient(clientOptions);
     } else {
-      logs.usingADC();
-
-      const auth = new GoogleAuth({
-        scopes: [
-          'https://www.googleapis.com/auth/userinfo.email',
-          'https://www.googleapis.com/auth/generative-language',
-        ],
-      });
-      this.generativeClient = new TextServiceClient({
-        auth,
-      });
+      if (config.apiKey) {
+        logs.usingAPIKey();
+        const authClient = new GoogleAuth().fromAPIKey(config.apiKey);
+        this.generativeClient = new TextServiceClient({
+          authClient,
+        });
+      } else {
+        logs.usingADC();
+        const auth = new GoogleAuth({
+          scopes: [
+            'https://www.googleapis.com/auth/userinfo.email',
+            'https://www.googleapis.com/auth/generative-language',
+          ],
+        });
+        this.generativeClient = new TextServiceClient({
+          auth,
+        });
+      }
     }
   }
 
@@ -141,7 +148,7 @@ export class TextGenerator {
       prompt: {
         text: promptText,
       },
-      model: this.model,
+      model: `models/${this.model}`,
       ...options,
     };
 

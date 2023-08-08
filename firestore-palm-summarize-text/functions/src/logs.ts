@@ -47,3 +47,7 @@ export const errorCallingGLMAPI = (path: string, error: any) => {
 export const usingADC = () => {
   logger.log('no API key provided, using application default credentials.');
 };
+
+export const usingAPIKey = () => {
+  logger.log('using API key provided.');
+};
