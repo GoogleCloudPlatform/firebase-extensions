@@ -40,7 +40,17 @@ export type TextGeneratorRequestOptions = Omit<
   APIGenerateTextRequest,
   'prompt' | 'model'
 >;
-export type TextGeneratorResponse = {candidates: string[]};
+
+type SafetyAttributes = {
+  blocked?: boolean;
+  scores?: number[];
+  categories?: string[];
+};
+
+export type TextGeneratorResponse = {
+  candidates: string[];
+  safetyAttributes?: SafetyAttributes;
+};
 
 export class TextGenerator {
   private generativeClient?: TextServiceClient;
@@ -106,9 +116,14 @@ export class TextGenerator {
       const request = this.createVertexRequest(promptText, options);
       const [result] = await this.vertexClient.predict(request);
 
-      const candidate = this.extractVertexCandidateResponse(result);
+      const {content, safetyAttributes} =
+        this.extractVertexCandidateResponse(result);
 
-      return {candidates: [candidate]};
+      if (!content) {
+        return {candidates: [], safetyAttributes};
+      }
+
+      return {candidates: [content], safetyAttributes};
     }
 
     if (!this.generativeClient) {
@@ -203,18 +218,26 @@ export class TextGenerator {
   }
 
   private extractVertexCandidateResponse(result: VertexPredictResponse) {
-    const prediction = result.predictions![0];
-
-    const content = prediction.structValue?.fields?.content;
-
-    if (!content) {
-      throw new Error('No content returned in prediction from Vertex AI.');
+    if (!result.predictions || !result.predictions.length) {
+      throw new Error('No predictions returned from Vertex AI.');
     }
 
-    if (!content?.stringValue && !(content?.stringValue !== '')) {
-      throw new Error('Error with content returned from Vertex AI.');
-    }
+    const predictionValue = result.predictions[0] as protobuf.common.IValue;
 
-    return content!.stringValue!;
+    const prediction = helpers.fromValue(predictionValue);
+
+    const {safetyAttributes, content} = prediction as {
+      safetyAttributes?: {
+        blocked: boolean;
+        categories: string[];
+        scores: number[];
+      };
+      content?: string;
+    };
+
+    return {
+      content,
+      safetyAttributes,
+    };
   }
 }
