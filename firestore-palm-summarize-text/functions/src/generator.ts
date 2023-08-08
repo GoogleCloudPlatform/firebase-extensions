@@ -15,7 +15,7 @@
  */
 
 import {TextServiceClient} from '@google-ai/generativelanguage';
-import {helpers, v1} from '@google-cloud/aiplatform';
+import {helpers, v1, protos} from '@google-cloud/aiplatform';
 
 import * as logs from './logs';
 import {GoogleAuth} from 'google-auth-library';
@@ -36,7 +36,17 @@ export type TextGeneratorRequestOptions = Omit<
   APIGenerateTextRequest,
   'prompt' | 'model'
 >;
-export type TextGeneratorResponse = {candidates: string[]};
+export type TextGeneratorResponse = {
+  candidates: string[];
+  safetyAttributes?: {
+    blocked?: boolean;
+    scores?: number[];
+    categories?: string[];
+  };
+};
+
+type VertexPredictResponse =
+  protos.google.cloud.aiplatform.v1beta1.IPredictResponse;
 
 export class TextGenerator {
   private generativeClient: TextServiceClient | null = null;
@@ -90,6 +100,30 @@ export class TextGenerator {
     }
   }
 
+  private extractVertexCandidateResponse(result: VertexPredictResponse) {
+    if (!result.predictions || !result.predictions.length) {
+      throw new Error('No predictions returned from Vertex AI.');
+    }
+
+    const predictionValue = result.predictions[0] as protobuf.common.IValue;
+
+    const prediction = helpers.fromValue(predictionValue);
+
+    const {safetyAttributes, content} = prediction as {
+      safetyAttributes?: {
+        blocked: boolean;
+        categories: string[];
+        scores: number[];
+      };
+      content?: string;
+    };
+
+    return {
+      content,
+      safetyAttributes,
+    };
+  }
+
   async generate(
     promptText: string,
     options: TextGeneratorRequestOptions = {}
@@ -131,17 +165,13 @@ export class TextGenerator {
 
       const [result] = await this.vertexClient.predict(request);
 
-      const prediction = result.predictions![0];
+      const {content, safetyAttributes} =
+        this.extractVertexCandidateResponse(result);
 
-      const content = prediction.structValue?.fields?.content;
-
-      if (!content?.stringValue && !(content?.stringValue !== '')) {
-        throw new Error('No prediction returned from Vertex AI.');
+      if (!content) {
+        return {candidates: [], safetyAttributes};
       }
-
-      const candidate = content!.stringValue!;
-
-      return {candidates: [candidate]};
+      return {candidates: [content]};
     }
 
     const request = {
