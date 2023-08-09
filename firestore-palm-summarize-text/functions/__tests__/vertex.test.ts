@@ -12,35 +12,41 @@ process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 // // We mock out the config here instead of setting environment variables directly
 jest.mock('../src/config', () => ({
   default: {
+    location: 'us-central1',
+    projectId: 'test-project',
+    instanceId: 'test-instance',
     collectionName: 'summariesTest/{summaryId}/messages',
-    model: 'models/text-bison-001',
+    model: 'text-bison@001',
     textField: 'text',
     responseField: 'output',
+    provider: 'vertex',
   },
 }));
 
 // // mock to check the arguments passed to the annotateVideo function+
 const mockAPI = jest.fn();
+import {helpers} from '@google-cloud/aiplatform';
 
-// // Mock the video intelligence  clent
-jest.mock('@google-ai/generativelanguage', () => {
+jest.mock('@google-cloud/aiplatform', () => {
   return {
-    ...jest.requireActual('@google-ai/generativelanguage'),
-    TextServiceClient: function mockedClient() {
-      return {
-        generateText: async function generateText(args: unknown) {
-          mockAPI(args);
-          return [
-            {
-              candidates: [
-                {
-                  output: 'test response',
-                },
-              ],
-            },
-          ];
-        },
-      };
+    ...jest.requireActual('@google-cloud/aiplatform'),
+    v1: {
+      PredictionServiceClient: function mockedClient() {
+        return {
+          predict: async (args: unknown) => {
+            mockAPI(args);
+            return [
+              {
+                predictions: [
+                  helpers.toValue({
+                    content: 'test response',
+                  }),
+                ],
+              },
+            ];
+          },
+        };
+      },
     },
   };
 });
@@ -67,17 +73,18 @@ const wrappedGenerateText = fft.wrap(
 ) as WrappedFirebaseFunction;
 
 const firestoreObserver = jest.fn();
+let collectionName;
 
-describe('generateText', () => {
+describe('generateText with vertex', () => {
   let unsubscribe: (() => void) | undefined;
-  const collectionName = config.collectionName.replace('{summaryId}', '1');
 
   // clear firestore
   beforeEach(async () => {
     jest.clearAllMocks();
-    await fetch(
-      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/dev-extensions-testing/databases/(default)/documents`,
-      {method: 'DELETE'}
+    const randomInteger = Math.floor(Math.random() * 1000000);
+    collectionName = config.collectionName.replace(
+      '{summaryId}',
+      randomInteger.toString()
     );
     // set up observer on collection
     unsubscribe = admin
@@ -87,7 +94,13 @@ describe('generateText', () => {
         firestoreObserver(snap);
       });
   });
-  afterEach(() => {
+  afterEach(async () => {
+    const documents = await admin
+      .firestore()
+      .collection(collectionName)
+      .listDocuments();
+
+    await Promise.all(documents.map(doc => doc.delete()));
     if (unsubscribe && typeof unsubscribe === 'function') {
       unsubscribe();
     }
@@ -153,7 +166,9 @@ describe('generateText', () => {
   test('should not run if status field is set from the start', async () => {
     const message = {
       text: 'hello chat bison',
-      status: 'user set status field for some reason',
+      status: {
+        state: 'COMPLETED',
+      },
     };
     const ref = await admin.firestore().collection(collectionName).add(message);
 
@@ -210,12 +225,23 @@ describe('generateText', () => {
     });
     expect(firestoreCallData[2].output).toEqual('test response');
 
+    const prompt = {
+      prompt: 'Summarize this text: "test generate text"',
+    };
+    const instanceValue = helpers.toValue(prompt);
+    const instances = [instanceValue!];
+
+    const parameter = {
+      maxOutputTokens: 100,
+    };
+    const parameters = helpers.toValue(parameter);
+
     // verify SDK is called with expected arguments
     const expectedRequestData = {
-      model: 'models/text-bison-001',
-      prompt: {
-        text: 'Summarize this text: "test generate text"',
-      },
+      endpoint:
+        'projects/test-project/locations/us-central1/publishers/google/models/text-bison@001',
+      instances: instances,
+      parameters,
     };
     // we expect the mock API to be called once
     expect(mockAPI).toHaveBeenCalledTimes(1);
