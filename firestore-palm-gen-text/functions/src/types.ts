@@ -15,6 +15,7 @@
  */
 
 import * as generativeLanguage from '@google-ai/generativelanguage';
+import * as vertex from '@google-cloud/aiplatform';
 
 export type APIGenerateTextRequest =
   generativeLanguage.protos.google.ai.generativelanguage.v1beta2.IGenerateTextRequest;
@@ -24,3 +25,9 @@ export type APITextPrompt =
   generativeLanguage.protos.google.ai.generativelanguage.v1beta2.TextPrompt;
 export type APITextCompletion =
   generativeLanguage.protos.google.ai.generativelanguage.v1beta2.ITextCompletion;
+
+export type VertexPredictRequest =
+  vertex.protos.google.cloud.aiplatform.v1beta1.IPredictRequest;
+
+export type VertexPredictResponse =
+  vertex.protos.google.cloud.aiplatform.v1beta1.IPredictResponse;
