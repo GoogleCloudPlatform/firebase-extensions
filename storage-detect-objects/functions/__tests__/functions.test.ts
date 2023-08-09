@@ -4,10 +4,10 @@ const collectionPath = 'detectedObjects';
 
 import * as admin from 'firebase-admin';
 import * as fft from 'firebase-functions-test';
-import { ObjectMetadata } from 'firebase-functions/v1/storage';
+import {ObjectMetadata} from 'firebase-functions/v1/storage';
 import setupEnvironment from './helpers/setupEnvironment';
 import config from '../src/config';
-import { clearFirestore } from './helpers';
+import {clearFirestore} from './helpers';
 
 const functions = require('../src/index');
 
@@ -102,7 +102,7 @@ describe('detectObjects', () => {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
-    const { objects, file } = result.docs[0].data();
+    const {objects, file} = result.docs[0].data();
 
     /** Test assertions */
     expect(file).toEqual(`gs://${bucket}/${name}`);
@@ -153,7 +153,7 @@ describe('detectObjects', () => {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
-    const { objects, file } = result.docs[0].data();
+    const {objects, file} = result.docs[0].data();
 
     /** Test assertions */
     expect(file).toEqual(`gs://demo-test.appspot.com/${name}`);
@@ -202,11 +202,9 @@ describe('detectObjects', () => {
     /** Check if the document was updated */
     const result = await snapshotQuery.get();
 
-    console.log(`test3: ${result.docs[0].data()}`)
-
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     //@ts-ignore
-    const { objects, file } = result.docs[0].data();
+    const {objects, file} = result.docs[0].data();
 
     /** Test assertions */
     expect(file).toEqual(`gs://demo-test.appspot.com/${name}`);

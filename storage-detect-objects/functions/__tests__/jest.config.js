@@ -1,13 +1,13 @@
 module.exports = {
-    rootDir: './',
-    preset: 'ts-jest',
-    testEnvironment: 'node',
-    globals: {
-        'ts-jest': {
-            tsConfig: '<rootDir>/__tests__/tsconfig.json',
-        },
+  rootDir: './',
+  preset: 'ts-jest',
+  testEnvironment: 'node',
+  globals: {
+    'ts-jest': {
+      tsConfig: '<rootDir>/__tests__/tsconfig.json',
     },
-    setupFiles: ['<rootDir>/__tests__/jest.setup.ts'],
-    testMatch: ['**/__tests__/*.test.ts'],
-    testTimeout: 50000,
-}
+  },
+  setupFiles: ['<rootDir>/__tests__/jest.setup.ts'],
+  testMatch: ['**/__tests__/*.test.ts'],
+  testTimeout: 50000,
+};
