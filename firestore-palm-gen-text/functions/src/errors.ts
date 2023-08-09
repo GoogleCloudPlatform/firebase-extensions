@@ -22,7 +22,7 @@ export const missingVariableError = (field: string) =>
 
 export const variableTypeError = (field: string) =>
   new Error(
-    `Error substituting variable "${field}" variables into prompt. All variable fields must be strings.`
+    `Error substituting variable "${field}" variables into prompt. All variable fields must be strings`
   );
 
 interface GoogleErrorWithReason extends GoogleError {

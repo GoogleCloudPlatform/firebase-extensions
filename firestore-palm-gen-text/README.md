@@ -82,6 +82,10 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 **Configuration Parameters:**
 
+* Palm API Provider: There are two services which provide access to the PaLM API. Which would you like to use? Keep in mind you will need to enable the service in your GCP project.
+
+* API Key (Generative Language AI for Developers Provider ONLY): If you selected Generative AI for Developers as your PaLM API provider, you can optionally choose to provide an API key. If you do not provide an API key, the extension will use Application Default Credentials.
+
 * Collection Path: Path to the Firestore collection where text will be generated.
 
 * Prompt: Prompt. Use {{ handlebars }} for variable substitution from the created or updated doc.
@@ -100,15 +104,23 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 * Sampling strategy parameter: If specified, top-k sampling will be used as the decoding strategy. Top-k sampling considers the set of topK most probable tokens.
 
-* Candidate count: The default value is one. When set to an integer higher than one, additional candidate responses, up to the specified number, will be stored in Firestore under the 'candidates' field.
+* Candidate count: The default value is one. When set to an integer higher than one, additional candidate responses, up to the specified number, will be stored in Firestore under the 'candidates' field. Note this is only available as a feature if you  selected the Generative Language API for Developers as your Palm API provider.
 
-* Candidates field: The field in the message document into which to put the other candidate responses if the candidate count parameter is greater than one.
+* Candidates field: The field in the message document into which to put the other candidate responses if the candidate count parameter is greater than one. Note this is only available as a feature if you  selected the Generative Language API for Developers as your Palm API provider.
+
+* Maximum number of tokens: If you have selected the Vertex AI service as your PaLM API provider, this parameter will be used to set the max_tokens parameter in the Vertex API request. It should be an integer in the range [1,1024]. The default value for the extension is 100.
 
 
 
 **Cloud Functions:**
 
 * **generateText:** Listens to Firestore data writes to generate conversations.
+
+
+
+**APIs Used**:
+
+* aiplatform.googleapis.com (Reason: For access to the PaLM API if this provider is chosen.)
 
 
 
@@ -119,3 +131,5 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 This extension will operate with the following project IAM roles:
 
 * datastore.user (Reason: Allows this extension to access Cloud Firestore to read and process added messages.)
+
+* aiplatform.user (Reason: Allows this extension to access the PaLM API via Vertex AI if this provider is chosen.)

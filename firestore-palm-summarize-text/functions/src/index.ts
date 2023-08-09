@@ -23,10 +23,8 @@ import {createErrorMessage} from './errors';
 
 const {textField, responseField, collectionName, targetSummaryLength} = config;
 
-const MODEL = 'models/text-bison-001';
-
 const textGenerator = new TextGenerator({
-  model: MODEL,
+  model: config.model,
 });
 
 logs.init(config);
@@ -34,21 +32,25 @@ logs.init(config);
 export const generateSummary = functions.firestore
   .document(collectionName)
   .onWrite(async change => {
-    if (!change.after) {
-      return; // do nothing on delete
+    const data = change.after.data();
+
+    if (!data) {
+      // TODO add logging
+      return;
     }
 
     const ref: DocumentReference = change.after.ref;
 
-    const text = change.after.get(textField);
-
-    const state = change.after.get('status.state');
-
+    const status = data.status;
+    const state = status?.state;
+    const text = data[textField];
+    const response = data[responseField];
     // only make an API call if text exists and is non-empty, and state is not PROCESSING or COMPLETED
     if (
       !text ||
       typeof text !== 'string' ||
-      ['PROCESSING', 'COMPLETED', 'ERRORED'].includes(state)
+      ['PROCESSING', 'COMPLETED', 'ERRORED'].includes(state) ||
+      response
     ) {
       return;
     }
@@ -72,11 +74,27 @@ export const generateSummary = functions.firestore
       const duration = performance.now() - t0;
       logs.receivedAPIResponse(ref.path, duration);
 
-      return ref.update({
-        [responseField]: result.candidates[0],
-        'status.state': 'COMPLETED',
+      const metadata: Record<string, any> = {
         'status.completeTime': FieldValue.serverTimestamp(),
         'status.updateTime': FieldValue.serverTimestamp(),
+      };
+
+      if (result.safetyAttributes) {
+        metadata['safetyAttributes'] = result.safetyAttributes;
+      }
+
+      if (result.safetyAttributes?.blocked) {
+        return ref.update({
+          ...metadata,
+          'status.state': 'ERRORED',
+          'status.error':
+            'The text provided was blocked by the Vertex AI content filter.',
+        });
+      }
+      return ref.update({
+        ...metadata,
+        [responseField]: result.candidates[0],
+        'status.state': 'COMPLETED',
         'status.error': null,
       });
     } catch (e: any) {
@@ -84,8 +102,6 @@ export const generateSummary = functions.firestore
       const errorMessage = createErrorMessage(e);
       return ref.update({
         'status.state': 'ERRORED',
-        'status.completeTime': FieldValue.serverTimestamp(),
-        'status.updateTime': FieldValue.serverTimestamp(),
         'status.error': errorMessage,
       });
     }

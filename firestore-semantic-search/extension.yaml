@@ -276,8 +276,8 @@ params:
       that this will be ignored if you chose Universal Sentence Encoder.
     type: select
     options:
-      - label: embedding-gecko-001
-        value: embedding-gecko-001
+      - label: embedding-gecko
+        value: textembedding-gecko@001
     immutable: true
 
   - param: DISTANCE_MEASURE
