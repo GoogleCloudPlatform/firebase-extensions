@@ -15,9 +15,12 @@
  */
 
 import {TextServiceClient} from '@google-ai/generativelanguage';
+import {helpers, v1, protos} from '@google-cloud/aiplatform';
+
 import * as logs from './logs';
 import {GoogleAuth} from 'google-auth-library';
 import {APIGenerateTextRequest} from './types';
+import config from './config';
 
 export interface TextGeneratorOptions {
   model?: string;
@@ -33,13 +36,25 @@ export type TextGeneratorRequestOptions = Omit<
   APIGenerateTextRequest,
   'prompt' | 'model'
 >;
-export type TextGeneratorResponse = {candidates: string[]};
+export type TextGeneratorResponse = {
+  candidates: string[];
+  safetyAttributes?: {
+    blocked?: boolean;
+    scores?: number[];
+    categories?: string[];
+  };
+};
+
+type VertexPredictResponse =
+  protos.google.cloud.aiplatform.v1beta1.IPredictResponse;
 
 export class TextGenerator {
-  private client: TextServiceClient;
+  private generativeClient: TextServiceClient | null = null;
+  private vertexClient: v1.PredictionServiceClient | null = null;
+  private endpoint: string;
   instruction?: string;
   context?: string;
-  model = 'models/text-bison-001';
+  model: string = config.model;
   temperature?: number;
   candidateCount?: number;
   topP?: number;
@@ -54,33 +69,124 @@ export class TextGenerator {
     this.candidateCount = options.candidateCount;
     this.instruction = options.instruction;
     if (options.model) this.model = options.model;
-    logs.usingADC();
-    const auth = new GoogleAuth({
-      scopes: [
-        'https://www.googleapis.com/auth/userinfo.email',
-        'https://www.googleapis.com/auth/generative-language',
-      ],
-    });
-    this.client = new TextServiceClient({
-      auth,
-    });
+
+    this.endpoint = `projects/${config.projectId}/locations/${config.location}/publishers/google/models/${this.model}`;
+
+    if (config.provider === 'vertex') {
+      const clientOptions = {
+        apiEndpoint: `${config.location}-prediction-aiplatform.googleapis.com`,
+      };
+
+      this.vertexClient = new v1.PredictionServiceClient(clientOptions);
+    } else {
+      if (config.apiKey) {
+        logs.usingAPIKey();
+        const authClient = new GoogleAuth().fromAPIKey(config.apiKey);
+        this.generativeClient = new TextServiceClient({
+          authClient,
+        });
+      } else {
+        logs.usingADC();
+        const auth = new GoogleAuth({
+          scopes: [
+            'https://www.googleapis.com/auth/userinfo.email',
+            'https://www.googleapis.com/auth/generative-language',
+          ],
+        });
+        this.generativeClient = new TextServiceClient({
+          auth,
+        });
+      }
+    }
+  }
+
+  private extractVertexCandidateResponse(result: VertexPredictResponse) {
+    if (!result.predictions || !result.predictions.length) {
+      throw new Error('No predictions returned from Vertex AI.');
+    }
+
+    const predictionValue = result.predictions[0] as protobuf.common.IValue;
+
+    const prediction = helpers.fromValue(predictionValue);
+
+    const {safetyAttributes, content} = prediction as {
+      safetyAttributes?: {
+        blocked: boolean;
+        categories: string[];
+        scores: number[];
+      };
+      content?: string;
+    };
+
+    return {
+      content,
+      safetyAttributes,
+    };
   }
 
   async generate(
-    prompt: string,
+    promptText: string,
     options: TextGeneratorRequestOptions = {}
   ): Promise<TextGeneratorResponse> {
-    // remove the colon from the end of instruction if it exists
+    if (config.provider === 'vertex') {
+      if (!this.vertexClient) {
+        throw new Error('Vertex client not initialized.');
+      }
+      const prompt = {
+        prompt: promptText,
+      };
+      const instanceValue = helpers.toValue(prompt);
+      const instances = [instanceValue!];
+
+      const temperature = options.temperature || this.temperature;
+      const topP = options.topP || this.topP;
+      const topK = options.topK || this.topK;
+
+      const parameter: Record<string, string | number> = {};
+      // We have to set these conditionally or they get nullified and the request fails with a serialization error.
+      if (temperature) {
+        parameter.temperature = temperature;
+      }
+      if (topP) {
+        parameter.top_p = topP;
+      }
+      if (topK) {
+        parameter.top_k = topK;
+      }
+      parameter.maxOutputTokens = 100;
+
+      const parameters = helpers.toValue(parameter);
+
+      const request = {
+        endpoint: this.endpoint,
+        instances,
+        parameters,
+      };
+
+      const [result] = await this.vertexClient.predict(request);
+
+      const {content, safetyAttributes} =
+        this.extractVertexCandidateResponse(result);
+
+      if (!content) {
+        return {candidates: [], safetyAttributes};
+      }
+      return {candidates: [content]};
+    }
 
     const request = {
       prompt: {
-        text: prompt,
+        text: promptText,
       },
-      model: this.model,
+      model: `models/${this.model}`,
       ...options,
     };
 
-    const [result] = await this.client.generateText(request);
+    if (!this.generativeClient) {
+      throw new Error('Generative Language Client not initialized.');
+    }
+
+    const [result] = await this.generativeClient.generateText(request);
 
     if (!result.candidates || !result.candidates.length) {
       throw new Error('No candidates returned from server.');

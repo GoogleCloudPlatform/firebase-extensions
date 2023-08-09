@@ -15,9 +15,16 @@
  */
 
 import {TextServiceClient} from '@google-ai/generativelanguage';
+import {helpers, v1} from '@google-cloud/aiplatform';
+
 import * as logs from './logs';
 import {GoogleAuth} from 'google-auth-library';
-import {APIGenerateTextRequest} from './types';
+import {
+  APIGenerateTextRequest,
+  VertexPredictResponse,
+  APIGenerateTextResponse,
+} from './types';
+import config from './config';
 
 export interface TextGeneratorOptions {
   model?: string;
@@ -33,13 +40,25 @@ export type TextGeneratorRequestOptions = Omit<
   APIGenerateTextRequest,
   'prompt' | 'model'
 >;
-export type TextGeneratorResponse = {candidates: string[]};
+
+type SafetyAttributes = {
+  blocked?: boolean;
+  scores?: number[];
+  categories?: string[];
+};
+
+export type TextGeneratorResponse = {
+  candidates: string[];
+  safetyAttributes?: SafetyAttributes;
+};
 
 export class TextGenerator {
-  private client: TextServiceClient;
+  private generativeClient?: TextServiceClient;
+  private vertexClient?: v1.PredictionServiceClient;
+  private endpoint: string;
   instruction?: string;
   context?: string;
-  model = 'models/text-bison-001';
+  model = config.model;
   temperature?: number;
   candidateCount?: number;
   topP?: number;
@@ -54,29 +73,83 @@ export class TextGenerator {
     this.candidateCount = options.candidateCount;
     this.instruction = options.instruction;
     if (options.model) this.model = options.model;
+
+    this.endpoint = `projects/${config.projectId}/locations/${config.location}/publishers/google/models/${this.model}`;
+
+    if (config.provider === 'vertex') {
+      this.initVertexClient();
+    } else {
+      this.initGenerativeClient();
+    }
+  }
+
+  private initVertexClient() {
+    const clientOptions = {
+      apiEndpoint: `${config.location}-prediction-aiplatform.googleapis.com`,
+    };
+
+    this.vertexClient = new v1.PredictionServiceClient(clientOptions);
+  }
+
+  private initGenerativeClient() {
     logs.usingADC();
+
     const auth = new GoogleAuth({
       scopes: [
         'https://www.googleapis.com/auth/userinfo.email',
         'https://www.googleapis.com/auth/generative-language',
       ],
     });
-    this.client = new TextServiceClient({
+    this.generativeClient = new TextServiceClient({
       auth,
     });
   }
 
   async generate(
-    prompt: string,
+    promptText: string,
     options: TextGeneratorRequestOptions = {}
   ): Promise<TextGeneratorResponse> {
-    // remove the colon from the end of instruction if it exists
+    if (config.provider === 'vertex') {
+      if (!this.vertexClient) {
+        throw new Error('Vertex client not initialized.');
+      }
+      const request = this.createVertexRequest(promptText, options);
+      const [result] = await this.vertexClient.predict(request);
 
+      const {content, safetyAttributes} =
+        this.extractVertexCandidateResponse(result);
+
+      if (!content) {
+        return {candidates: [], safetyAttributes};
+      }
+
+      return {candidates: [content], safetyAttributes};
+    }
+
+    if (!this.generativeClient) {
+      throw new Error('Generative client not initialized.');
+    }
+
+    const request = this.createGenerativeRequest(promptText, options);
+
+    const [result] = await this.generativeClient.generateText(request);
+
+    const candidates = this.extractGenerativeCandidationResponse(result);
+
+    return {
+      candidates,
+    };
+  }
+
+  private createGenerativeRequest(
+    promptText: string,
+    options: TextGeneratorRequestOptions = {}
+  ) {
     const request = {
       prompt: {
-        text: prompt,
+        text: promptText,
       },
-      model: this.model,
+      model: `models/${this.model}`,
       topP: this.topP,
       topK: this.topK,
       temperature: this.temperature,
@@ -84,9 +157,12 @@ export class TextGenerator {
       maxOutputTokens: this.maxOutputTokens,
       ...options,
     };
+    return request;
+  }
 
-    const [result] = await this.client.generateText(request);
-
+  private extractGenerativeCandidationResponse(
+    result: APIGenerateTextResponse
+  ) {
     if (!result.candidates || !result.candidates.length) {
       throw new Error('No candidates returned from server.');
     }
@@ -99,9 +175,69 @@ export class TextGenerator {
     if (!candidates.length) {
       throw new Error('No candidates returned from server.');
     }
+    return candidates;
+  }
+
+  private createVertexRequest(
+    promptText: string,
+    options: TextGeneratorRequestOptions = {}
+  ) {
+    const prompt = {
+      prompt: promptText,
+    };
+    const instanceValue = helpers.toValue(prompt);
+    const instances = [instanceValue!];
+
+    const temperature = options.temperature || this.temperature;
+    const topP = options.topP || this.topP;
+    const topK = options.topK || this.topK;
+
+    const parameter: Record<string, string | number> = {};
+    // We have to set these conditionally or they get nullified and the request fails with a serialization error.
+    if (temperature) {
+      parameter.temperature = temperature;
+    }
+    if (topP) {
+      parameter.top_p = topP;
+    }
+    if (topK) {
+      parameter.top_k = topK;
+    }
+    if (config.maxOutputTokensVertex) {
+      parameter.maxOutputTokens = config.maxOutputTokensVertex;
+    }
+
+    const parameters = helpers.toValue(parameter);
+
+    const request = {
+      endpoint: this.endpoint,
+      instances,
+      parameters,
+    };
+    return request;
+  }
+
+  private extractVertexCandidateResponse(result: VertexPredictResponse) {
+    if (!result.predictions || !result.predictions.length) {
+      throw new Error('No predictions returned from Vertex AI.');
+    }
+
+    const predictionValue = result.predictions[0] as protobuf.common.IValue;
+
+    const prediction = helpers.fromValue(predictionValue);
+
+    const {safetyAttributes, content} = prediction as {
+      safetyAttributes?: {
+        blocked: boolean;
+        categories: string[];
+        scores: number[];
+      };
+      content?: string;
+    };
 
     return {
-      candidates,
+      content,
+      safetyAttributes,
     };
   }
 }
