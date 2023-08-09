@@ -15,6 +15,9 @@
  */
 
 export interface Config {
+  location: string;
+  projectId: string;
+  instanceId: string;
   model: string;
   prompt: string;
   responseField: string;
@@ -26,13 +29,34 @@ export interface Config {
   candidatesField?: string;
   maxOutputTokens?: number;
   variableFields?: string[];
+  maxOutputTokensVertex?: number;
+  provider?: string;
+  apiKey?: string;
+}
+
+function getModel() {
+  switch (process.env.PALM_API_PROVIDER) {
+    case 'generative':
+      switch (process.env.MODEL) {
+        default:
+          return 'text-bison-001';
+      }
+    default:
+      switch (process.env.MODEL) {
+        default:
+          return 'text-bison@001';
+      }
+  }
 }
 
 const config: Config = {
+  location: process.env.LOCATION!,
+  projectId: process.env.PROJECT_ID!,
+  instanceId: process.env.EXT_INSTANCE_ID!,
   collectionName:
     process.env.COLLECTION_NAME ||
     'users/{uid}/discussions/{discussionId}/messages',
-  model: process.env.MODEL || 'models/chat-bison-001',
+  model: getModel(),
   prompt: process.env.PROMPT!,
   responseField: process.env.RESPONSE_FIELD || 'output',
   temperature: process.env.TEMPERATURE
@@ -47,6 +71,11 @@ const config: Config = {
   variableFields: process.env.VARIABLE_FIELDS
     ? process.env.VARIABLE_FIELDS.split(',')
     : undefined,
+  provider: process.env.PALM_API_PROVIDER,
+  maxOutputTokensVertex: process.env.MAX_OUTPUT_TOKENS
+    ? parseInt(process.env.MAX_OUTPUT_TOKENS)
+    : 100,
+  apiKey: process.env.API_KEY,
 };
 
 export default config;
