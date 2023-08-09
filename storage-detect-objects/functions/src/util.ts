@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as functions from 'firebase-functions';
 import config from './config';
 import * as logs from './logs';
-import { ILocalizedObjectAnnotation, ImprovedRequest } from './types';
+import {ILocalizedObjectAnnotation, ImprovedRequest} from './types';
 
 export const startsWithArray = (
   userInputPaths: string[],
@@ -46,7 +46,7 @@ export const shouldDetectObjects = (
     logs.imageInsideOfExcludedPaths(config.excludePathList, tmpFilePath);
     return false;
   }
-  const { contentType } = object; // This is the image MIME type
+  const {contentType} = object; // This is the image MIME type
   if (!contentType) {
     logs.noContentType();
     return false;

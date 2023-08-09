@@ -16,11 +16,11 @@
 
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import { ImageAnnotatorClient } from '@google-cloud/vision';
+import {ImageAnnotatorClient} from '@google-cloud/vision';
 import * as logs from './logs';
 import config from './config';
-import { formatObjects, getVisionRequest, shouldDetectObjects } from './util';
-import { IAnnotatedImageResponse } from './types';
+import {formatObjects, getVisionRequest, shouldDetectObjects} from './util';
+import {IAnnotatedImageResponse} from './types';
 
 admin.initializeApp();
 
@@ -82,7 +82,7 @@ export const detectObjects = functions.storage
         .firestore()
         .collection(config.collectionPath)
         .doc(docId)
-        .set(data, { merge: true });
+        .set(data, {merge: true});
     } else {
       await admin.firestore().collection(config.collectionPath).add(data);
     }
