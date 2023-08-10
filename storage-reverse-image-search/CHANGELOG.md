@@ -1,3 +1,7 @@
+## Version 0.1.4
+
+Feature shard & machineSpec updates
+
 ## Version 0.1.3
 
 Updated PREINSTALL to include link Google Cloud docs on undeploying indexes.
