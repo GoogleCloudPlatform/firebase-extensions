@@ -63,7 +63,7 @@ describe('queryIndex', () => {
   test('should return 400 if no query is provided', async () => {
     try {
       await wrappedQueryIndex({});
-    } catch (e) {
+    } catch (e: any) {
       expect(e.code).toEqual('invalid-argument');
     }
   });
@@ -73,7 +73,7 @@ describe('queryIndex', () => {
       await wrappedQueryIndex({
         query: 'not an array',
       });
-    } catch (e) {
+    } catch (e: any) {
       expect(e.code).toEqual('invalid-argument');
     }
   });
@@ -84,7 +84,7 @@ describe('queryIndex', () => {
       await wrappedQueryIndex({
         query: ['an array'],
       });
-    } catch (e) {
+    } catch (e: any) {
       expect(e.code).toEqual('invalid-argument');
     }
   });

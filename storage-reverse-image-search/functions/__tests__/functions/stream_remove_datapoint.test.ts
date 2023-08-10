@@ -85,8 +85,6 @@ process.env.STORAGE_EMULATOR_HOST = '127.0.0.1:9199';
 const wrappedStreamUpdateDatapoint = fft.wrap(streamRemoveDatapoint);
 
 describe('streamUpdateDatapoint', () => {
-  let unsubscribe: (() => void) | undefined;
-
   beforeEach(async () => {
     jest.clearAllMocks();
     // clear storage

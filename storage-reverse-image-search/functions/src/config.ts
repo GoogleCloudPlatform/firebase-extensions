@@ -37,6 +37,12 @@ export default {
     process.env.DISTANCE_MEASURE === 'COSINE_DISTANCE'
       ? 'UNIT_L2_NORM'
       : 'NONE',
+  shardSize: process.env.SHARD_SIZE!,
+  machineType: process.env.MACHINE_TYPE!,
+  acceleratorType: process.env.ACCELERATOR_TYPE!,
+  acceleratorCount: parseInt(process.env.ACCELERATOR_COUNT!),
+  minReplicaCount: parseInt(process.env.MIN_REPLICA_COUNT!),
+  maxReplicaCount: parseInt(process.env.MAX_REPLICA_COUNT!),
 
   // Extension-specific vars
   tasksDoc: `_ext-${process.env.EXT_INSTANCE_ID!}/tasks`,
