@@ -102,7 +102,7 @@ params:
     description: >-
       Path to the Firestore collection where text will be generated.
     type: string
-    validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
+    validationRegex: "^[^\/]+(\/[^\/]+\/[^\/]+)*$"
     validationErrorMessage: Must be a valid Cloud Firestore Collection
     default: generate
     required: true
