@@ -25,7 +25,7 @@ jest.mock('config', () => ({
 }));
 
 const fft = firebaseFunctionsTest({
-  projectId: 'dev-extensions-testing',
+  projectId: 'demo-gcp',
 });
 
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
@@ -54,7 +54,7 @@ describe('createIndex', () => {
     jest.resetAllMocks();
     firestoreObserver.mockReset();
     await fetch(
-      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/dev-extensions-testing/databases/(default)/documents`,
+      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
       {method: 'DELETE'}
     );
     // set up observer on collection

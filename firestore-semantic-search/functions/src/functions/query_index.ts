@@ -23,14 +23,22 @@ import {Query} from '../types/query';
 import {queryIndex} from '../common/vertex';
 import {getEmbeddings} from '../common/datapoints';
 
+function queryValid(query: any): boolean {
+  if (!Array.isArray(query)) {
+    return false;
+  }
+
+  return query.some(item => typeof item === 'string' && item.length > 0);
+}
+
 export async function queryIndexHandler(data: any) {
   const {query, neighbours} = data;
 
-  if (!query || typeof query !== 'string') {
+  if (!query || !queryValid(query)) {
     throw new functions.https.HttpsError(
       'invalid-argument',
       'The function must be called with ' +
-        'one argument "query" containing the query text.'
+        'one argument "query" containing an Array with at least one string.'
     );
   }
 
@@ -50,8 +58,6 @@ export async function queryIndexHandler(data: any) {
   }
 
   try {
-    // const metadata = await admin.firestore().doc(config.metadataDoc).get();
-
     const result = await queryIndex(
       [new Query('0', queryEmbeddings[0])],
       neighboursCount,

@@ -6,16 +6,16 @@
 
 
 
-**Details**: > ⚠️ The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq). 
+**Details**: > ⚠️ The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 > **Please ensure that you have already signed up for the [waitlist](https://makersuite.google.com/waitlist) and have been approved before installing the extension.**
 
 This extension allows you to perform language tasks using the PaLM API, a custom prompt, and Firestore.
 
 On installation, you will be asked to provide the following information:
 
-* **Prompt:** This is the text that you want the PaLM API to generate a response for. It can be free-form text or it can use handlebars variables to substitute values from the Firestore document.
-* **Firestore collection path:** This is the path to the Firestore collection that contains the documents that you want to perform the language task on.
-* **Response field:** This is the name of the field in the Firestore document where you want the extension to store the response from the PaLM API.
+- **Prompt:** This is the text that you want the PaLM API to generate a response for. It can be free-form text or it can use handlebars variables to substitute values from the Firestore document.
+- **Firestore collection path:** This is the path to the Firestore collection that contains the documents that you want to perform the language task on.
+- **Response field:** This is the name of the field in the Firestore document where you want the extension to store the response from the PaLM API.
 
 This extension will listen to the specified collection for new documents. When such a document is added, the extension will:
 
@@ -27,11 +27,11 @@ Each instance of the extension should be configured to perform one particular ta
 
 For example, you could use this extension to:
 
-* Predict star ratings on a collection of product reviews.
-* Classify customer feedback as positive, negative, or neutral.
-* Summarize long articles.
-* Extract named entities from text.
-* Generate creative text, such as poems or code.
+- Predict star ratings on a collection of product reviews.
+- Classify customer feedback as positive, negative, or neutral.
+- Summarize long articles.
+- Extract named entities from text.
+- Generate creative text, such as poems or code.
 
 Here’s an example prompt used for predicting star ratings on a collection of product reviews:
 
@@ -45,7 +45,7 @@ Provide a star rating from 1-5 of the following review text: “I really enjoyed
 Provide a star rating from 1-5 of the following review text: “The water bottle was fine, although the design was a bit lacking and could be improved.”
 3
 
-Provide a star rating from 1-5 of the following review text: “Please don’t get this water bottle, there are major design flaws, for example the cap doesn’t screw on fully so water leaks into my backpack all the time.” 
+Provide a star rating from 1-5 of the following review text: “Please don’t get this water bottle, there are major design flaws, for example the cap doesn’t screw on fully so water leaks into my backpack all the time.”
 1
 
 Provide a star rating from 1-5 of the following review text: \“{{review_text}}\”
@@ -55,22 +55,23 @@ In this case, review_text is a field of the Firestore document and will be subst
 
 ### Regenerating a response
 
-Changing the state field of a document's status from `COMPLETE` to `REGENERATE` will regenerate the corresponding message of the conversation.
+Changing the state field of a completed document's status from `COMPLETED` to anything else will retrigger the extension for that document.
 
 ## Additional Setup
 
-If you have not already done so, you will first need to apply for access to the PaLM API via this [waitlist](https://makersuite.google.com/waitlist). 
+If you have not already done so, you will first need to apply for access to the PaLM API via this [waitlist](https://makersuite.google.com/waitlist).
 
 Once you have access, please [enable the Generative Language API in your Google Cloud Project](https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com) before installing this extension.
 
-Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) and [Cloud Storage bucket](https://firebase.google.com/docs/storage) set up in your Firebase project, and enabled the Generative Language API in your Google Cloud Project before installing this extension.
+Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project, and enabled the Generative Language API in your Google Cloud Project before installing this extension.
 
 ## Billing
 
 To install an extension, your project must be on the Blaze (pay as you go) plan. You will be charged a small amount (typically around $0.01/month) for the Firebase resources required by this extension (even if it is not used).
 This extension uses other Firebase and Google Cloud Platform services, which have associated charges if you exceed the service’s no-cost tier:
-* Cloud Firestore
-* Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
+
+- Cloud Firestore
+- Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
 
 [Learn more about Firebase billing.](https://firebase.google.com/pricing)
 
@@ -79,8 +80,11 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 
 
-
 **Configuration Parameters:**
+
+* Palm API Provider: There are two services which provide access to the PaLM API. Which would you like to use? Keep in mind you will need to enable the service in your GCP project.
+
+* API Key (Generative Language AI for Developers Provider ONLY): If you selected Generative AI for Developers as your PaLM API provider, you can optionally choose to provide an API key. If you do not provide an API key, the extension will use Application Default Credentials.
 
 * Collection Path: Path to the Firestore collection where text will be generated.
 
@@ -100,15 +104,23 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 * Sampling strategy parameter: If specified, top-k sampling will be used as the decoding strategy. Top-k sampling considers the set of topK most probable tokens.
 
-* Candidate count: The default value is one. When set to an integer higher than one, additional candidate responses, up to the specified number, will be stored in Firestore under the 'candidates' field.
+* Candidate count: The default value is one. When set to an integer higher than one, additional candidate responses, up to the specified number, will be stored in Firestore under the 'candidates' field. Note this is only available as a feature if you  selected the Generative Language API for Developers as your Palm API provider.
 
-* Candidates field: The field in the message document into which to put the other candidate responses if the candidate count parameter is greater than one.
+* Candidates field: The field in the message document into which to put the other candidate responses if the candidate count parameter is greater than one. Note this is only available as a feature if you  selected the Generative Language API for Developers as your Palm API provider.
+
+* Maximum number of tokens: If you have selected the Vertex AI service as your PaLM API provider, this parameter will be used to set the max_tokens parameter in the Vertex API request. It should be an integer in the range [1,1024]. The default value for the extension is 100.
 
 
 
 **Cloud Functions:**
 
 * **generateText:** Listens to Firestore data writes to generate conversations.
+
+
+
+**APIs Used**:
+
+* aiplatform.googleapis.com (Reason: For access to the PaLM API if this provider is chosen.)
 
 
 
@@ -119,3 +131,5 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 This extension will operate with the following project IAM roles:
 
 * datastore.user (Reason: Allows this extension to access Cloud Firestore to read and process added messages.)
+
+* aiplatform.user (Reason: Allows this extension to access the PaLM API via Vertex AI if this provider is chosen.)

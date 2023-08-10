@@ -53,7 +53,7 @@ export async function onIndexCreatedHandler(event: any) {
     const _operation = await getOperationByName(operation.id);
 
     // Check if the operation failed.
-    if (_operation.error) {
+    if (_operation?.error) {
       functionsv2.logger.error(_operation.error);
       functionsv2.logger.error(_operation.metadata);
       functionsv2.logger.error(_operation);

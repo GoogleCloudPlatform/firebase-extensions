@@ -2,7 +2,7 @@
 # https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml
 
 name: firestore-palm-summarize-text # Identifier for your extension
-version: 0.1.3 # Follow semver versioning
+version: 0.1.5 # Follow semver versioning
 specVersion: v1beta # Version of the Firebase Extensions specification
 
 # Friendly display name for your extension (~3-5 words)
@@ -16,16 +16,28 @@ license: Apache-2.0 # https://spdx.org/licenses/
 
 icon: icon.png
 
-tags: [ai, palm, summarization-api, generative-ai, text-ai, language-ai, large-language-models, llm, nlp, google-ai]
+tags:
+  [
+    ai,
+    palm,
+    summarization-api,
+    generative-ai,
+    text-ai,
+    language-ai,
+    large-language-models,
+    llm,
+    nlp,
+    google-ai,
+  ]
 
 author:
   authorName: Google Cloud
   url: https://cloud.google.com/
 
 contributors:
-- authorName: Invertase
-  email: oss@invertase.io
-  url: https://github.com/invertase
+  - authorName: Invertase
+    email: oss@invertase.io
+    url: https://github.com/invertase
 
 # Public URL for the source code of your extension
 sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-palm-summarize-text
@@ -37,7 +49,9 @@ billingRequired: true
 # In an `apis` field, list any Google APIs (like Cloud Translation, BigQuery, etc.)
 # required for your extension to operate.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#apis-field
-
+apis:
+  - apiName: aiplatform.googleapis.com
+    reason: For access to the PaLM API if the Vertex AI PaLM provider is chosen.
 # In a `roles` field, list any IAM access roles required for your extension to operate.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#roles-field
 roles:
@@ -45,6 +59,11 @@ roles:
     reason:
       Allows this extension to access Cloud Firestore to read and process added
       text.
+
+  - role: aiplatform.user
+    reason:
+      Allows this extension to access the PaLM API via Vertex AI if this
+      provider is chosen.
 
 # In the `resources` field, list each of your extension's functions, including the trigger for each function.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#resources-field
@@ -60,20 +79,48 @@ resources:
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
         resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION_NAME}/{summaryId}
-      runtime: "nodejs18"
+      runtime: 'nodejs18'
 
 # In the `params` field, set up your extension's user-configured parameters.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#params-field
 params:
+  - param: PALM_API_PROVIDER
+    label: Palm API Provider
+    description: >-
+      There are two services which provide access to the PaLM API. Which would
+      you like to use? Keep in mind you will need to enable the service in your
+      GCP project.
+    type: select
+    options:
+      - label: Vertex AI
+        value: vertex
+      - label: Generative AI for Developers
+        value: generative
+    required: true
+    default: vertex
+    immutable: false
+
+  - param: API_KEY
+    label: API Key (Generative Language AI for Developers Provider ONLY)
+    description: >-
+      If you selected Generative AI for Developers as your PaLM API provider,
+      you can optionally choose to provide an API key. If you do not provide an
+      API key, the extension will use Application Default Credentials.
+    type: secret
+    required: false
+    immutable: false
+
   - param: COLLECTION_NAME
     label: Collection Name
     description: >-
       Path to the Firestore collection where messages will be generated.
     type: string
+    validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
+    validationErrorMessage: Must be a valid Cloud Firestore Collection
     example: text_documents
     required: true
     immutable: false
-  
+
   - param: TEXT_FIELD
     label: Text field
     description: >-
@@ -82,7 +129,7 @@ params:
     default: text
     required: true
     immutable: false
-  
+
   - param: RESPONSE_FIELD
     label: Response Field
     description: >-
@@ -91,7 +138,7 @@ params:
     default: summary
     required: true
     immutable: false
-  
+
   - param: TARGET_SUMMARY_LENGTH
     label: Target Summary Length
     description: >-
@@ -99,7 +146,8 @@ params:
     type: string
     example: 10
     validationRegex: ^([1-9]|10)$
-    validationErrorMessage: Invalid TARGET_SUMMARY_LENGTH, must be an integer between 1 and 10.
+    validationErrorMessage:
+      Invalid TARGET_SUMMARY_LENGTH, must be an integer between 1 and 10.
     required: false
     immutable: false
 

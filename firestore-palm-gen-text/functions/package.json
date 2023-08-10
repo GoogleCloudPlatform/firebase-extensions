@@ -6,16 +6,17 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "generate-readme": "firebase ext:info .. --markdown > ../README.md",
-    "test": "jest"
+    "test": "jest --runInBand"
   },
   "main": "lib/index.js",
   "dependencies": {
     "@google-ai/generativelanguage": "^0.2.0",
+    "@google-cloud/aiplatform": "^2.17.0",
+    "@types/mustache": "^4.2.2",
     "firebase-admin": "^11.5.0",
     "firebase-functions": "^4.4.0",
     "google-auth-library": "^8.8.0",
     "mustache": "^4.2.0",
-    "@types/mustache": "^4.2.2",
     "typescript": "^4.9.0"
   },
   "devDependencies": {

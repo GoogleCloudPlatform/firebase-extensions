@@ -51,7 +51,15 @@ export async function backfillTriggerHandler({
   // This might be a left-over from a previous installation.
   try {
     const bucket = admin.storage().bucket(config.bucketName);
-    await bucket.deleteFiles({prefix: 'datapoints', autoPaginate: false});
+
+    if (await bucket.exists()) {
+      functions.logger.info(
+        `Found an existing bucket ${config.bucketName}, deleting it...`
+      );
+
+      await bucket.deleteFiles({prefix: 'datapoints', autoPaginate: false});
+      await bucket.delete({ignoreNotFound: true});
+    }
   } catch (error) {
     // Ignore the error if the bucket doesn't exist.
     functions.logger.debug(error);
@@ -99,14 +107,11 @@ export async function backfillTriggerHandler({
 
       try {
         // Create a task document to track the progress of the task.
-        writer.create(
-          admin.firestore().doc(`${config.tasksDoc}/enqueues/${id}`),
-          {
-            taskId: id,
-            status: BackfillStatus.PENDING,
-            documentIds: chunk.map(ref => ref.id),
-          }
-        );
+        writer.set(admin.firestore().doc(`${config.tasksDoc}/enqueues/${id}`), {
+          taskId: id,
+          status: BackfillStatus.PENDING,
+          documentIds: chunk.map(ref => ref.id),
+        });
 
         if (counter % batchSize === 0 || chunks.length < batchSize) {
           functions.logger.info('Committing the batch...');

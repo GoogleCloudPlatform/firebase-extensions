@@ -20,8 +20,15 @@ import {Config} from './config';
 const extensionName = 'firestore-palm-gen-text';
 
 export const init = (config: Config) => {
+  const obfuscatedConfig = {
+    ...config,
+    apiKey: '[REDACTED]',
+  };
+
   logger.info(
-    `[${extensionName}] Initialized with config: ${JSON.stringify(config)}`
+    `[firestore-palm-chatbot] Initialized with config: ${JSON.stringify(
+      obfuscatedConfig
+    )}`
   );
 };
 
@@ -49,4 +56,8 @@ export const usingADC = () => {
   logger.log(
     `[${extensionName}] no API key provided, using application default credentials.`
   );
+};
+
+export const usingAPIKey = () => {
+  logger.log('using API key provided.');
 };

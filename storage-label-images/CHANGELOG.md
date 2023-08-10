@@ -1,3 +1,7 @@
+## Version 0.1.5
+
+Fix description of `INCLUDE_PATH_LIST` parameter in extension.yaml
+
 ## Version 0.1.4
 
 Corrected the description of where the output is written, and add a code sample of how to find the result.
