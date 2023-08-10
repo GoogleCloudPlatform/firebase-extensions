@@ -16,6 +16,7 @@
 import {
   AudioEncoding,
   ISynthesizeSpeechRequest,
+  IVoice,
   SsmlVoiceGender,
 } from './types';
 import config from './config';
@@ -26,6 +27,7 @@ export interface BuildRequestOptions {
   ssmlGender?: SsmlVoiceGender;
   audioEncoding?: AudioEncoding;
   voiceName?: string;
+  voices?: IVoice[];
 }
 
 export function buildRequest({
@@ -34,13 +36,51 @@ export function buildRequest({
   ssmlGender = config.ssmlGender,
   audioEncoding = config.audioEncoding,
   voiceName = config.voiceName,
+  voices,
 }: BuildRequestOptions): ISynthesizeSpeechRequest {
+  const validatedVoiceName = validateVoiceName(voiceName, voices);
   return {
     input: config.ssml ? {ssml: text} : {text: text},
-    voice: voiceName ? {name: voiceName} : {languageCode, ssmlGender},
+    voice: validatedVoiceName.isValid
+      ? {
+          name: voiceName,
+          languageCode: validatedVoiceName.languageCode,
+        }
+      : {languageCode, ssmlGender},
     audioConfig: {
       audioEncoding,
     },
+  };
+}
+
+export type ValidateVoiceNameResponse =
+  | {
+      isValid: false;
+      languageCode?: undefined;
+    }
+  | {
+      isValid: true;
+      languageCode: string;
+    };
+
+function validateVoiceName(
+  voiceName: string,
+  voices?: IVoice[]
+): ValidateVoiceNameResponse {
+  if (!voices) {
+    return {
+      isValid: false,
+    };
+  }
+  const voice = voices.find(voice => voice.name === voiceName);
+  if (!voice || !voice.languageCodes?.[0]) {
+    return {
+      isValid: false,
+    };
+  }
+  return {
+    isValid: true,
+    languageCode: voice.languageCodes[0],
   };
 }
 
