@@ -51,7 +51,8 @@ roles:
 
   - role: aiplatform.user
     reason:
-      Allows this extension to access the PaLM API via Vertex AI if this provider is chosen.
+      Allows this extension to access the PaLM API via Vertex AI if this
+      provider is chosen.
 
 resources:
   - name: generateText
@@ -69,12 +70,17 @@ params:
   - param: PALM_API_PROVIDER
     label: Palm API Provider
     description: >-
-      There are two services which provide access to the PaLM API. Which would you like to use? Keep in mind you will need to enable the service in your GCP project.
+      There are two services which provide access to the PaLM API. Which would
+      you like to use? If Vertex AI is selected, the service will be
+      automatically enabled. If Generative Language is selected, you can provide
+      an API key obtained through MakerSuite or your GCP console, or use
+      Application Default Credentials if the Generative Language AI is enabled
+      in your google cloud project.
     type: select
     options:
       - label: Vertex AI
         value: vertex
-      - label: Generative AI for Developers
+      - label: Generative Language AI for Developers
         value: generative
     required: true
     default: vertex
@@ -83,8 +89,10 @@ params:
   - param: API_KEY
     label: API Key (Generative Language AI for Developers Provider ONLY)
     description: >-
-      If you selected Generative AI for Developers as your PaLM API provider, you can optionally choose to provide an API key.
-      If you do not provide an API key, the extension will use Application Default Credentials.
+      If you selected Generative AI for Developers as your PaLM API provider,
+      you can optionally choose to provide an API key. If you do not provide an
+      API key, the extension will use Application Default Credentials, but will
+      need the service enabled in GCP.
     type: secret
     required: false
     immutable: false
@@ -94,7 +102,7 @@ params:
     description: >-
       Path to the Firestore collection where text will be generated.
     type: string
-    validationRegex: "^[^/]+(/[^/]+/[^/]+)*$"
+    validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
     validationErrorMessage: Must be a valid Cloud Firestore Collection
     default: generate
     required: true
@@ -236,8 +244,9 @@ params:
     description: >-
       The default value is one. When set to an integer higher than one,
       additional candidate responses, up to the specified number, will be stored
-      in Firestore under the 'candidates' field. Note this is only available as a feature if you 
-      selected the Generative Language API for Developers as your Palm API provider.
+      in Firestore under the 'candidates' field. Note this is only available as
+      a feature if you  selected the Generative Language API for Developers as
+      your Palm API provider.
     type: string
     validationRegex: ^[1-9][0-9]*
     validationErrorMessage: Please specify a positive integer.
@@ -249,8 +258,9 @@ params:
     label: Candidates field
     description: >-
       The field in the message document into which to put the other candidate
-      responses if the candidate count parameter is greater than one. Note this is only available as a feature if you 
-      selected the Generative Language API for Developers as your Palm API provider.
+      responses if the candidate count parameter is greater than one. Note this
+      is only available as a feature if you  selected the Generative Language
+      API for Developers as your Palm API provider.
     type: string
     default: candidates
     required: false
@@ -259,12 +269,13 @@ params:
   - param: MAX_OUTPUT_TOKENS
     label: Maximum number of tokens
     description: >-
-      If you have selected the Vertex AI service as your PaLM API provider, this parameter will be used to set the max_tokens parameter in the Vertex API request.
-      It should be an integer in the range [1,1024]. The default value for the extension is 100.
+      If you have selected the Vertex AI service as your PaLM API provider, this
+      parameter will be used to set the max_tokens parameter in the Vertex API
+      request. It should be an integer in the range [1,1024]. The default value
+      for the extension is 100.
     type: string
     validationRegex: ^(102[0-4]|10[01][0-9]|100[0-9]|[1-9][0-9]{0,2})$
-    validationErrorMessage:
-      Please specify an integer in the range [1,1024]
+    validationErrorMessage: Please specify an integer in the range [1,1024]
     required: false
     default: 100
     immutable: false
