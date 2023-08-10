@@ -104,7 +104,7 @@ params:
       What is the path to the collection where extracted text will be written
       to.
     example: extractedText
-    validationRegex: "^[^\/]+(\/[^\/]+\/[^\/]+)*$"
+    validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
     validationErrorMessage: Must be a valid Cloud Firestore Collection
     default: extractedText
     required: true
