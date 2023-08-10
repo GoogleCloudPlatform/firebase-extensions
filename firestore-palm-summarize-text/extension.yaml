@@ -88,13 +88,16 @@ params:
     label: Palm API Provider
     description: >-
       There are two services which provide access to the PaLM API. Which would
-      you like to use? Keep in mind you will need to enable the service in your
-      GCP project.
+      you like to use? If Vertex AI is selected, the service will be
+      automatically enabled. If Generative Language is selected, you can provide
+      an API key obtained through MakerSuite or your GCP console, or use
+      Application Default Credentials if the Generative Language AI is enabled
+      in your google cloud project.
     type: select
     options:
       - label: Vertex AI
         value: vertex
-      - label: Generative AI for Developers
+      - label: Generative Language AI for Developers
         value: generative
     required: true
     default: vertex
@@ -105,7 +108,8 @@ params:
     description: >-
       If you selected Generative AI for Developers as your PaLM API provider,
       you can optionally choose to provide an API key. If you do not provide an
-      API key, the extension will use Application Default Credentials.
+      API key, the extension will use Application Default Credentials, but will
+      need the service enabled in GCP.
     type: secret
     required: false
     immutable: false
