@@ -24,7 +24,7 @@ const endpoint = `projects/${config.projectId}/locations/${config.location}/publ
 const initializePaLMClient = async () => {
   const t0 = performance.now();
 
-  // here location is hard-coded, following https://github.com/GoogleCloudPlatform/firebase-extensions/pull/137
+  // here location is hard-coded, following https://cloud.google.com/vertex-ai/docs/generative-ai/embeddings/get-text-embeddings#generative-ai-get-text-embedding-nodejs
   const clientOptions = {
     apiEndpoint: `us-central1-aiplatform.googleapis.com`,
   };
