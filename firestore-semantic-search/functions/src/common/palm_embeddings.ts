@@ -24,8 +24,9 @@ const endpoint = `projects/${config.projectId}/locations/${config.location}/publ
 const initializePaLMClient = async () => {
   const t0 = performance.now();
 
+  // here location is hard-coded, following https://cloud.google.com/vertex-ai/docs/generative-ai/embeddings/get-text-embeddings#generative-ai-get-text-embedding-nodejs
   const clientOptions = {
-    apiEndpoint: `${config.location}-prediction-aiplatform.googleapis.com`,
+    apiEndpoint: `us-central1-aiplatform.googleapis.com`,
   };
 
   client = new v1.PredictionServiceClient(clientOptions);
