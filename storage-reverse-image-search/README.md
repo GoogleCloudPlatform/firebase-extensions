@@ -91,6 +91,18 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Batch size: The batch size used to generate feature vectors for existing images. The larger the batch size, the more time and memory are required. Do not set a size larger than 64.
 
+* Shard size: The size of the shard, which correlates to the machine type used. [Read more about shards config here](https://cloud.google.com/vertex-ai/docs/matching-engine/create-manage-index#create-index).
+
+* Machine type: The type of machine that is deployed for the index endpoint. [Read more about machine types config here](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#g2-series).
+
+* Acceletaor type: The accelerator type for the deployed index endpoint. [Read more about accelerator types config here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec#AcceleratorType).
+
+* Accelerator Count: The number of accelerators to attach to the the deployed index endpoint machine. [Read more about accelerator counts config here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec).
+
+* Min replica count: The minimum number of machine replicas for the deployed index endpoint. [Read more about min replica counts config here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/DedicatedResources).
+
+* Max replica count: The maxiumum number of machine replicas for the deployed index endpoint when the traffic against it increases. [Read more about max replica config here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/DedicatedResources).
+
 * Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
 
 

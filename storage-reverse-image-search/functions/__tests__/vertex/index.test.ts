@@ -67,7 +67,7 @@ describe('createIndex', () => {
     );
     try {
       createIndex(100);
-    } catch (e) {
+    } catch (e: any) {
       expect(e.message).toEqual('test error');
     }
   });
@@ -84,7 +84,7 @@ describe('createIndexEndpoint', () => {
 
     try {
       createIndexEndpoint();
-    } catch (e) {
+    } catch (e: any) {
       expect(e.message).toEqual('test error');
     }
   });
@@ -102,7 +102,7 @@ describe('deployIndex', () => {
 
     try {
       deployIndex('test-endpoint', 'test-index');
-    } catch (e) {
+    } catch (e: any) {
       expect(e.message).toEqual('test error');
     }
   });
