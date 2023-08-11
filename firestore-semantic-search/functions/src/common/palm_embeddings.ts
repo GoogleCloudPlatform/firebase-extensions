@@ -24,8 +24,9 @@ const endpoint = `projects/${config.projectId}/locations/${config.location}/publ
 const initializePaLMClient = async () => {
   const t0 = performance.now();
 
+  // here location is hard-coded, following https://github.com/GoogleCloudPlatform/firebase-extensions/pull/137
   const clientOptions = {
-    apiEndpoint: `${config.location}-prediction-aiplatform.googleapis.com`,
+    apiEndpoint: `us-central1-aiplatform.googleapis.com`,
   };
 
   client = new v1.PredictionServiceClient(clientOptions);
