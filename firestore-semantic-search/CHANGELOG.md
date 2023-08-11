@@ -1,3 +1,8 @@
+## Version 0.1.6
+
+- Feat switch PaLM provider
+- Feat added shard and machine configuration for creating an index
+
 ## Version 0.1.5
 
 - Fixed CHANGELOG to reflect current state of extension.
