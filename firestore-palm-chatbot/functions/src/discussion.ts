@@ -189,6 +189,12 @@ export class Discussion {
 
     const [result] = await this.generativeClient.generateMessage(request);
 
+    if (result.filters && result.filters.length) {
+      throw new Error(
+        'Chat prompt or response filtered by the PaLM API content filter.'
+      );
+    }
+
     if (!result.candidates || !result.candidates.length) {
       throw new Error('No candidates returned from server.');
     }
