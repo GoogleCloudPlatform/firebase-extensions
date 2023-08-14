@@ -79,16 +79,16 @@ export const generateSummary = functions.firestore
         'status.updateTime': FieldValue.serverTimestamp(),
       };
 
-      if (result.safetyAttributes) {
-        metadata['safetyAttributes'] = result.safetyAttributes;
+      if (result.safetyMetadata) {
+        metadata['safetyMetadata'] = result.safetyMetadata;
       }
 
-      if (result.safetyAttributes?.blocked) {
+      if (result.safetyMetadata?.blocked) {
         return ref.update({
           ...metadata,
           'status.state': 'ERRORED',
           'status.error':
-            'The text provided was blocked by the Vertex AI content filter.',
+            'The prompt or summary was blocked by the PaLM content filter.',
         });
       }
       return ref.update({
