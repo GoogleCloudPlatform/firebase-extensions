@@ -41,17 +41,6 @@ export type TextGeneratorRequestOptions = Omit<
   'prompt' | 'model'
 >;
 
-type SafetyAttributes = {
-  blocked?: boolean;
-  scores?: number[];
-  categories?: string[];
-};
-
-export type TextGeneratorResponse = {
-  candidates: string[];
-  safetyAttributes?: SafetyAttributes;
-};
-
 export class TextGenerator {
   private generativeClient?: TextServiceClient;
   private vertexClient?: v1.PredictionServiceClient;
@@ -116,14 +105,7 @@ export class TextGenerator {
       const request = this.createVertexRequest(promptText, options);
       const [result] = await this.vertexClient.predict(request);
 
-      const {content, safetyAttributes} =
-        this.extractVertexCandidateResponse(result);
-
-      if (!content) {
-        return {candidates: [], safetyAttributes};
-      }
-
-      return {candidates: [content], safetyAttributes};
+      return this.extractVertexCandidateResponse(result);
     }
 
     if (!this.generativeClient) {
@@ -134,11 +116,7 @@ export class TextGenerator {
 
     const [result] = await this.generativeClient.generateText(request);
 
-    const candidates = this.extractGenerativeCandidationResponse(result);
-
-    return {
-      candidates,
-    };
+    return this.extractGenerativeCandidationResponse(result);
   }
 
   private createGenerativeRequest(
@@ -163,19 +141,7 @@ export class TextGenerator {
   private extractGenerativeCandidationResponse(
     result: APIGenerateTextResponse
   ) {
-    if (!result.candidates || !result.candidates.length) {
-      throw new Error('No candidates returned from server.');
-    }
-
-    //TODO: do we need to filter out empty strings? This seems to be a type issue with the API, why are they optional?
-    const candidates = result.candidates
-      .map(candidate => candidate.output)
-      .filter(output => !!output) as string[];
-
-    if (!candidates.length) {
-      throw new Error('No candidates returned from server.');
-    }
-    return candidates;
+    return convertToTextGeneratorResponse(result as GenerativePrediction);
   }
 
   private createVertexRequest(
@@ -224,20 +190,70 @@ export class TextGenerator {
 
     const predictionValue = result.predictions[0] as protobuf.common.IValue;
 
-    const prediction = helpers.fromValue(predictionValue);
+    const vertexPrediction = helpers.fromValue(predictionValue);
 
-    const {safetyAttributes, content} = prediction as {
-      safetyAttributes?: {
-        blocked: boolean;
-        categories: string[];
-        scores: number[];
-      };
-      content?: string;
+    return convertToTextGeneratorResponse(vertexPrediction as VertexPrediction);
+  }
+}
+
+type VertexPrediction = {
+  safetyAttributes?: {
+    blocked: boolean;
+    categories: string[];
+    scores: number[];
+  };
+  content?: string;
+};
+
+type GenerativePrediction = {
+  candidates: {output: string}[];
+  filters?: {reason: string}[];
+  safetyFeedback?: {
+    rating: Record<string, any>;
+    setting: Record<string, any>;
+  }[];
+};
+
+type TextGeneratorResponse = {
+  candidates: string[];
+  safetyMetadata?: {
+    blocked: boolean;
+    [key: string]: any;
+  };
+};
+
+function convertToTextGeneratorResponse(
+  prediction: VertexPrediction | GenerativePrediction
+): TextGeneratorResponse {
+  // if it's generative language
+  if ('candidates' in prediction) {
+    const {candidates, filters, safetyFeedback} = prediction;
+    const blocked = !!filters && filters.length > 0;
+    const safetyMetadata = {
+      blocked,
+      safetyFeedback,
     };
-
+    if (!candidates.length && !blocked) {
+      throw new Error('No candidates returned from the Generative API.');
+    }
     return {
-      content,
+      candidates: candidates.map(candidate => candidate.output),
+      safetyMetadata,
+    };
+  } else {
+    // provider will be vertex
+    const {content, safetyAttributes} = prediction;
+    const blocked = !!safetyAttributes && !!safetyAttributes.blocked;
+    const safetyMetadata = {
+      blocked,
       safetyAttributes,
+    };
+    if (!content && !blocked) {
+      throw new Error('No content returned from the Vertex PaLM API.');
+    }
+    return {
+      candidates: blocked ? [] : [content!],
+      safetyMetadata,
     };
   }
 }

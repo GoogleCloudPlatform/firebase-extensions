@@ -54,7 +54,7 @@ export async function createIndexTriggerHandler(
         status: IndexStatus.BUILDING,
         operation,
       },
-      {merge: true}
+      {merge: false}
     );
   }
 }

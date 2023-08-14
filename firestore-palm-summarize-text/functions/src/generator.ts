@@ -36,14 +36,6 @@ export type TextGeneratorRequestOptions = Omit<
   APIGenerateTextRequest,
   'prompt' | 'model'
 >;
-export type TextGeneratorResponse = {
-  candidates: string[];
-  safetyAttributes?: {
-    blocked?: boolean;
-    scores?: number[];
-    categories?: string[];
-  };
-};
 
 type VertexPredictResponse =
   protos.google.cloud.aiplatform.v1beta1.IPredictResponse;
@@ -107,21 +99,9 @@ export class TextGenerator {
 
     const predictionValue = result.predictions[0] as protobuf.common.IValue;
 
-    const prediction = helpers.fromValue(predictionValue);
+    const vertexPrediction = helpers.fromValue(predictionValue);
 
-    const {safetyAttributes, content} = prediction as {
-      safetyAttributes?: {
-        blocked: boolean;
-        categories: string[];
-        scores: number[];
-      };
-      content?: string;
-    };
-
-    return {
-      content,
-      safetyAttributes,
-    };
+    return convertToTextGeneratorResponse(vertexPrediction as VertexPrediction);
   }
 
   async generate(
@@ -165,13 +145,7 @@ export class TextGenerator {
 
       const [result] = await this.vertexClient.predict(request);
 
-      const {content, safetyAttributes} =
-        this.extractVertexCandidateResponse(result);
-
-      if (!content) {
-        return {candidates: [], safetyAttributes};
-      }
-      return {candidates: [content]};
+      return this.extractVertexCandidateResponse(result);
     }
 
     const request = {
@@ -188,21 +162,68 @@ export class TextGenerator {
 
     const [result] = await this.generativeClient.generateText(request);
 
-    if (!result.candidates || !result.candidates.length) {
-      throw new Error('No candidates returned from server.');
+    return convertToTextGeneratorResponse(result as GenerativePrediction);
+  }
+}
+
+type VertexPrediction = {
+  safetyAttributes?: {
+    blocked: boolean;
+    categories: string[];
+    scores: number[];
+  };
+  content?: string;
+};
+
+type GenerativePrediction = {
+  candidates: {output: string}[];
+  filters?: {reason: string}[];
+  safetyFeedback?: {
+    rating: Record<string, any>;
+    setting: Record<string, any>;
+  }[];
+};
+
+type TextGeneratorResponse = {
+  candidates: string[];
+  safetyMetadata?: {
+    blocked: boolean;
+    [key: string]: any;
+  };
+};
+
+function convertToTextGeneratorResponse(
+  prediction: VertexPrediction | GenerativePrediction
+): TextGeneratorResponse {
+  // if it's generative language
+  if ('candidates' in prediction) {
+    const {candidates, filters, safetyFeedback} = prediction;
+    const blocked = !!filters && filters.length > 0;
+    const safetyMetadata = {
+      blocked,
+      safetyFeedback,
+    };
+    if (!candidates.length && !blocked) {
+      throw new Error('No candidates returned from the Generative API.');
     }
-
-    //TODO: do we need to filter out empty strings? This seems to be a type issue with the API, why are they optional?
-    const candidates = result.candidates
-      .map(candidate => candidate.output)
-      .filter(output => !!output) as string[];
-
-    if (!candidates.length) {
-      throw new Error('No candidates returned from server.');
-    }
-
     return {
-      candidates,
+      candidates: candidates.map(candidate => candidate.output),
+      safetyMetadata,
+    };
+  } else {
+    // provider will be vertex
+    const {content, safetyAttributes} = prediction;
+    const blocked = !!safetyAttributes && !!safetyAttributes.blocked;
+    const safetyMetadata = {
+      blocked,
+      safetyAttributes,
+    };
+    if (!content && !blocked) {
+      throw new Error('No content returned from the Vertex PaLM API.');
+    }
+    return {
+      candidates: blocked ? [] : [content!],
+      safetyMetadata,
     };
   }
 }
