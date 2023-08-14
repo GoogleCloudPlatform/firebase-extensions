@@ -141,9 +141,6 @@ export class TextGenerator {
   private extractGenerativeCandidationResponse(
     result: APIGenerateTextResponse
   ) {
-    if (!result.candidates || !result.candidates.length) {
-      throw new Error('No candidates returned from server.');
-    }
     return convertToTextGeneratorResponse(result as GenerativePrediction);
   }
 
