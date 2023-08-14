@@ -227,7 +227,6 @@ function convertToTextGeneratorResponse(
 ): TextGeneratorResponse {
   // if it's generative language
   if ('candidates' in prediction) {
-    console.log('PRED', prediction);
     const {candidates, filters, safetyFeedback} = prediction;
     const blocked = !!filters && filters.length > 0;
     const safetyMetadata = {
