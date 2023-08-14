@@ -65,8 +65,9 @@ export class TextGenerator {
     this.endpoint = `projects/${config.projectId}/locations/${config.location}/publishers/google/models/${this.model}`;
 
     if (config.provider === 'vertex') {
+      // here location is hard-coded, following https://cloud.google.com/vertex-ai/docs/generative-ai/embeddings/get-text-embeddings#generative-ai-get-text-embedding-nodejs
       const clientOptions = {
-        apiEndpoint: `${config.location}-prediction-aiplatform.googleapis.com`,
+        apiEndpoint: `us-central1-aiplatform.googleapis.com`,
       };
 
       this.vertexClient = new v1.PredictionServiceClient(clientOptions);
