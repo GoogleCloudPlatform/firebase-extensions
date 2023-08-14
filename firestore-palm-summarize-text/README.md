@@ -47,7 +47,7 @@ If you have not already done so, you will first need to apply for access to the 
 
 Once you have access, please [enable the Generative Language API in your Google Cloud Project](https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com) before installing this extension.
 
-Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) and [Cloud Storage bucket](https://firebase.google.com/docs/storage) set up in your Firebase project, and enabled the Generative Language API in your Google Cloud Project before installing this extension.
+Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project, and enabled the Generative Language API in your Google Cloud Project before installing this extension.
 
 ## Billing
 
@@ -65,6 +65,10 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 
 **Configuration Parameters:**
+
+* Palm API Provider: There are two services which provide access to the PaLM API. Which would you like to use? If Vertex AI is selected, the service will be automatically enabled. If Generative Language is selected, you can provide an API key obtained through MakerSuite or your GCP console, or use Application Default Credentials if the Generative Language AI is enabled in your google cloud project.
+
+* API Key (Generative Language AI for Developers Provider ONLY): If you selected Generative AI for Developers as your PaLM API provider, you can optionally choose to provide an API key. If you do not provide an API key, the extension will use Application Default Credentials, but will need the service enabled in GCP.
 
 * Collection Name: Path to the Firestore collection where messages will be generated.
 
@@ -84,6 +88,12 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 
 
+**APIs Used**:
+
+* aiplatform.googleapis.com (Reason: For access to the PaLM API if the Vertex AI PaLM provider is chosen.)
+
+
+
 **Access Required**:
 
 
@@ -91,3 +101,5 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 This extension will operate with the following project IAM roles:
 
 * datastore.user (Reason: Allows this extension to access Cloud Firestore to read and process added text.)
+
+* aiplatform.user (Reason: Allows this extension to access the PaLM API via Vertex AI if this provider is chosen.)

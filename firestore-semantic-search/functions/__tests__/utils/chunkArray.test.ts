@@ -23,9 +23,9 @@ jest.mock('config', () => ({
 
 describe('chunkArray', () => {
   test('should handle empty arrays', async () => {
-    const inputArray = [];
+    const inputArray: any[] = [];
     const batchSize = 2;
-    const expectedResult = [];
+    const expectedResult: any[] = [];
 
     expect(chunkArray(inputArray, batchSize)).toEqual(expectedResult);
   });

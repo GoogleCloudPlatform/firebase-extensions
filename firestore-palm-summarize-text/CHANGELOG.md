@@ -1,3 +1,14 @@
+## Version 0.1.6
+
+- Fixed location bug where apiEndpoint was incorrectly entered
+
+## Version 0.1.5
+
+- Removed unnecessary Storage bucket requirement from PREINSTALL.
+- Support both Vertex and Generative Language PaLM API Providers.
+- Handle Generative Language Content Filter.
+- Add support for providing an API key for the Generative Language PaLM Provider.
+
 ## Version 0.1.4
 
 - Improve error handling.

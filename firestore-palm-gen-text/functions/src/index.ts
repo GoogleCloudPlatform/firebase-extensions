@@ -67,10 +67,17 @@ export const generateText = functions.firestore
       return;
     }
 
-    const state = change.after.get('status.state');
+    const status = data.status || {};
+
+    const state = status.state;
+    const response = data[responseField];
 
     // only make an API call if prompt exists and is non-empty, response is missing, and there's no in-process status
-    if (!prompt || ['PROCESSING', 'COMPLETED', 'ERRORED'].includes(state)) {
+    if (
+      !prompt ||
+      response ||
+      ['PROCESSING', 'COMPLETED', 'ERRORED'].includes(state)
+    ) {
       // TODO add logging
       return;
     }
@@ -110,26 +117,44 @@ export const generateText = functions.firestore
       const duration = performance.now() - t0;
       logs.receivedAPIResponse(ref.path, duration);
 
-      const addCandidatesField =
-        candidatesField && candidateCount && candidateCount > 1;
+      const metadata: Record<string, any> = {
+        'status.completeTime': FieldValue.serverTimestamp(),
+        'status.updateTime': FieldValue.serverTimestamp(),
+      };
 
-      const completeData = addCandidatesField
-        ? {
-            [responseField]: result.candidates[0],
-            [candidatesField]: result.candidates,
-            'status.state': 'COMPLETED',
-            'status.completeTime': FieldValue.serverTimestamp(),
-            'status.updateTime': FieldValue.serverTimestamp(),
-            'status.error': null,
-          }
-        : {
-            [responseField]: result.candidates[0],
-            'status.state': 'COMPLETED',
-            'status.completeTime': FieldValue.serverTimestamp(),
-            'status.updateTime': FieldValue.serverTimestamp(),
-            'status.error': null,
-          };
-      return ref.update(completeData);
+      if (result.safetyMetadata) {
+        metadata['safetyMetadata'] = result.safetyMetadata;
+      }
+
+      if (result.safetyMetadata?.blocked) {
+        return ref.update({
+          ...metadata,
+          'status.state': 'ERRORED',
+          'status.error':
+            'The generated text was blocked by the safety filter.',
+        });
+      }
+
+      const addCandidatesField =
+        config.provider === 'generative' &&
+        candidatesField &&
+        candidateCount &&
+        candidateCount > 1;
+
+      if (addCandidatesField) {
+        return ref.update({
+          ...metadata,
+          [responseField]: result.candidates[0],
+          [candidatesField]: result.candidates,
+          'status.error': null,
+        });
+      }
+      return ref.update({
+        ...metadata,
+        [responseField]: result.candidates[0],
+        'status.state': 'COMPLETED',
+        'status.error': null,
+      });
     } catch (e: any) {
       logs.errorCallingGLMAPI(ref.path, e);
       const errorMessage = createErrorMessage(e);

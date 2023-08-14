@@ -35,21 +35,32 @@ jest.mock('config', () => ({
   },
 }));
 
+/** Setup env */
+process.env.GCLOUD_PROJECT = 'demo-gcp';
+process.env.FIRESTORE_EMULATOR_HOST = 'localhost:8080';
+
 const mockCreateIndex = jest.fn();
 const mockCreateIndexEndpoint = jest.fn();
 const mockDeployIndex = jest.fn();
 
 jest.mock('@google-cloud/aiplatform', () => ({
   ...jest.requireActual('@google-cloud/aiplatform'),
-  IndexServiceClient: () => ({
-    createIndex: () => mockCreateIndex(),
-    createIndexEndpoint: (args: unknown) => mockCreateIndexEndpoint(args),
-    deployIndex: () => mockDeployIndex(),
-  }),
+  v1beta1: {
+    IndexServiceClient: jest.fn(() => ({
+      createIndex: () => mockCreateIndex(),
+      createIndexEndpoint: (args: unknown) => mockCreateIndexEndpoint(args),
+      deployIndex: (args: unknown) => mockDeployIndex(args),
+    })),
+    IndexEndpointServiceClient: jest.fn(() => ({
+      createIndex: () => mockCreateIndex(),
+      createIndexEndpoint: (args: unknown) => mockCreateIndexEndpoint(args),
+      deployIndex: (args: unknown) => mockDeployIndex(args),
+    })),
+  },
 }));
 
 admin.initializeApp({
-  projectId: 'dev-extension-testing',
+  projectId: 'demo-gcp',
   storageBucket: config.bucketName,
 });
 
@@ -60,11 +71,11 @@ describe('createIndex', () => {
 
   test('should error out if operation from client has error property', async () => {
     mockCreateIndex.mockImplementation(() =>
-      Promise.resolve({error: new Error('test error')})
+      Promise.resolve([{error: new Error('test error')}])
     );
     try {
-      createIndex();
-    } catch (e) {
+      await createIndex();
+    } catch (e: any) {
       expect(e.message).toEqual('test error');
     }
   });
@@ -76,12 +87,12 @@ describe('createIndexEndpoint', () => {
 
   test('should error out if operation from client has error property', async () => {
     mockCreateIndexEndpoint.mockImplementation(() =>
-      Promise.resolve({error: new Error('test error')})
+      Promise.resolve([{error: new Error('test error')}])
     );
 
     try {
       createIndexEndpoint();
-    } catch (e) {
+    } catch (e: any) {
       expect(e.message).toEqual('test error');
     }
   });
@@ -94,14 +105,78 @@ describe('deployIndex', () => {
 
   test('should error out if operation from client has error property', async () => {
     mockDeployIndex.mockImplementationOnce(() =>
-      Promise.resolve({error: new Error('test error')})
+      Promise.resolve([{error: new Error('test error')}])
     );
 
     try {
-      deployIndex('test-endpoint', 'test-index');
-    } catch (e) {
+      await deployIndex('test-endpoint', 'test-index');
+    } catch (e: any) {
       expect(e.message).toEqual('test error');
     }
+  });
+
+  test('should return an empty array for autoscalingMetricSpecs with no autoscaling config', async () => {
+    /** set config values */
+    config.maxReplicaCount = 1;
+    config.minReplicaCount = 1;
+    config.acceleratorCount = 1;
+    config.acceleratorType = 'NVIDIA_TESLA_K80';
+    config.machineType = 'test-machine-type';
+
+    mockDeployIndex.mockImplementationOnce(() =>
+      Promise.resolve([{name: 'test-name'}])
+    );
+
+    await deployIndex('test-endpoint', 'test-index');
+
+    expect(mockDeployIndex).toHaveBeenCalledWith({
+      deployedIndex: {
+        dedicatedResources: {
+          machineSpec: {
+            acceleratorCount: 1,
+            acceleratorType: 1,
+            machineType: 'test-machine-type',
+          },
+          maxReplicaCount: 1,
+          minReplicaCount: 1,
+        },
+        id: 'ext_test_instance_index',
+        index: 'test-index',
+      },
+      indexEndpoint: 'test-endpoint',
+    });
+  });
+
+  test('should return an empty array for autoscalingMetricSpecs with an invalid accelerator count', async () => {
+    /** set config values */
+    config.maxReplicaCount = 1;
+    config.minReplicaCount = 1;
+    config.acceleratorCount = 1;
+    config.acceleratorType = 'NVIDIA_TESLA_K80';
+    config.machineType = 'test-machine-type';
+
+    mockDeployIndex.mockImplementationOnce(() =>
+      Promise.resolve([{name: 'test-name'}])
+    );
+
+    await deployIndex('test-endpoint', 'test-index');
+
+    expect(mockDeployIndex).toHaveBeenCalledWith({
+      deployedIndex: {
+        dedicatedResources: {
+          machineSpec: {
+            acceleratorCount: 1,
+            acceleratorType: 1,
+            machineType: 'test-machine-type',
+          },
+          maxReplicaCount: 1,
+          minReplicaCount: 1,
+        },
+        id: 'ext_test_instance_index',
+        index: 'test-index',
+      },
+      indexEndpoint: 'test-endpoint',
+    });
   });
 });
 
@@ -314,7 +389,7 @@ describe('checkIndexStatus', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     await fetch(
-      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/dev-extensions-testing/databases/(default)/documents`,
+      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
       {method: 'DELETE'}
     );
   });
@@ -323,9 +398,7 @@ describe('checkIndexStatus', () => {
     await admin.firestore().doc(config.metadataDoc).set({
       status: 'test-status',
     });
-
     const result = await checkIndexStatus();
-
-    expect(result).toEqual('test-status');
+    expect(result).toEqual({status: 'test-status'});
   });
 });

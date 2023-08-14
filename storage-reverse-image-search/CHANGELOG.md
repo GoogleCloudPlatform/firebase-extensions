@@ -1,3 +1,7 @@
+## Version 0.1.4
+
+- Feature: shard and machine configurations.
+- Fix: use `set` to create enqueues in Firestore to avoid errors from past installs.
 ## Version 0.1.3
 
 Updated PREINSTALL to include link Google Cloud docs on undeploying indexes.
