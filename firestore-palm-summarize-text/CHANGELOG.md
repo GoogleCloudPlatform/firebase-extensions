@@ -1,3 +1,7 @@
+## Version 0.1.6
+
+- Fixed location bug where apiEndpoint was incorrectly entered
+
 ## Version 0.1.5
 
 - Removed unnecessary Storage bucket requirement from PREINSTALL.
