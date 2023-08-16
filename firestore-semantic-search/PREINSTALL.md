@@ -2,7 +2,7 @@
 >
 > For details and limitations, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/matching-engine/deploy-index-public) and [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 >
-> PaLM API is an optional feature of this extension. **If you choose to use the PaLM model, please ensure that you have already signed up for the [waitlist](https://makersuite.google.com/waitlist) and have been approved.**
+> PaLM API is an optional feature of this extension. This extension uses the Vertex AI PaLM endpoint for embeddings.
 
 This extension adds text similarity search to your Firestore application using Vertex AI’s [Matching Engine](https://cloud.google.com/vertex-ai/docs/matching-engine/overview). Text similarity search relies on first generating embeddings (vector representations of your original text) which are stored in a Matching Engine index. Once these embeddings are indexed, the Matching Engine can be used to calculate semantically similar documents to an original document from a large corpus of candidate documents, based on vector distance measures.
 
@@ -35,12 +35,6 @@ First, before installing the extension, you need to enable data read & write acc
 - [Visit this page](https://console.cloud.google.com/iam-admin/audit?cloudshell=false) and ensure that you have selected the project you’d like to install this extension in, using the project picker.
 - Filter for “Vertex AI API” and click on the checkbox next to it. A new panel should appear on the right side of the page.
 - On the new panel, click on the checkboxes next to “Data Read” and “Data Write”, and click Save.
-
-### PaLM API access (optional)
-
-If you would like to use the PaLM embeddings model, you will first need to apply for access to the PaLM API via this [waitlist](https://makersuite.google.com/waitlist).
-
-Once you have access, please [enable the Generative Language API in your Google Cloud Project](https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com) before installing this extension.
 
 ### Cloud Firestore and Cloud Storage setup
 
