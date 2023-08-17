@@ -165,7 +165,8 @@ params:
   - param: CUSTOM_HOOK_URL
     label: Custom hook function url
     description: >
-      An HTTPS callable function that will be called with the request and response body of the PaLM API call, as well as user context.
+      An HTTPS callable function that will be called with the request and
+      response body of the PaLM API call, as well as user context.
     type: string
     example: https://us-west1-my-project-id.cloudfunctions.net/customHook
     required: false
@@ -174,11 +175,14 @@ events:
   - type: firebase.extensions.palm-secure-backend.v1.onStart
     description: Occurs when any of the extensions functions receive a request.
 
-  - type: firebase.extensions.firestore-send-email.v1.onRequest
-    description: Occurs when the extension attempts to fetch a response from the PaLM API.
+  - type: firebase.extensions.palm-secure-backend.v1.onRequest
+    description:
+      Occurs when the extension attempts to fetch a response from the PaLM API.
 
-  - type: firebase.extensions.firestore-send-email.v1.onResponse
-    description: Occurs when the extension successfully receives a reponse from the PaLM API.
+  - type: firebase.extensions.palm-secure-backend.v1.onResponse
+    description:
+      Occurs when the extension successfully receives a reponse from the PaLM
+      API.
 
-  - type: firebase.extensions.firestore-send-email.v1.onError
+  - type: firebase.extensions.palm-secure-backend.v1.onError
     description: Occurs when the extension fails to complete execution.
