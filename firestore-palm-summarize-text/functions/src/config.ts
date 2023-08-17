@@ -52,7 +52,7 @@ const config: Config = {
   responseField: process.env.RESPONSE_FIELD || 'output',
   targetSummaryLength: process.env.TARGET_SUMMARY_LENGTH
     ? parseInt(process.env.TARGET_SUMMARY_LENGTH)
-    : undefined,
+    : 3,
   provider: process.env.PALM_API_PROVIDER || 'vertex',
   model: getModel(),
   apiKey: process.env.API_KEY,
