@@ -9,6 +9,8 @@ import {
   BigQueryDatetime,
   BigQueryTime,
 } from '@google-cloud/bigquery';
+import {Message} from 'firebase-functions/v2/pubsub';
+
 import config from './config';
 
 export const getBigqueryResults = async (
@@ -154,7 +156,7 @@ export const transferConfigAssociatedWithExtension = async (
 export const handleMessage = async (
   db: admin.firestore.Firestore,
   config: Config,
-  message
+  message: Message<any>
 ) => {
   const name = message.json.name;
   const splitName = name.split('/');

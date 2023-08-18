@@ -17,6 +17,7 @@
 import config from './config';
 import {logger} from 'firebase-functions';
 import {pubsub} from 'firebase-functions';
+import {Message} from 'firebase-functions/v2/pubsub';
 
 export const obfuscatedConfig = Object.assign({}, config, {
   smtpConnectionUri: '<omitted>',
@@ -92,7 +93,7 @@ export function bigqueryResultsRowCount(
   );
 }
 
-export function pubsubMessage(message: pubsub.Message) {
+export function pubsubMessage(message: Message<any>) {
   logger.log(
     `Transfer run complete. Handling pubsub message: ${JSON.stringify(
       message,
@@ -102,7 +103,7 @@ export function pubsubMessage(message: pubsub.Message) {
   );
 }
 
-export function pubsubMessageHandled(message: pubsub.Message) {
+export function pubsubMessageHandled(message: Message<any>) {
   logger.log(
     `Pubsub message successfully handled: ${JSON.stringify(message, null, 2)}`
   );

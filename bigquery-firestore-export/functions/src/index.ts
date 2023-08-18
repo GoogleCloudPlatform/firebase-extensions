@@ -23,6 +23,8 @@ import config from './config';
 import * as helper from './helper';
 import * as dts from './dts';
 
+import {onMessagePublished} from 'firebase-functions/v2/pubsub';
+
 logs.init();
 
 /**
@@ -112,13 +114,24 @@ export const upsertTransferConfig = functions.tasks
     return;
   });
 
-export const processMessages = functions.pubsub
-  .topic(config.pubSubTopic)
-  .onPublish(async message => {
+export const processMessages = onMessagePublished(
+  config.pubSubTopic,
+  async event => {
+    const message = event.data.message;
+
     logs.pubsubMessage(message);
     await helper.handleMessage(db, config, message);
     logs.pubsubMessageHandled(message);
-  });
+  }
+);
+
+// export const processMessages = functions.
+//   .topic(config.pubSubTopic)
+//   .onPublish(async message => {
+//     logs.pubsubMessage(message);
+//     await helper.handleMessage(db, config, message);
+//     logs.pubsubMessageHandled(message);
+//   });
 
 export const processMessagesHttp = functions.https.onRequest(
   async (req, res) => {
