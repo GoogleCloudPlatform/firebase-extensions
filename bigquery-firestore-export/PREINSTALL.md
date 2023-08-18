@@ -50,4 +50,5 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 - Cloud Functions (See FAQs)
 
 > ⚠️ *Note: The extension does not automatically delete the BigQuery Transfer Config (scheduled query) when you uninstall the extension.*
+
 > *BigQuery charges by data processed, so your project will continue to incur costs until you manually delete the scheduled query. You can manage your scheduled queries directly in Cloud Console.*
