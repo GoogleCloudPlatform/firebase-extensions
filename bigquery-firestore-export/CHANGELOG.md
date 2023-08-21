@@ -1,3 +1,7 @@
+## Version 0.1.4
+
+Updated PREINSTALL for readability.
+
 ## Version 0.1.3
 
 Add icon and tags to extension.yaml.
