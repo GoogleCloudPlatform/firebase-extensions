@@ -18,6 +18,7 @@ import * as functions from 'firebase-functions';
 import {CallableContext, HttpsError} from 'firebase-functions/v1/https';
 import {FunctionsErrorCode} from 'firebase-functions/v1/https';
 import config from './config';
+import {AuthData} from 'firebase-functions/lib/common/providers/https';
 
 const checkAuth = (context: CallableContext) => {
   if (!context.auth) {
@@ -123,7 +124,7 @@ export const codeToFunctionsErrorCode: Record<number, FunctionsErrorCode> = {
 export function callCustomHookIfEnabled(
   fetchArgs: {url?: string; options?: Record<string, unknown>},
   responseOrError: unknown,
-  uid: string
+  auth?: AuthData
 ) {
   if (config.customHookUrl) {
     fetch(config.customHookUrl, {
@@ -131,7 +132,7 @@ export function callCustomHookIfEnabled(
       body: JSON.stringify({
         fetchArgs,
         responseOrError,
-        uid,
+        auth,
       }),
     });
   }
