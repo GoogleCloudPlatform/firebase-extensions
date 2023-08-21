@@ -2,7 +2,6 @@
 import * as firebaseFunctionsTest from 'firebase-functions-test';
 import config from '../src/config';
 import {post} from '../src/index';
-import {RequestInfo, RequestInit} from 'node-fetch';
 import {HttpsError} from 'firebase-functions/v1/auth';
 
 process.env.GCLOUD_PROJECT = 'dev-extensions-testing';

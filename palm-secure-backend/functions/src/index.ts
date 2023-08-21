@@ -38,20 +38,18 @@ export const getModels = onAuthenticatedCall<void, any>(
     recordOnStartEvent('getModels', data, context);
 
     const url = `https://${palmEndpoint}/${apiVersion}/models`;
-    // get uid from context
-    const uid = context.auth!.uid;
 
     try {
       recordOnRequestEvent('getModels', {url}, context);
 
       const response = await fetchFromApi(url);
       recordOnResponseEvent('getModels', {fetchArgs: {url}, response}, context);
-      callCustomHookIfEnabled({url}, response, uid);
+      callCustomHookIfEnabled({url}, response, context.auth);
 
       return response;
     } catch (error) {
       recordOnErrorEvent('getModels', error, context);
-      callCustomHookIfEnabled({url}, error, uid);
+      callCustomHookIfEnabled({url}, error, context.auth);
       throw error;
     }
   }
@@ -63,20 +61,17 @@ export const getModel = onAuthenticatedCall<{name: string}, any>(
 
     const url = `https://${palmEndpoint}/${apiVersion}/models/${data.name}`;
 
-    // get uid from context
-    const uid = context.auth!.uid;
-
     try {
       recordOnRequestEvent('getModel', {url}, context);
       const response = await fetchFromApi(url);
 
       recordOnResponseEvent('getModel', {fetchArgs: {url}, response}, context);
-      callCustomHookIfEnabled({url}, response, uid);
+      callCustomHookIfEnabled({url}, response, context.auth);
 
       return response;
     } catch (error) {
       recordOnErrorEvent('getModel', error, context);
-      callCustomHookIfEnabled({url}, error, uid);
+      callCustomHookIfEnabled({url}, error, context.auth);
       throw error;
     }
   }
@@ -86,12 +81,11 @@ export const post = onAuthenticatedCall<any, any>(async (data, context) => {
   recordOnStartEvent('post', data, context);
 
   const {model, method} = data;
-  const uid = context.auth!.uid;
 
   if (!model) {
     const error = new HttpsError('invalid-argument', 'Model name is required');
     recordOnErrorEvent('post', error, context);
-    callCustomHookIfEnabled({}, error, uid);
+    callCustomHookIfEnabled({}, error, context.auth);
     throw error;
   }
 
@@ -100,7 +94,7 @@ export const post = onAuthenticatedCall<any, any>(async (data, context) => {
   if (!method) {
     const error = new HttpsError('invalid-argument', 'Method name is required');
     recordOnErrorEvent('post', error, context);
-    callCustomHookIfEnabled({}, error, uid);
+    callCustomHookIfEnabled({}, error, context.auth);
     throw error;
   }
 
@@ -118,7 +112,7 @@ export const post = onAuthenticatedCall<any, any>(async (data, context) => {
   try {
     recordOnRequestEvent('post', {url, options}, context);
     const response = await fetchFromApi(url, options);
-    callCustomHookIfEnabled({url, options}, response, uid);
+    callCustomHookIfEnabled({url, options}, response, context.auth);
     recordOnResponseEvent(
       'post',
       {fetchArgs: {url, options}, response},
@@ -128,7 +122,7 @@ export const post = onAuthenticatedCall<any, any>(async (data, context) => {
     return response;
   } catch (error) {
     recordOnErrorEvent('post', error, context);
-    callCustomHookIfEnabled({url, options}, error, uid);
+    callCustomHookIfEnabled({url, options}, error, context.auth);
     throw error;
   }
 });

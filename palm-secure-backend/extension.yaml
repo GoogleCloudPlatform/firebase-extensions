@@ -66,7 +66,7 @@ resources:
       location: ${LOCATION}
       # httpsTrigger is used for an HTTP triggered function.
       httpsTrigger: {}
-      runtime: nodejs16
+      runtime: nodejs18
   - name: getModels
     type: firebaseextensions.v1beta.function
     description: >-
@@ -76,7 +76,7 @@ resources:
       location: ${LOCATION}
       # httpsTrigger is used for an HTTP triggered function.
       httpsTrigger: {}
-      runtime: nodejs16
+      runtime: nodejs18
   - name: getModel
     type: firebaseextensions.v1beta.function
     description: >-
@@ -86,7 +86,7 @@ resources:
       location: ${LOCATION}
       # httpsTrigger is used for an HTTP triggered function.
       httpsTrigger: {}
-    runtime: nodejs16
+    runtime: nodejs18
 
 # In the `params` field, set up your extension's user-configured parameters.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#params-field
