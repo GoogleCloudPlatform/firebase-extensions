@@ -84,6 +84,8 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 * Target Summary Length: Number of sentences you would like the summary to be.
 
+* Maximum number of tokens: If you have selected the Vertex AI service as your PaLM API provider, this parameter will be used to set the max_tokens parameter in the Vertex API request. It should be an integer in the range [1,1024]. The default value for the extension is 1024.
+
 * Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
 
 
