@@ -8,6 +8,7 @@ import {
   BigQueryDate,
   BigQueryDatetime,
   BigQueryTime,
+  Geography,
 } from '@google-cloud/bigquery';
 import config from './config';
 
@@ -200,6 +201,8 @@ function convertUnsupportedDataTypes(row: any) {
       row[key] = admin.firestore.Timestamp.fromDate(value);
     } else if (value instanceof Buffer) {
       row[key] = new Uint8Array(value);
+    } else if (value instanceof Geography) {
+      row[key] = value.value;
     } else if (typeof value === 'object' && value !== null) {
       row[key] = convertUnsupportedDataTypes(value);
     }
