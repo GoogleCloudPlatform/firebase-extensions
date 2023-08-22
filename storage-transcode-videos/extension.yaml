@@ -28,11 +28,10 @@ resources:
       transcoding job on them.
     properties:
       location: ${param:LOCATION}
-      availableMemoryMb: 128
       eventTrigger:
         eventType: google.storage.object.finalize
         resource: projects/_/buckets/${param:INPUT_VIDEOS_BUCKET}
-      runtime: 'nodejs10'
+      runtime: 'nodejs18'
 
 params:
   - param: LOCATION

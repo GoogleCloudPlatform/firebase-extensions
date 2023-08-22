@@ -27,7 +27,7 @@ exports.transcodevideo = functions.storage.object().onFinalize(async (object) =>
     var _a;
     if (!object.name)
         return;
-    if (!utils_1.shouldProcessStorageObject(object.name))
+    if (!(0, utils_1.shouldProcessStorageObject)(object.name))
         return;
     // `videoTranscoderTemplateId` can be specified on the storage objects metadata to override
     // the template that is used to transcode the incoming video. Defaults to `DEFAULT_TEMPLATE_ID`

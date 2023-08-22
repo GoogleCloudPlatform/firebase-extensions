@@ -18,8 +18,7 @@ import {logger} from 'firebase-functions';
 import {google} from '@google-cloud/video-transcoder/build/protos/protos';
 
 import config from './config';
-import IFailureDetail = google.cloud.video.transcoder.v1beta1.IFailureDetail;
-import ICreateJobRequest = google.cloud.video.transcoder.v1beta1.ICreateJobRequest;
+import ICreateJobRequest = google.cloud.video.transcoder.v1.ICreateJobRequest;
 
 export const init = (): void => {
   logger.log('Initializing extension with configuration', config);
@@ -61,12 +60,10 @@ export function templateDoesNotExist(objectName: string, templateId: string) {
 
 export const jobFailed = (
   objectName: string,
-  failureReason?: String | null,
-  failureDetails?: IFailureDetail[] | null
+  failureReason?: String | null
 ): void => {
   logger.error(
     `Creating a transcode video request for '${objectName}' failed`,
-    failureReason,
-    failureDetails
+    failureReason
   );
 };

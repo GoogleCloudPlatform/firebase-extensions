@@ -42,7 +42,7 @@ function templateDoesNotExist(objectName, templateId) {
     firebase_functions_1.logger.error(`Error when processing storage object '${objectName}' - the specified template '${templateId}' does not exist.`);
 }
 exports.templateDoesNotExist = templateDoesNotExist;
-const jobFailed = (objectName, failureReason, failureDetails) => {
-    firebase_functions_1.logger.error(`Creating a transcode video request for '${objectName}' failed`, failureReason, failureDetails);
+const jobFailed = (objectName, failureReason) => {
+    firebase_functions_1.logger.error(`Creating a transcode video request for '${objectName}' failed`, failureReason);
 };
 exports.jobFailed = jobFailed;
