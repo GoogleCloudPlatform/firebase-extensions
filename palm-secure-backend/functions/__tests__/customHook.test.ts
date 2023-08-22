@@ -1,13 +1,11 @@
 /* eslint-disable */
 import * as firebaseFunctionsTest from 'firebase-functions-test';
-import config from '../src/config';
-import {getModels} from '../src/index';
+import {getModel} from '../src/index';
 import {HttpsError} from 'firebase-functions/v1/auth';
 
 process.env.GCLOUD_PROJECT = 'dev-extensions-testing';
 
-const HOST = 'generativelanguage.googleapis.com';
-const API_VERSION = 'v1beta2';
+const MODEL = 'test-model';
 
 // // // We mock out the config here instead of setting environment variables directly
 jest.mock('../src/config', () => ({
@@ -16,7 +14,7 @@ jest.mock('../src/config', () => ({
     palmEndpoint: 'generativelanguage.googleapis.com',
     apiVersion: 'v1beta2',
     enforceAppCheck: process.env.ENFORCE_APP_CHECK === 'yes',
-    customHookUrl: process.env.CUSTOM_HOOK_URL,
+    customHookUrl: 'test-custom-hook-url',
   },
 }));
 
@@ -26,7 +24,7 @@ const mockResponse = {
   headers: new Headers({
     'Content-Type': 'application/json',
   }),
-  json: () => Promise.resolve({models: ['test-model-001']}),
+  json: () => Promise.resolve({}),
   ok: true,
 };
 
@@ -41,16 +39,16 @@ const fft = firebaseFunctionsTest({
   projectId: 'dev-extensions-testing',
 });
 
-const wrappedGetModels = fft.wrap(getModels);
+const wrappedGetModel = fft.wrap(getModel);
 
-describe('getModels', () => {
+describe('customHook', () => {
   beforeEach(() => {
     mock.mockClear();
   });
 
   test('should throw if not authenticated', async () => {
     try {
-      await wrappedGetModels();
+      await wrappedGetModel({name: MODEL});
     } catch (e) {
       expect(e).toBeInstanceOf(HttpsError);
       const error = e as HttpsError;
@@ -58,21 +56,14 @@ describe('getModels', () => {
     }
   });
 
-  test('should return a list of models', async () => {
-    const res = await wrappedGetModels(undefined, {auth: {uid: '123'}});
+  test('should use a custom hook', async () => {
+    await wrappedGetModel({name: MODEL}, {auth: 'test'});
 
-    expect(res.models).toBeDefined();
-    expect(res.models[0]).toBe('test-model-001');
-
-    expect(mock.mock.calls.length).toBe(1);
+    expect(mock.mock.calls.length).toBe(2);
     expect(typeof mock.mock.calls[0][0]).toBe('string');
-    const url = new URL(mock.mock.calls[0][0]);
 
-    const {protocol, host, pathname, searchParams} = url;
+    const customHookUrl = mock.mock.calls[1][0];
 
-    expect(protocol).toBe('https:');
-    expect(host).toBe(HOST);
-    expect(pathname).toBe(`/${API_VERSION}/models`);
-    expect(searchParams.get('key')).toBe(config.apiKey);
+    expect(customHookUrl).toBe('test-custom-hook-url');
   });
 });
