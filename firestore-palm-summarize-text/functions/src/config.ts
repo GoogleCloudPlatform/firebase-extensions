@@ -25,6 +25,7 @@ export interface Config {
   provider: string;
   model: string;
   apiKey?: string;
+  maxOutputTokens?: number;
 }
 
 function getModel() {
@@ -56,6 +57,9 @@ const config: Config = {
   provider: process.env.PALM_API_PROVIDER || 'vertex',
   model: getModel(),
   apiKey: process.env.API_KEY,
+  maxOutputTokens: process.env.MAX_OUTPUT_TOKENS
+    ? parseInt(process.env.MAX_OUTPUT_TOKENS)
+    : 1024,
 };
 
 export default config;
