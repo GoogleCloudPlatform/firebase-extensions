@@ -15,7 +15,6 @@
  */
 
 import * as functions from 'firebase-functions';
-import fetch, {Response, RequestInit} from 'node-fetch';
 import {CallableContext, HttpsError} from 'firebase-functions/v1/https';
 import {FunctionsErrorCode} from 'firebase-functions/v1/https';
 import config from './config';
@@ -120,3 +119,20 @@ export const codeToFunctionsErrorCode: Record<number, FunctionsErrorCode> = {
   503: 'unavailable',
   504: 'deadline-exceeded',
 };
+
+export function callCustomHookIfEnabled(
+  fetchArgs: {url?: string; options?: Record<string, unknown>},
+  responseOrError: unknown,
+  uid?: string
+) {
+  if (config.customHookUrl) {
+    fetch(config.customHookUrl, {
+      method: 'POST',
+      body: JSON.stringify({
+        fetchArgs,
+        responseOrError,
+        uid,
+      }),
+    });
+  }
+}

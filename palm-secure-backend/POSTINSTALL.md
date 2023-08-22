@@ -30,10 +30,13 @@ const {response} = await post({
 })
 ```
 
+## Custom Hook
+
+If you have set the Custom Hook URL parameter at install, each time the extension calls the PaLM API it will forward on the request data, response data, and the auth context to the URL you provided, to do with as you wish.
+
 ## Code Samples
 
-You can find code samples of frontend applications that use this extension [here](https://github.com/google/generative-ai-docs/tree/main/demos/palm/web/quick-prompt
-) and [here](https://github.com/google/generative-ai-docs/tree/main/demos/palm/web/list-it).
+You can find code samples of frontend applications that use this extension [here](https://github.com/google/generative-ai-docs/tree/main/demos/palm/web/quick-prompt) and [here](https://github.com/google/generative-ai-docs/tree/main/demos/palm/web/list-it).
 
 ## Monitoring
 

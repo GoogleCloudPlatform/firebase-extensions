@@ -49,6 +49,9 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 * Enforce App Check: If enabled, App check will be enforced for function calls.
 
+* Custom hook function url: An HTTPS callable function that will be called with the request and response body of the PaLM API call, as well as user context.
+
+
 
 
 **Cloud Functions:**
