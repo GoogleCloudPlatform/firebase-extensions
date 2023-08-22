@@ -51,13 +51,13 @@ export class TextGenerator {
   candidateCount?: number;
   topP?: number;
   topK?: number;
-  maxOutputTokens?: number;
+  maxOutputTokens: number;
 
   constructor(options: TextGeneratorOptions = {}) {
     this.temperature = options.temperature;
     this.topP = options.topP;
     this.topK = options.topK;
-    this.maxOutputTokens = options.maxOutputTokens;
+    this.maxOutputTokens = options.maxOutputTokens || 1024;
     this.candidateCount = options.candidateCount;
     this.instruction = options.instruction;
     if (options.model) this.model = options.model;
@@ -122,6 +122,7 @@ export class TextGenerator {
       const temperature = options.temperature || this.temperature;
       const topP = options.topP || this.topP;
       const topK = options.topK || this.topK;
+      const maxOutputTokens = options.maxOutputTokens || this.maxOutputTokens;
 
       const parameter: Record<string, string | number> = {};
       // We have to set these conditionally or they get nullified and the request fails with a serialization error.
@@ -134,7 +135,7 @@ export class TextGenerator {
       if (topK) {
         parameter.top_k = topK;
       }
-      parameter.maxOutputTokens = 100;
+      parameter.maxOutputTokens = maxOutputTokens;
 
       const parameters = helpers.toValue(parameter);
 

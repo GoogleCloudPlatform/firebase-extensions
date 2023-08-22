@@ -25,6 +25,7 @@ const {textField, responseField, collectionName, targetSummaryLength} = config;
 
 const textGenerator = new TextGenerator({
   model: config.model,
+  maxOutputTokens: config.maxOutputTokens,
 });
 
 logs.init(config);
