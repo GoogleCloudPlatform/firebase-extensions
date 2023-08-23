@@ -19,19 +19,9 @@ import * as functions from 'firebase-functions';
 import {getFunctions, TaskQueue} from 'firebase-admin/functions';
 import {getExtensions} from 'firebase-admin/extensions';
 import config from './config';
-import {enqueueExportTask, getRows, getTableLength} from './utils';
+import {enqueueExportTask, ExportData, getRows, getTableLength} from './utils';
 
-export async function exportChunkTriggerHandler({
-  transferConfigId,
-  runId,
-  datasetId,
-  tableName,
-}: {
-  transferConfigId: string;
-  runId: string;
-  datasetId: string;
-  tableName: string;
-}) {
+export async function exportChunkTriggerHandler(exportData: ExportData) {
   const runtime = getExtensions().runtime();
 
   const queue = getFunctions().taskQueue(
@@ -46,8 +36,8 @@ export async function exportChunkTriggerHandler({
     // const refs = document ? [document.ref] : await collection.listDocuments();
     const rowCount = await getTableLength(
       config.projectId,
-      datasetId,
-      tableName
+      exportData.datasetId,
+      exportData.tableName
     );
 
     if (rowCount === 0) {
@@ -58,12 +48,10 @@ export async function exportChunkTriggerHandler({
     }
 
     functions.logger.info(
-      `Found ${rowCount} documents in the bigquery table ${tableName}`
+      `Found ${rowCount} documents in the bigquery table ${exportData.tableName}`
     );
 
-    const runDoc = `${config.firestoreCollection}/${transferConfigId}/runs/${runId}`;
-
-    await admin.firestore().doc(runDoc).set({
+    await exportData.runDoc.set({
       totalLength: rowCount,
       processedLength: 0,
       status: 'PENDING',
@@ -78,11 +66,14 @@ export async function exportChunkTriggerHandler({
 
       try {
         // Create a task document to track the progress of the task.
-        writer.set(admin.firestore().doc(`${runDoc}/tasks/${id}`), {
-          taskId: id,
-          status: 'PENDING',
-          offset: i,
-        });
+        writer.set(
+          admin.firestore().doc(`${exportData.runDocPath}/tasks/${id}`),
+          {
+            taskId: id,
+            status: 'PENDING',
+            offset: i,
+          }
+        );
         // commit a batch of metadata to firestore every batchSize tasks
         if (counter % config.batchSize === 0 || counter === chunkCount) {
           functions.logger.info('Committing the batch...');
@@ -104,12 +95,8 @@ export async function exportChunkTriggerHandler({
         // Enqueue first task to start the process
         functions.logger.info(`Enqueuing the first task ${id} 🚀`);
 
-        await enqueueExportTask(queue, {
+        await enqueueExportTask(queue, exportData, {
           id,
-          datasetId,
-          transferConfigId,
-          runId,
-          tableName,
           offset: i,
         });
       }

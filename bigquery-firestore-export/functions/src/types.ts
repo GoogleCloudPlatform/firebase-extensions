@@ -15,3 +15,8 @@ export interface Config {
   chunkSize: number;
   batchSize: number;
 }
+
+export interface ExportTask {
+  id: string;
+  offset: number;
+}

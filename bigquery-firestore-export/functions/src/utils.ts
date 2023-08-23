@@ -10,6 +10,12 @@ import {
 import {TaskQueue} from 'firebase-admin/functions';
 
 import config from './config';
+import {Message} from 'firebase-functions/v1/pubsub';
+import {ExportTask} from './types';
+
+const db = admin.firestore();
+
+/** Bigquery utils */
 
 export function convertUnsupportedDataTypes(row: any) {
   for (const [key, value] of Object.entries(row)) {
@@ -31,7 +37,7 @@ export function convertUnsupportedDataTypes(row: any) {
   }
   return row;
 }
-
+// TODO: just get this from table metadata instead of running query
 export const getTableLength = async (
   projectId: string,
   datasetId: string,
@@ -52,7 +58,7 @@ export const getTableLength = async (
   const rowCount = rows[0].f0_;
   return rowCount;
 };
-
+/** executes BQ query and serializes to firestore friendly data */
 export const getRows = async (query: string) => {
   const bigquery = new BigQuery();
   const options = {
@@ -64,17 +70,19 @@ export const getRows = async (query: string) => {
   return rows.map(convertUnsupportedDataTypes);
 };
 
+//** Misc */
+
 export const enqueueExportTask = async (
   queue: TaskQueue,
-  {id, datasetId, transferConfigId, runId, tableName, offset}
+  exportData: ExportData,
+  task: ExportTask
 ) => {
-  const query = `SELECT * FROM \`${config.projectId}.${datasetId}.${tableName}\` LIMIT ${config.chunkSize} OFFSET ${offset}`;
-
+  const query = `SELECT * FROM \`${config.projectId}.${exportData.datasetId}.${exportData.tableName}\` LIMIT ${config.chunkSize} OFFSET ${task.offset}`;
   await queue.enqueue({
-    id,
+    id: task.id,
     query,
-    transferConfigId,
-    runId,
+    transferConfigId: exportData.transferConfigId,
+    runId: exportData.runId,
   });
 };
 
@@ -89,3 +97,45 @@ export const isAssociatedWithExt = async (
 
   return results.docs.filter(d => d.id === transferConfigId).length > 0;
 };
+
+export class ExportData {
+  transferConfigId: string;
+  runId: string;
+  runDocPath?: FirebaseFirestore.DocumentReference['path'];
+  runDoc?: FirebaseFirestore.DocumentReference;
+  outputCollection?: FirebaseFirestore.CollectionReference;
+  datasetId?: string;
+  tableName?: string;
+  succeeded: boolean;
+  constructor(message: Message) {
+    const name = message.json.name;
+    const splitName = name.split('/');
+    this.transferConfigId = splitName[splitName.length - 3];
+    this.runId = splitName[splitName.length - 1];
+    this.succeeded = message.json.state === 'SUCCEEDED';
+    if (this.succeeded) {
+      this.tableName = this._getTableName(message);
+      this.datasetId = message.json.destinationDatasetId;
+      this.runDocPath = `${config.firestoreCollection}/${this.transferConfigId}/runs/${this.runId}`;
+      this.runDoc = db.doc(this.runDocPath);
+      this.outputCollection = db.collection(`${this.runDocPath}/output`);
+    }
+  }
+
+  private _getTableName(message: Message) {
+    const runTime = new Date(message.json.runTime);
+    const hourStr = String(runTime.getUTCHours()).padStart(2, '0');
+    const minuteStr = String(runTime.getUTCMinutes()).padStart(2, '0');
+    const secondStr = String(runTime.getUTCSeconds()).padStart(2, '0');
+    const tableName =
+      message.json.params.destination_table_name_template.replace(
+        '{run_time|"%H%M%S"}',
+        `${hourStr}${minuteStr}${secondStr}`
+      );
+    return tableName;
+  }
+
+  public getQuery(offset: number) {
+    return `SELECT * FROM \`${config.projectId}.${this.datasetId}.${this.tableName}\` LIMIT ${config.chunkSize} OFFSET ${offset}`;
+  }
+}

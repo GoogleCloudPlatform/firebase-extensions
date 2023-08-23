@@ -14,78 +14,64 @@
  * limitations under the License.
  */
 
-import * as admin from 'firebase-admin';
 import {getFunctions} from 'firebase-admin/functions';
 import config from './config';
-import {enqueueExportTask, getRows} from './utils';
+import {ExportTask} from './types';
+import {enqueueExportTask, ExportData, getRows} from './utils';
 
-const db = admin.firestore();
-
-export async function exportChunkTaskHandler({
-  id,
-  datasetId,
-  tableName,
-  offset,
-  transferConfigId,
-  runId,
+export async function exportChunkTaskHandler(data: {
+  exportData: ExportData;
+  task: ExportTask;
 }) {
-  const query = `SELECT * FROM \`${config.projectId}.${datasetId}.${tableName}\` LIMIT ${config.chunkSize} OFFSET ${offset}`;
+  const {exportData, task} = data;
+  const {id, offset} = task;
+
+  const query = exportData.getQuery(offset);
+
   const rows = await getRows(query);
   // log that we got the rows
-  const runDocPath = `${config.firestoreCollection}/${transferConfigId}/runs/${runId}`;
-  const outputCollection = db.collection(`${runDocPath}/output`);
 
   // we add these in parallel as it is faster
-  await Promise.all(rows.map(outputCollection.add));
+  await Promise.all(rows.map(exportData.outputCollection.add));
 
   // update the task document to mark it as complete
-  await db.doc(`${runDocPath}/tasks/${id}`).update({
+  await exportData.runDoc.update({
     status: 'COMPLETE',
   });
 
-  const runDocSnap = await db.doc(runDocPath).get();
+  const runDocSnap = await exportData.runDoc.get();
   const {totalLength, processedLength} = runDocSnap.data();
   const newProcessedLength = processedLength + rows.length;
 
   if (newProcessedLength === totalLength) {
-    await admin.firestore().doc(runDocPath).update({
+    await exportData.runDoc.update({
       status: 'DONE',
     });
   } else {
     // queue next task
-    await _createNextTask({
-      prevId: id,
-      datasetId,
-      tableName,
-      offset: offset + config.chunkSize,
-      transferConfigId,
-      runId,
+    await _createNextTask(exportData, {
+      id: id,
+      offset: offset,
     });
   }
 }
 
-const _createNextTask = async ({
-  prevId,
-  datasetId,
-  transferConfigId,
-  runId,
-  tableName,
-  offset,
-}) => {
+const _createNextTask = async (
+  exportData: ExportData,
+  prevTask: ExportTask
+) => {
   const queue = getFunctions().taskQueue(
     `locations/${config.location}/functions/backfillTask`,
     config.instanceId
   );
 
-  const taskNum = prevId.split('task')[1];
-  const id = `ext-${config.instanceId}-task${parseInt(taskNum) + 1}`;
+  const taskNum = prevTask.id.split('task')[1];
+  const nextId = `ext-${config.instanceId}-task${parseInt(taskNum) + 1}`;
 
-  await enqueueExportTask(queue, {
-    id,
-    datasetId,
-    transferConfigId,
-    runId,
-    tableName,
-    offset,
+  const nextOffset = prevTask.offset + config.chunkSize;
+
+  await enqueueExportTask(queue, exportData, {
+    id: nextId,
+    offset: nextOffset,
   });
 };
