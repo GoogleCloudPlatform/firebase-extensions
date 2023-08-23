@@ -15,22 +15,26 @@
  */
 
 import {getFunctions} from 'firebase-admin/functions';
+import * as admin from 'firebase-admin';
 import config from './config';
 import {ExportTask} from './types';
-import {enqueueExportTask, ExportData, getRows} from './utils';
+import {enqueueExportTask, getRows} from './utils';
+import {ExportData} from './ExportData';
 
-export async function exportChunkTaskHandler(data: {
-  exportData: ExportData;
-  task: ExportTask;
-}) {
-  const {exportData, task} = data;
-  const {id, offset} = task;
+export async function exportChunkTaskHandler(
+  db: admin.firestore.Firestore,
+  data: {
+    exportDataObject: Record<string, unknown>;
+    task: ExportTask;
+  }
+) {
+  const exportData = new ExportData(db, data.exportDataObject);
+  const {id, offset} = data.task;
 
   const query = exportData.getQuery(offset);
 
   const rows = await getRows(query);
-  // log that we got the rows
-
+  // TODO log that we got the rows
   // we add these in parallel as it is faster
   await Promise.all(rows.map(exportData.outputCollection.add));
 
@@ -61,7 +65,7 @@ const _createNextTask = async (
   prevTask: ExportTask
 ) => {
   const queue = getFunctions().taskQueue(
-    `locations/${config.location}/functions/backfillTask`,
+    `locations/${config.location}/functions/exportChunk`,
     config.instanceId
   );
 

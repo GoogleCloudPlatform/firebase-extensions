@@ -16,16 +16,17 @@
 
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
-import {getFunctions, TaskQueue} from 'firebase-admin/functions';
+import {getFunctions} from 'firebase-admin/functions';
 import {getExtensions} from 'firebase-admin/extensions';
 import config from './config';
-import {enqueueExportTask, ExportData, getRows, getTableLength} from './utils';
+import {enqueueExportTask, getTableLength} from './utils';
+import {ExportData} from './ExportData';
 
 export async function exportChunkTriggerHandler(exportData: ExportData) {
   const runtime = getExtensions().runtime();
 
   const queue = getFunctions().taskQueue(
-    `locations/${config.location}/functions/backfillTask`,
+    `locations/${config.location}/functions/exportChunk`,
     config.instanceId
   );
 
@@ -100,10 +101,9 @@ export async function exportChunkTriggerHandler(exportData: ExportData) {
           offset: i,
         });
       }
-
       counter++;
     }
-
+    // TODO: move this as it's over counting
     functions.logger.info(`${counter} tasks enqueued successfully 🚀`);
 
     return runtime.setProcessingState(

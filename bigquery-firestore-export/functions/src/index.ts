@@ -123,7 +123,7 @@ export const processMessages = functions.pubsub
 
 export const exportChunk = functions.tasks
   .taskQueue()
-  .onDispatch(exportChunkTaskHandler);
+  .onDispatch(data => exportChunkTaskHandler(db, data));
 
 export const processMessagesHttp = functions.https.onRequest(
   async (req, res) => {

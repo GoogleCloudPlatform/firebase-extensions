@@ -2,16 +2,17 @@
 import * as admin from 'firebase-admin';
 import {Config} from './types';
 import * as logs from './logs';
-import {ExportData, isAssociatedWithExt} from './utils';
+import {isAssociatedWithExt} from './utils';
 import {exportChunkTriggerHandler} from './exportChunkTriggerHandler';
 import {Message} from 'firebase-functions/v1/pubsub';
+import {ExportData} from './ExportData';
 
 export const handleMessage = async (
   db: admin.firestore.Firestore,
   config: Config,
   message: Message
 ) => {
-  const exportData = new ExportData(message);
+  const exportData = new ExportData(db, {message});
 
   const hasValidConfig = await isAssociatedWithExt(
     db,
