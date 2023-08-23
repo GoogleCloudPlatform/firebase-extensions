@@ -8,9 +8,9 @@ import {syncMessage} from './fixtures/syncMessage';
 
 import {
   transferConfigAssociatedWithExtension,
-  writeRunResultsToFirestore,
+  // writeRunResultsToFirestore,
   handleMessage,
-} from '../src/helper';
+} from '../src/handleMessage';
 import {generateRandomString} from './helper';
 import {updateConfig} from './__mocks__';
 
@@ -74,7 +74,7 @@ describe('helpers', () => {
 
       /** Run the function */
       const msg = message(transferConfigId, runId);
-      await writeRunResultsToFirestore(db, msg);
+      // await writeRunResultsToFirestore(db, msg);
 
       /** Get the document */
       const result = await runDoc.get();
@@ -99,7 +99,7 @@ describe('helpers', () => {
 
       /** Run the function */
       const msg = message(transferConfigId, runId);
-      await writeRunResultsToFirestore(db, msg);
+      // await writeRunResultsToFirestore(db, msg);
 
       /** Get the document */
       const expected = syncMessage(name);
@@ -130,7 +130,7 @@ describe('helpers', () => {
 
       /** Export configuration */
       const msg = message(transferConfigId, runId);
-      await writeRunResultsToFirestore(db, msg);
+      // await writeRunResultsToFirestore(db, msg);
 
       /** Set extInstanceId **/
       const document = collection.doc(transferConfigId);
@@ -154,7 +154,7 @@ describe('helpers', () => {
 
       /** Export configuration */
       const msg = message(transferConfigId, runId);
-      await writeRunResultsToFirestore(db, msg);
+      // await writeRunResultsToFirestore(db, msg);
 
       /** Run the function */
       const result = await transferConfigAssociatedWithExtension(

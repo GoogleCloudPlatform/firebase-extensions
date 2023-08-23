@@ -68,6 +68,21 @@ resources:
         eventType: google.pubsub.topic.publish
         resource: projects/${PROJECT_ID}/topics/ext-${EXT_INSTANCE_ID}-processMessages
 
+  - name: writeToFirestore
+    type: firebaseextensions.v1beta.function
+    description: >-
+      A task-triggered function that gets called before a Vertex Matching Engine
+      index is created. It backfills embeddings for all documents in the
+      collection.
+    properties:
+      availableMemoryMb: 1024
+      location: ${LOCATION}
+      runtime: 'nodejs16'
+      timeout: 540s
+      taskQueueTrigger:
+        retryConfig:
+          maxAttempts: 50
+
   - name: upsertTransferConfig
     type: firebaseextensions.v1beta.function
     description: >-
