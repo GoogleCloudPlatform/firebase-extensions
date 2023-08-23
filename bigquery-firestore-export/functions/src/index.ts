@@ -20,8 +20,9 @@ import {getExtensions} from 'firebase-admin/extensions';
 
 import * as logs from './logs';
 import config from './config';
-import * as helper from './helper';
+import * as helper from './handleMessage';
 import * as dts from './dts';
+import {exportChunkTaskHandler} from './exportChunkTaskHandler';
 
 logs.init();
 
@@ -119,6 +120,10 @@ export const processMessages = functions.pubsub
     await helper.handleMessage(db, config, message);
     logs.pubsubMessageHandled(message);
   });
+
+export const exportChunk = functions.tasks
+  .taskQueue()
+  .onDispatch(exportChunkTaskHandler);
 
 export const processMessagesHttp = functions.https.onRequest(
   async (req, res) => {

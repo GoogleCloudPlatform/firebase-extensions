@@ -30,6 +30,8 @@ const config: Config = {
   schedule: process.env.SCHEDULE,
   pubSubTopic: `ext-${process.env.EXT_INSTANCE_ID}-processMessages`,
   firestoreCollection: process.env.COLLECTION_PATH!,
+  chunkSize: 10_000,
+  batchSize: 100,
 };
 
 export default config;
