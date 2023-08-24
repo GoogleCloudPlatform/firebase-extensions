@@ -12,4 +12,11 @@ export interface Config {
   pubSubTopic: string;
   firestoreCollection: string;
   displayName?: string;
+  chunkSize: number;
+  batchSize: number;
+}
+
+export interface ExportTask {
+  id: string;
+  offset: number;
 }

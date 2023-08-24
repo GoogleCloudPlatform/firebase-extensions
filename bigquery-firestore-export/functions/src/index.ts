@@ -20,8 +20,9 @@ import {getExtensions} from 'firebase-admin/extensions';
 
 import * as logs from './logs';
 import config from './config';
-import * as helper from './helper';
+import * as helper from './handleMessage';
 import * as dts from './dts';
+import {exportChunkTaskHandler} from './exportChunkTaskHandler';
 
 logs.init();
 
@@ -30,7 +31,7 @@ logs.init();
  */
 
 admin.initializeApp({projectId: config.projectId});
-const db = admin.firestore();
+export const db = admin.firestore();
 
 export const upsertTransferConfig = functions.tasks
   .taskQueue()
@@ -119,6 +120,10 @@ export const processMessages = functions.pubsub
     await helper.handleMessage(db, config, message);
     logs.pubsubMessageHandled(message);
   });
+
+export const exportChunk = functions.tasks
+  .taskQueue()
+  .onDispatch(data => exportChunkTaskHandler(db, data));
 
 export const processMessagesHttp = functions.https.onRequest(
   async (req, res) => {
