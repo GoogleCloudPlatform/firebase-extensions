@@ -29,6 +29,7 @@ export async function exportChunkTaskHandler(
   }
 ) {
   const exportData = new ExportData(db, data.exportDataObject);
+
   const {id, offset} = data.task;
 
   const query = exportData.getQuery(offset);
@@ -36,22 +37,31 @@ export async function exportChunkTaskHandler(
   const rows = await getRows(query);
   // TODO log that we got the rows
   // we add these in parallel as it is faster
-  await Promise.all(rows.map(exportData.outputCollection.add));
+
+  const outputCollectiion = db.collection(exportData.outputCollectionPath);
+
+  await Promise.all(rows.map(row => outputCollectiion.add(row)));
+
+  const runDoc = db.doc(exportData.runDocPath);
 
   // update the task document to mark it as complete
-  await exportData.runDoc.update({
-    status: 'COMPLETE',
+  admin.firestore().doc(`${exportData.runDocPath}/tasks/${id}`).update({
+    status: 'DONE',
   });
 
-  const runDocSnap = await exportData.runDoc.get();
+  const runDocSnap = await runDoc.get();
   const {totalLength, processedLength} = runDocSnap.data();
   const newProcessedLength = processedLength + rows.length;
 
   if (newProcessedLength === totalLength) {
-    await exportData.runDoc.update({
+    await runDoc.update({
+      processedLength: newProcessedLength,
       status: 'DONE',
     });
   } else {
+    await runDoc.update({
+      processedLength: newProcessedLength,
+    });
     // queue next task
     await _createNextTask(exportData, {
       id: id,

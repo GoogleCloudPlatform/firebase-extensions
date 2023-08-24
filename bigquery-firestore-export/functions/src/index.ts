@@ -31,7 +31,7 @@ logs.init();
  */
 
 admin.initializeApp({projectId: config.projectId});
-const db = admin.firestore();
+export const db = admin.firestore();
 
 export const upsertTransferConfig = functions.tasks
   .taskQueue()

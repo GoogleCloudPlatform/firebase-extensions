@@ -29,7 +29,7 @@ export const handleMessage = async (
 
   if (exportData.succeeded) {
     // queue up export tasks
-    await exportChunkTriggerHandler(exportData);
+    await exportChunkTriggerHandler(db, exportData);
   } else {
     await db
       .collection(

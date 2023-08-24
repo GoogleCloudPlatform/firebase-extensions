@@ -22,7 +22,10 @@ import config from './config';
 import {enqueueExportTask, getTableLength} from './utils';
 import {ExportData} from './ExportData';
 
-export async function exportChunkTriggerHandler(exportData: ExportData) {
+export async function exportChunkTriggerHandler(
+  db: admin.firestore.Firestore,
+  exportData: ExportData
+) {
   const runtime = getExtensions().runtime();
 
   const queue = getFunctions().taskQueue(
@@ -52,7 +55,9 @@ export async function exportChunkTriggerHandler(exportData: ExportData) {
       `Found ${rowCount} documents in the bigquery table ${exportData.tableName}`
     );
 
-    await exportData.runDoc.set({
+    const runDoc = db.doc(exportData.runDocPath);
+
+    await runDoc.set({
       totalLength: rowCount,
       processedLength: 0,
       status: 'PENDING',

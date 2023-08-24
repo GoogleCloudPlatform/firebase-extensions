@@ -24,9 +24,8 @@ interface ExportDataParams {
 export class ExportData {
   transferConfigId: string;
   runId: string;
-  runDocPath?: FirebaseFirestore.DocumentReference['path'];
-  runDoc?: FirebaseFirestore.DocumentReference;
-  outputCollection?: FirebaseFirestore.CollectionReference;
+  runDocPath?: string;
+  outputCollectionPath?: string;
   datasetId?: string;
   tableName?: string;
   succeeded: boolean;
@@ -81,8 +80,7 @@ export class ExportData {
       this.tableName = this._getTableName(message);
       this.datasetId = message.json.destinationDatasetId;
       this.runDocPath = `${config.firestoreCollection}/${this.transferConfigId}/runs/${this.runId}`;
-      this.runDoc = db.doc(this.runDocPath);
-      this.outputCollection = db.collection(`${this.runDocPath}/output`);
+      this.outputCollectionPath = `${this.runDocPath}/output`;
     }
   }
 
@@ -97,8 +95,7 @@ export class ExportData {
     this.succeeded = succeeded;
     if (this.succeeded) {
       this.runDocPath = `${config.firestoreCollection}/${this.transferConfigId}/runs/${this.runId}`;
-      this.runDoc = db.doc(this.runDocPath);
-      this.outputCollection = db.collection(`${this.runDocPath}/output`);
+      this.outputCollectionPath = `${this.runDocPath}/output`;
     }
   }
 
