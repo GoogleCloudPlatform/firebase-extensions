@@ -74,7 +74,7 @@ resources:
       A task-triggered function for exporting chunks of data from BQ to
       firestore
     properties:
-      availableMemoryMb: 1024
+      availableMemoryMb: 8192
       location: ${LOCATION}
       runtime: 'nodejs16'
       timeout: 540s
