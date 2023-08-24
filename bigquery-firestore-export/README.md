@@ -91,6 +91,8 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * **processMessages:** undefined
 
+* **exportChunk:** A task-triggered function for exporting chunks of data from BQ to firestore
+
 * **upsertTransferConfig:** Creates transfer config if doesn't exist yet.
 
 
