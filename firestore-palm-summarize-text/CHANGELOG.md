@@ -1,8 +1,12 @@
+## Version 0.1.8
+
+- Added a content filter threshold parameter
+- bumped dependencies
 ## Version 0.1.7
 
 - Improved summarization prompt to reduce hallucinations
-
 - Added parameter for max output tokens on response
+
 
 ## Version 0.1.6
 
