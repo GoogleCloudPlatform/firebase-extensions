@@ -67,7 +67,8 @@ the filtering is based on the probability that the prompt or response contains t
 
 Currently the extension only supports this feature for the Generative AI for developers PaLM Provider.
 
-For more information see the [documentation](https://developers.generativeai.google/guide/safety_setting) for the Generative AI for developers.
+For more information see the [documentation](https://developers.generativeai.google/guide/safety_setting) for the Generative AI for Developers PaLM API.
+
 ### Regenerating a response
 
 Changing the state field of a completed document's status from `COMPLETED` to anything else will retrigger the extension for that document.
