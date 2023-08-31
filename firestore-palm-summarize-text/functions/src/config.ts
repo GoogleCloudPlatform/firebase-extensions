@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {GLHarmBlockThreshold, GLHarmCategory, GLSafetySetting} from './types';
+
 export interface Config {
   location: string;
   projectId: string;
@@ -26,6 +28,8 @@ export interface Config {
   model: string;
   apiKey?: string;
   maxOutputTokens?: number;
+  contentFilterThreshold?: string;
+  generativeSafetySettings: GLSafetySetting[];
 }
 
 function getModel() {
@@ -41,6 +45,45 @@ function getModel() {
           return 'text-bison@001';
       }
   }
+}
+
+function getGenerativeSafetySettings() {
+  const {CONTENT_FILTER_THRESHOLD} = process.env as Record<
+    string,
+    keyof typeof GLHarmBlockThreshold
+  >;
+
+  // Array to map categories to their environmental variables
+  return [
+    {
+      category: GLHarmCategory.HARM_CATEGORY_UNSPECIFIED,
+      threshold: CONTENT_FILTER_THRESHOLD!,
+    },
+    {
+      category: GLHarmCategory.HARM_CATEGORY_DEROGATORY,
+      threshold: CONTENT_FILTER_THRESHOLD!,
+    },
+    {
+      category: GLHarmCategory.HARM_CATEGORY_TOXICITY,
+      threshold: CONTENT_FILTER_THRESHOLD!,
+    },
+    {
+      category: GLHarmCategory.HARM_CATEGORY_VIOLENCE,
+      threshold: CONTENT_FILTER_THRESHOLD!,
+    },
+    {
+      category: GLHarmCategory.HARM_CATEGORY_SEXUAL,
+      threshold: CONTENT_FILTER_THRESHOLD!,
+    },
+    {
+      category: GLHarmCategory.HARM_CATEGORY_MEDICAL,
+      threshold: CONTENT_FILTER_THRESHOLD!,
+    },
+    {
+      category: GLHarmCategory.HARM_CATEGORY_DANGEROUS,
+      threshold: CONTENT_FILTER_THRESHOLD!,
+    },
+  ];
 }
 
 const config: Config = {
@@ -60,6 +103,7 @@ const config: Config = {
   maxOutputTokens: process.env.MAX_OUTPUT_TOKENS
     ? parseInt(process.env.MAX_OUTPUT_TOKENS)
     : 1024,
+  generativeSafetySettings: getGenerativeSafetySettings(),
 };
 
 export default config;
