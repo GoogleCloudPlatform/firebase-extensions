@@ -1,10 +1,8 @@
-> ⚠️ The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
-> **Please ensure that you have already signed up for the [waitlist](https://makersuite.google.com/waitlist) and have been approved before installing the extension.**
-
 This extension allows you to perform language tasks using the PaLM API, a custom prompt, and Firestore.
 
 On installation, you will be asked to provide the following information:
 
+- **PaLM API Provider** This extension makes use of the PaLM large language model. There is a choice of provider for this API. See the section below for more details.
 - **Prompt:** This is the text that you want the PaLM API to generate a response for. It can be free-form text or it can use handlebars variables to substitute values from the Firestore document.
 - **Firestore collection path:** This is the path to the Firestore collection that contains the documents that you want to perform the language task on.
 - **Response field:** This is the name of the field in the Firestore document where you want the extension to store the response from the PaLM API.
@@ -44,6 +42,24 @@ Provide a star rating from 1-5 of the following review text: \“{{review_text}}
 ```
 
 In this case, review_text is a field of the Firestore document and will be substituted into the prompt when querying PaLM.
+
+### Choosing a PaLM Provider
+
+There are currently two different APIs providing access to PaLM large language models. The PaLM Developer (Generative Language) API, and Vertex AI. This extension will prompt you to pick an API on installation. For production use-cases we recommend Vertex AI, as the Generative Language API is still in public preview.
+
+- The PaLM developer (Generative Language) API is currently in public preview, and you will need to sign up [waitlist](https://makersuite.google.com/waitlist) if you want to use it. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
+
+- For more details on the Vertex AI PaLM API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview)
+
+
+### Harm filter thresholds
+
+PaLM provides content filters in different categories. This extension currently allows the developer to specify thresholds for these categories. Note that
+the filtering is based on the probability that the prompt or response contains the category of content, and not necessarily the severity of the content.
+
+Currently the extension only supports this feature for the Generative AI for developers PaLM Provider.
+
+For more information see the [documentation](https://developers.generativeai.google/guide/safety_setting) for the Generative AI for Developers PaLM API.
 
 ### Regenerating a response
 

@@ -1,5 +1,5 @@
 name: firestore-palm-gen-text
-version: 0.1.6
+version: 0.1.8
 specVersion: v1beta
 
 displayName: Language Tasks with PaLM API
@@ -272,10 +272,143 @@ params:
       If you have selected the Vertex AI service as your PaLM API provider, this
       parameter will be used to set the max_tokens parameter in the Vertex API
       request. It should be an integer in the range [1,1024]. The default value
-      for the extension is 100.
+      for the extension is 1024.
     type: string
     validationRegex: ^(102[0-4]|10[01][0-9]|100[0-9]|[1-9][0-9]{0,2})$
     validationErrorMessage: Please specify an integer in the range [1,1024]
     required: false
-    default: 100
+    default: 1024
+    immutable: false
+
+  - param: DEROGATORY_THRESHOLD
+    label: Derogatory Content Threshold
+    description: >-
+      Threshold for derogatory content. Specify what probability level of derogatory content is blocked by the PaLM provider.
+      This threshold is applicable only to the Generative Language PaLM API.
+    type: select
+    options:
+      - label: Block none
+        value: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+      - label: Block low and above
+        value: BLOCK_LOW_AND_ABOVE
+      - label: Block medium and above
+        value: BLOCK_MEDIUM_AND_ABOVE
+      - label: Block only high
+        value: BLOCK_ONLY_HIGH
+    required: false
+    default: BLOCK_ONLY_HIGH
+    immutable: false
+
+  - param: TOXICITY_THRESHOLD
+    label: Toxicity Threshold
+    description: >-
+      Threshold for toxic content. Specify what probability level of toxic content is blocked by the PaLM provider.
+      This threshold is applicable only to the Generative Language PaLM API.
+    type: select
+    options:
+      - label: Block none
+        value: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+      - label: Block low and above
+        value: BLOCK_LOW_AND_ABOVE
+      - label: Block medium and above
+        value: BLOCK_MEDIUM_AND_ABOVE
+      - label: Block only high
+        value: BLOCK_ONLY_HIGH
+    required: false
+    default: BLOCK_ONLY_HIGH
+    immutable: false
+
+  - param: SEXUAL_THRESHOLD
+    label: Sexual Content Threshold
+    description: >-
+      Threshold for sexual content. Specify what probability level of sexual content is blocked by the PaLM provider.
+      This threshold is currently applicable only to the Generative Language PaLM API.
+    type: select
+    options:
+      - label: Block none
+        value: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+      - label: Block low and above
+        value: BLOCK_LOW_AND_ABOVE
+      - label: Block medium and above
+        value: BLOCK_MEDIUM_AND_ABOVE
+      - label: Block only high
+        value: BLOCK_ONLY_HIGH
+    required: false
+    default: BLOCK_ONLY_HIGH
+    immutable: false
+
+  - param: VIOLENCE_THRESHOLD
+    label: Violent Content Threshold
+    description: >-
+      Threshold for violent content. Specify what probability of violent content is blocked by the PaLM provider.
+      This threshold is currently applicable only to the Generative Language PaLM API.
+    type: select
+    options:
+      - label: Block none
+        value: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+      - label: Block low and above
+        value: BLOCK_LOW_AND_ABOVE
+      - label: Block medium and above
+        value: BLOCK_MEDIUM_AND_ABOVE
+      - label: Block only high
+        value: BLOCK_ONLY_HIGH
+    required: false
+    default: BLOCK_ONLY_HIGH
+    immutable: false
+
+  - param: MEDICAL_THRESHOLD
+    label: Medical Content Threshold
+    description: >-
+      Threshold for medical content. Specify what probability level of medical content is blocked by the PaLM provider.
+      This threshold is applicable only to the Generative Language PaLM API.
+    type: select
+    options:
+      - label: Block none
+        value: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+      - label: Block low and above
+        value: BLOCK_LOW_AND_ABOVE
+      - label: Block medium and above
+        value: BLOCK_MEDIUM_AND_ABOVE
+      - label: Block only high
+        value: BLOCK_ONLY_HIGH
+    required: false
+    default: BLOCK_ONLY_HIGH
+    immutable: false
+
+  - param: DANGEROUS_THRESHOLD
+    label: Dangerous Content Threshold 
+    description: >-
+      Threshold for dangerous content. Specify what probability level of dangerous content is blocked by the PaLM provider.
+      This threshold is applicable only to the Generative Language PaLM API.
+    type: select
+    options:
+      - label: Block none
+        value: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+      - label: Block low and above
+        value: BLOCK_LOW_AND_ABOVE
+      - label: Block medium and above
+        value: BLOCK_MEDIUM_AND_ABOVE
+      - label: Block only high
+        value: BLOCK_ONLY_HIGH
+    required: false
+    default: BLOCK_ONLY_HIGH
+    immutable: false
+
+  - param: UNSPECIFIED_THRESHOLD
+    label: Unspecified Harm Threshold
+    description: >-
+      Threshold for non-specific harmful content. Specify what probability level of non-specific harmful content is blocked by the PaLM provider.
+      This threshold is applicable only to the Generative Language PaLM API.
+    type: select
+    options:
+      - label: Block none
+        value: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+      - label: Block low and above
+        value: BLOCK_LOW_AND_ABOVE
+      - label: Block medium and above
+        value: BLOCK_MEDIUM_AND_ABOVE
+      - label: Block only high
+        value: BLOCK_ONLY_HIGH
+    required: false
+    default: BLOCK_ONLY_HIGH
     immutable: false

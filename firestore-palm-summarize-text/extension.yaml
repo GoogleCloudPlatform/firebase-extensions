@@ -2,7 +2,7 @@
 # https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml
 
 name: firestore-palm-summarize-text # Identifier for your extension
-version: 0.1.6 # Follow semver versioning
+version: 0.1.8 # Follow semver versioning
 specVersion: v1beta # Version of the Firebase Extensions specification
 
 # Friendly display name for your extension (~3-5 words)
@@ -153,6 +153,39 @@ params:
     validationErrorMessage:
       Invalid TARGET_SUMMARY_LENGTH, must be an integer between 1 and 10.
     required: false
+    immutable: false
+
+  - param: MAX_OUTPUT_TOKENS
+    label: Maximum number of tokens
+    description: >-
+      If you have selected the Vertex AI service as your PaLM API provider, this
+      parameter will be used to set the max_tokens parameter in the Vertex API
+      request. It should be an integer in the range [1,1024]. The default value
+      for the extension is 1024.
+    type: string
+    validationRegex: ^(102[0-4]|10[01][0-9]|100[0-9]|[1-9][0-9]{0,2})$
+    validationErrorMessage: Please specify an integer in the range [1,1024]
+    required: false
+    default: 1024
+    immutable: false
+
+  - param: CONTENT_FILTER_THRESHOLD
+    label: Content Filter Threshold
+    description: >-
+      Threshold for harmful content. Specify what level of harmful content is blocked by the PaLM provider.
+      This threshold is applicable only to the Generative Language PaLM API.
+    type: select
+    options:
+      - label: Block none
+        value: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+      - label: Block low and above
+        value: BLOCK_LOW_AND_ABOVE
+      - label: Block medium and above
+        value: BLOCK_MEDIUM_AND_ABOVE
+      - label: Block only high
+        value: BLOCK_ONLY_HIGH
+    required: false
+    default: BLOCK_ONLY_HIGH
     immutable: false
 
   - param: LOCATION

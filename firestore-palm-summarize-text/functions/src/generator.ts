@@ -19,7 +19,7 @@ import {helpers, v1, protos} from '@google-cloud/aiplatform';
 
 import * as logs from './logs';
 import {GoogleAuth} from 'google-auth-library';
-import {APIGenerateTextRequest} from './types';
+import {GLGenerateTextRequest} from './types';
 import config from './config';
 
 export interface TextGeneratorOptions {
@@ -30,10 +30,11 @@ export interface TextGeneratorOptions {
   topK?: number;
   maxOutputTokens?: number;
   instruction?: string;
+  generativeSafetySettings?: GLGenerateTextRequest['safetySettings'];
 }
 
 export type TextGeneratorRequestOptions = Omit<
-  APIGenerateTextRequest,
+  GLGenerateTextRequest,
   'prompt' | 'model'
 >;
 
@@ -51,15 +52,17 @@ export class TextGenerator {
   candidateCount?: number;
   topP?: number;
   topK?: number;
-  maxOutputTokens?: number;
+  maxOutputTokens: number;
+  generativeSafetySettings: TextGeneratorRequestOptions['safetySettings'];
 
   constructor(options: TextGeneratorOptions = {}) {
     this.temperature = options.temperature;
     this.topP = options.topP;
     this.topK = options.topK;
-    this.maxOutputTokens = options.maxOutputTokens;
+    this.maxOutputTokens = options.maxOutputTokens || 1024;
     this.candidateCount = options.candidateCount;
     this.instruction = options.instruction;
+    this.generativeSafetySettings = options.generativeSafetySettings || [];
     if (options.model) this.model = options.model;
 
     this.endpoint = `projects/${config.projectId}/locations/${config.location}/publishers/google/models/${this.model}`;
@@ -67,7 +70,7 @@ export class TextGenerator {
     if (config.provider === 'vertex') {
       // here location is hard-coded, following https://cloud.google.com/vertex-ai/docs/generative-ai/embeddings/get-text-embeddings#generative-ai-get-text-embedding-nodejs
       const clientOptions = {
-        apiEndpoint: `us-central1-aiplatform.googleapis.com`,
+        apiEndpoint: 'us-central1-aiplatform.googleapis.com',
       };
 
       this.vertexClient = new v1.PredictionServiceClient(clientOptions);
@@ -122,6 +125,7 @@ export class TextGenerator {
       const temperature = options.temperature || this.temperature;
       const topP = options.topP || this.topP;
       const topK = options.topK || this.topK;
+      const maxOutputTokens = options.maxOutputTokens || this.maxOutputTokens;
 
       const parameter: Record<string, string | number> = {};
       // We have to set these conditionally or they get nullified and the request fails with a serialization error.
@@ -134,7 +138,7 @@ export class TextGenerator {
       if (topK) {
         parameter.top_k = topK;
       }
-      parameter.maxOutputTokens = 100;
+      parameter.maxOutputTokens = maxOutputTokens;
 
       const parameters = helpers.toValue(parameter);
 
@@ -155,6 +159,7 @@ export class TextGenerator {
       },
       model: `models/${this.model}`,
       ...options,
+      safetySettings: this.generativeSafetySettings,
     };
 
     if (!this.generativeClient) {

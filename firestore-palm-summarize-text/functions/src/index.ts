@@ -25,6 +25,8 @@ const {textField, responseField, collectionName, targetSummaryLength} = config;
 
 const textGenerator = new TextGenerator({
   model: config.model,
+  maxOutputTokens: config.maxOutputTokens,
+  generativeSafetySettings: config.generativeSafetySettings,
 });
 
 logs.init(config);
@@ -108,8 +110,9 @@ export const generateSummary = functions.firestore
   });
 
 const createSummaryPrompt = (text: string, targetSummaryLength?: number) => {
-  if (!targetSummaryLength) {
-    return `Summarize this text: "${text}"`;
-  }
-  return `Summarize this text in exactly ${targetSummaryLength} sentences: "${text}"`;
+  const prompt = `Give a summary of the following text in ${targetSummaryLength} sentences, do not use any information that is not explicitly mentioned in the text.
+text: ${text}
+`;
+
+  return prompt;
 };

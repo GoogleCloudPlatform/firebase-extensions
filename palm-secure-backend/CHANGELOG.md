@@ -1,3 +1,7 @@
+## Version 0.1.3
+
+Add custom hook url feature
+
 ## Version 0.1.2
 
 Add warning about waitlist.
