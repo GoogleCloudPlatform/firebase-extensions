@@ -64,7 +64,7 @@ export class Discussion {
 
     // here location is hard-coded, following https://cloud.google.com/vertex-ai/docs/generative-ai/embeddings/get-text-embeddings#generative-ai-get-text-embedding-nodejs
     const clientOptions = {
-      apiEndpoint: `us-central1-aiplatform.googleapis.com`,
+      apiEndpoint: 'us-central1-aiplatform.googleapis.com',
     };
 
     this.vertexClient = new v1.PredictionServiceClient(clientOptions);
@@ -113,7 +113,7 @@ export class Discussion {
       {author: '0', content: message},
     ];
 
-    const prompt: PaLMPrompt = {
+    const prompt: PaLMPrompt = truncatePrompt({
       messages,
       context:
         options.context || this.context || config.provider === 'vertex'
@@ -122,7 +122,7 @@ export class Discussion {
       examples: this.messagesToExamples(
         options.examples || this.examples || []
       ),
-    };
+    });
 
     if (config.provider === 'vertex') {
       const request = this.createVertexRequest(prompt, options);
@@ -178,6 +178,7 @@ export class Discussion {
       topK: options.topK || this.topK,
       candidateCount: options.candidateCount || this.candidateCount,
     };
+
     return request;
   }
 
@@ -282,4 +283,22 @@ export class Discussion {
       output: {author: '1', content: m.response!},
     }));
   }
+}
+
+// function to truncate payload to an upper limit of bytes (20k but leave some room for other fields and overhead)
+function truncatePrompt(prompt: PaLMPrompt, bytes = 19500): PaLMPrompt {
+  let payloadBytes = Buffer.byteLength(JSON.stringify(prompt), 'utf8');
+
+  while (payloadBytes > bytes) {
+    prompt.messages.shift();
+    payloadBytes = Buffer.byteLength(JSON.stringify(prompt), 'utf8');
+  }
+
+  if (prompt.messages.length === 0) {
+    throw new Error(
+      'Payload size exceeded. This is either because the latest message is too long, or the context/examples you have provided are too long. Please try again with a shorter message, or reconfigure examples/context.'
+    );
+  }
+
+  return prompt;
 }
