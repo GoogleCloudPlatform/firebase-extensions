@@ -116,6 +116,20 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 * Maximum number of tokens: If you have selected the Vertex AI service as your PaLM API provider, this parameter will be used to set the max_tokens parameter in the Vertex API request. It should be an integer in the range [1,1024]. The default value for the extension is 100.
 
+* Derogatory Content Threshold: Threshold for derogatory content. Specify what level of derogatory content is blocked by the PaLM provider. This threshold is applicable only to the Generative Language PaLM API.
+
+* Toxicity Threshold: Threshold for toxic content. Specify what level of toxic content is blocked by the PaLM provider. This threshold is applicable only to the Generative Language PaLM API.
+
+* Sexual Content Threshold: Threshold for sexual content. Specify what level of sexual content is blocked by the PaLM provider. This threshold is applicable only to the Generative Language PaLM API.
+
+* Violent Content Threshold: Threshold for violent content. Specify what level of violent content is blocked by the PaLM provider. This threshold is applicable only to the Generative Language PaLM API.
+
+* Medical Content Threshold: Threshold for medical content. Specify what level of medical content is blocked by the PaLM provider. This threshold is applicable only to the Generative Language PaLM API.
+
+* Dangerous Content Threshold: Threshold for dangerous content. Specify what level of dangerous content is blocked by the PaLM provider. This threshold is applicable only to the Generative Language PaLM API.
+
+* Unspecified Harm Threshold: Threshold for non-specific harmful content. Specify what level of non-specific harmful content is blocked by the PaLM provider. This threshold is applicable only to the Generative Language PaLM API.
+
 
 
 **Cloud Functions:**

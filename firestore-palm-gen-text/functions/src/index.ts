@@ -38,6 +38,7 @@ const {
   candidatesField,
   maxOutputTokens,
   variableFields,
+  generativeSafetySettings,
 } = config;
 
 const textGenerator = new TextGenerator({
@@ -47,6 +48,7 @@ const textGenerator = new TextGenerator({
   topK,
   candidateCount,
   maxOutputTokens,
+  generativeSafetySettings,
 });
 
 logs.init(config);
