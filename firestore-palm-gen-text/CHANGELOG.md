@@ -1,3 +1,7 @@
+## Version 0.1.8
+
+- Added parameters for configuring filter thresholds on developers PaLM API
+- Increased Max content length default
 ## Version 0.1.7
 
 - Fixed location bug where apiEndpoint was incorrectly entered

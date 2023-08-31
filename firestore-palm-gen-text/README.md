@@ -59,6 +59,16 @@ There are currently two different APIs providing access to PaLM large language m
 
 - For more details on the Vertex AI PaLM API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview)
 
+
+### Harm filter thresholds
+
+PaLM provides content filters in different categories. This extension currently allows the developer to specify thresholds for these categories. Note that
+the filtering is based on the probability that the prompt or response contains the category of content, and not necessarily the severity of the content.
+
+Currently the extension only supports this feature for the Generative AI for developers PaLM Provider.
+
+For more information see the [documentation](https://developers.generativeai.google/guide/safety_setting) for the Generative AI for Developers PaLM API.
+
 ### Regenerating a response
 
 Changing the state field of a completed document's status from `COMPLETED` to anything else will retrigger the extension for that document.
@@ -114,21 +124,21 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 * Candidates field: The field in the message document into which to put the other candidate responses if the candidate count parameter is greater than one. Note this is only available as a feature if you  selected the Generative Language API for Developers as your Palm API provider.
 
-* Maximum number of tokens: If you have selected the Vertex AI service as your PaLM API provider, this parameter will be used to set the max_tokens parameter in the Vertex API request. It should be an integer in the range [1,1024]. The default value for the extension is 100.
+* Maximum number of tokens: If you have selected the Vertex AI service as your PaLM API provider, this parameter will be used to set the max_tokens parameter in the Vertex API request. It should be an integer in the range [1,1024]. The default value for the extension is 1024.
 
-* Derogatory Content Threshold: Threshold for derogatory content. Specify what level of derogatory content is blocked by the PaLM provider. This threshold is applicable only to the Generative Language PaLM API.
+* Derogatory Content Threshold: Threshold for derogatory content. Specify what probability level of derogatory content is blocked by the PaLM provider. This threshold is applicable only to the Generative Language PaLM API.
 
-* Toxicity Threshold: Threshold for toxic content. Specify what level of toxic content is blocked by the PaLM provider. This threshold is applicable only to the Generative Language PaLM API.
+* Toxicity Threshold: Threshold for toxic content. Specify what probability level of toxic content is blocked by the PaLM provider. This threshold is applicable only to the Generative Language PaLM API.
 
-* Sexual Content Threshold: Threshold for sexual content. Specify what level of sexual content is blocked by the PaLM provider. This threshold is applicable only to the Generative Language PaLM API.
+* Sexual Content Threshold: Threshold for sexual content. Specify what probability level of sexual content is blocked by the PaLM provider. This threshold is currently applicable only to the Generative Language PaLM API.
 
-* Violent Content Threshold: Threshold for violent content. Specify what level of violent content is blocked by the PaLM provider. This threshold is applicable only to the Generative Language PaLM API.
+* Violent Content Threshold: Threshold for violent content. Specify what probability of violent content is blocked by the PaLM provider. This threshold is currently applicable only to the Generative Language PaLM API.
 
-* Medical Content Threshold: Threshold for medical content. Specify what level of medical content is blocked by the PaLM provider. This threshold is applicable only to the Generative Language PaLM API.
+* Medical Content Threshold: Threshold for medical content. Specify what probability level of medical content is blocked by the PaLM provider. This threshold is applicable only to the Generative Language PaLM API.
 
-* Dangerous Content Threshold: Threshold for dangerous content. Specify what level of dangerous content is blocked by the PaLM provider. This threshold is applicable only to the Generative Language PaLM API.
+* Dangerous Content Threshold: Threshold for dangerous content. Specify what probability level of dangerous content is blocked by the PaLM provider. This threshold is applicable only to the Generative Language PaLM API.
 
-* Unspecified Harm Threshold: Threshold for non-specific harmful content. Specify what level of non-specific harmful content is blocked by the PaLM provider. This threshold is applicable only to the Generative Language PaLM API.
+* Unspecified Harm Threshold: Threshold for non-specific harmful content. Specify what probability level of non-specific harmful content is blocked by the PaLM provider. This threshold is applicable only to the Generative Language PaLM API.
 
 
 
