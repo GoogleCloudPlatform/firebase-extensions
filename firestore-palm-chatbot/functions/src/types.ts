@@ -16,11 +16,11 @@
 import * as generativeLanguage from '@google-ai/generativelanguage';
 import * as vertex from '@google-cloud/aiplatform';
 
-export type APIGenerateMessageRequest =
+export type GLGenerateMessageRequest =
   generativeLanguage.protos.google.ai.generativelanguage.v1beta2.IGenerateMessageRequest;
-export type APIMessage =
+export type GLMessage =
   generativeLanguage.protos.google.ai.generativelanguage.v1beta2.IMessage;
-export type APIExample =
+export type GLExample =
   generativeLanguage.protos.google.ai.generativelanguage.v1beta2.IExample;
 
 export type VertexPredictRequest =
@@ -125,7 +125,7 @@ export interface GenerateMessageResponse {
 }
 
 export interface PaLMPrompt {
-  messages: APIMessage[];
+  messages: GLMessage[];
   context?: string;
-  examples?: APIExample[];
+  examples?: GLExample[];
 }

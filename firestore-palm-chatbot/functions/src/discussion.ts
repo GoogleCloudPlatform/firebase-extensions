@@ -19,9 +19,9 @@ import {helpers, v1} from '@google-cloud/aiplatform';
 import * as logs from './logs';
 import {GoogleAuth} from 'google-auth-library';
 import {
-  APIGenerateMessageRequest,
-  APIMessage,
-  APIExample,
+  GLGenerateMessageRequest,
+  GLMessage,
+  GLExample,
   VertexPredictRequest,
   Message,
   DiscussionOptions,
@@ -170,7 +170,7 @@ export class Discussion {
     prompt: PaLMPrompt,
     options: GenerateMessageOptions
   ) {
-    const request: APIGenerateMessageRequest = {
+    const request: GLGenerateMessageRequest = {
       prompt,
       model: `models/${this.model}`,
       temperature: options.temperature || this.temperature,
@@ -183,7 +183,7 @@ export class Discussion {
   }
 
   private async generateMessageGenerative(
-    request: APIGenerateMessageRequest
+    request: GLGenerateMessageRequest
   ): Promise<GenerateMessageResponse> {
     if (!this.generativeClient) {
       throw new Error('Generative client not initialized.');
@@ -229,7 +229,7 @@ export class Discussion {
     const prediction = result.predictions![0];
 
     const value = helpers.fromValue(prediction as protobuf.common.IValue) as {
-      candidates: APIMessage[];
+      candidates: GLMessage[];
     };
 
     if (!value.candidates || !value.candidates.length) {
@@ -244,7 +244,7 @@ export class Discussion {
 
     const candidates = value.candidates.map(c => c.content!) || [];
 
-    const messages = [] as APIMessage[];
+    const messages = [] as GLMessage[];
 
     return {
       response: content,
@@ -253,8 +253,8 @@ export class Discussion {
     };
   }
 
-  private messagesToApi(messages: Message[]): APIMessage[] {
-    const out: APIMessage[] = [];
+  private messagesToApi(messages: Message[]): GLMessage[] {
+    const out: GLMessage[] = [];
     for (const message of messages) {
       if (!message.prompt || !message.response) {
         logs.warnMissingPromptOrResponse(message.path!);
@@ -266,7 +266,7 @@ export class Discussion {
     return out;
   }
 
-  private messagesFromApi(messages: APIMessage[]): Message[] {
+  private messagesFromApi(messages: GLMessage[]): Message[] {
     const out = [];
     for (let i = 0; i < messages.length; i += 2) {
       out.push({
@@ -277,7 +277,7 @@ export class Discussion {
     return out;
   }
 
-  private messagesToExamples(messages: Message[]): APIExample[] {
+  private messagesToExamples(messages: Message[]): GLExample[] {
     return messages.map(m => ({
       input: {author: '0', content: m.prompt!},
       output: {author: '1', content: m.response!},
