@@ -51,6 +51,15 @@ There are currently two different APIs providing access to PaLM large language m
 
 - For more details on the Vertex AI PaLM API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview)
 
+
+### Harm filter thresholds
+
+PaLM provides content filters in different categories. This extension currently allows the developer to specify thresholds for these categories. Note that
+the filtering is based on the probability that the prompt or response contains the category of content, and not necessarily the severity of the content.
+
+Currently the extension only supports this feature for the Generative AI for developers PaLM Provider.
+
+For more information see the [documentation](https://developers.generativeai.google/guide/safety_setting) for the Generative AI for developers.
 ### Regenerating a response
 
 Changing the state field of a completed document's status from `COMPLETED` to anything else will retrigger the extension for that document.
