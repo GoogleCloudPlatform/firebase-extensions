@@ -1,3 +1,7 @@
+## Version 0.1.6
+
+- Truncate requests sent to API to fix bug for long conversations.
+- Bump dependencies for PaLM APIs
 ## Version 0.1.5
 
 - Removed unnecessary Storage bucket requirement from PREINSTALL.
