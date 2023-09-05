@@ -78,7 +78,7 @@ resources:
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: 'nodejs16'
+      runtime: nodejs18
       timeout: 540s
       taskQueueTrigger: {}
 
@@ -89,7 +89,7 @@ resources:
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: 'nodejs16'
+      runtime: nodejs18
       timeout: 540s
       taskQueueTrigger: {}
 
@@ -102,7 +102,7 @@ resources:
     properties:
       availableMemoryMb: 1024
       location: ${LOCATION}
-      runtime: 'nodejs16'
+      runtime: nodejs18
       timeout: 540s
       taskQueueTrigger:
         retryConfig:
@@ -117,7 +117,7 @@ resources:
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: 'nodejs16'
+      runtime: nodejs18
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.update
         resource: projects/${param:PROJECT_ID}/databases/(default)/documents/_ext-${param:EXT_INSTANCE_ID}/tasks
@@ -130,8 +130,7 @@ resources:
     properties:
       location: ${LOCATION}
       buildConfig:
-        runtime: nodejs16
-      serviceConfig:
+        ? runtime:nodejs18      serviceConfig
         availableMemory: 512M
       eventTrigger:
         eventType: google.cloud.audit.log.v1.written
@@ -150,8 +149,7 @@ resources:
     properties:
       location: ${LOCATION}
       buildConfig:
-        runtime: nodejs16
-      serviceConfig:
+        ? runtime:nodejs18      serviceConfig
         availableMemory: 512M
       eventTrigger:
         eventType: google.cloud.audit.log.v1.written
@@ -170,7 +168,7 @@ resources:
       Engine index.
     properties:
       location: ${LOCATION}
-      runtime: 'nodejs16'
+      runtime: nodejs18
       availableMemoryMb: 512
       timeout: 540s
       eventTrigger:
@@ -184,7 +182,7 @@ resources:
       It deleted the document's datapoint from the Matching Engine index.
     properties:
       location: ${LOCATION}
-      runtime: 'nodejs16'
+      runtime: nodejs18
       availableMemoryMb: 512
       timeout: 540s
       eventTrigger:
@@ -200,7 +198,7 @@ resources:
     properties:
       availableMemoryMb: 1024
       location: ${LOCATION}
-      runtime: 'nodejs16'
+      runtime: nodejs18
       timeout: 540s
       taskQueueTrigger: {}
 
@@ -211,7 +209,7 @@ resources:
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: 'nodejs16'
+      runtime: nodejs18
       httpsTrigger: {}
 
 params:
