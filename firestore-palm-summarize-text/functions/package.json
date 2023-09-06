@@ -5,7 +5,7 @@
     "lint:fix": "eslint \"src/**/*\" --fix",
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "test": "jest",
+    "test": "jest --runInBand",
     "generate-readme": "firebase ext:info .. --markdown > ../README.md"
   },
   "main": "lib/index.js",

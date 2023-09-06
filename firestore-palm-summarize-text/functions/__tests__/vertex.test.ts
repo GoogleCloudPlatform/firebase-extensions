@@ -104,6 +104,7 @@ describe('generateText with vertex', () => {
     if (unsubscribe && typeof unsubscribe === 'function') {
       unsubscribe();
     }
+    jest.clearAllMocks();
   });
 
   test('should not run if the text field is not set', async () => {
@@ -214,7 +215,12 @@ describe('generateText with vertex', () => {
     expect(startTime).toEqual(expect.any(Timestamp));
 
     // Then we expect the function to update the status to COMPLETED, with the response field populated:
-    expectToHaveKeys(firestoreCallData[2], ['text', 'output', 'status']);
+    expectToHaveKeys(firestoreCallData[2], [
+      'text',
+      'safetyMetadata',
+      'output',
+      'status',
+    ]);
     expect(firestoreCallData[2].text).toEqual(message.text);
     expect(firestoreCallData[2].status).toEqual({
       startTime,
@@ -226,13 +232,14 @@ describe('generateText with vertex', () => {
     expect(firestoreCallData[2].output).toEqual('test response');
 
     const prompt = {
-      prompt: 'Summarize this text: "test generate text"',
+      prompt:
+        'Give a summary of the following text in undefined sentences, do not use any information that is not explicitly mentioned in the text.\n  text: test generate text\n',
     };
     const instanceValue = helpers.toValue(prompt);
     const instances = [instanceValue!];
 
     const parameter = {
-      maxOutputTokens: 100,
+      maxOutputTokens: 1024,
     };
     const parameters = helpers.toValue(parameter);
 
