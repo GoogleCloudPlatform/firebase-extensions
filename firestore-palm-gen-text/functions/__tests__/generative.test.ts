@@ -239,6 +239,7 @@ describe('generateText with GL', () => {
     // Then we expect the function to update the status to PROCESSING:
     expectKeys(firestoreCallData[1], ['text', 'status']);
     expect(firestoreCallData[1].text).toEqual(message.text);
+
     expectKeys(firestoreCallData[1].status, [
       'state',
       'updateTime',
@@ -252,7 +253,12 @@ describe('generateText with GL', () => {
     expect(startTime).toEqual(expect.any(Timestamp));
 
     // Then we expect the function to update the status to COMPLETED, with the response field populated:
-    expectKeys(firestoreCallData[2], ['text', 'output', 'status']);
+    expectKeys(firestoreCallData[2], [
+      'text',
+      'safetyMetadata',
+      'output',
+      'status',
+    ]);
     expect(firestoreCallData[2].text).toEqual(message.text);
     expect(firestoreCallData[2].status).toEqual({
       startTime,
