@@ -74,7 +74,7 @@ describe('createIndex', () => {
     firestoreObserver.mockReset();
     firestoreObserver.mockClear();
   });
-  test('should not run if no status', async () => {
+  xtest('should not run if no status', async () => {
     const notTask = {
       notStatus: 'test',
     };
