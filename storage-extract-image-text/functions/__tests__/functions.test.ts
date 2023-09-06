@@ -32,7 +32,6 @@ describe('extractText', () => {
   });
 
   it('should process the image and save the extracted text', async () => {
-    const document = db.collection('extractedTest').doc('test.png');
     const expectedText = 'This is a test';
 
     mockAnnotateImage.mockResolvedValue([
@@ -66,12 +65,17 @@ describe('extractText', () => {
     const wrapped = testEnv.wrap(functions.extractText);
     await wrapped(obj);
 
-    /** Wait a second for the emulator to update */
+    /** Wait 10 seconds for the emulator to update */
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     /** Check if the document was updated */
-    const result = await document.get();
-    const {textAnnotations, file} = result.data();
+    const result = await db
+      .collection('extractedTest')
+      .where('file', '==', 'gs://demo-test.appspot.com/test.png')
+      .get()
+      .then(snapshot => snapshot.docs);
+
+    const {textAnnotations, file} = result[0].data();
 
     /** Test assertions */
     expect(file).toEqual('gs://demo-test.appspot.com/test.png');
