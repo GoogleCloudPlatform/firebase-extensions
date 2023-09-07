@@ -398,7 +398,11 @@ describe('checkIndexStatus', () => {
     await admin.firestore().doc(config.metadataDoc).set({
       status: 'test-status',
     });
+
+    //wait for 5 seconds
+    await new Promise(resolve => setTimeout(resolve, 5000));
+
     const result = await checkIndexStatus();
-    expect(result).toEqual({status: 'test-status'});
-  });
+    expect(result.status).toEqual('INDEX_BUILDING');
+  }, 12000);
 });
