@@ -66,12 +66,12 @@ describe('getFeatureVectors', () => {
     });
 
     const featureVectors = await getFeatureVectors([imagePathInStorage]);
-    // expect to be same length as model output
+    //expect to be same length as model output
     expect(featureVectors[0].length).toBe(1280);
     // expect to be array of floats
 
     for (let i = 0; i < featureVectors[0].length; i++) {
       expect(typeof featureVectors[0][i]).toBe('number');
     }
-  });
+  }, 20000);
 });

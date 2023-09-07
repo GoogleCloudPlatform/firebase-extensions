@@ -27,7 +27,9 @@ import {checkIndexStatus, removeDatapoint} from '../common/vertex';
 export async function streamRemoveDatapointHandler(
   object: functions.storage.ObjectMetadata
 ) {
-  const {status, index} = await checkIndexStatus();
+  const doc = await checkIndexStatus();
+  const {status, index} = doc || {};
+
   if (
     (index && status !== IndexStatus.DEPLOYED) ||
     status === IndexStatus.BUILDING
