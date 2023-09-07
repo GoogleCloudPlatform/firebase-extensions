@@ -5,7 +5,7 @@ import {generateMessage} from '../src/index';
 import {WrappedFunction} from 'firebase-functions-test/lib/v1';
 import {Change} from 'firebase-functions/v1';
 
-process.env.GCLOUD_PROJECT = 'dev-extensions-testing';
+process.env.GCLOUD_PROJECT = 'demo-gcp';
 
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 
@@ -57,11 +57,11 @@ jest.mock('@google-cloud/aiplatform', () => {
 });
 
 const fft = firebaseFunctionsTest({
-  projectId: 'dev-extensions-testing',
+  projectId: 'demo-gcp',
 });
 
 admin.initializeApp({
-  projectId: 'dev-extensions-testing',
+  projectId: 'demo-gcp',
 });
 
 type DocumentReference = admin.firestore.DocumentReference;
@@ -90,23 +90,29 @@ describe('generateMessage', () => {
       '{discussionId}',
       randomInteger.toString()
     );
-    jest.clearAllMocks();
+    // jest.clearAllMocks();
     await fetch(
-      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/dev-extensions-testing/databases/(default)/documents`,
+      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
       {method: 'DELETE'}
     );
+
     // set up observer on collection
     unsubscribe = admin
       .firestore()
       .collection(collectionName)
       .onSnapshot(snap => {
-        firestoreObserver(snap);
+        /** There is a bug on first init and write, causing the the emulator to the observer is called twice
+         * A snapshot is registered on the first run, this affects the observer count
+         * This is a workaround to ensure the observer is only called when it should be
+         */
+        if (snap.docs.length) firestoreObserver(snap);
       });
   });
   afterEach(() => {
     if (unsubscribe && typeof unsubscribe === 'function') {
       unsubscribe();
     }
+    jest.clearAllMocks();
   });
 
   test('should not run if the prompt field is not set', async () => {
