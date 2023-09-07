@@ -102,6 +102,7 @@ describe('generateText with GL', () => {
     if (unsubscribe && typeof unsubscribe === 'function') {
       unsubscribe();
     }
+    jest.clearAllMocks();
   });
 
   test('should not run if the text field is not set', async () => {
@@ -212,7 +213,12 @@ describe('generateText with GL', () => {
     expect(startTime).toEqual(expect.any(Timestamp));
 
     // Then we expect the function to update the status to COMPLETED, with the response field populated:
-    expectToHaveKeys(firestoreCallData[2], ['text', 'output', 'status']);
+    expectToHaveKeys(firestoreCallData[2], [
+      'text',
+      'safetyMetadata',
+      'output',
+      'status',
+    ]);
     expect(firestoreCallData[2].text).toEqual(message.text);
     expect(firestoreCallData[2].status).toEqual({
       startTime,
@@ -225,10 +231,11 @@ describe('generateText with GL', () => {
 
     // verify SDK is called with expected arguments
     const expectedRequestData = {
-      model: 'models/text-bison-001',
+      model: 'models/models/text-bison-001',
       prompt: {
-        text: 'Summarize this text: "test generate text"',
+        text: 'Give a summary of the following text in undefined sentences, do not use any information that is not explicitly mentioned in the text.\n  text: test generate text\n',
       },
+      safetySettings: [],
     };
     // we expect the mock API to be called once
     expect(mockAPI).toHaveBeenCalledTimes(1);

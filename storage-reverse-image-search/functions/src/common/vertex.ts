@@ -345,5 +345,6 @@ export async function checkIndexStatus(): Promise<{
   indexEndpoint?: string;
 }> {
   const metdata = await admin.firestore().doc(config.metadataDoc).get();
+
   return metdata.data() ?? {};
 }

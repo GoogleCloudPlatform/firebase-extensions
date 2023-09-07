@@ -51,7 +51,7 @@ resources:
       eventTrigger:
         eventType: google.storage.object.finalize
         resource: projects/_/buckets/${param:INPUT_VIDEOS_BUCKET}
-      runtime: 'nodejs16'
+      runtime: nodejs18
 
 params:
   - param: LOCATION

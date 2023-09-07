@@ -64,10 +64,6 @@ jest.mock('../../src/common/vertex', () => ({
   },
 }));
 
-// admin.initializeApp({
-//     projectId: "dev-extensions-testing",
-// });
-
 const wrappedCreateIndexTrigger = fft.wrap(createIndexTrigger);
 
 const firestoreObserver = jest.fn();
@@ -91,12 +87,17 @@ describe('createIndex', () => {
       });
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     if (unsubscribe) {
       unsubscribe();
     }
+
     jest.resetAllMocks();
     firestoreObserver.mockReset();
+
+    /** clear collections */
+    admin.firestore().doc(config.tasksDoc).delete();
+    admin.firestore().doc(config.metadataDoc).delete();
   });
   test('should not run if no status', async () => {
     const notTask = {
@@ -181,7 +182,7 @@ describe('createIndex', () => {
       ref,
       beforeSnapshot
     );
-    expectNoOp();
+    expect(firestoreObserver).toHaveBeenCalledTimes(1);
   });
 
   test('should run if status is changed, and output shape is present and is a number', async () => {
