@@ -6,7 +6,7 @@ import {WrappedFunction} from 'firebase-functions-test/lib/v1';
 import {Change} from 'firebase-functions/v1';
 import {missingVariableError, variableTypeError} from '../src/errors';
 
-process.env.GCLOUD_PROJECT = 'dev-extensions-testing';
+process.env.GCLOUD_PROJECT = 'demo-gcp';
 
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 
@@ -55,11 +55,11 @@ jest.mock('@google-ai/generativelanguage', () => {
 });
 
 const fft = firebaseFunctionsTest({
-  projectId: 'dev-extensions-testing',
+  projectId: 'demo-gcp',
 });
 
 admin.initializeApp({
-  projectId: 'dev-extensions-testing',
+  projectId: 'demo-gcp',
 });
 
 type DocumentReference = admin.firestore.DocumentReference;
