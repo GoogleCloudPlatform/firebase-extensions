@@ -69,7 +69,7 @@ resources:
       writing synthesized natural speech files to Cloud Storage
     properties:
       location: ${param:LOCATION}
-      runtime: nodejs16
+      runtime: nodejs18
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
         resource: projects/${param:PROJECT_ID}/databases/(default)/documents/${param:COLLECTION_PATH}/{id}
