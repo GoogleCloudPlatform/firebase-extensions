@@ -2,13 +2,18 @@ import {backfillTriggerHandler} from '../../src/functions/backfill_trigger';
 const mockAdminBatchCommit = jest.fn();
 const mockAdminBatchCreate = jest.fn();
 const mockAdminDocSet = jest.fn();
+const mockAdminBatchSet = jest.fn();
 
 jest.mock('firebase-admin', () => {
   return {
     firestore: () => {
       return {
         batch: () => {
-          return {commit: mockAdminBatchCommit, create: mockAdminBatchCreate};
+          return {
+            commit: mockAdminBatchCommit,
+            create: mockAdminBatchCreate,
+            set: mockAdminBatchSet,
+          };
         },
         doc: () => {
           return {set: mockAdminDocSet};
@@ -90,6 +95,7 @@ jest.mock('config', () => ({
     // Extension-specific vars
     tasksDoc: '_ext-test-instance/tasks',
     metadataDoc: '_ext-test-instance/metadata',
+    doBackfill: true,
   },
 }));
 
@@ -109,7 +115,7 @@ describe('backfillTriggerHandler', () => {
 
     expect(mockSetProcessingState).toHaveBeenCalled();
     expect(mockSetProcessingState).toHaveBeenCalledWith(
-      'PROCESSING_COMPLETE',
+      'PROCESSING_WARNING',
       'No images found in the bucket. You can start uploading images to the bucket to generate embeddings.'
     );
   });

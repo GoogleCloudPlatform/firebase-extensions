@@ -329,6 +329,6 @@ describe('checkIndexStatus', () => {
 
     const result = await checkIndexStatus();
 
-    expect(result).toEqual('test-status');
+    expect(result).toEqual({status: 'test-status'});
   });
 });
