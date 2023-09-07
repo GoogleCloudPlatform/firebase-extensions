@@ -15,7 +15,7 @@
     "lerna:link": "lerna link",
     "lerna:clean": "lerna clean,",
     "prepare": "npm run lerna:bootstrap && npm run lerna:link",
-    "test": "lerna run test",
+    "test": "cd _emulator && firebase emulators:start --project=dev-extensions-testing & sleep 20 && lerna run test",
     "lint": "gts lint",
     "clean": "gts clean",
     "compile": "lerna run build",
