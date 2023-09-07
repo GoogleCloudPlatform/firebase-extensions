@@ -1,4 +1,4 @@
-# Copyright 2019 Google LLC
+# Copyright 2023 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,8 +17,7 @@ version: 0.1.19
 specVersion: v1beta
 
 displayName: Firestore Incremental Capture
-description:
-  TODO
+description: TODO
 
 license: Apache-2.0
 
@@ -26,7 +25,6 @@ sourceUrl: https://github.com/firebase/extensions/tree/master/delete-user-data
 releaseNotesUrl: https://github.com/firebase/extensions/blob/master/delete-user-data/CHANGELOG.md
 
 apis:
-
   - apiName: eventarc.googleapis.com
     reason: >-
       Powers all events and triggers
@@ -34,8 +32,6 @@ apis:
   - apiName: run.googleapis.com
     reason: >-
       Powers v2 Cloud Functions
-
-
 
 roles:
   - role: bigquery.dataEditor
@@ -49,10 +45,9 @@ roles:
 
   - role: roles/bigquery.admin
     reason: Allows the creation of BQ jobs to import Firestore backups.
-  
+
   - role: roles/storage.objectAdmin
     reason: Allows management of exported Firestore backups.
-
 
 billingRequired: true
 
@@ -68,7 +63,6 @@ resources:
       timeout: 540s
       taskQueueTrigger: {}
 
-
   - name: onFirestoreBackupInit
     type: firebaseextensions.v1beta.function
     description: >-
@@ -83,8 +77,9 @@ resources:
   - name: syncData
     type: firebaseextensions.v1beta.function
     description:
-      Listens for writes of new strings to your specified Cloud Firestore collection, translates the strings,
-      then writes the translated strings back to the same document.
+      Listens for writes of new strings to your specified Cloud Firestore
+      collection, translates the strings, then writes the translated strings
+      back to the same document.
     properties:
       runtime: nodejs18
       eventTrigger:
@@ -106,9 +101,10 @@ params:
   - param: SYNC_COLLECTION_PATH
     label: Collection path
     description: >
-      What is the path to the collection that contains the strings that you want to translate?
+      What is the path to the collection that contains the strings that you want
+      to translate?
     example: sync
-    validationRegex: "^[^/]+(/[^/]+/[^/]+)*$"
+    validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
     validationErrorMessage: Must be a valid Cloud Firestore Collection
     default: sync
     required: true

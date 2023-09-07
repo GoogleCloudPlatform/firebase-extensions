@@ -1,18 +1,18 @@
-import * as admin from "firebase-admin";
-import * as functions from "firebase-functions";
-import * as functionsv2 from "firebase-functions/v2";
-import config from "./config";
+import * as admin from 'firebase-admin';
+import * as functions from 'firebase-functions';
+import * as functionsv2 from 'firebase-functions/v2';
+import config from './config';
 
-import { runInitialBackupHandler } from "./functions/runInitialBackupHandler";
-import { onFirestoreBackupInitHandler } from "./functions/onFirestoreBackupInitHandler";
-import { onExportConfig, onExportHandler } from "./functions/onExportConfig";
-import { syncDataHandler } from "./functions/syncDataHandler";
-import { SyncDataTaskHandler } from "./functions/syncDataTaskHandler";
+import {runInitialBackupHandler} from './functions/runInitialBackupHandler';
+import {onFirestoreBackupInitHandler} from './functions/onFirestoreBackupInitHandler';
+import {onExportConfig, onExportHandler} from './functions/onExportConfig';
+import {syncDataHandler} from './functions/syncDataHandler';
+import {SyncDataTaskHandler as syncDataTaskHandler} from './functions/syncDataTaskHandler';
 
-admin.initializeApp({ projectId: config.projectId });
+admin.initializeApp({projectId: config.projectId});
 
 /**
- * Sync data to BigQuery
+ * Sync data to BigQuery, triggered by any change to a Firestore document
  */
 export const syncData = functions.firestore
   .document(`${config.syncCollectionPath}`)
@@ -24,7 +24,7 @@ export const syncData = functions.firestore
  */
 export const syncDataTask = functions.tasks
   .taskQueue()
-  .onDispatch(async (data) => await SyncDataTaskHandler(data));
+  .onDispatch(async data => await syncDataTaskHandler(data));
 
 /**
  * Backup the entire database on initial deployment
@@ -36,7 +36,7 @@ export const runInitialBackup = async () => await runInitialBackupHandler();
  */
 export const onExport = functionsv2.eventarc.onCustomEventPublished(
   onExportConfig,
-  async (event) => onExportHandler(event)
+  async event => onExportHandler(event)
 );
 
 /**
@@ -44,4 +44,4 @@ export const onExport = functionsv2.eventarc.onCustomEventPublished(
  */
 export const onFirestoreBackupInit = functions.tasks
   .taskQueue()
-  .onDispatch(async (data) => await onFirestoreBackupInitHandler(data));
+  .onDispatch(async data => await onFirestoreBackupInitHandler(data));
