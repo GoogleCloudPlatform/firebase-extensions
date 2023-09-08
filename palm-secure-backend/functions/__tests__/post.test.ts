@@ -4,7 +4,7 @@ import config from '../src/config';
 import {post} from '../src/index';
 import {HttpsError} from 'firebase-functions/v1/auth';
 
-process.env.GCLOUD_PROJECT = 'dev-extensions-testing';
+process.env.GCLOUD_PROJECT = 'demo-gcp';
 
 const HOST = 'generativelanguage.googleapis.com';
 const API_VERSION = 'v1beta2';
@@ -39,7 +39,7 @@ global.fetch = (url: string, options) => {
 };
 
 const fft = firebaseFunctionsTest({
-  projectId: 'dev-extensions-testing',
+  projectId: 'demo-gcp',
 });
 
 const wrappedPost = fft.wrap(post);
