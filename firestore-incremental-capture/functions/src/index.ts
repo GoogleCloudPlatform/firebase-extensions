@@ -8,6 +8,7 @@ import {onFirestoreBackupInitHandler} from './functions/onFirestoreBackupInitHan
 import {onExportConfig, onExportHandler} from './functions/onExportConfig';
 import {syncDataHandler} from './functions/syncDataHandler';
 import {SyncDataTaskHandler as syncDataTaskHandler} from './functions/syncDataTaskHandler';
+import {prepareDataFlowTemplate} from './functions/prepareDataFlowTemplate';
 
 admin.initializeApp({projectId: config.projectId});
 
@@ -45,3 +46,12 @@ export const onExport = functionsv2.eventarc.onCustomEventPublished(
 export const onFirestoreBackupInit = functions.tasks
   .taskQueue()
   .onDispatch(async data => await onFirestoreBackupInitHandler(data));
+
+/**
+ * This function is triggered by installation of the extension
+ */
+export const onExtInstall = functions
+  .runWith({timeoutSeconds: 540, memory: '2GB'})
+  .region(config.location)
+  .tasks.taskQueue()
+  .onDispatch(prepareDataFlowTemplate);
