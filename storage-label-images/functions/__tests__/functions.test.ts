@@ -1,5 +1,5 @@
 const mockAnnotateImage = jest.fn();
-const bucket = 'demo-test.appspot.com';
+const bucket = 'demo-gcp.appspot.com';
 const collectionPath = 'imageLabels';
 
 import * as admin from 'firebase-admin';
@@ -18,7 +18,7 @@ const db = admin.firestore();
 /** Setup test environment */
 
 const testEnv = fft({
-  projectId: 'demo-test',
+  projectId: 'demo-gcp',
   storageBucket: bucket,
 });
 
@@ -32,7 +32,7 @@ jest.mock('@google-cloud/vision', () => ({
 jest.mock('../src/config', () => ({
   default: {
     collectionPath,
-    bucketName: 'demo-test.appspot.com',
+    bucketName: 'demo-gcp.appspot.com',
     includePathList: null,
     excludePathList: null,
   },
@@ -96,7 +96,7 @@ describe('labelImage', () => {
     const {labels, file} = result.data();
 
     /** Test assertions */
-    expect(file).toEqual('gs://demo-test.appspot.com/test.png');
+    expect(file).toEqual('gs://demo-gcp.appspot.com/test.png');
     expect(labels).toEqual([]);
   });
 
@@ -143,7 +143,7 @@ describe('labelImage', () => {
     const {labels, file} = result.data();
 
     /** Test assertions */
-    expect(file).toEqual(`gs://demo-test.appspot.com/${name}`);
+    expect(file).toEqual(`gs://demo-gcp.appspot.com/${name}`);
     expect(labels[0]).toEqual('This is a test');
   });
 
@@ -190,7 +190,7 @@ describe('labelImage', () => {
     const {labels, file} = result.data();
 
     /** Test assertions */
-    expect(file).toEqual(`gs://demo-test.appspot.com/${name}`);
+    expect(file).toEqual(`gs://demo-gcp.appspot.com/${name}`);
     expect(labels[0].description).toEqual('This is a test');
   });
 
