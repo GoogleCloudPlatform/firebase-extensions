@@ -6,7 +6,7 @@ const mockCreate = jest.fn();
 jest.mock('firebase-admin', () => {
   return {
     storage: () => ({
-      bucket: (bucketName: string) => ({
+      bucket: () => ({
         getMetadata: mockGetMetadata,
         create: mockCreate,
       }),

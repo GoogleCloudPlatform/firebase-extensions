@@ -57,7 +57,7 @@ describe('onIndexDeployed', () => {
   });
 
   test('should error if getOperation fails', async () => {
-    mockGetOperationByName.mockImplementationOnce((id: any) => ({
+    mockGetOperationByName.mockImplementationOnce(() => ({
       error: 'test-error',
     }));
 
@@ -75,7 +75,7 @@ describe('onIndexDeployed', () => {
   });
 
   test('should error if index endpoint operation errors', async () => {
-    mockCreateIndexEndpoint.mockImplementationOnce((args: any) => ({
+    mockCreateIndexEndpoint.mockImplementationOnce(() => ({
       error: 'test-error',
     }));
     try {

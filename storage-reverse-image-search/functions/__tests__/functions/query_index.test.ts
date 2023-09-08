@@ -68,7 +68,7 @@ describe('queryIndex', () => {
     }
   });
   test('should return 400 if query is not an array', async () => {
-    mockIsBase64Image.mockImplementation((input: any) => false);
+    mockIsBase64Image.mockImplementation(() => false);
     try {
       await wrappedQueryIndex({
         query: 'not an array',
@@ -79,7 +79,7 @@ describe('queryIndex', () => {
   });
 
   test('should return 400 if query is an array but not of base64 images', async () => {
-    mockIsBase64Image.mockImplementation((input: any) => false);
+    mockIsBase64Image.mockImplementation(() => false);
     try {
       await wrappedQueryIndex({
         query: ['an array'],

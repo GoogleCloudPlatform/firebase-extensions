@@ -17,7 +17,7 @@ jest.mock('firebase-functions', () => {
 const mockQueue = jest.fn();
 
 const getFunctionsMock = () => ({
-  taskQueue: (functionName: string, instanceId: string) => ({
+  taskQueue: () => ({
     enqueue: (data: any) => {
       mockQueue(data);
       return Promise.resolve();

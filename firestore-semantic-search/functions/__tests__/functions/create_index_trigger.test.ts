@@ -106,9 +106,9 @@ describe('createIndex', () => {
     const taskBefore = {
       status: 'PENDING',
     };
-    const taskWithoutShape = {
-      status: 'PENDING',
-    };
+    // const taskWithoutShape = {
+    //   status: 'PENDING',
+    // };
     // Make a write to the collection. This won't trigger our wrapped function as it isn't deployed to the emulator.
     const ref = admin.firestore().doc(config.tasksDoc);
 
