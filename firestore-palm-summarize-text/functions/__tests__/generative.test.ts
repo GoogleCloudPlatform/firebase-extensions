@@ -93,7 +93,7 @@ describe('generateText with GL', () => {
          * A snapshot is registered on the first run, this affects the observer count
          * This is a workaround to ensure the observer is only called when it should be
          */
-        if (snap.docs.length) firestoreObserver(snap);
+        if (!snap.empty) firestoreObserver(snap);
       });
   });
   afterEach(async () => {
