@@ -115,6 +115,7 @@ describe('generateText with vertex', () => {
     if (unsubscribe && typeof unsubscribe === 'function') {
       unsubscribe();
     }
+    jest.clearAllMocks();
   });
 
   test('should not run if the text variable field is not set', async () => {

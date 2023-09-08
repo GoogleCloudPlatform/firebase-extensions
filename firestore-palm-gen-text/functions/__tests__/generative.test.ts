@@ -101,7 +101,11 @@ describe('generateText with GL', () => {
       .firestore()
       .collection(collectionName)
       .onSnapshot(snap => {
-        firestoreObserver(snap);
+        /** There is a bug on first init and write, causing the the emulator to the observer is called twice
+         * A snapshot is registered on the first run, this affects the observer count
+         * This is a workaround to ensure the observer is only called when it should be
+         */
+        if (snap.docs.length) firestoreObserver(snap);
       });
   });
   afterEach(async () => {
