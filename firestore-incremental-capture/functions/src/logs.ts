@@ -1,4 +1,4 @@
-import { logger } from "firebase-functions";
+import {logger} from 'firebase-functions';
 
 export const bigQueryDatasetExists = (dataset: string) => {
   logger.log(`${dataset} already exists`);

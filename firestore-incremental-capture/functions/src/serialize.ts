@@ -1,8 +1,8 @@
-import { DocumentReference } from "firebase-admin/firestore";
-import * as traverse from "traverse";
+import {DocumentReference} from 'firebase-admin/firestore';
+import * as traverse from 'traverse';
 
 export const serializeData = (eventData: any) => {
-  if (typeof eventData === "undefined") {
+  if (typeof eventData === 'undefined') {
     return undefined;
   }
 
@@ -10,7 +10,7 @@ export const serializeData = (eventData: any) => {
     property: any
   ) {
     if (property && property.constructor) {
-      if (property.constructor.name === "Buffer") {
+      if (property.constructor.name === 'Buffer') {
         this.remove();
       }
 

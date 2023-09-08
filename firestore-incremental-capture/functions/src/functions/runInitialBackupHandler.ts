@@ -5,7 +5,6 @@ import * as admin from 'firebase-admin';
 import config from '../config';
 import {createExport} from '../export';
 import {getFunctions} from 'firebase-admin/functions';
-import {on} from 'events';
 import {prepareDataFlowTemplate} from './prepareDataFlowTemplate';
 
 export async function runInitialBackupHandler() {

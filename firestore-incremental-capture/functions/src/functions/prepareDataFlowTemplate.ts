@@ -8,7 +8,7 @@ const bucket = admin.storage().bucket();
 function executeMavenCommand(): Promise<string> {
   return new Promise((resolve, reject) => {
     const cmd = `mvn clean package -DskipTests -Dexec.mainClass=com.pipeline.RestorationPipeline 
-                -Dexec.args="--runner=DataflowRunner --project=${config.projectId} --region=${config.location} --tempLocation=gs://${config.bucketName}/tmp"`;
+                -Dexec.args="--runner=DataflowRunner --project=${config.projectId} --region=${config.location} --tempLocation=gs://${config.bucketName}/tmp --database"`;
     exec(cmd, (error, stdout, stderr) => {
       if (error) {
         console.error(`exec error: ${error}`);
@@ -28,7 +28,7 @@ function executeMavenCommand(): Promise<string> {
 }
 
 async function uploadToFirebaseStorage(filePath: string) {
-  const destination = 'pipeline/my-pipeline.jar';
+  const destination = 'pipelines/restoration-pipeline.jar';
 
   await bucket.upload(filePath, {
     destination: destination,

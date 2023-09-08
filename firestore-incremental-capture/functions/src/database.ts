@@ -1,6 +1,6 @@
-import * as admin from "firebase-admin";
-import config from "./config";
-import { logger } from "firebase-functions/v1";
+import * as admin from 'firebase-admin';
+import config from './config';
+import {logger} from 'firebase-functions/v1';
 
 export const updateStatus = (id: string, data: any) => {
   /** log update */
@@ -13,5 +13,5 @@ export const updateStatus = (id: string, data: any) => {
   const document = collection.doc(`${id}`);
 
   /** Update the document */
-  return document.set({ ...data }, { merge: true });
+  return document.set({...data}, {merge: true});
 };

@@ -1,10 +1,10 @@
-import { storage } from "firebase-admin";
-import config from "./config";
-import * as logs from "./logs";
-import { Dataset } from "@google-cloud/bigquery";
+import {storage} from 'firebase-admin';
+import config from './config';
+import * as logs from './logs';
+import {Dataset} from '@google-cloud/bigquery';
 
-const { BigQuery } = require("@google-cloud/bigquery");
-const bq = new BigQuery({ projectId: config.projectId });
+const {BigQuery} = require('@google-cloud/bigquery');
+const bq = new BigQuery({projectId: config.projectId});
 
 function bigqueryDataset(databaseId: string) {
   return bq.dataset(databaseId, {
@@ -29,9 +29,8 @@ async function initializeDataset(databaseId: string) {
     });
     logs.bigQueryDatasetCreated(databaseId);
     return dataset;
-  } catch (ex) {
-    //@ts-ignore
-    logs.datasetCeationError(databaseId, ex.message);
+  } catch (ex: any) {
+    logs.datasetCeationError(databaseId);
     return dataset;
   }
 }
@@ -60,8 +59,7 @@ async function initializeTable(
     logs.bigQueryTableCreated(tableId);
     return table;
   } catch (ex) {
-    //@ts-ignore
-    logs.tableCreationError(config.datasetId, ex.message);
+    logs.tableCreationError(config.dataset, ex.message);
     return dataset;
   }
 }
@@ -92,6 +90,6 @@ export const exportToBQ = async (id: string) => {
    */
 
   return bq.dataset(config.dataset).table(config.table).load(file, {
-    writeDisposition: "WRITE_TRUNCATE",
+    writeDisposition: 'WRITE_TRUNCATE',
   });
 };
