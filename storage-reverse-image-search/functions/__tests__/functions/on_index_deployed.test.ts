@@ -2,7 +2,7 @@ import * as firebaseFunctionsTest from 'firebase-functions-test';
 import {onIndexDeployed} from '../../src/index';
 import config from '../../src/config';
 
-jest.mock('config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',
@@ -34,7 +34,7 @@ const mockGetDeployedIndex = jest
   .fn()
   .mockImplementation(() => 'test-index-endpoint.com');
 
-jest.mock('vertex', () => ({
+jest.mock('../../src/common/vertex', () => ({
   getDeployedIndex: () => mockGetDeployedIndex(),
 }));
 

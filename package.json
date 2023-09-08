@@ -3,9 +3,10 @@
   "private": true,
   "devDependencies": {
     "@types/node": "^14.11.2",
-    "gts": "^3.1.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "gts": "^5.0.1",
     "lerna": "^4.0.0",
-    "prettier": "^2.8.8",
+    "prettier": "^3.0.3",
     "typescript": "^4.0.3"
   },
   "scripts": {
@@ -16,7 +17,7 @@
     "lerna:clean": "lerna clean,",
     "prepare": "npm run lerna:bootstrap && npm run lerna:link",
     "reset:emulator": "npx kill-port 8080 8085 4000  4400  5001  9199  9000  9099",
-    "test": "cd _emulator && npm run reset:emulator && firebase emulators:start --project=demo-gcp & sleep 20 && lerna run test --concurrency 1",
+    "test": "cd _emulator && npm run reset:emulator && firebase emulators:start --project=demo-gcp & sleep 100 && lerna run test --concurrency 1",
     "test:local": "lerna run test --concurrency 1",
     "lint": "gts lint",
     "clean": "gts clean",

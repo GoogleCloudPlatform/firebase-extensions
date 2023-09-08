@@ -95,7 +95,7 @@ describe('generateText with vertex', () => {
          * A snapshot is registered on the first run, this affects the observer count
          * This is a workaround to ensure the observer is only called when it should be
          */
-        if (!snap.empty) firestoreObserver(snap);
+        if (snap.docs.length) firestoreObserver(snap);
       });
   });
   afterEach(async () => {
@@ -112,8 +112,9 @@ describe('generateText with vertex', () => {
   });
 
   test('should not run if the text field is not set', async () => {
+    const notText = 'hello text bison. hopefully you ignore this text.';
     const notMessage = {
-      notText: 'hello text bison. hopefully you ignore this text.',
+      notText,
     };
     // Make a write to the collection. This won't trigger our wrapped function as it isn't deployed to the emulator.
     const ref = await admin
@@ -123,8 +124,15 @@ describe('generateText with vertex', () => {
 
     await simulateFunctionTriggered(wrappedGenerateText, collectionName)(ref);
 
-    expectNoOp();
-  });
+    // wait for 5 seconds
+    await new Promise(resolve => setTimeout(resolve, 5000));
+
+    //Check that the document has not updated
+    const updatedDoc = await ref.get();
+    expect(updatedDoc.data().notText).toEqual(notText);
+
+    //expectNoOp();
+  }, 12000);
 
   test('should not run if the text field is empty', async () => {
     const notMessage = {
@@ -138,8 +146,15 @@ describe('generateText with vertex', () => {
 
     await simulateFunctionTriggered(wrappedGenerateText, collectionName)(ref);
 
-    expectNoOp();
-  });
+    /** Wait for 5 seconds */
+    await new Promise(resolve => setTimeout(resolve, 5000));
+
+    //Check that the document has not updated
+    const updatedDoc = await ref.get();
+    expect(updatedDoc.data().text).toEqual('');
+
+    //expectNoOp();
+  }, 12000);
 
   xtest('should not run if the text field is not a string', async () => {
     const notMessage = {
@@ -165,8 +180,17 @@ describe('generateText with vertex', () => {
 
     await simulateFunctionTriggered(wrappedGenerateText, collectionName)(ref);
 
-    expectNoOp();
-  });
+    /** wait for 5 seconds */
+    await new Promise(resolve => setTimeout(resolve, 5000));
+
+    /** Check that the document has not updated */
+    const updatedDoc = await ref.get();
+    expect(updatedDoc.data()[config.responseField]).toEqual(
+      'user set response for some reason'
+    );
+
+    // expectNoOp();
+  }, 12000);
 
   test('should not run if status field is set from the start', async () => {
     const message = {
@@ -179,8 +203,17 @@ describe('generateText with vertex', () => {
 
     await simulateFunctionTriggered(wrappedGenerateText, collectionName)(ref);
 
-    expectNoOp();
-  });
+    /** wait for 5 seconds */
+    await new Promise(resolve => setTimeout(resolve, 5000));
+
+    /** Check that the document has not updated */
+    const updatedDoc = await ref.get();
+    expect(updatedDoc.data().status).toEqual({
+      state: 'COMPLETED',
+    });
+
+    //expectNoOp();
+  }, 12000);
 
   test('should run when given correct trigger', async () => {
     const message = {

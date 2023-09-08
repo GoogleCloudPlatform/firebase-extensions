@@ -14,7 +14,7 @@ import * as admin from 'firebase-admin';
 import config from '../../src/config';
 import {Query} from '../../src/types/query';
 
-jest.mock('config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',
@@ -194,8 +194,8 @@ jest.mock('axios', () => ({
 
 const mockGetAccessToken = jest.fn().mockImplementation(() => 'test-token');
 
-jest.mock('utils', () => ({
-  ...jest.requireActual('utils'),
+jest.mock('../../src/common/utils', () => ({
+  ...jest.requireActual('../../src/common/utils'),
   getAccessToken: () => mockGetAccessToken(),
 }));
 

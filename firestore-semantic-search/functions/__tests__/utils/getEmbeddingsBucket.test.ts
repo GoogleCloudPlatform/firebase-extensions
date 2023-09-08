@@ -14,7 +14,7 @@ jest.mock('firebase-admin', () => {
   };
 });
 
-jest.mock('config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',

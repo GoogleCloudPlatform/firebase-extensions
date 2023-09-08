@@ -5,7 +5,7 @@ import * as admin from 'firebase-admin';
 
 const mockQueryIndex = jest.fn();
 
-jest.mock('vertex', () => ({
+jest.mock('../../src/common/vertex', () => ({
   queryIndex: (args: unknown) => mockQueryIndex(args),
 }));
 
@@ -13,11 +13,11 @@ const mockGetEmbeddings = jest.fn().mockImplementation(() => {
   return [[1, 2, 3]];
 });
 
-jest.mock('datapoints', () => ({
+jest.mock('../../src/common/datapoints', () => ({
   getEmbeddings: (args: unknown) => mockGetEmbeddings(args),
 }));
 
-jest.mock('config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',

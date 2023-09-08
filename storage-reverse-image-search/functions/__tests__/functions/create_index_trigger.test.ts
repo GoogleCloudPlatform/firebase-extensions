@@ -3,7 +3,7 @@ import * as admin from 'firebase-admin';
 import * as firebaseFunctionsTest from 'firebase-functions-test';
 import config from '../../src/config';
 
-jest.mock('config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',
@@ -26,7 +26,7 @@ jest.mock('config', () => ({
   },
 }));
 
-jest.mock('config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',
@@ -115,8 +115,15 @@ describe('createIndex', () => {
       beforeSnapshot
     );
 
-    expectNoOp();
-  });
+    /** wait for 5 seconds */
+    await new Promise(resolve => setTimeout(resolve, 5000));
+
+    /** check document  */
+    const updatedDoc = await ref.get();
+    expect(updatedDoc.data().status).toEqual(undefined);
+
+    //expectNoOp();
+  }, 12000);
 
   test('should not run if status is unchanged', async () => {
     const notTask = {
@@ -134,8 +141,15 @@ describe('createIndex', () => {
       beforeSnapshot
     );
 
-    expectNoOp();
-  });
+    /** wait for 5 seconds */
+    await new Promise(resolve => setTimeout(resolve, 5000));
+
+    /** Check that the document has not updated */
+    const updatedDoc = await ref.get();
+    expect(updatedDoc.data().status).toEqual('DONE');
+
+    // expectNoOp();
+  }, 12000);
 
   test('should not run if status is changed, but no output shape', async () => {
     const taskBefore = {

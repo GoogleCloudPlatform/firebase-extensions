@@ -8,18 +8,18 @@ import * as admin from 'firebase-admin';
 const mockGetFeatureVectors = jest.fn();
 const mockIsBase64Image = jest.fn();
 
-jest.mock('feature_vectors', () => ({
+jest.mock('../../src/common/feature_vectors', () => ({
   getFeatureVectors: (args: unknown) => mockGetFeatureVectors(args),
   isBase64Image: (args: unknown) => mockIsBase64Image(args),
 }));
 
 const mockQueryIndex = jest.fn();
 
-jest.mock('vertex', () => ({
+jest.mock('../../src/common/vertex', () => ({
   queryIndex: (args: unknown) => mockQueryIndex(args),
 }));
 
-jest.mock('config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',

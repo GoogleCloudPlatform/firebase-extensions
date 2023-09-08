@@ -2,7 +2,7 @@ import * as firebaseFunctionsTest from 'firebase-functions-test';
 import {onIndexCreated} from '../../src/index';
 import config from '../../src/config';
 
-jest.mock('config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',
@@ -26,7 +26,7 @@ jest.mock('config', () => ({
 const mockGetOperationByName = jest.fn();
 const mockCreateIndexEndpoint = jest.fn();
 
-jest.mock('vertex', () => ({
+jest.mock('../../src/common/vertex', () => ({
   createIndexEndpoint: (args: unknown) => mockCreateIndexEndpoint(args),
   getOperationByName: (args: unknown) => mockGetOperationByName(args),
 }));

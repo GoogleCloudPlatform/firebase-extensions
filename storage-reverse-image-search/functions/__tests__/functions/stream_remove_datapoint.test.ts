@@ -5,24 +5,24 @@ import config from '../../src/config';
 const mockRemoveDatapoint = jest.fn();
 const checkIndexStatus = jest.fn();
 
-jest.mock('vertex', () => ({
+jest.mock('../../src/common/vertex', () => ({
   removeDatapoint: (args: unknown) => mockRemoveDatapoint(args),
   checkIndexStatus: (args: unknown) => checkIndexStatus(args),
 }));
 
 const mockGetFeatureVectors = jest.fn();
 
-jest.mock('feature_vectors', () => ({
+jest.mock('../../src/common/feature_vectors', () => ({
   getFeatureVectors: (args: unknown) => mockGetFeatureVectors(args),
 }));
 
 const mockIsImage = jest.fn();
 
-jest.mock('utils', () => ({
+jest.mock('../../src/common/utils', () => ({
   isImage: (args: unknown) => mockIsImage(args),
 }));
 
-jest.mock('config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',

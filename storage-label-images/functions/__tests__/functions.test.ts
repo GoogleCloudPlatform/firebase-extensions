@@ -7,7 +7,8 @@ import * as fft from 'firebase-functions-test';
 import {ObjectMetadata} from 'firebase-functions/v1/storage';
 import setupEnvironment from './helpers/setupEnvironment';
 import config from '../src/config';
-import {clearFirestore} from './helpers';
+import {clearFirestore, waitForDocumentToExistInCollection} from './helpers';
+import {DocumentData} from 'firebase-admin/firestore';
 
 const functions = require('../src/index');
 
@@ -16,7 +17,6 @@ jest.spyOn(admin, 'initializeApp').mockImplementation();
 const db = admin.firestore();
 
 /** Setup test environment */
-
 const testEnv = fft({
   projectId: 'demo-gcp',
   storageBucket: bucket,
@@ -40,7 +40,7 @@ jest.mock('../src/config', () => ({
 
 describe('labelImage', () => {
   beforeEach(async () => {
-    /** Clea rFirestore data */
+    /** Clear Firestore data */
     await clearFirestore();
   });
 
@@ -58,7 +58,8 @@ describe('labelImage', () => {
   });
 
   it('should successfully label an image with no mode set', async () => {
-    const document = db.collection('imageLabels').doc('test.png');
+    const collection = db.collection(collectionPath);
+    const name = 'test.png';
     const expectedText = 'This is a test';
 
     mockAnnotateImage.mockResolvedValue([
@@ -79,22 +80,21 @@ describe('labelImage', () => {
       size: '',
       timeCreated: '',
       updated: '',
-      name: 'test.png',
+      name,
       contentType: 'image/png',
     };
 
     const wrapped = testEnv.wrap(functions.labelImage);
     await wrapped(obj);
 
-    /** Wait a second for the emulator to update */
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
     /** Check if the document was updated */
-    const result = await document.get();
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-ignore
-    const {labels, file} = result.data();
+    const result: DocumentData = await waitForDocumentToExistInCollection(
+      collection,
+      'file',
+      `gs://demo-gcp.appspot.com/${name}`
+    );
 
+    const {labels, file} = result.doc.data();
     /** Test assertions */
     expect(file).toEqual('gs://demo-gcp.appspot.com/test.png');
     expect(labels).toEqual([]);
@@ -102,8 +102,9 @@ describe('labelImage', () => {
 
   it('should successfully label an image with no mode set as basic', async () => {
     const name = 'test.png';
-    const document = db.collection(collectionPath).doc(name);
     const expectedText = 'This is a test';
+
+    const collection = db.collection(collectionPath);
 
     /** Setup config */
     config.mode = 'basic';
@@ -133,14 +134,13 @@ describe('labelImage', () => {
     const wrapped = testEnv.wrap(functions.labelImage);
     await wrapped(obj);
 
-    /** Wait a second for the emulator to update */
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const result: DocumentData = await waitForDocumentToExistInCollection(
+      collection,
+      'file',
+      `gs://demo-gcp.appspot.com/${name}`
+    );
 
-    /** Check if the document was updated */
-    const result = await document.get();
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-ignore
-    const {labels, file} = result.data();
+    const {labels, file} = result.doc.data();
 
     /** Test assertions */
     expect(file).toEqual(`gs://demo-gcp.appspot.com/${name}`);
@@ -149,8 +149,9 @@ describe('labelImage', () => {
 
   it('should successfully label an image with no mode set as full', async () => {
     const name = 'test.png';
-    const document = db.collection(collectionPath).doc(name);
     const expectedText = 'This is a test';
+
+    const collection = db.collection(collectionPath);
 
     /** Setup config */
     config.mode = 'full';
@@ -180,19 +181,22 @@ describe('labelImage', () => {
     const wrapped = testEnv.wrap(functions.labelImage);
     await wrapped(obj);
 
-    /** Wait a second for the emulator to update */
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const result: DocumentData = await waitForDocumentToExistInCollection(
+      collection,
+      'file',
+      `gs://demo-gcp.appspot.com/${name}`
+    );
 
-    /** Check if the document was updated */
-    const result = await document.get();
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-ignore
-    const {labels, file} = result.data();
+    const {labels, file} = result.doc.data();
 
     /** Test assertions */
     expect(file).toEqual(`gs://demo-gcp.appspot.com/${name}`);
     expect(labels[0].description).toEqual('This is a test');
-  });
+
+    /** Test assertions */
+    expect(file).toEqual(`gs://demo-gcp.appspot.com/${name}`);
+    expect(labels[0].description).toEqual('This is a test');
+  }, 12000);
 
   it('should not update on an annotation error', async () => {
     const name = 'test.png';

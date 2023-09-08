@@ -7,7 +7,7 @@ const mockUploadToCloudStorage = jest.fn();
 const mockSaveEmbeddingsToTmpFile = jest.fn();
 const mockDeleteTempFiles = jest.fn();
 
-jest.mock('utils', () => ({
+jest.mock('../../src/common/utils', () => ({
   saveEmbeddingsToTmpFile: (args: unknown) => mockSaveEmbeddingsToTmpFile(args),
   uploadToCloudStorage: (args: unknown) => mockUploadToCloudStorage(args),
   deleteTempFiles: (args: unknown) => mockDeleteTempFiles(args),
@@ -21,7 +21,7 @@ jest.mock('firebase-functions', () => ({
   },
 }));
 
-jest.mock('config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',
@@ -50,6 +50,7 @@ admin.initializeApp({
   projectId: 'demo-gcp',
 });
 
+//TODO: fix broken tests
 describe('onIndexDeployed', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
@@ -59,6 +60,7 @@ describe('onIndexDeployed', () => {
     );
   });
 
+  //TODO: fix broken test
   test('should not run if no objects', async () => {
     const id = 'test-id';
 

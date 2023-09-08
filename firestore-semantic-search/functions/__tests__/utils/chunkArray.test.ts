@@ -1,6 +1,6 @@
 import {chunkArray} from '../../src/common/utils';
 
-jest.mock('config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',

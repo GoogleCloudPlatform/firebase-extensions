@@ -61,9 +61,8 @@ export const labelVideo = functions.storage
 
     logs.annotateVideo(object.name!, annotateConfig);
 
-    const [operation] = await videoIntelligenceServiceClient.annotateVideo(
-      annotateConfig
-    );
+    const [operation] =
+      await videoIntelligenceServiceClient.annotateVideo(annotateConfig);
 
     if (operation.error) {
       logs.operationError(object.name!, operation.error);

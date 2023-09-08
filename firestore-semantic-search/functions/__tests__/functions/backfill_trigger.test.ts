@@ -44,7 +44,7 @@ jest.mock('firebase-admin/extensions', () => ({
   getExtensions: () => getExtensionsMock(),
 }));
 
-jest.mock('config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',

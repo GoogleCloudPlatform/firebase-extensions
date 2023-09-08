@@ -4,7 +4,7 @@ const mockGetClient = jest.fn();
 const mockCloudResourceManager = jest.fn();
 const mockProjectsGet = jest.fn();
 
-jest.mock('config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',

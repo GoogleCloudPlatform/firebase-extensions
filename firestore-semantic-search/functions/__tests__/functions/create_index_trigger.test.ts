@@ -3,7 +3,7 @@ import * as admin from 'firebase-admin';
 import * as firebaseFunctionsTest from 'firebase-functions-test';
 import config from '../../src/config';
 
-jest.mock('config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',

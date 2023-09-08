@@ -38,7 +38,7 @@ jest.mock('firebase-functions', () => {
 const mockListImagesInBucket = jest.fn();
 const mockChunkArray = jest.fn();
 
-jest.mock('utils', () => {
+jest.mock('../../src/common/utils', () => {
   return {
     listImagesInBucket: () => mockListImagesInBucket(),
     chunkArray: () => mockChunkArray(),
@@ -75,7 +75,7 @@ jest.mock('firebase-admin/extensions', () => ({
   getExtensions: () => getExtensionsMock(),
 }));
 
-jest.mock('config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',
@@ -99,6 +99,9 @@ jest.mock('config', () => ({
   },
 }));
 
+// admin.initializeApp({
+//   projectId: 'demo-gcp',
+// });
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 
 describe('backfillTriggerHandler', () => {
