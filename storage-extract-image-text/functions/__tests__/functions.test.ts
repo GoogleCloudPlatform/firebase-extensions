@@ -12,9 +12,9 @@ jest.spyOn(admin, 'initializeApp').mockImplementation();
 const db = admin.firestore();
 
 /** Setup test environment */
-const bucket = 'demo-test.appspot.com';
+const bucket = 'demo-gcp.appspot.com';
 const testEnv = fft({
-  projectId: 'demo-test',
+  projectId: 'demo-gcp',
   storageBucket: bucket,
 });
 
@@ -71,14 +71,14 @@ describe('extractText', () => {
     /** Check if the document was updated */
     const result = await db
       .collection('extractedTest')
-      .where('file', '==', 'gs://demo-test.appspot.com/test.png')
+      .where('file', '==', 'gs://demo-gcp.appspot.com/test.png')
       .get()
       .then(snapshot => snapshot.docs);
 
     const {textAnnotations, file} = result[0].data();
 
     /** Test assertions */
-    expect(file).toEqual('gs://demo-test.appspot.com/test.png');
+    expect(file).toEqual('gs://demo-gcp.appspot.com/test.png');
     expect(textAnnotations[0].description).toEqual(expectedText);
   }, 12000);
 
