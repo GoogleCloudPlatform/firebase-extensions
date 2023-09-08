@@ -26,7 +26,7 @@ jest.mock('config', () => ({
   default: {
     // System vars
     location: 'us-central1',
-    projectId: 'dev-extensions-testing',
+    projectId: 'demo-gcp',
     instanceId: 'test-instance',
 
     // User-defined vars
@@ -37,7 +37,7 @@ jest.mock('config', () => ({
     distanceMeasureType: 'DOT_PRODUCT_DISTANCE',
     algorithmConfig: 'treeAhConfig',
     inputShape: 256,
-    bucketName: 'dev-extensions-testing-ext-test-instance',
+    bucketName: 'demo-gcp-ext-test-instance',
 
     // Extension-specific vars
     tasksDoc: '_ext-test-instance/tasks',
@@ -76,7 +76,7 @@ jest.mock('firebase-admin/extensions', () => ({
 }));
 
 const fft = firebaseFunctionsTest({
-  projectId: 'dev-extensions-testing',
+  projectId: 'demo-gcp',
   storageBucket: config.bucketName,
 });
 

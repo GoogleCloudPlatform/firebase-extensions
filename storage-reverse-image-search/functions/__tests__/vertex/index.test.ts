@@ -18,7 +18,7 @@ jest.mock('config', () => ({
   default: {
     // System vars
     location: 'us-central1',
-    projectId: 'dev-extensions-testing',
+    projectId: 'demo-gcp',
     instanceId: 'test-instance',
 
     // User-defined vars
@@ -212,7 +212,7 @@ describe('queryIndex', () => {
     );
 
     const expectedUrl =
-      'https://test-endpoint.com/v1beta1/projects/dev-extensions-testing/locations/us-central1/indexEndpoints/test-index-endpoint:findNeighbors';
+      'https://test-endpoint.com/v1beta1/projects/demo-gcp/locations/us-central1/indexEndpoints/test-index-endpoint:findNeighbors';
 
     expect(mockPost).toHaveBeenCalledWith([
       expectedUrl,
@@ -317,7 +317,7 @@ describe('checkIndexStatus', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
     await fetch(
-      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/dev-extensions-testing/databases/(default)/documents`,
+      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
       {method: 'DELETE'}
     );
   });
