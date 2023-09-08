@@ -36,8 +36,6 @@ export const labelVideo = functions.storage
   .onFinalize(async object => {
     if (!object.name) return;
 
-    console.log('test 1 >>>>', config);
-
     if (!shouldProcessStorageObject(object.name)) return;
 
     // Output to a folder named the same as the original file, minus the file extension.
