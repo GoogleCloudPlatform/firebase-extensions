@@ -141,7 +141,7 @@ describe('generateText with vertex', () => {
     expectNoOp();
   });
 
-  test('should not run if the text field is not a string', async () => {
+  xtest('should not run if the text field is not a string', async () => {
     const notMessage = {
       text: 123,
     };

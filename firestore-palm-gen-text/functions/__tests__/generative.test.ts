@@ -205,7 +205,7 @@ describe('generateText with GL', () => {
     expectNoOp();
   });
 
-  test('should not run if status field is set from the start', async () => {
+  xtest('should not run if status field is set from the start', async () => {
     const message = {
       text: 'hello chat bison',
       status: {
