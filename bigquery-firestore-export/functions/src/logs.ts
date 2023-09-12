@@ -88,7 +88,7 @@ export function bigqueryResultsRowCount(
   count: Number
 ) {
   logger.log(
-    `Destination table for transfer config '${transferConfigId}' and transfer run '${runId}' contained rows.`
+    `Destination table for transfer config '${transferConfigId}' and transfer run '${runId}' contained rows ${count}.`
   );
 }
 
