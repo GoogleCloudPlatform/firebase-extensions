@@ -17,11 +17,14 @@
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import {getExtensions} from 'firebase-admin/extensions';
+import {onSchedule} from "firebase-functions/v2/scheduler";
 
 import * as logs from './logs';
 import config from './config';
-import * as helper from './helper';
-import * as dts from './dts';
+// import * as dts from './dts';
+import { runConfigureDataFlow } from './runConfigureDataFlow';
+import { triggerDataFlow } from './triggerDataFlow';
+import { onRequest } from 'firebase-functions/v1/https';
 
 logs.init();
 
@@ -30,100 +33,18 @@ logs.init();
  */
 
 admin.initializeApp({projectId: config.projectId});
-const db = admin.firestore();
 
-export const upsertTransferConfig = functions.tasks
-  .taskQueue()
-  .onDispatch(async () => {
-    const runtime = getExtensions().runtime();
+export const scheduledExport = onSchedule(config.scheduleInterval || "Every day", async (event) => {
+  // Trigger dataflow pipeline
+    await triggerDataFlow(event,"event")
+});
 
-    if (config.transferConfigName) {
-      const nameSplit = config.transferConfigName.split('/');
-      const transferConfigId = nameSplit[nameSplit.length - 1];
+export const httpTriggerExport = onRequest(async (req, res) => {
+  // Trigger dataflow pipeline
 
-      // Ensure the latest transfer config object is stored in Firestore.
-      // If Firestore already contains an extension instance matching this config ID, the extension
-      // will overwrite the existing config with the latest config from the API
-      const transferConfig = dts.getTransferConfig(config.transferConfigName);
+  await triggerDataFlow(req,"http")
+    res.status(200).send("OK")
+});
 
-      await db
-        .collection(config.firestoreCollection)
-        .doc(transferConfigId)
-        .set({
-          extInstanceId: config.instanceId,
-          ...transferConfig,
-        });
-      await runtime.setProcessingState(
-        'PROCESSING_COMPLETE',
-        'Transfer Config Name was provided to the extension, and Transfer Config object was successfully written to Firestore.'
-      );
-    } else {
-      // See if we have a transfer config in Firestore associated with this extension
-      // If exists, update Transfer Config on BQ side and write updated object to Firestore
-      // Otherwise, create Transfer Config on BQ side and write object to Firestore
+export const configureDataFlow = async () => await runConfigureDataFlow();
 
-      const q = db
-        .collection(config.firestoreCollection)
-        .where('extInstanceId', '==', config.instanceId);
-
-      const results = await q.get();
-
-      // TODO: Warning if multiple instances found
-      if (results.size > 0) {
-        const existingTransferConfig = results.docs[0].data();
-        const transferConfigName = existingTransferConfig.name;
-        const splitName = transferConfigName.split('/');
-        const transferConfigId = splitName[splitName.length - 1];
-
-        await dts.updateTransferConfig(transferConfigName);
-
-        const updatedConfig = dts.getTransferConfig(config.transferConfigName);
-
-        await db
-          .collection(config.firestoreCollection)
-          .doc(transferConfigId)
-          .set({
-            extInstanceId: config.instanceId,
-            ...updatedConfig,
-          });
-        await runtime.setProcessingState(
-          'PROCESSING_COMPLETE',
-          'Transfer Config Name was not provided to the extension, and an existing Transfer Config found. Transfer Config object was successfully updated in BQ and Firestore.'
-        );
-        return;
-      } else {
-        const transferConfig = await dts.createTransferConfig();
-        const splitName = transferConfig.name.split('/');
-        const transferConfigId = splitName[splitName.length - 1];
-
-        await db
-          .collection(config.firestoreCollection)
-          .doc(transferConfigId)
-          .set({
-            extInstanceId: config.instanceId,
-            ...transferConfig,
-          });
-        await runtime.setProcessingState(
-          'PROCESSING_COMPLETE',
-          'Transfer Config Name was not provided to the extension, and no existing Transfer Config found. Transfer Config object was successfully created in BQ and Firestore.'
-        );
-      }
-    }
-    return;
-  });
-
-export const processMessages = functions.pubsub
-  .topic(config.pubSubTopic)
-  .onPublish(async message => {
-    logs.pubsubMessage(message);
-    await helper.handleMessage(db, config, message);
-    logs.pubsubMessageHandled(message);
-  });
-
-export const processMessagesHttp = functions.https.onRequest(
-  async (req, res) => {
-    const message = req.body;
-    await helper.handleMessage(db, config, message);
-    res.send('OK');
-  }
-);

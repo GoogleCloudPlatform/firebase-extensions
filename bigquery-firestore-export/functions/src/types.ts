@@ -12,4 +12,6 @@ export interface Config {
   pubSubTopic: string;
   firestoreCollection: string;
   displayName?: string;
+  bucketName?: string;
+  scheduleInterval?: string;
 }

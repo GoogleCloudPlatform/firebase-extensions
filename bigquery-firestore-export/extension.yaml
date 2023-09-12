@@ -301,3 +301,14 @@ lifecycleEvents:
     function: upsertTransferConfig
     processingMessage:
       Creating or updating the transfer config associated with this extension.
+
+lifecycleEvents:
+  onInstall:
+    function: configureDataFlow
+    processingMessage: Set up dataflow for exports.
+  onUpdate:
+    function: configureDataFlow
+    processingMessage: Set up dataflow for exports.
+  onConfigure:
+    function: configureDataFlow
+    processingMessage: Set up dataflow for exports.
