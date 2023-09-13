@@ -19,7 +19,7 @@ import {helpers, v1, protos} from '@google-cloud/aiplatform';
 
 import * as logs from './logs';
 import {GoogleAuth} from 'google-auth-library';
-import {APIGenerateTextRequest} from './types';
+import {GLGenerateTextRequest} from './types';
 import config from './config';
 
 export interface TextGeneratorOptions {
@@ -30,20 +30,13 @@ export interface TextGeneratorOptions {
   topK?: number;
   maxOutputTokens?: number;
   instruction?: string;
+  generativeSafetySettings?: GLGenerateTextRequest['safetySettings'];
 }
 
 export type TextGeneratorRequestOptions = Omit<
-  APIGenerateTextRequest,
+  GLGenerateTextRequest,
   'prompt' | 'model'
 >;
-export type TextGeneratorResponse = {
-  candidates: string[];
-  safetyAttributes?: {
-    blocked?: boolean;
-    scores?: number[];
-    categories?: string[];
-  };
-};
 
 type VertexPredictResponse =
   protos.google.cloud.aiplatform.v1beta1.IPredictResponse;
@@ -59,22 +52,25 @@ export class TextGenerator {
   candidateCount?: number;
   topP?: number;
   topK?: number;
-  maxOutputTokens?: number;
+  maxOutputTokens: number;
+  generativeSafetySettings: TextGeneratorRequestOptions['safetySettings'];
 
   constructor(options: TextGeneratorOptions = {}) {
     this.temperature = options.temperature;
     this.topP = options.topP;
     this.topK = options.topK;
-    this.maxOutputTokens = options.maxOutputTokens;
+    this.maxOutputTokens = options.maxOutputTokens || 1024;
     this.candidateCount = options.candidateCount;
     this.instruction = options.instruction;
+    this.generativeSafetySettings = options.generativeSafetySettings || [];
     if (options.model) this.model = options.model;
 
     this.endpoint = `projects/${config.projectId}/locations/${config.location}/publishers/google/models/${this.model}`;
 
     if (config.provider === 'vertex') {
+      // here location is hard-coded, following https://cloud.google.com/vertex-ai/docs/generative-ai/embeddings/get-text-embeddings#generative-ai-get-text-embedding-nodejs
       const clientOptions = {
-        apiEndpoint: `${config.location}-prediction-aiplatform.googleapis.com`,
+        apiEndpoint: 'us-central1-aiplatform.googleapis.com',
       };
 
       this.vertexClient = new v1.PredictionServiceClient(clientOptions);
@@ -107,21 +103,9 @@ export class TextGenerator {
 
     const predictionValue = result.predictions[0] as protobuf.common.IValue;
 
-    const prediction = helpers.fromValue(predictionValue);
+    const vertexPrediction = helpers.fromValue(predictionValue);
 
-    const {safetyAttributes, content} = prediction as {
-      safetyAttributes?: {
-        blocked: boolean;
-        categories: string[];
-        scores: number[];
-      };
-      content?: string;
-    };
-
-    return {
-      content,
-      safetyAttributes,
-    };
+    return convertToTextGeneratorResponse(vertexPrediction as VertexPrediction);
   }
 
   async generate(
@@ -141,6 +125,7 @@ export class TextGenerator {
       const temperature = options.temperature || this.temperature;
       const topP = options.topP || this.topP;
       const topK = options.topK || this.topK;
+      const maxOutputTokens = options.maxOutputTokens || this.maxOutputTokens;
 
       const parameter: Record<string, string | number> = {};
       // We have to set these conditionally or they get nullified and the request fails with a serialization error.
@@ -153,7 +138,7 @@ export class TextGenerator {
       if (topK) {
         parameter.top_k = topK;
       }
-      parameter.maxOutputTokens = 100;
+      parameter.maxOutputTokens = maxOutputTokens;
 
       const parameters = helpers.toValue(parameter);
 
@@ -165,13 +150,7 @@ export class TextGenerator {
 
       const [result] = await this.vertexClient.predict(request);
 
-      const {content, safetyAttributes} =
-        this.extractVertexCandidateResponse(result);
-
-      if (!content) {
-        return {candidates: [], safetyAttributes};
-      }
-      return {candidates: [content]};
+      return this.extractVertexCandidateResponse(result);
     }
 
     const request = {
@@ -180,6 +159,7 @@ export class TextGenerator {
       },
       model: `models/${this.model}`,
       ...options,
+      safetySettings: this.generativeSafetySettings,
     };
 
     if (!this.generativeClient) {
@@ -188,21 +168,68 @@ export class TextGenerator {
 
     const [result] = await this.generativeClient.generateText(request);
 
-    if (!result.candidates || !result.candidates.length) {
-      throw new Error('No candidates returned from server.');
+    return convertToTextGeneratorResponse(result as GenerativePrediction);
+  }
+}
+
+type VertexPrediction = {
+  safetyAttributes?: {
+    blocked: boolean;
+    categories: string[];
+    scores: number[];
+  };
+  content?: string;
+};
+
+type GenerativePrediction = {
+  candidates: {output: string}[];
+  filters?: {reason: string}[];
+  safetyFeedback?: {
+    rating: Record<string, any>;
+    setting: Record<string, any>;
+  }[];
+};
+
+type TextGeneratorResponse = {
+  candidates: string[];
+  safetyMetadata?: {
+    blocked: boolean;
+    [key: string]: any;
+  };
+};
+
+function convertToTextGeneratorResponse(
+  prediction: VertexPrediction | GenerativePrediction
+): TextGeneratorResponse {
+  // if it's generative language
+  if ('candidates' in prediction) {
+    const {candidates, filters, safetyFeedback} = prediction;
+    const blocked = !!filters && filters.length > 0;
+    const safetyMetadata = {
+      blocked,
+      safetyFeedback,
+    };
+    if (!candidates.length && !blocked) {
+      throw new Error('No candidates returned from the Generative API.');
     }
-
-    //TODO: do we need to filter out empty strings? This seems to be a type issue with the API, why are they optional?
-    const candidates = result.candidates
-      .map(candidate => candidate.output)
-      .filter(output => !!output) as string[];
-
-    if (!candidates.length) {
-      throw new Error('No candidates returned from server.');
-    }
-
     return {
-      candidates,
+      candidates: candidates.map(candidate => candidate.output),
+      safetyMetadata,
+    };
+  } else {
+    // provider will be vertex
+    const {content, safetyAttributes} = prediction;
+    const blocked = !!safetyAttributes && !!safetyAttributes.blocked;
+    const safetyMetadata = {
+      blocked,
+      safetyAttributes,
+    };
+    if (!content && !blocked) {
+      throw new Error('No content returned from the Vertex PaLM API.');
+    }
+    return {
+      candidates: blocked ? [] : [content!],
+      safetyMetadata,
     };
   }
 }

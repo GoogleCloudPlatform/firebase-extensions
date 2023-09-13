@@ -1,6 +1,23 @@
+## Version 0.1.8
+
+- Added a content filter threshold parameter
+- bumped dependencies
+## Version 0.1.7
+
+- Improved summarization prompt to reduce hallucinations
+- Added parameter for max output tokens on response
+
+
+## Version 0.1.6
+
+- Fixed location bug where apiEndpoint was incorrectly entered
+
 ## Version 0.1.5
 
-Removed unnecessary Storage bucket requirement from PREINSTALL.
+- Removed unnecessary Storage bucket requirement from PREINSTALL.
+- Support both Vertex and Generative Language PaLM API Providers.
+- Handle Generative Language Content Filter.
+- Add support for providing an API key for the Generative Language PaLM Provider.
 
 ## Version 0.1.4
 

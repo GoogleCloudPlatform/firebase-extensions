@@ -38,6 +38,7 @@ const {
   candidatesField,
   maxOutputTokens,
   variableFields,
+  generativeSafetySettings,
 } = config;
 
 const textGenerator = new TextGenerator({
@@ -47,6 +48,7 @@ const textGenerator = new TextGenerator({
   topK,
   candidateCount,
   maxOutputTokens,
+  generativeSafetySettings,
 });
 
 logs.init(config);
@@ -122,11 +124,20 @@ export const generateText = functions.firestore
         'status.updateTime': FieldValue.serverTimestamp(),
       };
 
-      if (result.safetyAttributes) {
-        metadata['safetyAttributes'] = result.safetyAttributes;
+      console.log(result.safetyMetadata);
+
+      if (result.safetyMetadata) {
+        metadata.safetyMetadata = {};
+
+        /** Ensure only defined data is added to the metadata */
+        for (const key of Object.keys(result.safetyMetadata)) {
+          if (result.safetyMetadata[key] !== undefined) {
+            metadata.safetyMetadata[key] = result.safetyMetadata[key];
+          }
+        }
       }
 
-      if (result.safetyAttributes?.blocked) {
+      if (result.safetyMetadata?.blocked) {
         return ref.update({
           ...metadata,
           'status.state': 'ERRORED',

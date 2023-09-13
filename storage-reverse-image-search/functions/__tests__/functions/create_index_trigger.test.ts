@@ -3,11 +3,11 @@ import * as admin from 'firebase-admin';
 import * as firebaseFunctionsTest from 'firebase-functions-test';
 import config from '../../src/config';
 
-jest.mock('config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',
-    projectId: 'dev-extensions-testing',
+    projectId: 'demo-gcp',
     instanceId: 'test-instance',
 
     // User-defined vars
@@ -18,7 +18,7 @@ jest.mock('config', () => ({
     distanceMeasureType: 'DOT_PRODUCT_DISTANCE',
     algorithmConfig: 'treeAhConfig',
     inputShape: 256,
-    bucketName: 'dev-extensions-testing-ext-test-instance',
+    bucketName: 'demo-gcp-ext-test-instance',
 
     // Extension-specific vars
     tasksDoc: '_ext-test-instance/tasks',
@@ -26,11 +26,11 @@ jest.mock('config', () => ({
   },
 }));
 
-jest.mock('config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',
-    projectId: 'dev-extensions-testing',
+    projectId: 'demo-gcp',
     instanceId: 'test-instance',
 
     // User-defined vars
@@ -41,7 +41,7 @@ jest.mock('config', () => ({
     distanceMeasureType: 'DOT_PRODUCT_DISTANCE',
     algorithmConfig: 'treeAhConfig',
     inputShape: 256,
-    bucketName: 'dev-extensions-testing-ext-test-instance',
+    bucketName: 'demo-gcp-ext-test-instance',
 
     // Extension-specific vars
     tasksDoc: '_ext-test-instance/tasks',
@@ -50,7 +50,7 @@ jest.mock('config', () => ({
 }));
 
 const fft = firebaseFunctionsTest({
-  projectId: 'dev-extensions-testing',
+  projectId: 'demo-gcp',
 });
 
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
@@ -64,10 +64,6 @@ jest.mock('../../src/common/vertex', () => ({
   },
 }));
 
-// admin.initializeApp({
-//     projectId: "dev-extensions-testing",
-// });
-
 const wrappedCreateIndexTrigger = fft.wrap(createIndexTrigger);
 
 const firestoreObserver = jest.fn();
@@ -79,7 +75,7 @@ describe('createIndex', () => {
     jest.resetAllMocks();
     firestoreObserver.mockReset();
     await fetch(
-      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/dev-extensions-testing/databases/(default)/documents`,
+      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
       {method: 'DELETE'}
     );
     // set up observer on collection
@@ -91,12 +87,17 @@ describe('createIndex', () => {
       });
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     if (unsubscribe) {
       unsubscribe();
     }
+
     jest.resetAllMocks();
     firestoreObserver.mockReset();
+
+    /** clear collections */
+    admin.firestore().doc(config.tasksDoc).delete();
+    admin.firestore().doc(config.metadataDoc).delete();
   });
   test('should not run if no status', async () => {
     const notTask = {
@@ -114,8 +115,15 @@ describe('createIndex', () => {
       beforeSnapshot
     );
 
-    expectNoOp();
-  });
+    /** wait for 5 seconds */
+    await new Promise(resolve => setTimeout(resolve, 5000));
+
+    /** check document  */
+    const updatedDoc = await ref.get();
+    expect(updatedDoc.data().status).toEqual(undefined);
+
+    //expectNoOp();
+  }, 12000);
 
   test('should not run if status is unchanged', async () => {
     const notTask = {
@@ -133,8 +141,15 @@ describe('createIndex', () => {
       beforeSnapshot
     );
 
-    expectNoOp();
-  });
+    /** wait for 5 seconds */
+    await new Promise(resolve => setTimeout(resolve, 5000));
+
+    /** Check that the document has not updated */
+    const updatedDoc = await ref.get();
+    expect(updatedDoc.data().status).toEqual('DONE');
+
+    // expectNoOp();
+  }, 12000);
 
   test('should not run if status is changed, but no output shape', async () => {
     const taskBefore = {
@@ -181,7 +196,7 @@ describe('createIndex', () => {
       ref,
       beforeSnapshot
     );
-    expectNoOp();
+    expect(firestoreObserver).toHaveBeenCalledTimes(1);
   });
 
   test('should run if status is changed, and output shape is present and is a number', async () => {

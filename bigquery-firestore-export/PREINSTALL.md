@@ -1,16 +1,20 @@
-This extension helps developers to set up their frontend clients to subscribe to BQ queries that periodically refresh on a scheduled basis. A canonical use case is election results, where you might have a frontend that needs to refresh live to show the latest results. This extension would be useful in any scenario where an app developer needs to push analytical data back to users.
+This extension helps you set up automated, scheduled jobs that run BigQuery queries and subsequently export the query results to Firestore. A common use case for this extension is to present application-driven analytics, like product engagement metrics or election results, from Firestore, using batch data originally stored and aggregated by BigQuery.
 
-To use the extension, developers will configure a specific Firestore document for each query and have their frontends listen for updates, and the BigQuery table/query to execute. In the background, BigQuery will run the query on a schedule, and the extension will write the result back to the specified document. Schedules are managed as Transfer Configs using the [Data Transfer Service](https://cloud.google.com/bigquery/docs/scheduling-queries).
+To use the extension, configure a BigQuery query to execute along with a schedule to execute the query. Each scheduled BigQuery query run will result in: 
 
-Upon installation, a Transfer Config is created for you via the Data Transfer Service API. This Transfer Config will be updated if you update the extension parameters for the instance.
+- A summary of each BigQuery query run, stored in a “runId” document.
+- Actual rows from BigQuery query results, stored as individual Firestore documents in an “output” subcollection under the “runId” document (i.e. transferConfigs/<configId>/runs/<runId>/output).
 
-If you would like to specify multiple queries at different intervals, you can create multiple instances of the extension.
+```
+COLLECTION: transferConfigs/<configId>/runs/<runId>
+DOCUMENT: {
+  runMetadata: { },
+  totalRowCount: 779,
+  failedRowCount: 0
+}
+```
 
-The extension will provide a Pub/Sub trigger that listens to new messages written to the specified topic, representing transfer run completion events.
-
-The extension will parse the message to identify the correct destination table based on the runtime. It will then run a “SELECT \*” query from the destination table and write the results (as JSON) to Firestore.
-
-Each run will write to a document with ID “latest”:
+To determine what the latest run is for a scheduled BigQuery query, read the metadata from the “latest” document in Firestore. Frontend applications using Firestore real-time listeners can subscribe to the “latest” document to listen for changes, in order to query and render the latest scheduled run results.
 
 ```
 COLLECTION: transferConfigs/<configId>/runs/latest
@@ -22,18 +26,9 @@ DOCUMENT: {
 }
 ```
 
-Each run will also write to a “runs” subcollection with runID as the document ID, to preserve history:
+Underneath the covers, schedules are managed by BigQuery Transfer Configs using the [Data Transfer Service](https://cloud.google.com/bigquery/docs/scheduling-queries). Once a scheduled BigQuery query completes, the extension will export the results back to a configurable Firestore collection. To facilitate the export, the extension creates a Pub/Sub trigger to capture notification events for BigQuery scheduled query (transfer run) completions and subsequently conduct a BigQuery to Firestore data export job using a Cloud Function.
 
-```
-COLLECTION: transferConfigs/<configId>/runs/<runId>
-DOCUMENT: {
-  runMetadata: { },
-  totalRowCount: 779,
-  failedRowCount: 0
-}
-```
-
-Query results will be stored as individual documents in a subcollection under the run document (i.e. transferConfigs/<configId>/runs/<runId>/output). Frontend applications can subscribe to the “latest” document to listen for changes to latestRunId, and run an additional Firestore query to get the BQ query results as individual documents.
+If you would like to specify multiple BigQuery queries at different intervals, you can create multiple instances of the extension.
 
 **Additional Setup**
 
@@ -41,7 +36,7 @@ Make sure that you've set up a [Cloud Firestore database](https://firebase.googl
 
 You will also need a BigQuery instance with a dataset that contains at least one table.
 
-## Billing
+**Billing**
 
 To install an extension, your project must be on the Blaze (pay as you go) plan.
 
@@ -52,8 +47,8 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 - Cloud Pub/Sub
 - Cloud Firestore
 - BigQuery
-- Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
+- Cloud Functions (See FAQs)
 
-> ⚠️ Note: The extension does not delete the BigQuery Transfer Config (scheduled query) automatically when you uninstall the extension.
->
-> BigQuery charges by data processed, so your project will continue to incur costs until you manually delete the scheduled query. You can manage your scheduled queries directly in [Cloud Console](https://console.cloud.google.com/bigquery/scheduled-queries).
+> ⚠️ *Note: The extension does not automatically delete the BigQuery Transfer Config (scheduled query) when you uninstall the extension.*
+
+> *BigQuery charges by data processed, so your project will continue to incur costs until you manually delete the scheduled query. You can manage your scheduled queries directly in Cloud Console.*

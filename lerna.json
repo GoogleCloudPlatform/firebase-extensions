@@ -1,5 +1,18 @@
 {
-  "packages": ["*/functions"],
+  "packages": [
+    "storage-label-images/functions",
+    "storage-reverse-image-search/functions",
+    "firestore-palm-chatbot/functions",
+    "firestore-palm-gen-text/functions",
+    "palm-secure-backend/functions",
+    "firestore-palm-summarize-text/functions",
+    "speech-to-text/functions",
+    "storage-extract-image-text/functions",
+    "storage-label-videos/functions",
+    "storage-transcode-videos/functions",
+    "firestore-semantic-search/functions",
+    "text-to-speech/functions"
+  ],
   "version": "0.0.0",
   "npmClient": "npm"
 }

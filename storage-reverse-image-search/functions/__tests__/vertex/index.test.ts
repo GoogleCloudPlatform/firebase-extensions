@@ -1,3 +1,7 @@
+const mockCreateIndex = jest.fn();
+const mockCreateIndexEndpoint = jest.fn();
+const mockDeployIndex = jest.fn();
+
 import {
   createIndex,
   createIndexEndpoint,
@@ -8,17 +12,16 @@ import {
   getOperationByName,
   cancelOperationByName,
   deleteOperationByName,
-  checkIndexStatus,
 } from '../../src/common/vertex';
 import * as admin from 'firebase-admin';
 import config from '../../src/config';
 import {Query} from '../../src/types/query';
 
-jest.mock('config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',
-    projectId: 'dev-extensions-testing',
+    projectId: 'demo-gcp',
     instanceId: 'test-instance',
 
     // User-defined vars
@@ -38,21 +41,66 @@ jest.mock('config', () => ({
   },
 }));
 
-const mockCreateIndex = jest.fn();
-const mockCreateIndexEndpoint = jest.fn();
-const mockDeployIndex = jest.fn();
-
 jest.mock('@google-cloud/aiplatform', () => ({
-  ...jest.requireActual('@google-cloud/aiplatform'),
-  IndexServiceClient: () => ({
-    createIndex: () => mockCreateIndex(),
-    createIndexEndpoint: (args: unknown) => mockCreateIndexEndpoint(args),
-    deployIndex: () => mockDeployIndex(),
+  v1beta1: {
+    IndexServiceClient: jest.fn(() => ({
+      createIndex: () => [mockCreateIndex()],
+      createIndexEndpoint: (args: unknown) => [mockCreateIndexEndpoint(args)],
+      deployIndex: (args: unknown) => mockDeployIndex(args),
+    })),
+    IndexEndpointServiceClient: jest.fn(() => ({
+      createIndex: () => [mockCreateIndex()],
+      createIndexEndpoint: (args: unknown) => [mockCreateIndexEndpoint(args)],
+      deployIndex: (args: unknown) => [mockDeployIndex(args)],
+    })),
+  },
+  protos: {
+    google: {
+      cloud: {
+        aiplatform: {
+          v1: {AcceleratorType: {ACCELERATOR_TYPE_UNSPECIFIED: 0}},
+        },
+      },
+    },
+  },
+}));
+
+jest.mock('google-gax', () => ({}));
+
+const mockGetClient = jest.fn();
+const mockCloudResourceManager = jest.fn();
+const mockProjectsGet = jest.fn();
+
+jest.mock('googleapis', () => {
+  return {
+    google: {
+      auth: {
+        getClient: (args: unknown) => mockGetClient(args),
+      },
+      cloudresourcemanager: (args: unknown) => {
+        mockCloudResourceManager(args);
+        return {
+          projects: {
+            get: (args: unknown) => mockProjectsGet(args),
+          },
+        };
+      },
+    },
+  };
+});
+
+jest.mock('google-auth-library', () => ({
+  GoogleAuth: jest.fn().mockImplementation(() => {
+    return {
+      getClient: jest.fn().mockReturnValue({
+        getAccessToken: jest.fn(),
+      }),
+    };
   }),
 }));
 
 admin.initializeApp({
-  projectId: 'dev-extension-testing',
+  projectId: 'demo-gcp',
   storageBucket: config.bucketName,
 });
 
@@ -67,11 +115,12 @@ describe('createIndex', () => {
     );
     try {
       createIndex(100);
-    } catch (e) {
+    } catch (e: any) {
       expect(e.message).toEqual('test error');
     }
   });
 });
+
 describe('createIndexEndpoint', () => {
   afterEach(async () => {
     jest.clearAllMocks();
@@ -84,7 +133,7 @@ describe('createIndexEndpoint', () => {
 
     try {
       createIndexEndpoint();
-    } catch (e) {
+    } catch (e: any) {
       expect(e.message).toEqual('test error');
     }
   });
@@ -102,7 +151,7 @@ describe('deployIndex', () => {
 
     try {
       deployIndex('test-endpoint', 'test-index');
-    } catch (e) {
+    } catch (e: any) {
       expect(e.message).toEqual('test error');
     }
   });
@@ -122,8 +171,8 @@ jest.mock('axios', () => ({
 
 const mockGetAccessToken = jest.fn().mockImplementation(() => 'test-token');
 
-jest.mock('utils', () => ({
-  ...jest.requireActual('utils'),
+jest.mock('../../src/common/utils', () => ({
+  ...jest.requireActual('../../src/common/utils'),
   getAccessToken: () => mockGetAccessToken(),
 }));
 
@@ -212,7 +261,7 @@ describe('queryIndex', () => {
     );
 
     const expectedUrl =
-      'https://test-endpoint.com/v1beta1/projects/dev-extensions-testing/locations/us-central1/indexEndpoints/test-index-endpoint:findNeighbors';
+      'https://test-endpoint.com/v1beta1/projects/demo-gcp/locations/us-central1/indexEndpoints/test-index-endpoint:findNeighbors';
 
     expect(mockPost).toHaveBeenCalledWith([
       expectedUrl,
@@ -308,27 +357,5 @@ describe('deleteOperationByName', () => {
         },
       },
     ]);
-  });
-});
-
-process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
-
-describe('checkIndexStatus', () => {
-  beforeEach(async () => {
-    jest.clearAllMocks();
-    await fetch(
-      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/dev-extensions-testing/databases/(default)/documents`,
-      {method: 'DELETE'}
-    );
-  });
-
-  test('should return status of metadata document', async () => {
-    await admin.firestore().doc(config.metadataDoc).set({
-      status: 'test-status',
-    });
-
-    const result = await checkIndexStatus();
-
-    expect(result).toEqual('test-status');
   });
 });

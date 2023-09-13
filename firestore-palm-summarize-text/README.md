@@ -6,13 +6,11 @@
 
 
 
-**Details**: > ⚠️ The PaLM API is currently in public preview. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
-> **Please ensure that you have already signed up for the [waitlist](https://makersuite.google.com/waitlist) and have been approved before installing the extension.**
-
-This extension allows you to summarize a field in a Firestore document using the PaLM API.
+**Details**: This extension allows you to summarize a field in a Firestore document using the PaLM API.
 
 On installation, you will need to specify the following information:
 
+- **PaLM API Provider** This extension makes use of the PaLM large language model. There is a choice of provider for this API. See the section below for more details.
 - **Firestore collection path:** The path to the Firestore collection that contains the documents to summarize.
 - **Document field to summarize:** The name of the document field to summarize.
 - **Target summary length (number of sentences):** The desired length of the summary in sentences.
@@ -36,6 +34,22 @@ Here are some examples of how this extension can be used:
 - An e-commerce platform could use this extension to automatically generate summaries of customer feedback, giving customers a quick overview of the feedback before they decide whether to read the full content.
 - A news website could use this extension to summarize articles, helping readers decide whether they want to invest their time in reading the full article.
 - A social media platform could use this extension to provide summaries of user-generated content, improving content discoverability and user engagement.
+
+### Choosing a PaLM Provider
+
+There are currently two different APIs providing access to PaLM large language models. The PaLM Developer (Generative Language) API, and Vertex AI. This extension will prompt you to pick an API on installation. For production use-cases we recommend Vertex AI, as the Generative Language API is still in public preview.
+
+- The PaLM developer (Generative Language) API is currently in public preview, and you will need to sign up [waitlist](https://makersuite.google.com/waitlist) if you want to use it. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
+
+- For more details on the Vertex AI PaLM API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview)
+
+### Harm filter thresholds
+
+PaLM provides content filters in different categories. For simplicity, this extension allows you to set a global threshold for all categories in one configuration parameter, specified during installation. Note that the filtering is based on the probability that the prompt or response contains the category of content, and not necessarily the severity of the content.
+
+Currently the extension only supports this feature for the Generative AI for developers PaLM Provider.
+
+For more information see the [documentation](https://developers.generativeai.google/guide/safety_setting) for the Generative AI for Developers PaLM API.
 
 ### Regenerating a response
 
@@ -66,9 +80,9 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 **Configuration Parameters:**
 
-* Palm API Provider: There are two services which provide access to the PaLM API. Which would you like to use? Keep in mind you will need to enable the service in your GCP project.
+* Palm API Provider: There are two services which provide access to the PaLM API. Which would you like to use? If Vertex AI is selected, the service will be automatically enabled. If Generative Language is selected, you can provide an API key obtained through MakerSuite or your GCP console, or use Application Default Credentials if the Generative Language AI is enabled in your google cloud project.
 
-* API Key (Generative Language AI for Developers Provider ONLY): If you selected Generative AI for Developers as your PaLM API provider, you can optionally choose to provide an API key. If you do not provide an API key, the extension will use Application Default Credentials.
+* API Key (Generative Language AI for Developers Provider ONLY): If you selected Generative AI for Developers as your PaLM API provider, you can optionally choose to provide an API key. If you do not provide an API key, the extension will use Application Default Credentials, but will need the service enabled in GCP.
 
 * Collection Name: Path to the Firestore collection where messages will be generated.
 
@@ -77,6 +91,10 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 * Response Field: The field in the message document into which to put the response.
 
 * Target Summary Length: Number of sentences you would like the summary to be.
+
+* Maximum number of tokens: If you have selected the Vertex AI service as your PaLM API provider, this parameter will be used to set the max_tokens parameter in the Vertex API request. It should be an integer in the range [1,1024]. The default value for the extension is 1024.
+
+* Content Filter Threshold: Threshold for harmful content. Specify what level of harmful content is blocked by the PaLM provider. This threshold is applicable only to the Generative Language PaLM API.
 
 * Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
 

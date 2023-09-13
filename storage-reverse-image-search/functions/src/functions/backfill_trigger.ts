@@ -25,12 +25,12 @@ import {File} from '@google-cloud/storage';
 import {BackfillStatus} from '../types/backfill_status';
 
 export async function backfillTriggerHandler({
-  forceCreateIndex = false,
+  forceCreateIndex,
   object,
 }: {
   forceCreateIndex?: boolean;
   object?: functions.storage.ObjectMetadata;
-}) {
+} = {}) {
   const runtime = getExtensions().runtime();
 
   if (!forceCreateIndex && !config.doBackfill) {
@@ -92,13 +92,14 @@ export async function backfillTriggerHandler({
 
       try {
         // Create a task document to track the progress of the task.
-        writer.create(
+        writer.set(
           admin.firestore().doc(`${config.tasksDoc}/enqueues/${id}`),
           {
             taskId: id,
             status: BackfillStatus.PENDING,
             objects: chunk.map(object => object.name),
-          }
+          },
+          {merge: false}
         );
 
         if (

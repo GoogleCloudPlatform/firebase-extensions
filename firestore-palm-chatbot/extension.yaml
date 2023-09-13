@@ -2,7 +2,7 @@
 # https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml
 
 name: firestore-palm-chatbot # Identifier for your extension
-version: 0.1.5 # Follow semver versioning
+version: 0.1.6 # Follow semver versioning
 specVersion: v1beta # Version of the Firebase Extensions specification
 
 # Friendly display name for your extension (~3-5 words)
@@ -64,7 +64,8 @@ roles:
       messages.
   - role: aiplatform.user
     reason:
-      Allows this extension to access the PaLM API via Vertex AI if this provider is chosen.
+      Allows this extension to access the PaLM API via Vertex AI if this
+      provider is chosen.
 # In the `resources` field, list each of your extension's functions, including the trigger for each function.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#resources-field
 resources:
@@ -84,16 +85,20 @@ resources:
 # In the `params` field, set up your extension's user-configured parameters.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#params-field
 params:
-
   - param: PALM_API_PROVIDER
     label: Palm API Provider
     description: >-
-      There are two services which provide access to the PaLM API. Which would you like to use? Keep in mind you will need to enable the service in your GCP project.
+      There are two services which provide access to the PaLM API. Which would
+      you like to use? If Vertex AI is selected, the service will be
+      automatically enabled. If Generative Language is selected, you can provide
+      an API key obtained through MakerSuite or your GCP console, or use
+      Application Default Credentials if the Generative Language AI is enabled
+      in your google cloud project.
     type: select
     options:
       - label: Vertex AI
         value: vertex
-      - label: Generative AI for Developers
+      - label: Generative Language AI for Developers
         value: generative
     required: true
     default: vertex
@@ -102,8 +107,10 @@ params:
   - param: API_KEY
     label: API Key (Generative Language AI for Developers Provider ONLY)
     description: >-
-      If you selected Generative AI for Developers as your PaLM API provider, you can optionally choose to provide an API key.
-      If you do not provide an API key, the extension will use Application Default Credentials.
+      If you selected Generative AI for Developers as your PaLM API provider,
+      you can optionally choose to provide an API key. If you do not provide an
+      API key, the extension will use Application Default Credentials, but will
+      need the service enabled in GCP.
     type: secret
     required: false
     immutable: false
@@ -114,7 +121,7 @@ params:
       Path to a Cloud Firestore collection which will represent a discussion
       with a LLM on the PaLM API.
     type: string
-    validationRegex: "^[^/]+(/[^/]+/[^/]+)*$"
+    validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
     validationErrorMessage: Must be a valid Cloud Firestore Collection
     example: users/{uid}/discussions/{discussionId}/messages
     required: true

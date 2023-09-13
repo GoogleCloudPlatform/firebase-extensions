@@ -17,39 +17,87 @@
 import config from './config';
 import * as logs from './logs';
 import {HttpsError} from 'firebase-functions/v1/https';
-import {fetchFromApi, onAuthenticatedCall} from './util';
+import {
+  callCustomHookIfEnabled,
+  fetchFromApi,
+  onAuthenticatedCall,
+} from './util';
+import {
+  recordOnErrorEvent,
+  recordOnRequestEvent,
+  recordOnStartEvent,
+  recordOnResponseEvent,
+} from './events';
 
 logs.init(config);
 
 const {palmEndpoint, apiVersion} = config;
 
-export const getModels = onAuthenticatedCall<void, any>(async () => {
-  const url = `https://${palmEndpoint}/${apiVersion}/models`;
-  const response = await fetchFromApi(url);
-  return response;
-});
+export const getModels = onAuthenticatedCall<void, any>(
+  async (data, context) => {
+    recordOnStartEvent('getModels', data, context);
 
-export const getModel = onAuthenticatedCall<{name: string}, any>(async data => {
-  const url = `https://${palmEndpoint}/${apiVersion}/models/${data.name}`;
-  const response = await fetchFromApi(url);
-  return response;
-});
+    const url = `https://${palmEndpoint}/${apiVersion}/models`;
+    try {
+      recordOnRequestEvent('getModels', {url}, context);
 
-export const post = onAuthenticatedCall<any, any>(async data => {
+      const response = await fetchFromApi(url);
+      recordOnResponseEvent('getModels', {fetchArgs: {url}, response}, context);
+      callCustomHookIfEnabled({url}, response, context.auth?.uid);
+
+      return response;
+    } catch (error) {
+      recordOnErrorEvent('getModels', error, context);
+      callCustomHookIfEnabled({url}, error, context.auth?.uid);
+      throw error;
+    }
+  }
+);
+
+export const getModel = onAuthenticatedCall<{name: string}, any>(
+  async (data, context) => {
+    recordOnStartEvent('getModel', data, context);
+
+    const url = `https://${palmEndpoint}/${apiVersion}/models/${data.name}`;
+
+    try {
+      recordOnRequestEvent('getModel', {url}, context);
+      const response = await fetchFromApi(url);
+
+      recordOnResponseEvent('getModel', {fetchArgs: {url}, response}, context);
+      callCustomHookIfEnabled({url}, response, context.auth?.uid);
+
+      return response;
+    } catch (error) {
+      recordOnErrorEvent('getModel', error, context);
+      callCustomHookIfEnabled({url}, error, context.auth?.uid);
+      throw error;
+    }
+  }
+);
+
+export const post = onAuthenticatedCall<any, any>(async (data, context) => {
+  recordOnStartEvent('post', data, context);
+
   const {model, method} = data;
 
   if (!model) {
-    throw new HttpsError('invalid-argument', 'Model name is required');
+    const error = new HttpsError('invalid-argument', 'Model name is required');
+    recordOnErrorEvent('post', error, context);
+    callCustomHookIfEnabled({}, error, context.auth?.uid);
+    throw error;
   }
 
   delete data.model;
 
   if (!method) {
-    throw new HttpsError('invalid-argument', 'Method name is required.');
+    const error = new HttpsError('invalid-argument', 'Method name is required');
+    recordOnErrorEvent('post', error, context);
+    callCustomHookIfEnabled({}, error, context.auth?.uid);
+    throw error;
   }
 
   delete data.method;
-
   const url = `https://${palmEndpoint}/${apiVersion}/models/${model}:${method}`;
 
   const options = {
@@ -60,5 +108,20 @@ export const post = onAuthenticatedCall<any, any>(async data => {
     body: JSON.stringify(data),
   };
 
-  return fetchFromApi(url, options);
+  try {
+    recordOnRequestEvent('post', {url, options}, context);
+    const response = await fetchFromApi(url, options);
+    callCustomHookIfEnabled({url, options}, response, context.auth?.uid);
+    recordOnResponseEvent(
+      'post',
+      {fetchArgs: {url, options}, response},
+      context
+    );
+
+    return response;
+  } catch (error) {
+    recordOnErrorEvent('post', error, context);
+    callCustomHookIfEnabled({url, options}, error, context.auth?.uid);
+    throw error;
+  }
 });
