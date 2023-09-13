@@ -1,3 +1,18 @@
+## Version 0.1.4
+
+
+fixed - pass whole auth object
+
+fixed - fix typos
+
+feature - add custom events
+
+feature - add custom hook
+
+feature - add check for appcheck
+
+feature - add palm secure backend extension
+
 ## Version 0.1.3
 
 Add custom hook url feature

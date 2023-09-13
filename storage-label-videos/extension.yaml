@@ -1,5 +1,5 @@
 name: storage-label-videos
-version: 0.1.1
+version: 0.1.2
 specVersion: v1beta
 
 displayName: Label Videos with Cloud Video AI

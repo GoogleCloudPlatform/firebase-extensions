@@ -1,3 +1,18 @@
+## Version 0.1.7
+
+
+fixed - correct apiEndpoint
+
+fixed - updated regex validation for collection paths (#133)
+
+feature - switch PaLM provider (#120)
+
+feature - added shard & machine configuration for creating an index (#108)
+
+fixed - delete backfilling bucket if it exists
+
+fixed - validation regex for `fields` (#47)
+
 ## Version 0.1.6
 
 - Feat switch PaLM provider
