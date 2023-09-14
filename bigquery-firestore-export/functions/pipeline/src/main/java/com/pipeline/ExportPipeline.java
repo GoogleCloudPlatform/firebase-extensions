@@ -17,6 +17,7 @@ import org.apache.beam.sdk.io.gcp.firestore.FirestoreIO;
 import org.apache.beam.sdk.io.gcp.firestore.RpcQosOptions;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
+import org.apache.beam.sdk.options.ValueProvider;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.PipelineResult;
@@ -26,6 +27,9 @@ public class ExportPipeline {
   private static final FirestoreOptions FIRESTORE_OPTIONS = FirestoreOptions.getDefaultInstance();
 
   public interface MyOptions extends PipelineOptions {
+    ValueProvider<String> getQuery();
+
+    void setQuery(ValueProvider<String> value);
   }
 
   static class TransformToFirestoreDocument extends DoFn<TableRow, Write> {
@@ -56,7 +60,7 @@ public class ExportPipeline {
   }
 
   public static void main(String[] args) {
-    MyOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(MyOptions.class);
+    MyOptions options = PipelineOptionsFactory.fromArgs(args).as(MyOptions.class);
     Pipeline pipeline = Pipeline.create(options);
     RpcQosOptions rpcQosOptions = RpcQosOptions.newBuilder()
         .build();
@@ -69,7 +73,7 @@ public class ExportPipeline {
 
     pipeline
         .apply("ReadFromBigQuery",
-            BigQueryIO.readTableRows().fromQuery(query).usingStandardSql().withTemplateCompatibility())
+            BigQueryIO.readTableRows().withoutValidation().fromQuery(options.getQuery()).usingStandardSql().withTemplateCompatibility())
         .apply("TransformToFirestoreDocument", ParDo.of(new TransformToFirestoreDocument()))
         .apply("WriteToFirestore", FirestoreIO.v1().write().batchWrite().withRpcQosOptions(rpcQosOptions).build());
 
