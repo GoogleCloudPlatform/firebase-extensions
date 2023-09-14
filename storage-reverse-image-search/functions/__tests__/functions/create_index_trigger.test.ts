@@ -146,7 +146,7 @@ describe('createIndex', () => {
 
     /** Check that the document has not updated */
     const updatedDoc = await ref.get();
-    expect(updatedDoc.data().status).toEqual('DONE');
+    expect(updatedDoc.data()?.status).toEqual('DONE');
 
     // expectNoOp();
   }, 12000);
