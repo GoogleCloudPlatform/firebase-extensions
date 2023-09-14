@@ -1,6 +1,6 @@
 module.exports = {
   preset: 'ts-jest',
-  testMatch: ['**/backfill_task.test.ts'],
+  testMatch: ['**/*.test.ts'],
   testEnvironment: 'node',
   collectCoverage: true,
   collectCoverageFrom: ['src/**/*.ts', '!src/functions/cleanup.ts'],

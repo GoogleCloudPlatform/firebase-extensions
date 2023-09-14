@@ -30,7 +30,7 @@ export async function createIndexTriggerHandler(
 
   if (!statusAfter || statusAfter === statusBefore) return;
 
-  const doc = await admin.firestore().doc(config.tasksDoc).get();
+  const doc = await admin.firestore().doc(config.metadataDoc).get();
 
   const {outputShape} = doc.data()
     ? (doc.data() as {outputShape?: number})

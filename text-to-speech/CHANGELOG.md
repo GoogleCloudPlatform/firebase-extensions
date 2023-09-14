@@ -1,3 +1,10 @@
+## Version 0.1.4
+
+
+fixed - fix audio encoding
+
+fixed - fix storage bucket param
+
 ## Version 0.1.3
 
 Fix audio encoding.
