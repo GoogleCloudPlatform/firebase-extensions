@@ -1,30 +1,3 @@
-## Version 0.1.8
-
-
-fixed - truncate history if payload is close to limit
-
-fixed - fix apiEndpoints location error (#142)
-
-feature - handle content filters for both APIs (#138)
-
-fixed - updated regex validation for collection paths (#133)
-
-feature - add palm provider option to chatbot (#113)
-
-fixed - fix PaLM collection name regex
-
-fixed - fix PaLM loop bug (#88)
-
-fixed - fix regen functionality for PaLM (#86)
-
-fixed - fix regenerate bug (#83)
-
-fixed - skip documents which are missing fields (#63)
-
-fixed - filter on completed, to avoid errors
-
-feature - update docs for publish
-
 ## Version 0.1.7
 
 
