@@ -1,3 +1,8 @@
+const mockCreateIndex = jest.fn();
+const mockCreateIndexEndpoint = jest.fn();
+const mockDeployIndex = jest.fn();
+
+
 import * as admin from 'firebase-admin';
 import config from '../../src/config';
 
@@ -30,63 +35,6 @@ jest.mock('../../src/config', () => ({
   },
 }));
 
-jest.mock('@google-cloud/aiplatform', () => ({
-  v1beta1: {
-    IndexServiceClient: jest.fn(() => ({
-      createIndex: () => [mockCreateIndex()],
-      createIndexEndpoint: (args: unknown) => [mockCreateIndexEndpoint(args)],
-      deployIndex: (args: unknown) => mockDeployIndex(args),
-    })),
-    IndexEndpointServiceClient: jest.fn(() => ({
-      createIndex: () => [mockCreateIndex()],
-      createIndexEndpoint: (args: unknown) => [mockCreateIndexEndpoint(args)],
-      deployIndex: (args: unknown) => [mockDeployIndex(args)],
-    })),
-  },
-  protos: {
-    google: {
-      cloud: {
-        aiplatform: {
-          v1: {AcceleratorType: {ACCELERATOR_TYPE_UNSPECIFIED: 0}},
-        },
-      },
-    },
-  },
-}));
-
-jest.mock('google-gax', () => ({}));
-
-const mockGetClient = jest.fn();
-const mockCloudResourceManager = jest.fn();
-const mockProjectsGet = jest.fn();
-
-jest.mock('googleapis', () => {
-  return {
-    google: {
-      auth: {
-        getClient: (args: unknown) => mockGetClient(args),
-      },
-      cloudresourcemanager: (args: unknown) => {
-        mockCloudResourceManager(args);
-        return {
-          projects: {
-            get: (args: unknown) => mockProjectsGet(args),
-          },
-        };
-      },
-    },
-  };
-});
-
-jest.mock('google-auth-library', () => ({
-  GoogleAuth: jest.fn().mockImplementation(() => {
-    return {
-      getClient: jest.fn().mockReturnValue({
-        getAccessToken: jest.fn(),
-      }),
-    };
-  }),
-}));
 
 describe('checkIndexStatus', () => {
   beforeEach(async () => {
