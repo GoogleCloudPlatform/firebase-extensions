@@ -1,8 +1,3 @@
-const mockCreateIndex = jest.fn();
-const mockCreateIndexEndpoint = jest.fn();
-const mockDeployIndex = jest.fn();
-
-
 import * as admin from 'firebase-admin';
 import config from '../../src/config';
 
@@ -34,7 +29,6 @@ jest.mock('../../src/config', () => ({
     metadataDoc: '_ext-test-instance/metadata',
   },
 }));
-
 
 describe('checkIndexStatus', () => {
   beforeEach(async () => {
