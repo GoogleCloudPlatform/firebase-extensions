@@ -16,11 +16,16 @@
 
 import {Config} from './types';
 
+
+const projectId = process.env.PROJECT_ID;
+const bucketName = process.env.BUCKET_NAME || `gs://${projectId}.appspot.com`;
+const instanceId = process.env.EXT_INSTANCE_ID!;
+
 const config: Config = {
   location: process.env.LOCATION!,
   bigqueryDatasetLocation: process.env.BIGQUERY_DATASET_LOCATION!,
-  projectId: process.env.PROJECT_ID!,
-  instanceId: process.env.EXT_INSTANCE_ID!,
+  projectId: projectId!,
+  instanceId: instanceId,
   transferConfigName: undefined,
   datasetId: process.env.DATASET_ID,
   tableName: process.env.TABLE_NAME,
@@ -30,6 +35,12 @@ const config: Config = {
   schedule: process.env.SCHEDULE,
   pubSubTopic: `ext-${process.env.EXT_INSTANCE_ID}-processMessages`,
   firestoreCollection: process.env.COLLECTION_PATH!,
+  bucketName: process.env.BUCKET_NAME || bucketName,
+  scheduleInterval: process.env.SCHEDULE_INTERVAL,
+  cloudBuildDoc: process.env.CLOUDBUILD_DOC || `${instanceId}/cloudBuild`,
+  stagingLocation: process.env.STAGING_LOCATION || `${bucketName}/${instanceId}/staging`,
+  templateLocation: process.env.TEMPLATE_LOCATION || `${bucketName}/${instanceId}/templates/myTemplate`,
+  dataflowRegion: process.env.DATAFLOW_REGION || process.env.LOCATION || "us-central1"
 };
 
 export default config;

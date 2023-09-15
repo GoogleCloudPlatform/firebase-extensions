@@ -58,6 +58,10 @@ roles:
     reason:
       Allows DTS to grant DTS service account permission to send notifications
       to Pub/Sub topic
+  # - role: cloudbuild.builds.builder
+  #   reason:
+  #     Allows this extension to create a Cloud Build trigger to run the dataflow
+  #     template.
 
 resources:
   - name: processMessages
@@ -66,9 +70,9 @@ resources:
       location: ${LOCATION}
       eventTrigger:
         eventType: google.pubsub.topic.publish
-        resource: projects/${PROJECT_ID}/topics/ext-${EXT_INSTANCE_ID}-processMessages
+        resource: projects/${PROJECT_ID}/topics/cloud-builds
 
-  - name: upsertTransferConfig
+  - name: stageDataFlowTemplate
     type: firebaseextensions.v1beta.function
     description: >-
       Creates transfer config if doesn't exist yet.
@@ -77,6 +81,15 @@ resources:
       runtime: nodejs18
       availableMemoryMb: 1024
       taskQueueTrigger: {}
+
+  - name: httpTriggerDataFlow
+    type: firebaseextensions.v1beta.function
+    description: >-
+      launch dataflow job from staged template via http request
+    properties:
+      location: ${LOCATION}
+      runtime: nodejs18
+      httpsTrigger: {}
 
 params:
   - param: LOCATION
@@ -136,168 +149,166 @@ params:
     required: true
     immutable: true
 
-  - param: BIGQUERY_DATASET_LOCATION
-    label: BigQuery Dataset Location
-    description: >-
-      What is the location of the BigQuery dataset referenced in the query?
-    type: select
-    options:
-      - label: Columbus, Ohio (us-east5)
-        value: us-east5
-      - label: Iowa (us-central1)
-        value: us-central1
-      - label: Las Vegas (us-west4)
-        value: us-west4
-      - label: Los Angeles (us-west2)
-        value: us-west2
-      - label: Montréal (northamerica-northeast1)
-        value: northamerica-northeast1
-      - label: Northern Virginia (us-east4)
-        value: us-east4
-      - label: Oregon (us-west1)
-        value: us-west1
-      - label: Salt Lake City (us-west3)
-        value: us-west3
-      - label: São Paulo (southamerica-east1)
-        value: southamerica-east1
-      - label: Santiago (southamerica-west1)
-        value: southamerica-west1
-      - label: South Carolina (us-east1)
-        value: us-east1
-      - label: Toronto (northamerica-northeast2)
-        value: northamerica-northeast2
-      - label: Delhi (asia-south2)
-        value: asia-south2
-      - label: Hong Kong (asia-east2)
-        value: asia-east2
-      - label: Jakarta (asia-southeast2)
-        value: asia-southeast2
-      - label: Melbourne (australia-southeast2)
-        value: australia-southeast2
-      - label: Mumbai (asia-south1)
-        value: asia-south1
-      - label: Osaka (asia-northeast2)
-        value: asia-northeast2
-      - label: Seoul (asia-northeast3)
-        value: asia-northeast3
-      - label: Singapore (asia-southeast1)
-        value: asia-southeast1
-      - label: Sydney (australia-southeast1)
-        value: australia-southeast1
-      - label: Taiwan (asia-east1)
-        value: asia-east1
-      - label: Tokyo (asia-northeast1)
-        value: asia-northeast1
-      - label: Belgium (europe-west1)
-        value: europe-west1
-      - label: Finland (europe-north1)
-        value: europe-north1
-      - label: Frankfurt (europe-west3)
-        value: europe-west3
-      - label: London (europe-west2)
-        value: europe-west2
-      - label: Madrid (europe-southwest1)
-        value: europe-southwest1
-      - label: Milan (europe-west8)
-        value: europe-west8
-      - label: Netherlands (europe-west4)
-        value: europe-west4
-      - label: Paris (europe-west9)
-        value: europe-west9
-      - label: Warsaw (europe-central2)
-        value: europe-central2
-      - label: Zürich (europe-west6)
-        value: europe-west6
-      - label: US Multi-Region (US)
-        value: US
-      - label: EU Mutli-Region (EU)
-        value: EU
-    default: US
-    required: true
+  # - param: BIGQUERY_DATASET_LOCATION
+  #   label: BigQuery Dataset Location
+  #   description: >-
+  #     What is the location of the BigQuery dataset referenced in the query?
+  #   type: select
+  #   options:
+  #     - label: Columbus, Ohio (us-east5)
+  #       value: us-east5
+  #     - label: Iowa (us-central1)
+  #       value: us-central1
+  #     - label: Las Vegas (us-west4)
+  #       value: us-west4
+  #     - label: Los Angeles (us-west2)
+  #       value: us-west2
+  #     - label: Montréal (northamerica-northeast1)
+  #       value: northamerica-northeast1
+  #     - label: Northern Virginia (us-east4)
+  #       value: us-east4
+  #     - label: Oregon (us-west1)
+  #       value: us-west1
+  #     - label: Salt Lake City (us-west3)
+  #       value: us-west3
+  #     - label: São Paulo (southamerica-east1)
+  #       value: southamerica-east1
+  #     - label: Santiago (southamerica-west1)
+  #       value: southamerica-west1
+  #     - label: South Carolina (us-east1)
+  #       value: us-east1
+  #     - label: Toronto (northamerica-northeast2)
+  #       value: northamerica-northeast2
+  #     - label: Delhi (asia-south2)
+  #       value: asia-south2
+  #     - label: Hong Kong (asia-east2)
+  #       value: asia-east2
+  #     - label: Jakarta (asia-southeast2)
+  #       value: asia-southeast2
+  #     - label: Melbourne (australia-southeast2)
+  #       value: australia-southeast2
+  #     - label: Mumbai (asia-south1)
+  #       value: asia-south1
+  #     - label: Osaka (asia-northeast2)
+  #       value: asia-northeast2
+  #     - label: Seoul (asia-northeast3)
+  #       value: asia-northeast3
+  #     - label: Singapore (asia-southeast1)
+  #       value: asia-southeast1
+  #     - label: Sydney (australia-southeast1)
+  #       value: australia-southeast1
+  #     - label: Taiwan (asia-east1)
+  #       value: asia-east1
+  #     - label: Tokyo (asia-northeast1)
+  #       value: asia-northeast1
+  #     - label: Belgium (europe-west1)
+  #       value: europe-west1
+  #     - label: Finland (europe-north1)
+  #       value: europe-north1
+  #     - label: Frankfurt (europe-west3)
+  #       value: europe-west3
+  #     - label: London (europe-west2)
+  #       value: europe-west2
+  #     - label: Madrid (europe-southwest1)
+  #       value: europe-southwest1
+  #     - label: Milan (europe-west8)
+  #       value: europe-west8
+  #     - label: Netherlands (europe-west4)
+  #       value: europe-west4
+  #     - label: Paris (europe-west9)
+  #       value: europe-west9
+  #     - label: Warsaw (europe-central2)
+  #       value: europe-central2
+  #     - label: Zürich (europe-west6)
+  #       value: europe-west6
+  #     - label: US Multi-Region (US)
+  #       value: US
+  #     - label: EU Mutli-Region (EU)
+  #       value: EU
+  #   default: US
+  #   required: true
 
-  - param: DISPLAY_NAME
-    label: Display Name
-    description: >-
-      What display name would you like to use?
-    type: string
-    example: Daily Rollup - Customer Transactions
-    required: true
-    immutable: true
+  # - param: DISPLAY_NAME
+  #   label: Display Name
+  #   description: >-
+  #     What display name would you like to use?
+  #   type: string
+  #   example: Daily Rollup - Customer Transactions
+  #   required: true
+  #   immutable: true
 
-  - param: DATASET_ID
-    label: Dataset ID
-    description: >-
-      What's the BigQuery destination dataset you'd like to use? Each transfer
-      run will write to a table in this destination dataset.
-    type: string
-    example: customer_data
-    required: true
+  # - param: DATASET_ID
+  #   label: Dataset ID
+  #   description: >-
+  #     What's the BigQuery destination dataset you'd like to use? Each transfer
+  #     run will write to a table in this destination dataset.
+  #   type: string
+  #   example: customer_data
+  #   required: true
 
-  - param: TABLE_NAME
-    label: Destination Table Name
-    description: >-
-      What's the destination table name prefix you'd like to use? Each transfer
-      run will write to the table with this name, postfixed with the runtime.
-    type: string
-    example: transactions
-    required: true
+  # - param: TABLE_NAME
+  #   label: Destination Table Name
+  #   description: >-
+  #     What's the destination table name prefix you'd like to use? Each transfer
+  #     run will write to the table with this name, postfixed with the runtime.
+  #   type: string
+  #   example: transactions
+  #   required: true
 
-  - param: QUERY_STRING
-    label: Query String
-    description: >-
-      What's the BQ query you'd like to execute?
-    type: string
-    example: SELECT * from <PROJECT_ID>.customer_data.transactions
-    required: true
+  # - param: QUERY_STRING
+  #   label: Query String
+  #   description: >-
+  #     What's the BQ query you'd like to execute?
+  #   type: string
+  #   example: SELECT * from <PROJECT_ID>.customer_data.transactions
+  #   required: true
 
-  - param: PARTITIONING_FIELD
-    label: Partitioning Field
-    description: >-
-      What's the partitioning field on the destination table ID? Leave empty if
-      not using a partitioning field.
-    type: string
-    example: timestamp
-    required: false
+  # - param: PARTITIONING_FIELD
+  #   label: Partitioning Field
+  #   description: >-
+  #     What's the partitioning field on the destination table ID? Leave empty if
+  #     not using a partitioning field.
+  #   type: string
+  #   example: timestamp
+  #   required: false
 
-  - param: SCHEDULE
-    label: Schedule
-    description: >-
-      What's the execution schedule you'd like to use for this query?
-    type: string
-    example: every 15 minutes
-    required: true
+  # - param: SCHEDULE
+  #   label: Schedule
+  #   description: >-
+  #     What's the execution schedule you'd like to use for this query?
+  #   type: string
+  #   example: every 15 minutes
+  #   required: true
 
-  - param: PUB_SUB_TOPIC
-    label: Pub Sub Topic
-    description: >-
-      What's the Pub Sub topic to write messages to when the scheduled query
-      finishes executing?
-    type: string
-    example: test
-    required: true
-    immutable: true
+  # - param: PUB_SUB_TOPIC
+  #   label: Pub Sub Topic
+  #   description: >-
+  #     What's the Pub Sub topic to write messages to when the scheduled query
+  #     finishes executing?
+  #   type: string
+  #   example: test
+  #   required: true
+  #   immutable: true
 
-  - param: COLLECTION_PATH
-    label: Firestore Collection
-    description: >-
-      What's the top-level Firestore Collection to store transfer configs, run
-      metadata, and query output?
-    type: string
-    validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
-    validationErrorMessage: Must be a valid Cloud Firestore Collection
-    example: transferConfigs
-    default: transferConfigs
-    required: true
+  # - param: COLLECTION_PATH
+  #   label: Firestore Collection
+  #   description: >-
+  #     What's the top-level Firestore Collection to store transfer configs, run
+  #     metadata, and query output?
+  #   type: string
+  #   validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
+  #   validationErrorMessage: Must be a valid Cloud Firestore Collection
+  #   example: transferConfigs
+  #   default: transferConfigs
+  #   required: true
 
 lifecycleEvents:
   onInstall:
-    function: upsertTransferConfig
-    processingMessage: Creating a new transfer config and scheduling the query.
+    function: stageDataFlowTemplate
+    processingMessage: Set up dataflow for exports.
   onUpdate:
-    function: upsertTransferConfig
-    processingMessage:
-      Creating or updating the transfer config associated with this extension.
+    function: stageDataFlowTemplate
+    processingMessage: Set up dataflow for exports.
   onConfigure:
-    function: upsertTransferConfig
-    processingMessage:
-      Creating or updating the transfer config associated with this extension.
+    function: stageDataFlowTemplate
+    processingMessage: Set up dataflow for exports.
