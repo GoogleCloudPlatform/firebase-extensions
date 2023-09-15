@@ -1,3 +1,12 @@
+## Version 0.1.5
+
+
+fixed - metadata & enqueues collection merge (#140)
+
+feature - shard & machineSpec
+
+fixed - backfill failing to create metdata doc thus index (#28)
+
 ## Version 0.1.4
 
 - Feature: shard and machine configurations.
