@@ -33,7 +33,7 @@ const client = new CloudBuildClient();
  * Builds the template for the dataflow pipeline, return the LROperation name
  */
 export const stageTemplate = async () => {
-  const [resp] = await client.createBuild({
+  const [operation] = await client.createBuild({
     projectId: config.projectId,
     build: {
       id: `${config.instanceId}-dataflow-template-${Date.now()}`,
@@ -41,8 +41,8 @@ export const stageTemplate = async () => {
     },
   });
 
-  if (resp.error) {
-    throw new Error(resp.error.message);
+  if (operation.error) {
+    throw new Error(operation.error.message);
   }
-  return resp.name;
+  return operation
 };

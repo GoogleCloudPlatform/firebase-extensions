@@ -2,5 +2,14 @@
   "projects": {
     "default": "demo-gcp"
   },
-  "targets": {}
+  "targets": {},
+  "etags": {
+    "invertase--palm-demo": {
+      "extensionInstances": {
+        "bigquery-firestore-export-df-1": "1f9d6ceee0a964dad69552a5e8184893c1624eec7c9665c3e30fd3dd2b96410c",
+        "firestore-palm-chatbot": "aa6e4f7cf94c2b3b590265a49b35660738430800f84f0bc8fa3889c78ff7ffa0",
+        "firestore-palm-gen-text": "3b80c564b8683b2c4f2a30841950e2651883678d984d4ea2defab39255009868"
+      }
+    }
+  }
 }

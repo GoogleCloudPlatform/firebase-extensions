@@ -12,6 +12,7 @@ export async function launchJob(options: LaunchJobOptions) {
 
   const request = {
     projectId,
+    gcsPath: config.templateLocation,
     launchParameters: {
       jobName: `${config.instanceId}-dataflow-job-${Date.now()}`,
       parameters: {

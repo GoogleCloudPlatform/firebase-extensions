@@ -6,7 +6,6 @@ import com.google.firestore.v1.Document;
 import com.google.firestore.v1.Value;
 import com.google.firestore.v1.Write;
 
-import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -64,12 +63,6 @@ public class ExportPipeline {
     Pipeline pipeline = Pipeline.create(options);
     RpcQosOptions rpcQosOptions = RpcQosOptions.newBuilder()
         .build();
-
-    java.util.Date date = new java.util.Date();
-    SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    String outputDateString = outputFormat.format(date);
-
-    String query = "SELECT * FROM `invertase--palm-demo.stress_test.hundred`";
 
     pipeline
         .apply("ReadFromBigQuery",

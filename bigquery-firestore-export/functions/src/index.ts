@@ -33,16 +33,29 @@ logs.init();
 admin.initializeApp({projectId: config.projectId});
 
 export const stageDataFlowTemplate = functions.tasks.taskQueue().onDispatch(async () => {
-  const operationName = await stageTemplate();
-  console.log(`Operation name: ${JSON.stringify(operationName)}`)
+  const operation = await stageTemplate();
+
+  // get build id from operation
+
+  const metadata = operation.metadata
+
+  console.log(`op metadata: ${JSON.stringify(metadata)}`)
+
+
+  console.log(`Operation name: ${JSON.stringify(operation)}`)
   await admin.firestore().doc(config.cloudBuildDoc).set({status: "staging template"});
 })
 
 export const processMessages = functions.pubsub.topic('cloud-builds').onPublish(async (message,ctx) => {
   //  log the event
   console.log('build event received!');
-  console.log(`Message: ${message.json}`);
-  await admin.firestore().doc(config.cloudBuildDoc).update({status: "staged"});
+  console.log(`Message: ${JSON.stringify(message)}`);
+  const attributes = message.attributes;
+  const status = attributes?.status;
+  const buildId = attributes?.buildId;
+  if (status === "SUCCESS" && buildId) {
+    await admin.firestore().doc(config.cloudBuildDoc).update({status: "staged"});
+  }
 });
 
 export const httpTriggerDataFlow = onRequest(async (req, res) => {
@@ -57,5 +70,9 @@ export const httpTriggerDataFlow = onRequest(async (req, res) => {
 
   if (status === "staged") {
     await launchJob({query});
+    res.status(200).send("Job launched");
+  } else {
+    res.status(400).send("Template not staged");
   }
+
 });

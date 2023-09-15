@@ -1,5 +1,7 @@
 {
-  "extensions": {},
+  "extensions": {
+    "bigquery-firestore-export-df-1": "../bigquery-firestore-export"
+  },
   "storage": {
     "rules": "storage.rules"
   },

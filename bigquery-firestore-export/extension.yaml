@@ -46,6 +46,9 @@ apis:
     reason: Scheduling data transfers
 
 roles:
+  - role: dataflow.developer
+    reason:
+      Allows this extension to create and run dataflow jobs.
   - role: datastore.user
     reason:
       Allows this extension to access Cloud Firestore to write query results
