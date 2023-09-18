@@ -29,14 +29,27 @@ public class ExportPipeline {
     ValueProvider<String> getQuery();
 
     void setQuery(ValueProvider<String> value);
+
+    ValueProvider<String> getFirestoreCollection();
+
+    void setFirestoreCollection(ValueProvider<String> value);
+
+    ValueProvider<String> getRunId();
+
+    void setRunId(ValueProvider<String> value);
+
+    ValueProvider<String> getFirestoreDatabaseId();
+
+    void setFirestoreDatabaseId(ValueProvider<String> value);
   }
 
   static class TransformToFirestoreDocument extends DoFn<TableRow, Write> {
-    // private static final Logger LOG =
-    // LoggerFactory.getLogger(TransformToFirestoreDocument.class);
 
     @ProcessElement
     public void processElement(ProcessContext context) {
+
+      MyOptions options = context.getPipelineOptions().as(MyOptions.class);
+
       TableRow row = context.element();
 
       // Convert the TableRow to a Map<String, Value> for Firestore
@@ -47,7 +60,9 @@ public class ExportPipeline {
         firestoreMap.put(entry.getKey(), value);
       }
 
-      String path = createDocumentName("exportBQ/" + UUID.randomUUID().toString());
+      String collection = options.getFirestoreCollection().get() + "/" + options.getRunId().get() + "/" + "output";
+      String databaseId = options.getFirestoreDatabaseId().get();
+      String path = createDocumentName(collection + UUID.randomUUID().toString(), databaseId);
 
       // Create a Firestore Write object from the map
       Write write = Write.newBuilder()
@@ -64,9 +79,11 @@ public class ExportPipeline {
     RpcQosOptions rpcQosOptions = RpcQosOptions.newBuilder()
         .build();
 
+    // TODO: read method is more performant than readTableRows, see if we can change
     pipeline
         .apply("ReadFromBigQuery",
-            BigQueryIO.readTableRows().withoutValidation().fromQuery(options.getQuery()).usingStandardSql().withTemplateCompatibility())
+            BigQueryIO.readTableRows().withoutValidation().fromQuery(options.getQuery()).usingStandardSql()
+                .withTemplateCompatibility())
         .apply("TransformToFirestoreDocument", ParDo.of(new TransformToFirestoreDocument()))
         .apply("WriteToFirestore", FirestoreIO.v1().write().batchWrite().withRpcQosOptions(rpcQosOptions).build());
 
@@ -81,11 +98,16 @@ public class ExportPipeline {
     }
   }
 
-  private static String createDocumentName(String path) {
+  private static String createDocumentName(String path, String customDatabaseId) {
+
+    String defaultDatabaseId = FIRESTORE_OPTIONS.getDatabaseId();
+
+    String databaseId = customDatabaseId != null ? customDatabaseId : defaultDatabaseId;
+
     String documentPath = String.format(
         "projects/%s/databases/%s/documents",
         FIRESTORE_OPTIONS.getProjectId(),
-        FIRESTORE_OPTIONS.getDatabaseId());
+        databaseId);
 
     return documentPath + "/" + path;
   }

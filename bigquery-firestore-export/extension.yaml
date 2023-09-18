@@ -61,6 +61,10 @@ roles:
     reason:
       Allows DTS to grant DTS service account permission to send notifications
       to Pub/Sub topic
+  - role: storage.objectAdmin
+    reason:
+      Allows this extension to stage the dataflow template in a Cloud Storage
+      bucket.
   # - role: cloudbuild.builds.builder
   #   reason:
   #     Allows this extension to create a Cloud Build trigger to run the dataflow
@@ -258,13 +262,13 @@ params:
   #   example: transactions
   #   required: true
 
-  # - param: QUERY_STRING
-  #   label: Query String
-  #   description: >-
-  #     What's the BQ query you'd like to execute?
-  #   type: string
-  #   example: SELECT * from <PROJECT_ID>.customer_data.transactions
-  #   required: true
+  - param: QUERY_STRING
+    label: Query String
+    description: >-
+      What's the BQ query you'd like to execute?
+    type: string
+    example: SELECT * from <PROJECT_ID>.customer_data.transactions
+    required: true
 
   # - param: PARTITIONING_FIELD
   #   label: Partitioning Field
@@ -275,35 +279,41 @@ params:
   #   example: timestamp
   #   required: false
 
-  # - param: SCHEDULE
-  #   label: Schedule
-  #   description: >-
-  #     What's the execution schedule you'd like to use for this query?
-  #   type: string
-  #   example: every 15 minutes
-  #   required: true
+  - param: SCHEDULE
+    label: Schedule
+    description: >-
+      What's the execution schedule you'd like to use for this query?
+    type: string
+    example: every day 00:00
+    required: true
 
   # - param: PUB_SUB_TOPIC
   #   label: Pub Sub Topic
   #   description: >-
-  #     What's the Pub Sub topic to write messages to when the scheduled query
-  #     finishes executing?
+  #     What's the Pub Sub topic to write messages to when the dataflow job finishes executing?
   #   type: string
   #   example: test
   #   required: true
   #   immutable: true
 
-  # - param: COLLECTION_PATH
-  #   label: Firestore Collection
-  #   description: >-
-  #     What's the top-level Firestore Collection to store transfer configs, run
-  #     metadata, and query output?
-  #   type: string
-  #   validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
-  #   validationErrorMessage: Must be a valid Cloud Firestore Collection
-  #   example: transferConfigs
-  #   default: transferConfigs
-  #   required: true
+  - param: BUCKET_NAME
+    label: Bucket Name
+    description: >-
+      What's the Cloud Storage bucket to stage the dataflow template?
+    type: string
+    required: false
+
+  - param: COLLECTION_PATH
+    label: Firestore Collection
+    description: >-
+      What's the top-level Firestore Collection to store transfer configs, run
+      metadata, and query output?
+    type: string
+    validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
+    validationErrorMessage: Must be a valid Cloud Firestore Collection
+    example: transferConfigs
+    default: transferConfigs
+    required: true
 
 lifecycleEvents:
   onInstall:

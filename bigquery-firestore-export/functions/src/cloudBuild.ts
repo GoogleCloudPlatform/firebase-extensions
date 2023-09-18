@@ -33,10 +33,14 @@ const client = new CloudBuildClient();
  * Builds the template for the dataflow pipeline, return the LROperation name
  */
 export const stageTemplate = async () => {
+
+  const build_id = `${config.instanceId}-dataflow-template-${Date.now()}`;
+
   const [operation] = await client.createBuild({
     projectId: config.projectId,
     build: {
-      id: `${config.instanceId}-dataflow-template-${Date.now()}`,
+      name: build_id,
+      id: build_id,
       steps: [cloneStep, checkoutStep, buildStep],
     },
   });

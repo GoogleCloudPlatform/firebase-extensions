@@ -17,12 +17,12 @@
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 // import {getExtensions} from 'firebase-admin/extensions';
-import {onSchedule} from "firebase-functions/v2/scheduler";
-import { onRequest } from 'firebase-functions/v1/https';
+import {onSchedule} from 'firebase-functions/v2/scheduler';
+import {onRequest} from 'firebase-functions/v1/https';
 import * as logs from './logs';
 import config from './config';
-import { stageTemplate } from './cloudBuild';
-import { launchJob } from './triggerDataFlow';
+import {stageTemplate} from './cloudBuild';
+import {launchJob} from './triggerDataFlow';
 
 logs.init();
 
@@ -32,69 +32,66 @@ logs.init();
 
 admin.initializeApp({projectId: config.projectId});
 
-export const stageDataFlowTemplate = functions.tasks.taskQueue().onDispatch(async () => {
-  const operation = await stageTemplate();
+export const stageDataFlowTemplate = functions.tasks
+  .taskQueue()
+  .onDispatch(async () => {
+    const operation = await stageTemplate();
 
-  // get build id from operation
+    //TODO: get build id from operation
+    await admin
+      .firestore()
+      .doc(config.cloudBuildDoc)
+      .set({status: 'staging template'});
+  });
 
-  const metadata = operation.metadata
+export const processMessages = functions.pubsub
+  .topic('cloud-builds')
+  .onPublish(async (message, ctx) => {
+    //  log the event
+    console.log('build event received!');
+    console.log(`Message: ${JSON.stringify(message)}`);
+    const attributes = message.attributes;
+    const status = attributes?.status;
+    const buildId = attributes?.buildId;
+    //TODO: validate buildId is for this extension
+    if (status === 'SUCCESS' && buildId) {
+      await admin
+        .firestore()
+        .doc(config.cloudBuildDoc)
+        .update({status: 'staged'});
+    }
+  });
 
-  console.log(`op metadata: ${JSON.stringify(metadata)}`)
+export const httpTriggerDataFlow = onRequest(async (_req, res) => {
+  const cloudBuildDoc = await admin.firestore().doc(config.cloudBuildDoc).get();
+  const status = cloudBuildDoc.data()?.status;
 
+  if (status === 'staged') {
+    try {
+      const response = await launchJob();
 
-  console.log(`Operation name: ${JSON.stringify(operation)}`)
-  await admin.firestore().doc(config.cloudBuildDoc).set({status: "staging template"});
-})
-
-export const processMessages = functions.pubsub.topic('cloud-builds').onPublish(async (message,ctx) => {
-  //  log the event
-  console.log('build event received!');
-  console.log(`Message: ${JSON.stringify(message)}`);
-  const attributes = message.attributes;
-  const status = attributes?.status;
-  const buildId = attributes?.buildId;
-  if (status === "SUCCESS" && buildId) {
-    await admin.firestore().doc(config.cloudBuildDoc).update({status: "staged"});
+      res.status(200).send(`Launched job ${response.job?.id}`);
+    } catch (err) {
+      console.log(`Error launching job: ${err}`);
+      res.status(500).send(`Error launching job: ${err}`);
+    }
+  } else {
+    res.status(404).send('Template not staged');
   }
 });
 
-export const httpTriggerDataFlow = onRequest(async (req, res) => {
+export const scheduledTriggerFlow = onSchedule(config.schedule, async () => {
   const cloudBuildDoc = await admin.firestore().doc(config.cloudBuildDoc).get();
-  const status = cloudBuildDoc.data()?.status
+  const status = cloudBuildDoc.data()?.status;
 
-  const query = req.body.query;
-
-  if (!query) {
-    res.status(400).send("Missing query parameter");
-  }
-
-  if (status === "staged") {
+  if (status === 'staged') {
     try {
-      await launchJob({query});
-      console.log("Job launched")
+      await launchJob();
+      console.log('Job launched');
     } catch (err) {
-      console.log(`Error launching job: ${err}`)
+      console.log(`Error launching job: ${err}`);
     }
   } else {
-    res.status(400).send("Template not staged");
-  }
-
-});
-
-export const scheduledTriggerFlow = onSchedule(config.schedule,async () => {
-  const cloudBuildDoc = await admin.firestore().doc(config.cloudBuildDoc).get();
-  const status = cloudBuildDoc.data()?.status
-
-  const query = config.queryString;
-
-  if (status === "staged") {
-    try {
-      await launchJob({query});
-      console.log("Job launched")
-    } catch (err) {
-      console.log(`Error launching job: ${err}`)
-    }
-  } else {
-    console.log("Template not staged")
+    console.log('Template not staged');
   }
 });

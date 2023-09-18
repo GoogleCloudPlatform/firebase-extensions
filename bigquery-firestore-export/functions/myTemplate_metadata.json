@@ -1,0 +1,26 @@
+{
+    "description": "A pipeline to export BQ to firestore",
+    "name": "Export Bigquery to Firestore",
+    "parameters": [
+      {
+        "name": "firestoreCollection",
+        "helpText": "Firestore collection to write to",
+        "label": "Firestore Collection"
+      },
+      {
+        "name": "query",
+        "helpText": "BigQuery query to run",
+        "label": "BigQuery Query"
+      },
+      {
+        "name": "runId",
+        "helpText": "Run ID to use for Firestore document ID",
+        "label": "Run ID"
+      },
+      {
+        "name": "firestoreDatasetId",
+        "helpText": "Firestore dataset ID",
+        "label": "Firestore Dataset ID"
+      }
+    ]
+  }

@@ -36,11 +36,11 @@ const config: Config = {
   pubSubTopic: `ext-${process.env.EXT_INSTANCE_ID}-processMessages`,
   firestoreCollection: process.env.COLLECTION_PATH!,
   bucketName: process.env.BUCKET_NAME || bucketName,
-  scheduleInterval: process.env.SCHEDULE_INTERVAL,
   cloudBuildDoc: process.env.CLOUDBUILD_DOC || `${instanceId}/cloudBuild`,
   stagingLocation: process.env.STAGING_LOCATION || `${bucketName}/${instanceId}/staging`,
   templateLocation: process.env.TEMPLATE_LOCATION || `${bucketName}/${instanceId}/templates/myTemplate`,
-  dataflowRegion: process.env.DATAFLOW_REGION || process.env.LOCATION || "us-central1"
+  dataflowRegion: process.env.DATAFLOW_REGION || process.env.LOCATION || "us-central1",
+  firestoreDatabaseId: process.env.FIRESTORE_DATABASE_ID || "(default)"
 };
 
 export default config;

@@ -23,6 +23,7 @@
     "@google-cloud/cloudbuild": "^4.0.1",
     "@google-cloud/dataflow": "^3.0.1",
     "@google-cloud/firestore": "^6.5.0",
+    "@google-cloud/logging": "^11.0.0",
     "@google-cloud/storage": "^7.1.0",
     "@types/express-serve-static-core": "4.17.30",
     "@types/jest": "^29.5.0",

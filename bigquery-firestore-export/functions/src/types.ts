@@ -13,9 +13,9 @@ export interface Config {
   firestoreCollection: string;
   displayName?: string;
   bucketName?: string;
-  scheduleInterval?: string;
   cloudBuildDoc: string;
   stagingLocation: string;
   templateLocation: string;
   dataflowRegion: string;
+  firestoreDatabaseId: string;
 }
