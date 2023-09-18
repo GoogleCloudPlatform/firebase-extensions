@@ -17,7 +17,7 @@
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 // import {getExtensions} from 'firebase-admin/extensions';
-// import {onSchedule} from "firebase-functions/v2/scheduler";
+import {onSchedule} from "firebase-functions/v2/scheduler";
 import { onRequest } from 'firebase-functions/v1/https';
 import * as logs from './logs';
 import config from './config';
@@ -69,10 +69,32 @@ export const httpTriggerDataFlow = onRequest(async (req, res) => {
   }
 
   if (status === "staged") {
-    await launchJob({query});
-    res.status(200).send("Job launched");
+    try {
+      await launchJob({query});
+      console.log("Job launched")
+    } catch (err) {
+      console.log(`Error launching job: ${err}`)
+    }
   } else {
     res.status(400).send("Template not staged");
   }
 
+});
+
+export const scheduledTriggerFlow = onSchedule(config.schedule,async () => {
+  const cloudBuildDoc = await admin.firestore().doc(config.cloudBuildDoc).get();
+  const status = cloudBuildDoc.data()?.status
+
+  const query = config.queryString;
+
+  if (status === "staged") {
+    try {
+      await launchJob({query});
+      console.log("Job launched")
+    } catch (err) {
+      console.log(`Error launching job: ${err}`)
+    }
+  } else {
+    console.log("Template not staged")
+  }
 });

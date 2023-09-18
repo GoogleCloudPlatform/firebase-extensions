@@ -6,9 +6,9 @@ export interface Config {
   transferConfigName?: string;
   datasetId?: string;
   tableName?: string;
-  queryString?: string;
+  queryString: string;
   partitioningField?: string;
-  schedule?: string;
+  schedule: string;
   pubSubTopic: string;
   firestoreCollection: string;
   displayName?: string;
