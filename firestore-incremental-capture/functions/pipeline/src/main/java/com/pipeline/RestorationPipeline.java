@@ -18,6 +18,13 @@ import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.PipelineResult;
+import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
+
+ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
+
+
 
 public class RestorationPipeline {
   private static final FirestoreOptions FIRESTORE_OPTIONS = FirestoreOptions.getDefaultInstance();
@@ -26,12 +33,14 @@ public class RestorationPipeline {
   }
 
   static class TransformToFirestoreDocument extends DoFn<TableRow, Write> {
-    // private static final Logger LOG =
-    // LoggerFactory.getLogger(TransformToFirestoreDocument.class);
+    private static final Logger LOG =
+    LoggerFactory.getLogger(TransformToFirestoreDocument.class);
 
     @ProcessElement
     public void processElement(ProcessContext context) {
       TableRow row = context.element();
+
+      LOG.info("Processing a row >>>>>> ");
 
       // Convert the TableRow to a Map<String, Value> for Firestore
       Map<String, Value> firestoreMap = new HashMap<>();
@@ -70,7 +79,7 @@ public class RestorationPipeline {
         "        beforeData," +
         "        afterData," +
         "        timestamp," +
-        "        ROW_NUMBER() OVER(PARTITION BY documentId, changeType ORDER BY timestamp DESC) as rank" +
+        "        ROW_NUMBER() OVER(PARTITION BY documentId ORDER BY timestamp DESC) as rank" +
         "    FROM `" + FIRESTORE_OPTIONS.getProjectId() + ".syncData.syncData`" +
         "    WHERE timestamp < '" + outputDateString + "' " +
         ") " +
@@ -78,7 +87,7 @@ public class RestorationPipeline {
         "    documentId," +
         "    documentPath," +
         "    changeType," +
-        "    beforeData," +
+        "    beforeData," + 
         "    afterData," +
         "    timestamp " +
         "FROM RankedChanges " +
@@ -91,14 +100,22 @@ public class RestorationPipeline {
         .apply("TransformToFirestoreDocument", ParDo.of(new TransformToFirestoreDocument()))
         .apply("WriteToFirestore", FirestoreIO.v1().write().batchWrite().withRpcQosOptions(rpcQosOptions).build());
 
-    pipeline.run().waitUntilFinish();
+    PipelineResult result = pipeline.run();
+
+    // We try to identify if the pipeline is being run or a template is being created
+    if (options.as(DataflowPipelineOptions.class).getTemplateLocation() == null) {
+      // If template location is null, then, pipeline is being run, so we can wait
+      // until finish
+      result.waitUntilFinish();
+    }
   }
 
   private static String createDocumentName(String path) {
     String documentPath = String.format(
         "projects/%s/databases/%s/documents",
         FIRESTORE_OPTIONS.getProjectId(),
-        FIRESTORE_OPTIONS.getDatabaseId());
+        "da-backup");
+        // FIRESTORE_OPTIONS.getDatabaseId());
 
     return documentPath + "/" + path;
   }

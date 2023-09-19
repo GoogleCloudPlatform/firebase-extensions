@@ -1,10 +1,10 @@
-import { logger } from "firebase-functions";
+import {logger} from 'firebase-functions';
 
-import { getTable } from "../bigquery";
-import config from "../config";
+import {getTable} from '../bigquery';
+import config from '../config';
 
 export const SyncDataTaskHandler = async (data: Record<any, any>) => {
-  const table = await getTable(config.syncDataset, config.syncTable);
+  const table = await getTable(config.bqDataset, config.bqtable);
 
   /** Write the data to the database */
   return table.insert(data).catch((ex: any) => {

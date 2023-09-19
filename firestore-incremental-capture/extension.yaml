@@ -34,25 +34,30 @@ apis:
       Powers v2 Cloud Functions
 
 roles:
-  - role: bigquery.dataEditor
-    reason: Allows the extension to configure and export data into BigQuery.
-
   - role: datastore.user
     reason: Allows the extension to write updates to the database.
 
   - role: datastore.importExportAdmin
     reason: Allows the extension to backup the Firestore database.
 
-  - role: roles/bigquery.admin
+  - role: bigquery.admin
     reason: Allows the creation of BQ jobs to import Firestore backups.
 
-  - role: roles/storage.objectAdmin
+  - role: storage.objectAdmin
     reason: Allows management of exported Firestore backups.
+
+  # - role: dataflow.developer
+  #   reason: Allows this extension to create and run dataflow jobs.
+
+  - role: pubsub.admin
+    reason:
+      Allows DTS to grant DTS service account permission to send notifications
+      to Pub/Sub topic
 
 billingRequired: true
 
 resources:
-  - name: runInitialBackup
+  - name: runInitialSetup
     type: firebaseextensions.v1beta.function
     description: >-
       Creates a Firestore backup for the configured instance.
@@ -63,10 +68,10 @@ resources:
       timeout: 540s
       taskQueueTrigger: {}
 
-  - name: onFirestoreBackupInit
+  - name: onFirestoreCloudTaskBackupInit
     type: firebaseextensions.v1beta.function
     description: >-
-      Sets up the Vertex Matching Engine index.
+      Runs an initial backup of the database
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
@@ -82,6 +87,7 @@ resources:
       back to the same document.
     properties:
       runtime: nodejs18
+      location: ${LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
         resource: projects/${param:PROJECT_ID}/databases/(default)/documents/${param:SYNC_COLLECTION_PATH}/{docId}
@@ -97,7 +103,112 @@ resources:
       timeout: 540s
       taskQueueTrigger: {}
 
+  - name: onCloudBuildComplete
+    type: firebaseextensions.v1beta.function
+    description: >-
+      Listens for completed cloud build tasks used in the deployment.
+    properties:
+      location: ${LOCATION}
+      runtime: nodejs18
+      httpsTrigger: {}
+
+  - name: onHttpRunRestoration
+    type: firebaseextensions.v1beta.function
+    description: >-
+      Starts a new restoration task
+    properties:
+      location: ${LOCATION}
+      runtime: nodejs18
+      httpsTrigger: {}
+
+  - name: onFirestoreBackupInit
+    type: firebaseextensions.v1beta.function
+    description: >-
+      Exports data from storage to a pre-defined Firestore instance.
+    properties:
+      location: ${LOCATION}
+      runtime: nodejs18
+      availableMemoryMb: 1024
+      taskQueueTrigger: {}
+
+  - name: stageDataFlowTemplate
+    type: firebaseextensions.v1beta.function
+    description: >-
+      Stages a dataflow template used for BigQuery exports.
+    properties:
+      location: ${LOCATION}
+      runtime: nodejs18
+      availableMemoryMb: 1024
+      taskQueueTrigger: {}
+
+  - name: onBackupRestore
+    type: firebaseextensions.v1beta.function
+    description: >-
+      Exports data from storage to a pre-defined Firestore instance.
+    properties:
+      location: ${LOCATION}
+      runtime: nodejs18
+      availableMemoryMb: 1024
+      taskQueueTrigger: {}
+
 params:
+  - param: LOCATION
+    label: Cloud Functions location
+    description: >-
+      Where do you want to deploy the functions created for this extension? You
+      usually want a location close to your database. For help selecting a
+      location, refer to the [location selection
+      guide](https://firebase.google.com/docs/functions/locations).
+    type: select
+    options:
+      - label: Iowa (us-central1)
+        value: us-central1
+      - label: South Carolina (us-east1)
+        value: us-east1
+      - label: Northern Virginia (us-east4)
+        value: us-east4
+      - label: Los Angeles (us-west2)
+        value: us-west2
+      - label: Salt Lake City (us-west3)
+        value: us-west3
+      - label: Las Vegas (us-west4)
+        value: us-west4
+      - label: Warsaw (europe-central2)
+        value: europe-central2
+      - label: Belgium (europe-west1)
+        value: europe-west1
+      - label: London (europe-west2)
+        value: europe-west2
+      - label: Frankfurt (europe-west3)
+        value: europe-west3
+      - label: Zurich (europe-west6)
+        value: europe-west6
+      - label: Taiwan (asia-east1)
+        value: asia-east1
+      - label: Hong Kong (asia-east2)
+        value: asia-east2
+      - label: Tokyo (asia-northeast1)
+        value: asia-northeast1
+      - label: Osaka (asia-northeast2)
+        value: asia-northeast2
+      - label: Seoul (asia-northeast3)
+        value: asia-northeast3
+      - label: Mumbai (asia-south1)
+        value: asia-south1
+      - label: Singapore (asia-southeast1)
+        value: asia-southeast1
+      - label: Jakarta (asia-southeast2)
+        value: asia-southeast2
+      - label: Montreal (northamerica-northeast1)
+        value: northamerica-northeast1
+      - label: Sao Paulo (southamerica-east1)
+        value: southamerica-east1
+      - label: Sydney (australia-southeast1)
+        value: australia-southeast1
+    default: us-central1
+    required: true
+    immutable: true
+
   - param: SYNC_COLLECTION_PATH
     label: Collection path
     description: >
@@ -109,13 +220,63 @@ params:
     default: sync
     required: true
 
+  - param: RETENTION_PERIOD
+    label: Retention Period
+    description: >
+      The rention of the backup. At what relative time in the future, compared
+      to the creation time of the backup should the backup be deleted, i.e. keep
+      backups for 7 days. For example, to set retention as 7 days.
+
+    example: 7d
+    validationRegex: '^([1-7]d|([1-9]|1[0-4])w)$'
+    validationErrorMessage:
+      Must be a valid retention value, for example (7d or 10w)
+    default: 7d
+    required: true
+
+  - param: SYNC_DATASET
+    label: Bigquery dataset Id
+    description: >
+      The id of the Bigquery dataset to sync data to.
+
+    example: sync
+    required: true
+
+  - param: SYNC_TABLE
+    label: Bigquery table Id
+    description: >
+      The id of the Bigquery table to sync data to. example: sync
+    required: true
+
+  - param: BUCKET_NAME
+    label: Bucket name
+    description: >
+      In which storage bucket do you want to keep converted text?
+    type: selectResource
+    resourceType: storage.googleapis.com/Bucket
+    example: my-project-12345.appspot.com
+    validationRegex: ^([0-9a-z_.-]*)$
+    validationErrorMessage: Invalid storage bucket
+    default: ${STORAGE_BUCKET}
+    required: true
+
+  - param: BACKUP_INSTANCE_ID
+    label: Backup instance Id
+    description: >
+      The name of the Firestore instance to backup the database to.
+
+    example: projects/my-project/databases/my-backup
+    validationRegex: '^projects/[a-z0-9\-_]+/databases/[a-z0-9\-_]+$'
+    validationErrorMessage: Enter a valid instance id.
+    required: true
+
 lifecycleEvents:
   onInstall:
-    function: runInitialBackup
+    function: runInitialSetup
     processingMessage: Creating a Firestore backup for the configured instance.
   onUpdate:
-    function: runInitialBackup
+    function: runInitialSetup
     processingMessage: Creating a Firestore backup for the configured instance.
   onConfigure:
-    function: runInitialBackup
+    function: runInitialSetup
     processingMessage: Creating a Firestore backup for the configured instance.

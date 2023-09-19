@@ -1,11 +1,12 @@
 import {getExtensions} from 'firebase-admin/extensions';
 
 import {logger} from 'firebase-functions/v1';
-import {updateStatus} from '../database';
-import {exportToBQ} from '../bigquery';
-import {WaitForExportCompletion} from '../export';
+import {updateBackup, updateStatus} from '../utils/database';
 
-export const onFirestoreBackupInitHandler = async (data: any) => {
+import {WaitForExportCompletion} from '../utils/importExport';
+import {FieldValue} from 'firebase-admin/firestore';
+
+export const onFirestoreCloudTaskBackupInitHandler = async (data: any) => {
   const {id, name} = data;
   const runtime = getExtensions().runtime();
 
@@ -16,21 +17,23 @@ export const onFirestoreBackupInitHandler = async (data: any) => {
   );
 
   try {
-    /** Start polling for updates */
-    await WaitForExportCompletion(name);
-
-    /** Update the database status */
+    /** Update the Firestore status */
     await updateStatus(id, {
-      status: 'exporting to BQ...',
+      status: 'Exporting initial backup',
     });
 
-    /** Export to BQ */
-    logger.info(`Exporting to BQ: ${id}`);
-    await exportToBQ(id);
+    /** Start polling for updates */
+    await WaitForExportCompletion(name);
 
     /** Set status to completed */
     await updateStatus(id, {
       status: 'Completed',
+    });
+
+    /** Update the current backup */
+    updateBackup(id, {
+      status: 'Completed',
+      timestamp: FieldValue.serverTimestamp(),
     });
 
     /** Update the status */
@@ -40,10 +43,12 @@ export const onFirestoreBackupInitHandler = async (data: any) => {
     );
   } catch (ex: any) {
     logger.error('Error backing up to BQ', ex);
+
     await updateStatus(id, {
       status: 'Error',
       error: ex.message,
     });
+
     await runtime.setProcessingState(
       'PROCESSING_FAILED',
       'Error backing up to Firestore'
