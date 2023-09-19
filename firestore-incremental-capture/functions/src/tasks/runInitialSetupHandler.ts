@@ -3,34 +3,31 @@ import {initialize} from '../bigquery';
 import {getExtensions} from 'firebase-admin/extensions';
 import * as admin from 'firebase-admin';
 import config from '../config';
-import {createExport} from '../export';
+import {createExport} from '../utils/importExport';
 import {getFunctions} from 'firebase-admin/functions';
-import {prepareDataFlowTemplate} from './prepareDataFlowTemplate';
+import {stageTemplate} from '../dataflow/cloudbuild';
 
-export async function runInitialBackupHandler() {
+export async function runInitialSetupHandler() {
   /** Setup the db */
   const db = admin.firestore();
 
-  /** Setup backup dataset and tables */
-  const [backupDataset, backupTable] = await initialize(
-    config.dataset,
-    config.table
-  );
+  /** Setup runtime */
+  const runtime = getExtensions().runtime();
 
-  logger.info(
-    `Initialized dataset and table ${backupDataset.id}.${backupTable.id}`
+  await runtime.setProcessingState(
+    'NONE',
+    `Creating/updating dataset and table ${config.bqDataset}.${config.bqtable}`
   );
 
   /** Setup sync dataset and tables */
-
   const [syncDataset, syncTable] = await initialize(
-    config.syncDataset,
-    config.syncTable,
+    config.bqDataset,
+    config.bqtable,
     [
       {name: 'documentId', type: 'STRING', mode: 'REQUIRED'},
       {name: 'documentPath', type: 'STRING', mode: 'REQUIRED'},
-      {name: 'beforeData', type: 'JSON', mode: 'REQUIRED'},
-      {name: 'afterData', type: 'JSON', mode: 'REQUIRED'},
+      {name: 'beforeData', type: 'JSON'},
+      {name: 'afterData', type: 'JSON'},
       {name: 'changeType', type: 'STRING', mode: 'REQUIRED'},
       {name: 'timestamp', type: 'TIMESTAMP', mode: 'REQUIRED'},
     ]
@@ -38,28 +35,32 @@ export async function runInitialBackupHandler() {
 
   logger.info(`Initialized dataset and table ${syncDataset}.${syncTable}`);
 
-  const runtime = getExtensions().runtime();
-
-  const collection = db.collection(config.statusCollectionName);
-
   if (!config.runInitialBackup) {
     return runtime.setProcessingState(
-      'PROCESSING_WARNING',
-      `Initial Backup is disabled, the extension will start recording updates for ${config.backupCollectionName}.`
+      'PROCESSING_COMPLETE',
+      `Initial Backup is disabled, the extension will start recording updates for ${config.syncCollectionPath}.`
     );
   }
+
+  await runtime.setProcessingState(
+    'NONE',
+    `Setting up initial backup for ${config.syncCollectionPath}...`
+  );
 
   /** Export the Firestore db to storage */
   const {id, operation} = await createExport();
 
   /** Update Firestore for tracking */
-  await collection.doc(`${id}`).set({
+  await db.doc(config.statusDoc).set({
     status: 'Preparing export...',
     operation: operation.name,
   });
 
-  // Upload the DataFlow template to Cloud Storage
-  await prepareDataFlowTemplate();
+  /** Update the list of backups */
+  await db.doc(config.backupDoc).collection('exports').doc(`${id}`).set({
+    status: 'Running...',
+    operation: operation.name,
+  });
 
   // Add a cloud task to track the progress of the export
   const queue = getFunctions().taskQueue(
@@ -67,8 +68,20 @@ export async function runInitialBackupHandler() {
     config.instanceId
   );
 
-  return queue.enqueue({
+  await queue.enqueue({
     id,
     name: operation.name,
   });
+
+  await getFunctions()
+    .taskQueue(
+      `locations/${config.location}/functions/stageDataFlowTemplate`,
+      config.instanceId
+    )
+    .enqueue({});
+
+  return runtime.setProcessingState(
+    'PROCESSING_COMPLETE',
+    `All tasks completed successfully.`
+  );
 }
