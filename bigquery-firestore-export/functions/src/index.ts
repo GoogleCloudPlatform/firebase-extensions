@@ -36,13 +36,15 @@ admin.initializeApp({projectId: config.projectId});
 export const stageDataFlowTemplate = functions.tasks
   .taskQueue()
   .onDispatch(async () => {
-    const operation = await stageTemplate();
-
-    //TODO: get build id from operation
     await admin
       .firestore()
       .doc(config.cloudBuildDoc)
-      .set({status: 'staging template'});
+      .set({status: 'NOT STAGED'});
+
+    const operation = await stageTemplate();
+
+    //TODO: get build id from operation
+    await admin.firestore().doc(config.cloudBuildDoc).set({status: 'STAGING'});
   });
 
 export const processMessages = functions.pubsub
@@ -59,7 +61,7 @@ export const processMessages = functions.pubsub
       await admin
         .firestore()
         .doc(config.cloudBuildDoc)
-        .update({status: 'staged'});
+        .update({status: 'STAGED'});
     }
   });
 
@@ -67,7 +69,7 @@ export const httpTriggerDataFlow = onRequest(async (_req, res) => {
   const cloudBuildDoc = await admin.firestore().doc(config.cloudBuildDoc).get();
   const status = cloudBuildDoc.data()?.status;
 
-  if (status === 'staged') {
+  if (status === 'STAGED') {
     try {
       const response = await launchJob();
 
@@ -77,7 +79,7 @@ export const httpTriggerDataFlow = onRequest(async (_req, res) => {
       res.status(500).send(`Error launching job: ${err}`);
     }
   } else {
-    res.status(404).send('Template not staged');
+    res.status(404).send('Template not staged yet, try again later');
   }
 });
 
@@ -85,7 +87,7 @@ export const scheduledTriggerFlow = onSchedule(config.schedule, async () => {
   const cloudBuildDoc = await admin.firestore().doc(config.cloudBuildDoc).get();
   const status = cloudBuildDoc.data()?.status;
 
-  if (status === 'staged') {
+  if (status === 'STAGED') {
     try {
       await launchJob();
       console.log('Job launched');
@@ -97,22 +99,33 @@ export const scheduledTriggerFlow = onSchedule(config.schedule, async () => {
   }
 });
 
-export const onDataFlowStatusChange = onCustomEventPublished<Record<string,any>>(
-  'google.cloud.dataflow.job.v1beta3.statusChanged',
-  async event => {
-    console.log(
-      'dataflow status change event received!',
-      JSON.stringify(event)
-    );
-    // @ts-ignore
-    const job = event.job as string;
-    const currentState = event.data?.payload?.currentState as string;
-    const runId = job
+export const onDataFlowStatusChange = onCustomEventPublished<
+  Record<string, any>
+>('google.cloud.dataflow.job.v1beta3.statusChanged', async event => {
+  console.log('dataflow status change event received!', JSON.stringify(event));
+  // @ts-ignore
+  const job = event.job as string;
+  const currentState = event.data?.payload?.currentState as string;
+  const currentStateTime = event.data?.payload?.currentStateTime as string;
+  const runId = job;
+  const runDoc = admin
+    .firestore()
+    .doc(`${config.firestoreCollection}/${runId}`);
 
-    const runDoc = admin.firestore().doc(`${config.firestoreCollection}/${runId}`);
-
-    if (currentState === 'JOB_STATE_DONE') {
-      await runDoc.update({status: 'COMPLETE'});
-    }
+  if (currentState === 'JOB_STATE_PENDING') {
+    const createTime = event.data?.payload?.createTime as string;
+    await runDoc.set({createTime});
   }
-);
+
+  const statusSubCollection = runDoc.collection('status');
+  await statusSubCollection.add({currentState, currentStateTime});
+  await runDoc.set({currentState, currentStateTime});
+
+  if (currentState === 'JOB_STATE_DONE') {
+    const createTime = event.data?.payload?.createTime as string;
+
+    const duration = Date.parse(currentStateTime) - Date.parse(createTime);
+
+    await runDoc.set({duration});
+  }
+});

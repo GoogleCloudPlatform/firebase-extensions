@@ -26,9 +26,6 @@ export async function launchJob() {
   };
 
   const [response] = await dataflowClient.launchTemplate(request);
-
-  await runDoc.set({status: 'export triggered', runId: runId});
-
   console.log(`Launched job ${response.job?.id}`);
   return response;
 }
