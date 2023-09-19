@@ -23,6 +23,7 @@ import * as logs from './logs';
 import config from './config';
 import {stageTemplate} from './cloudBuild';
 import {launchJob} from './triggerDataFlow';
+import {onCustomEventPublished} from 'firebase-functions/v2/eventarc';
 
 logs.init();
 
@@ -92,6 +93,26 @@ export const scheduledTriggerFlow = onSchedule(config.schedule, async () => {
       console.log(`Error launching job: ${err}`);
     }
   } else {
-    console.log('Template not staged');
+    console.log('Template not staged, try again later');
   }
 });
+
+export const onDataFlowStatusChange = onCustomEventPublished<Record<string,any>>(
+  'google.cloud.dataflow.job.v1beta3.statusChanged',
+  async event => {
+    console.log(
+      'dataflow status change event received!',
+      JSON.stringify(event)
+    );
+    // @ts-ignore
+    const job = event.job as string;
+    const currentState = event.data?.payload?.currentState as string;
+    const runId = job
+
+    const runDoc = admin.firestore().doc(`${config.firestoreCollection}/${runId}`);
+
+    if (currentState === 'JOB_STATE_DONE') {
+      await runDoc.update({status: 'COMPLETE'});
+    }
+  }
+);
