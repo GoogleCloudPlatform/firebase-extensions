@@ -38,7 +38,7 @@ const config: Config = {
   bucketName: process.env.BUCKET_NAME || bucketName,
   cloudBuildDoc: process.env.CLOUDBUILD_DOC || `${instanceId}/cloudBuild`,
   stagingLocation: process.env.STAGING_LOCATION || `${bucketName}/${instanceId}/staging`,
-  templateLocation: process.env.TEMPLATE_LOCATION || `${bucketName}/${instanceId}/templates/myTemplate`,
+  templateLocation: process.env.TEMPLATE_LOCATION || `${bucketName}/${instanceId}/templates/ExportTemplate.json`,
   dataflowRegion: process.env.DATAFLOW_REGION || process.env.LOCATION || "us-central1",
   firestoreDatabaseId: process.env.FIRESTORE_DATABASE_ID || "(default)"
 };

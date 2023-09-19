@@ -45,6 +45,17 @@ public class ExportPipeline {
 
   static class TransformToFirestoreDocument extends DoFn<TableRow, Write> {
 
+    private ValueProvider<String> firestoreCollection;
+    private ValueProvider<String> databaseId;
+    private ValueProvider<String> runId;
+
+    public TransformToFirestoreDocument(ValueProvider<String> firestoreCollection, ValueProvider<String> firestoreDatabaseId, ValueProvider<String> runId) {
+      this.firestoreCollection = firestoreCollection;
+      this.databaseId = firestoreDatabaseId;
+      this.runId = runId;
+    }
+
+
     @ProcessElement
     public void processElement(ProcessContext context) {
 
@@ -60,9 +71,8 @@ public class ExportPipeline {
         firestoreMap.put(entry.getKey(), value);
       }
 
-      String collection = options.getFirestoreCollection().get() + "/" + options.getRunId().get() + "/" + "output";
-      String databaseId = options.getFirestoreDatabaseId().get();
-      String path = createDocumentName(collection + UUID.randomUUID().toString(), databaseId);
+      String collection = this.firestoreCollection + "/" + this.runId + "/" + "output";
+      String path = createDocumentName(collection + "/" + UUID.randomUUID().toString(), this.databaseId);
 
       // Create a Firestore Write object from the map
       Write write = Write.newBuilder()
@@ -84,7 +94,7 @@ public class ExportPipeline {
         .apply("ReadFromBigQuery",
             BigQueryIO.readTableRows().withoutValidation().fromQuery(options.getQuery()).usingStandardSql()
                 .withTemplateCompatibility())
-        .apply("TransformToFirestoreDocument", ParDo.of(new TransformToFirestoreDocument()))
+        .apply("TransformToFirestoreDocument", ParDo.of(new TransformToFirestoreDocument(options.getFirestoreCollection(), options.getFirestoreDatabaseId(), options.getRunId())))
         .apply("WriteToFirestore", FirestoreIO.v1().write().batchWrite().withRpcQosOptions(rpcQosOptions).build());
 
     PipelineResult result = pipeline.run(); // Capture the result instead of running waitUntilFinish here
@@ -98,11 +108,10 @@ public class ExportPipeline {
     }
   }
 
-  private static String createDocumentName(String path, String customDatabaseId) {
+  private static String createDocumentName(String path, ValueProvider<String> customDatabaseId) {
 
-    String defaultDatabaseId = FIRESTORE_OPTIONS.getDatabaseId();
 
-    String databaseId = customDatabaseId != null ? customDatabaseId : defaultDatabaseId;
+    ValueProvider<String> databaseId = customDatabaseId;
 
     String documentPath = String.format(
         "projects/%s/databases/%s/documents",

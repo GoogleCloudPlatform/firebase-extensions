@@ -11,7 +11,7 @@ const cloneStep = {
 
 const checkoutStep = {
   name: 'gcr.io/cloud-builders/git',
-  args: ['checkout', '@invertase/dataflow-export-BQ'],
+  args: ['checkout', '@invertase/dataflow-export-BQ-latest'],
   dir: 'firebase-extensions',
 };
 
