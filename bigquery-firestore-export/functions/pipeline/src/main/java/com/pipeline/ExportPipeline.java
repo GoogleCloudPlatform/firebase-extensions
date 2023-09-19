@@ -9,6 +9,9 @@ import com.google.firestore.v1.Value;
 import com.google.firestore.v1.Write;
 import com.google.protobuf.NullValue;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -65,7 +68,6 @@ public class ExportPipeline {
     @ProcessElement
     public void processElement(ProcessContext context) {
 
-
       Map<String, Value> firestoreMap = context.element();
 
       // Convert the TableRow to a Map<String, Value> for Firestore
@@ -74,11 +76,17 @@ public class ExportPipeline {
       String path = createDocumentName(collection + "/" + UUID.randomUUID().toString(), this.databaseId);
 
       // Create a Firestore Write object from the map
-      Write write = Write.newBuilder()
-          .setUpdate(Document.newBuilder().putAllFields(firestoreMap).setName(path).build())
-          .build();
+      try {
+        Write write = Write.newBuilder()
+            .setUpdate(Document.newBuilder().putAllFields(firestoreMap).setName(path).build())
+            .build();
 
-      context.output(write);
+        context.output(write);
+      } catch (Exception e) {
+        // Log error and continue with the next records
+        System.err.println("Error while processing record: " + firestoreMap + " ," + e.getMessage());
+
+      }
     }
   }
 
@@ -127,10 +135,11 @@ public class ExportPipeline {
   private static Map<String, Value> convertToFirestoreValue(SchemaAndRecord schemaAndRecord) {
     Map<String, Value> firestoreDocument = new HashMap<>();
 
-    GenericRecord record  = schemaAndRecord.getRecord();
+    GenericRecord record = schemaAndRecord.getRecord();
 
     record.getSchema().getFields().forEach(field -> {
       Object fieldValue = record.get(field.pos());
+
       Value.Builder valueBuilder = Value.newBuilder();
 
       if (fieldValue == null) {
