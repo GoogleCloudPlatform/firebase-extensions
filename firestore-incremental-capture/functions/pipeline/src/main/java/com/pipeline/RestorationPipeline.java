@@ -1,54 +1,71 @@
 package com.pipeline;
 
 import com.google.api.services.bigquery.model.TableRow;
-import com.google.cloud.firestore.FirestoreOptions;
+import com.google.cloud.firestore.Firestore;
+// import com.google.cloud.firestore.FirestoreOptions;
 import com.google.firestore.v1.Document;
 import com.google.firestore.v1.Value;
 import com.google.firestore.v1.Write;
+import com.google.protobuf.NullValue;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
+import com.google.cloud.firestore.FirestoreOptions;
 
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
+import org.apache.beam.sdk.io.gcp.bigquery.SchemaAndRecord;
 import org.apache.beam.sdk.io.gcp.firestore.FirestoreIO;
 import org.apache.beam.sdk.io.gcp.firestore.RpcQosOptions;
-import org.apache.beam.sdk.options.PipelineOptions;
+import org.apache.beam.sdk.options.Default;
+// import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.PipelineResult;
+import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
 
- import org.slf4j.Logger;
- import org.slf4j.LoggerFactory;
-
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RestorationPipeline {
-  private static final FirestoreOptions FIRESTORE_OPTIONS = FirestoreOptions.getDefaultInstance();
+  // private static final FirestoreOptions DEFAULT_FIRESTORE_OPTIONS = FirestoreOptions.getDefaultInstance();
 
-  public interface MyOptions extends PipelineOptions {
+  private static final FirestoreOptions FIRESTORE_OPTIONS =
+        FirestoreOptions.newBuilder()
+            .setProjectId("invertase--palm-demo")
+            .setDatabaseId("da-backup")
+            .build();
+
+  public interface pipelineOptions extends org.apache.beam.sdk.io.gcp.firestore.FirestoreOptions {
+    // @Description("The Cloud Firestore project ID")
+    // @Default.String("")
+    // String getProjectId();
+
+    // void setProjectId(String projectId);
+
+    // @Description("The Cloud Firestore database ID")
   }
 
-  static class TransformToFirestoreDocument extends DoFn<TableRow, Write> {
-    private static final Logger LOG =
-    LoggerFactory.getLogger(TransformToFirestoreDocument.class);
+  static class TransformToFirestoreDocument extends DoFn<Map<String, Value>, Write> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TransformToFirestoreDocument.class);
 
     @ProcessElement
     public void processElement(ProcessContext context) {
-      TableRow row = context.element();
-
+      Map<String, Value> firestoreMap = context.element();
       LOG.info("Processing a row >>>>>> ");
 
       // Convert the TableRow to a Map<String, Value> for Firestore
-      Map<String, Value> firestoreMap = new HashMap<>();
+      // Map<String, Value> firestoreMap = new HashMap<>();
 
-      for (Map.Entry<String, Object> entry : row.entrySet()) {
-        Value value = Value.newBuilder().setStringValue(entry.getValue().toString()).build();
-        firestoreMap.put(entry.getKey(), value);
-      }
+      // for (Map.Entry<String, Object> entry : row.entrySet()) {
+      //   Value value = Value.newBuilder().setStringValue(entry.getValue().toString()).build();
+      //   firestoreMap.put(entry.getKey(), value);
+      // }
 
       String path = createDocumentName(firestoreMap.get("documentPath").getStringValue());
 
@@ -62,7 +79,8 @@ public class RestorationPipeline {
   }
 
   public static void main(String[] args) {
-    MyOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(MyOptions.class);
+    pipelineOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(pipelineOptions.class);
+    options.setFirestoreDb("da-backup");
     Pipeline pipeline = Pipeline.create(options);
     RpcQosOptions rpcQosOptions = RpcQosOptions.newBuilder()
         .build();
@@ -80,14 +98,14 @@ public class RestorationPipeline {
         "        afterData," +
         "        timestamp," +
         "        ROW_NUMBER() OVER(PARTITION BY documentId ORDER BY timestamp DESC) as rank" +
-        "    FROM `" + FIRESTORE_OPTIONS.getProjectId() + ".syncData.syncData`" +
+        "    FROM `" + "invertase--palm-demo" + ".syncData.syncData`" +
         "    WHERE timestamp < '" + outputDateString + "' " +
         ") " +
         "SELECT " +
         "    documentId," +
         "    documentPath," +
         "    changeType," +
-        "    beforeData," + 
+        "    beforeData," +
         "    afterData," +
         "    timestamp " +
         "FROM RankedChanges " +
@@ -96,13 +114,19 @@ public class RestorationPipeline {
 
     pipeline
         .apply("ReadFromBigQuery",
-            BigQueryIO.readTableRows().fromQuery(query).usingStandardSql().withTemplateCompatibility())
+            BigQueryIO.read(new SerializableFunction<SchemaAndRecord, Map<String, Value>>() {
+              public Map<String, Value> apply(SchemaAndRecord schemaAndRecord) {
+                return convertToFirestoreValue(schemaAndRecord);
+              }
+            }).withoutValidation().fromQuery(query).usingStandardSql()
+                .withTemplateCompatibility())
         .apply("TransformToFirestoreDocument", ParDo.of(new TransformToFirestoreDocument()))
         .apply("WriteToFirestore", FirestoreIO.v1().write().batchWrite().withRpcQosOptions(rpcQosOptions).build());
 
     PipelineResult result = pipeline.run();
 
-    // We try to identify if the pipeline is being run or a template is being created
+    // We try to identify if the pipeline is being run or a template is being
+    // created
     if (options.as(DataflowPipelineOptions.class).getTemplateLocation() == null) {
       // If template location is null, then, pipeline is being run, so we can wait
       // until finish
@@ -113,10 +137,44 @@ public class RestorationPipeline {
   private static String createDocumentName(String path) {
     String documentPath = String.format(
         "projects/%s/databases/%s/documents",
-        FIRESTORE_OPTIONS.getProjectId(),
+        "invertase--palm-demo",
         "da-backup");
-        // FIRESTORE_OPTIONS.getDatabaseId());
+    // FIRESTORE_OPTIONS.getDatabaseId());
 
     return documentPath + "/" + path;
+  }
+
+  private static Map<String, Value> convertToFirestoreValue(SchemaAndRecord schemaAndRecord) {
+    Map<String, Value> firestoreDocument = new HashMap<>();
+
+    GenericRecord record = schemaAndRecord.getRecord();
+
+    record.getSchema().getFields().forEach(field -> {
+      Object fieldValue = record.get(field.pos());
+
+      Value.Builder valueBuilder = Value.newBuilder();
+
+      if (fieldValue == null) {
+        valueBuilder.setNullValue(NullValue.NULL_VALUE);
+      } else if (fieldValue instanceof Byte ||
+          fieldValue instanceof Short ||
+          fieldValue instanceof Integer ||
+          fieldValue instanceof Long) {
+
+        valueBuilder.setIntegerValue((Long) fieldValue);
+      } else if (fieldValue instanceof Float || fieldValue instanceof Double) {
+        valueBuilder.setDoubleValue((Double) fieldValue);
+      } else if (fieldValue instanceof Boolean) {
+        valueBuilder.setBooleanValue((Boolean) fieldValue);
+      } else if (fieldValue instanceof String) {
+        valueBuilder.setStringValue((String) fieldValue);
+      } else {
+        valueBuilder.setStringValue(String.valueOf(fieldValue));
+      }
+
+      firestoreDocument.put(field.name(), valueBuilder.build());
+    });
+
+    return firestoreDocument;
   }
 }
