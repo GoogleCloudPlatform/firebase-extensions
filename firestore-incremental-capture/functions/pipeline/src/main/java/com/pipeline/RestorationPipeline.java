@@ -27,6 +27,9 @@ import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,13 +53,13 @@ public class RestorationPipeline {
     // @Description("The Cloud Firestore database ID")
   }
 
-  static class TransformToFirestoreDocument extends DoFn<Map<String, Value>, Write> {
+  static class TransformToFirestoreDocument extends DoFn<Document, Write> {
 
     private static final Logger LOG = LoggerFactory.getLogger(TransformToFirestoreDocument.class);
 
     @ProcessElement
     public void processElement(ProcessContext context) {
-      Map<String, Value> firestoreMap = context.element();
+      Document doc = context.element();
       LOG.info("Processing a row >>>>>> ");
 
       // Convert the TableRow to a Map<String, Value> for Firestore
@@ -66,12 +69,9 @@ public class RestorationPipeline {
       //   Value value = Value.newBuilder().setStringValue(entry.getValue().toString()).build();
       //   firestoreMap.put(entry.getKey(), value);
       // }
-
-      String path = createDocumentName(firestoreMap.get("documentPath").getStringValue());
-
       // Create a Firestore Write object from the map
       Write write = Write.newBuilder()
-          .setUpdate(Document.newBuilder().putAllFields(firestoreMap).setName(path).build())
+          .setUpdate(doc)
           .build();
 
       context.output(write);
@@ -114,8 +114,8 @@ public class RestorationPipeline {
 
     pipeline
         .apply("ReadFromBigQuery",
-            BigQueryIO.read(new SerializableFunction<SchemaAndRecord, Map<String, Value>>() {
-              public Map<String, Value> apply(SchemaAndRecord schemaAndRecord) {
+            BigQueryIO.read(new SerializableFunction<SchemaAndRecord, Document>() {
+              public Document apply(SchemaAndRecord schemaAndRecord) {
                 return convertToFirestoreValue(schemaAndRecord);
               }
             }).withoutValidation().fromQuery(query).usingStandardSql()
@@ -144,41 +144,22 @@ public class RestorationPipeline {
     return documentPath + "/" + path;
   }
 
-  private static Map<String, Value> convertToFirestoreValue(SchemaAndRecord schemaAndRecord) {
-    Map<String, Value> firestoreDocument = new HashMap<>();
+  private static Document convertToFirestoreValue(SchemaAndRecord schemaAndRecord) {
 
     GenericRecord record = schemaAndRecord.getRecord();
 
     String afterData = record.get("afterData").toString();
 
-    Map<String,Object> afterSchema = afterData.get("schema").toString();
+    String documentPath = createDocumentName(record.get("documentPath").toString());
 
-    record.getSchema().getFields().forEach(field -> {
-      Object fieldValue = record.get(field.pos());
+    // this JsonElement has serialized data, e.g a string would be represented on the json tree as {type: "STRING", value: "some string"}
+    JsonElement afterDataJson = JsonParser.parseString(afterData);
 
-      Value.Builder valueBuilder = Value.newBuilder();
 
-      if (fieldValue == null) {
-        valueBuilder.setNullValue(NullValue.NULL_VALUE);
-      } else if (fieldValue instanceof Byte ||
-          fieldValue instanceof Short ||
-          fieldValue instanceof Integer ||
-          fieldValue instanceof Long) {
+    Map<String, Value> firestoreMap = FirestoreReconstructor.buildFirestoreMap(afterDataJson);
 
-        valueBuilder.setIntegerValue((Long) fieldValue);
-      } else if (fieldValue instanceof Float || fieldValue instanceof Double) {
-        valueBuilder.setDoubleValue((Double) fieldValue);
-      } else if (fieldValue instanceof Boolean) {
-        valueBuilder.setBooleanValue((Boolean) fieldValue);
-      } else if (fieldValue instanceof String) {
-        valueBuilder.setStringValue((String) fieldValue);
-      } else {
-        valueBuilder.setStringValue(String.valueOf(fieldValue));
-      }
+    Document doc = Document.newBuilder().putAllFields((Map<String,Value>) firestoreMap).setName(documentPath).build();
 
-      firestoreDocument.put(field.name(), valueBuilder.build());
-    });
-
-    return firestoreDocument;
+    return doc;
   }
 }
