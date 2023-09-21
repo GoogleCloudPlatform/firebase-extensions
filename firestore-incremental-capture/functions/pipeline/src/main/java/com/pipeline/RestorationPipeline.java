@@ -149,6 +149,10 @@ public class RestorationPipeline {
 
     GenericRecord record = schemaAndRecord.getRecord();
 
+    String afterData = record.get("afterData").toString();
+
+    Map<String,Object> afterSchema = afterData.get("schema").toString();
+
     record.getSchema().getFields().forEach(field -> {
       Object fieldValue = record.get(field.pos());
 
