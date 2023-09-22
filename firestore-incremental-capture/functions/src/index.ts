@@ -7,14 +7,11 @@ import {onFirestoreCloudTaskBackupInitHandler} from './tasks/onFirestoreCloudTas
 
 import {syncDataHandler} from './tasks/syncDataHandler';
 import {SyncDataTaskHandler as syncDataTaskHandler} from './tasks/syncDataTaskHandler';
-import {stageDataFlowTemplateHandler} from './dataflow/stageDataflowTemplateHandler';
+
 import {onHttpRunRestorationHandler} from './tasks/onHttpRunRestorationHandler';
 import {onBackupRestoreHandler} from './tasks/onBackupRestoreHandler';
-import {logger} from 'firebase-functions';
-import {onCompleteHandler} from './dataflow/onCompleteHandler';
-
-admin.initializeApp({projectId: config.projectId});
-const db = admin.firestore();
+import {onReplayUpdatesHandler} from './tasks/onReplayUpdatesHandler';
+import {onProcessReplayUpdatesHandler} from './tasks/onProcessReplayUpdatesHandler';
 
 /** Sync data to BigQuery, triggered by any change to a Firestore document */
 export const syncData = functions.firestore
@@ -48,11 +45,12 @@ export const onFirestoreCloudTaskBackupInit = functions.tasks
   .taskQueue()
   .onDispatch(async data => await onFirestoreCloudTaskBackupInitHandler(data));
 
-/** Cloud task for staging the dataflow template */
-export const stageDataFlowTemplate = functions.tasks
+/** Distributed cloud tasks for replaying BQ exported data */
+export const onReplayUpdates = functions.tasks
   .taskQueue()
-  .onDispatch(async () => await stageDataFlowTemplateHandler());
+  .onDispatch(data => onReplayUpdatesHandler(data));
 
-export const onCloudBuildComplete = functions.https.onRequest(
-  async (payload: any) => await onCompleteHandler(payload)
-);
+/** Runs a list of distrubted rows  */
+export const onProcessReplayUpdates = functions.tasks
+  .taskQueue()
+  .onDispatch(data => onProcessReplayUpdatesHandler(data));

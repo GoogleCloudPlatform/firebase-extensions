@@ -5,7 +5,6 @@ import * as admin from 'firebase-admin';
 import config from '../config';
 import {createExport} from '../utils/importExport';
 import {getFunctions} from 'firebase-admin/functions';
-import {stageTemplate} from '../dataflow/cloudbuild';
 
 export async function runInitialSetupHandler() {
   /** Setup the db */

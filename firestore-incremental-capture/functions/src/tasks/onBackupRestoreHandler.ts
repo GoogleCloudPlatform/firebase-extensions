@@ -1,9 +1,10 @@
 import * as admin from 'firebase-admin';
 import {WaitForImportCompletion, createImport} from '../utils/importExport';
 import config from '../config';
-import {launchJob} from '../dataflow/triggerDataflow';
+
 import {FieldValue} from 'firebase-admin/firestore';
 import {logger} from 'firebase-functions/v1';
+import {getFunctions} from 'firebase-admin/functions';
 
 export const onBackupRestoreHandler = async (data: any) => {
   /** Set db and storage */
@@ -75,15 +76,14 @@ export const onBackupRestoreHandler = async (data: any) => {
       timestamp: FieldValue.serverTimestamp(),
     });
 
-    /** Run DataFLow updates */
-    await launchJob();
+    /** Update Firestore for tracking */
+    const queue = getFunctions().taskQueue(
+      `locations/${config.location}/functions/onReplayUpdates`,
+      config.instanceId
+    );
 
-    await importDoc.set({
-      id,
-      status: 'Completed',
-      operation: operation.name,
-      timestamp: FieldValue.serverTimestamp(),
-    });
+    /** Queue a restoration task */
+    return queue.enqueue({});
   } catch (ex: any) {
     logger.error('Error restoring backup', ex);
 

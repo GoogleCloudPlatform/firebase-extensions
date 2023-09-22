@@ -103,3 +103,38 @@ export const exportToBQ = async (id: string) => {
     writeDisposition: 'WRITE_TRUNCATE',
   });
 };
+
+export const queryTable = async () => {
+  const query = `WITH RankedChanges AS (
+                  SELECT 
+                      documentId,
+                      documentPath,
+                      changeType,
+                      beforeData,
+                      afterData,
+                      timestamp,
+                      ROW_NUMBER() OVER(PARTITION BY documentId ORDER BY timestamp DESC) as rank
+                  FROM \`extensions-testing.syncData.syncData\`
+                  WHERE timestamp < "2023-09-20 01:02:00"
+              )
+              SELECT 
+                  documentId,
+                  documentPath,
+                  changeType,
+                  beforeData,
+                  afterData,
+                  timestamp∏
+              FROM RankedChanges
+              WHERE rank = 1
+              ORDER BY documentId, timestamp DESC`;
+
+  const options = {
+    query: query,
+    location: config.datasetLocation,
+  };
+
+  // Run the query
+  const [rows] = await bq.query(options);
+
+  return rows;
+};
