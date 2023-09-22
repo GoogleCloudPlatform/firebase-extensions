@@ -1,105 +1,129 @@
-import * as admin from 'firebase-admin';
+import * as traverse from 'traverse';
+import {TraverseContext} from 'traverse';
 import {DocumentReference, GeoPoint, Timestamp} from 'firebase-admin/firestore';
 
-export const serializer = async (
-  ref: FirebaseFirestore.DocumentSnapshot<FirebaseFirestore.DocumentData> | null
-) => {
-  type FlattenResult = {
-    [key: string]: {
-      type: string;
-      value?: any;
-    };
-  };
+export const serializer = (data: any) => {
+  return traverse(data).reduce(function (acc, property) {
+    if (this.isRoot) return acc;
 
-  if (!ref) return null;
-
-  function getType(value: any): string {
-    if (
-      value &&
-      typeof value.latitude === 'number' &&
-      typeof value.longitude === 'number'
-    ) {
-      return 'geopoint';
+    if (Buffer.isBuffer(property)) {
+      //@ts-ignore
+      acc[this.key] = {
+        type: 'binary',
+        value: property.toString('base64'),
+      };
+      this.delete(true);
+      return acc;
     }
 
-    if (value instanceof Array) return 'array';
-    if (value instanceof Date) return 'timestamp';
-    if (value instanceof Buffer) return 'binary';
+    /** Handle array types */
+    if (Array.isArray(property)) {
+      //@ts-ignore
+      acc[this.key] = {
+        type: 'array',
+        value: property.map(item => {
+          // If the item is a primitive, return the serialized format
+          if (typeof item !== 'object' || item === null) {
+            return {type: typeof item, value: item};
+          }
+          // If the item is an object (including array), recursively serialize it
+          return serializer(item);
+        }),
+      };
+      this.delete(true);
+      return acc;
+    }
 
-    return typeof value;
-  }
-
-  function flattenData(input: any, prefix: string = ''): FlattenResult {
-    let result: FlattenResult = {};
-
-    for (let key in input) {
-      const fullKey = prefix ? `${prefix}.${key}` : key;
-
-      if (input[key] instanceof Timestamp) {
-        const timestampDate = input[key].toDate();
-        const timestampISO = timestampDate.toISOString();
-
-        result[fullKey] = {
-          type: 'timestamp',
-          value: timestampISO, // Storing the ISO string representation
-        };
-      } else if (input[key] instanceof DocumentReference) {
-        result[fullKey] = {
-          type: 'documentReference',
-          value: input[key].path, // Storing the path of the document reference
-        };
-      } else if (input[key] instanceof GeoPoint) {
-        result[fullKey] = {
-          type: 'geopoint',
-          value: {
-            latitude: {
-              type: 'number',
-              value: input[key].latitude,
-            },
-            longitude: {
-              type: 'number',
-              value: input[key].longitude,
-            },
+    // Handle GeoPoint special type
+    if (property instanceof GeoPoint) {
+      //@ts-ignore
+      acc[this.key] = {
+        type: 'geopoint',
+        value: {
+          latitude: {
+            type: 'number',
+            value: property.latitude,
           },
-        };
-      } else if (
-        typeof input[key] === 'object' &&
-        input[key] !== null &&
-        !(input[key] instanceof Array) &&
-        !(input[key] instanceof Date) &&
-        !(input[key] instanceof Buffer) // Exclude special object types
-      ) {
-        // It's an object
-        result[fullKey] = {
-          type: 'object',
-          value: flattenData(input[key]),
-        };
-      } else if (input[key] instanceof Array) {
-        result[fullKey] = {
-          type: 'array',
-          //@ts-ignore
-          value: input[key].map(item => {
-            if (typeof item === 'object') {
-              return flattenData(item);
-            }
-            return {
-              type: getType(item),
-              value: item,
-            };
-          }),
-        };
-      } else {
-        // It's a basic type (string, number, boolean, etc.)
-        result[fullKey] = {
-          type: getType(input[key]),
-          value: input[key],
-        };
-      }
+          longitude: {
+            type: 'number',
+            value: property.longitude,
+          },
+        },
+      };
+      this.delete(true); // Delete this node and halt further traversal for its children
+      return acc;
     }
 
-    return result;
-  }
-  const schema = flattenData(ref.data());
+    // Handle Timestamp special type
+    if (property instanceof Timestamp) {
+      const date = property.toDate(); // Convert Timestamp to JavaScript Date
+      //@ts-ignore
+      acc[this.key] = {
+        type: 'timestamp',
+        value: date.toISOString(), // Convert Date to ISO string
+      };
+      this.delete(true);
+      return acc;
+    }
 
-  return schema;
+    // Handle DocumentReference special type
+    if (property instanceof DocumentReference) {
+      //@ts-ignore
+      acc[this.key] = {
+        type: 'documentReference',
+        value: property.path, // Assuming DocumentReference has a 'path' property
+      };
+      this.delete(true);
+      return acc;
+    }
+
+    if (property === null) {
+      //@ts-ignore
+      acc[this.key] = {
+        type: 'null', // Set the type as 'null'
+        value: null,
+      };
+      return acc;
+    }
+
+    // Handle object type nodes
+    if (!this.isLeaf) {
+      /** Handle array types */
+      if (Array.isArray(property)) {
+        //@ts-ignore
+        acc[this.key] = {
+          type: 'array',
+          value: property.map(item => serializer(item)),
+        };
+        this.delete(true);
+        return acc;
+      }
+
+      // If it's an object but not a special type, serialize it
+      else if (typeof property === 'object' && property !== null) {
+        //@ts-ignore
+        acc[this.key] = {
+          type: 'map',
+          value: serializer(property), // Recursive serialization
+        };
+        this.delete(true);
+        return acc;
+      }
+
+      return acc;
+    }
+
+    // Decide the accumulator context based on the parent node type
+    const context =
+      //@ts-ignore
+      this.parent.node && this.parent.node.type === 'object'
+        ? //@ts-ignore
+          this.parent.node.value
+        : acc;
+
+    //@ts-ignore
+    context[this.key] = {type: typeof property, value: property};
+
+    return acc;
+  }, {});
 };

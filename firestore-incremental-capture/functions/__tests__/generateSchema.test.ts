@@ -10,9 +10,8 @@ process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099';
 process.env.PUBSUB_EMULATOR_HOST = '127.0.0.1:8085';
 process.env.GOOGLE_CLOUD_PROJECT = 'demo-project';
 
-if (!admin.apps.length) {
-  admin.initializeApp();
-}
+admin.initializeApp({projectId: 'demo-project'});
+
 const db = admin.firestore();
 
 /**
@@ -115,7 +114,7 @@ describe('generateSchema', () => {
 
     await verifySchema(documentPath, {
       objectValue: {
-        type: 'object',
+        type: 'map',
         value: {
           foo: {
             type: 'string',
@@ -136,7 +135,7 @@ describe('generateSchema', () => {
 
     await verifySchema(documentPath, {
       objectValue: {
-        type: 'object',
+        type: 'map',
         value: {
           foo: {
             type: 'string',
@@ -207,7 +206,7 @@ describe('generateSchema', () => {
               value: true,
             },
             nullValue: {
-              type: 'object',
+              type: 'null',
               value: null,
             },
           },
@@ -253,7 +252,7 @@ describe('generateSchema', () => {
               value: 42,
             },
             nestedObject: {
-              type: 'object',
+              type: 'map',
               value: {
                 deepNestedValue: {
                   type: 'string',
@@ -335,7 +334,7 @@ describe('generateSchema', () => {
     await verifySchema(documentPath, {
       blobValue: {
         type: 'binary',
-        value: Buffer.from('some sample data', 'utf8'), // Modified this line to directly use a Buffer
+        value: Buffer.from('some sample data').toString('base64'), // Modified this line to directly use a Buffer
       },
     });
   }, 12000);
@@ -395,7 +394,7 @@ describe('generateSchema', () => {
     // Check against the expected schema
     await verifySchema(documentPath, {
       nullableField: {
-        type: 'object', // null is a type of object in JavaScript
+        type: 'null', // null is a type of object in JavaScript
         value: null,
       },
     });

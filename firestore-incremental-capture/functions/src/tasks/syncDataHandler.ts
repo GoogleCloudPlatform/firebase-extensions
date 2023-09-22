@@ -32,8 +32,10 @@ export const syncDataHandler = async (
   /** format data */
 
   /** serialize data */
-  const serializedBeforeData = serializer(change.before);
-  const serializedAfterData = serializer(change.after);
+  const serializedBeforeData = await serializer(change.before.data());
+  const serializedAfterData = await serializer(change.after.data());
+
+  console.log('serializedAfterData', serializedAfterData);
 
   return queue.enqueue({
     beforeData: JSON.stringify(serializedBeforeData),

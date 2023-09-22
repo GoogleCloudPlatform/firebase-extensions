@@ -6,6 +6,8 @@ import config from '../config';
 import {createExport} from '../utils/importExport';
 import {getFunctions} from 'firebase-admin/functions';
 
+admin.initializeApp();
+
 export async function runInitialSetupHandler() {
   /** Setup the db */
   const db = admin.firestore();

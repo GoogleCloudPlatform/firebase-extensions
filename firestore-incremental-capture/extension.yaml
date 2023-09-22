@@ -92,15 +92,6 @@ resources:
       timeout: 540s
       taskQueueTrigger: {}
 
-  - name: onCloudBuildComplete
-    type: firebaseextensions.v1beta.function
-    description: >-
-      Listens for completed cloud build tasks used in the deployment.
-    properties:
-      location: ${LOCATION}
-      runtime: nodejs18
-      httpsTrigger: {}
-
   - name: onHttpRunRestoration
     type: firebaseextensions.v1beta.function
     description: >-
@@ -114,16 +105,6 @@ resources:
     type: firebaseextensions.v1beta.function
     description: >-
       Exports data from storage to a pre-defined Firestore instance.
-    properties:
-      location: ${LOCATION}
-      runtime: nodejs18
-      availableMemoryMb: 1024
-      taskQueueTrigger: {}
-
-  - name: stageDataFlowTemplate
-    type: firebaseextensions.v1beta.function
-    description: >-
-      Stages a dataflow template used for BigQuery exports.
     properties:
       location: ${LOCATION}
       runtime: nodejs18

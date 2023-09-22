@@ -48,7 +48,7 @@ export const verifySchema = async (documentPath: string, expectation: any) => {
   const doc = await db.doc(documentPath).get();
 
   /** serialize the data */
-  const schema = await serializer(doc);
+  const schema = serializer(doc.data());
 
   expect(schema).toEqual(expectation);
 };
