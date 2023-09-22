@@ -2,7 +2,8 @@ import * as functions from 'firebase-functions';
 import config from '../config';
 
 import {getFunctions} from 'firebase-admin/functions';
-import {serializeData} from '../utils/serialize';
+
+import {firestoreSerializer} from '../utils/firestoreSerializer';
 
 const getState = (
   chnage: functions.Change<functions.firestore.DocumentSnapshot>
@@ -34,8 +35,8 @@ export const syncDataHandler = async (
   const afterData = change.after ? change.after.data() : null;
 
   /** serialize data */
-  const serializedBeforeData = serializeData(beforeData);
-  const serializedAfterData = serializeData(afterData);
+  const serializedBeforeData = await firestoreSerializer(change.before.data());
+  const serializedAfterData = await firestoreSerializer(change.after.data());
 
   return queue.enqueue({
     beforeData: JSON.stringify(serializedBeforeData),
