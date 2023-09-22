@@ -2,7 +2,7 @@ import * as admin from 'firebase-admin';
 import {DocumentReference, GeoPoint, Timestamp} from 'firebase-admin/firestore';
 
 export const serializer = async (
-  ref: admin.firestore.DocumentSnapshot<admin.firestore.DocumentData>
+  ref: FirebaseFirestore.DocumentSnapshot<FirebaseFirestore.DocumentData> | null
 ) => {
   type FlattenResult = {
     [key: string]: {
@@ -10,6 +10,8 @@ export const serializer = async (
       value?: any;
     };
   };
+
+  if (!ref) return null;
 
   function getType(value: any): string {
     if (
