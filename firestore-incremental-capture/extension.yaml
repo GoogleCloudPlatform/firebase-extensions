@@ -68,17 +68,6 @@ resources:
       timeout: 540s
       taskQueueTrigger: {}
 
-  - name: onFirestoreCloudTaskBackupInit
-    type: firebaseextensions.v1beta.function
-    description: >-
-      Runs an initial backup of the database
-    properties:
-      availableMemoryMb: 512
-      location: ${LOCATION}
-      runtime: nodejs18
-      timeout: 540s
-      taskQueueTrigger: {}
-
   - name: syncData
     type: firebaseextensions.v1beta.function
     description:
