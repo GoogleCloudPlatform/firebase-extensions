@@ -6,10 +6,8 @@ import com.google.cloud.firestore.Firestore;
 import com.google.firestore.v1.Document;
 import com.google.firestore.v1.Value;
 import com.google.firestore.v1.Write;
-import com.google.protobuf.NullValue;
 
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
 import java.util.Map;
 import com.google.cloud.firestore.FirestoreOptions;
 
@@ -18,7 +16,6 @@ import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.io.gcp.bigquery.SchemaAndRecord;
 import org.apache.beam.sdk.io.gcp.firestore.FirestoreIO;
 import org.apache.beam.sdk.io.gcp.firestore.RpcQosOptions;
-import org.apache.beam.sdk.options.Default;
 // import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -27,7 +24,6 @@ import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
@@ -43,7 +39,7 @@ public class RestorationPipeline {
             .setDatabaseId("da-backup")
             .build();
 
-  public interface pipelineOptions extends org.apache.beam.sdk.io.gcp.firestore.FirestoreOptions {
+  public interface CustomPipelineOptions extends org.apache.beam.sdk.io.gcp.firestore.FirestoreOptions {
     // @Description("The Cloud Firestore project ID")
     // @Default.String("")
     // String getProjectId();
@@ -79,7 +75,7 @@ public class RestorationPipeline {
   }
 
   public static void main(String[] args) {
-    pipelineOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(pipelineOptions.class);
+    CustomPipelineOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(CustomPipelineOptions.class);
     options.setFirestoreDb("da-backup");
     Pipeline pipeline = Pipeline.create(options);
     RpcQosOptions rpcQosOptions = RpcQosOptions.newBuilder()
@@ -116,7 +112,7 @@ public class RestorationPipeline {
         .apply("ReadFromBigQuery",
             BigQueryIO.read(new SerializableFunction<SchemaAndRecord, Document>() {
               public Document apply(SchemaAndRecord schemaAndRecord) {
-                return convertToFirestoreValue(schemaAndRecord);
+                return convertToFirestoreValue(schemaAndRecord, FIRESTORE_OPTIONS.getProjectId(), FIRESTORE_OPTIONS.getDatabaseId());
               }
             }).withoutValidation().fromQuery(query).usingStandardSql()
                 .withTemplateCompatibility())
@@ -144,7 +140,7 @@ public class RestorationPipeline {
     return documentPath + "/" + path;
   }
 
-  private static Document convertToFirestoreValue(SchemaAndRecord schemaAndRecord) {
+  private static Document convertToFirestoreValue(SchemaAndRecord schemaAndRecord, String projectId, String databaseId) {
 
     GenericRecord record = schemaAndRecord.getRecord();
 
@@ -155,8 +151,8 @@ public class RestorationPipeline {
     // this JsonElement has serialized data, e.g a string would be represented on the json tree as {type: "STRING", value: "some string"}
     JsonElement afterDataJson = JsonParser.parseString(afterData);
 
-
-    Map<String, Value> firestoreMap = FirestoreReconstructor.buildFirestoreMap(afterDataJson);
+    // using static methods as beam seems to error when passing an instance version of FirestoreReconstructor to the transform
+    Map<String, Value> firestoreMap = FirestoreReconstructor.buildFirestoreMap(afterDataJson, projectId, databaseId);
 
     Document doc = Document.newBuilder().putAllFields((Map<String,Value>) firestoreMap).setName(documentPath).build();
 
