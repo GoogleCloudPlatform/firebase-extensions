@@ -7,7 +7,9 @@ import com.google.cloud.firestore.FirestoreOptions;
 import com.google.firestore.v1.Document;
 import com.google.firestore.v1.Value;
 import com.google.firestore.v1.Write;
+import com.google.protobuf.ByteString;
 import com.google.protobuf.NullValue;
+import com.google.protobuf.Timestamp;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -140,27 +142,68 @@ public class ExportPipeline {
     record.getSchema().getFields().forEach(field -> {
       Object fieldValue = record.get(field.pos());
 
+      // from the BQ source code comments:
+      // * [Required] The field data type. Possible values include STRING, BYTES,
+      // INTEGER, INT64 (same as
+      // * INTEGER), FLOAT, FLOAT64 (same as FLOAT), NUMERIC, BIGNUMERIC, BOOLEAN,
+      // BOOL (same as BOOLEAN),
+      // * TIMESTAMP, DATE, TIME, DATETIME, INTERVAL, RECORD (where RECORD indicates
+      // that the field
+      // * contains a nested schema) or STRUCT (same as RECORD).
+      String fieldType = field.schema().getType().getName();
+
       Value.Builder valueBuilder = Value.newBuilder();
 
-      if (fieldValue == null) {
-        valueBuilder.setNullValue(NullValue.NULL_VALUE);
-      } else if (fieldValue instanceof Byte ||
-          fieldValue instanceof Short ||
-          fieldValue instanceof Integer ||
-          fieldValue instanceof Long) {
+      switch (fieldType) {
+        case "STRING":
+          fieldValue = fieldValue.toString();
+          valueBuilder.setStringValue(fieldValue.toString());
+          break;
+        case "BYTES":
+          ByteString byteString = ByteString.copyFrom((byte[]) fieldValue);
+          valueBuilder.setBytesValue(byteString);
+          break;
+        case "INTEGER":
+        case "INT64":
+          valueBuilder.setIntegerValue(Long.parseLong(fieldValue.toString()));
+          break;
+        case "FLOAT":
+        case "FLOAT64":
+          valueBuilder.setDoubleValue(Double.parseDouble(fieldValue.toString()));
+          break;
+        // case "NUMERIC":
+        // case "BIGNUMERIC":
+        // break;
+        case "BOOLEAN":
+        case "BOOL":
+          fieldValue = Boolean.parseBoolean(fieldValue.toString());
+          break;
+        // case "TIMESTAMP":
+        // TODO: handle timestamps
+        // Timestamp timestamp =
+        // Timestamp.newBuilder().setSeconds(Long.parseLong(fieldValue.toString())).build();
+        // valueBuilder.setTimestampValue(fieldValue.toString());
+        // break;
+        case "DATE":
+        case "TIME":
+        case "DATETIME":
+          fieldValue = fieldValue.toString();
+          break;
+        case "INTERVAL":
+          fieldValue = fieldValue.toString();
+          break;
+        case "RECORD":
+        case "STRUCT":
+        // TODO: We need to recursively convert the nested records
+          fieldValue = fieldValue.toString();
+          break;
+        default:
+          valueBuilder.setStringValue(fieldValue.toString());
+          break;
 
-        valueBuilder.setIntegerValue((Long) fieldValue);
-      } else if (fieldValue instanceof Float || fieldValue instanceof Double) {
-        valueBuilder.setDoubleValue((Double) fieldValue);
-      } else if (fieldValue instanceof Boolean) {
-        valueBuilder.setBooleanValue((Boolean) fieldValue);
-      } else if (fieldValue instanceof String) {
-        valueBuilder.setStringValue((String) fieldValue);
-      } else {
-        valueBuilder.setStringValue(String.valueOf(fieldValue));
       }
-
       firestoreDocument.put(field.name(), valueBuilder.build());
+
     });
 
     return firestoreDocument;
