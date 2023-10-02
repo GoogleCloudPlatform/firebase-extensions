@@ -189,7 +189,8 @@ public class ExportPipeline {
             Timestamp timestamp = Timestamp.newBuilder().setSeconds(epochSecond).setNanos(nanoSecond).build();
             valueBuilder.setTimestampValue(timestamp);
             break;
-            // TODO: Add support for the following types. For now we just dump them in as strings.
+          // TODO: Add support for the following types. For now we just dump them in as
+          // strings.
           // case "DATE":
           // case "TIME":
           // case "DATETIME":

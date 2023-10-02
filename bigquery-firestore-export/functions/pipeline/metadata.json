@@ -1,0 +1,26 @@
+{
+    "name": "Export Bigquery",
+    "description": "exports bq to firestore",
+    "parameters": [
+      {
+        "name": "query",
+        "label": "Query",
+        "helpText": "SQL"
+      },
+      {
+        "name": "firestoreCollection",
+        "label": "firestoreCollection",
+        "helpText": "firestore collection."
+      },
+      {
+        "name": "firestoreDatabaseId",
+        "label": "firestoreDatabaseId",
+        "helpText": "firestore database id."
+      },
+      {
+        "name": "runId",
+        "label": "Run ID",
+        "helpText": "run id"
+      }
+    ]
+  }
