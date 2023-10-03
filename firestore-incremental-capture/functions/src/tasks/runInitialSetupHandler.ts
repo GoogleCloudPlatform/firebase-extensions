@@ -5,7 +5,6 @@ import * as admin from 'firebase-admin';
 import config from '../config';
 import {createExport} from '../utils/importExport';
 import {getFunctions} from 'firebase-admin/functions';
-import {stageTemplate} from '../dataflow/cloudbuild';
 
 export async function runInitialSetupHandler() {
   /** Setup the db */
@@ -75,13 +74,13 @@ export async function runInitialSetupHandler() {
 
   await getFunctions()
     .taskQueue(
-      `locations/${config.location}/functions/stageDataFlowTemplate`,
+      `locations/${config.location}/functions/buildFlexTemplate`,
       config.instanceId
     )
     .enqueue({});
 
   return runtime.setProcessingState(
     'PROCESSING_COMPLETE',
-    `All tasks completed successfully.`
+    'All tasks completed successfully.'
   );
 }

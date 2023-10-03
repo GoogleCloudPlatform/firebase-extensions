@@ -131,10 +131,10 @@ resources:
       availableMemoryMb: 1024
       taskQueueTrigger: {}
 
-  - name: stageDataFlowTemplate
+  - name: buildFlexTemplate
     type: firebaseextensions.v1beta.function
     description: >-
-      Stages a dataflow template used for BigQuery exports.
+      Builds a flex template for the dataflow job.
     properties:
       location: ${LOCATION}
       runtime: nodejs18

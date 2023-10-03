@@ -1,4 +1,3 @@
-
 package com.pipeline;
 
 import com.google.gson.JsonArray;
@@ -27,7 +26,8 @@ public class FirestoreReconstructor {
         REFERENCE,
     }
 
-    // This method recursively builds a Firestore map from a JSON object representing a Firestore document or map, according to our schema
+    // This method recursively builds a Firestore map from a JSON object
+    // representing a Firestore document or map, according to our schema
     public static Map<String, Value> buildFirestoreMap(JsonElement dataJson, String projectId, String databaseId) {
 
         JsonObject dataObject = dataJson.getAsJsonObject();
