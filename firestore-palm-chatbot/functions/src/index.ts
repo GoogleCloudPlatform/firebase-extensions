@@ -173,7 +173,10 @@ async function fetchDiscussionOptions(
   let overrides = {};
 
   for (const field of ['context', 'model', 'examples', 'continue']) {
-    overrides = {...overrides, [field]: discussionDocSnap.get(field)};
+    const value = discussionDocSnap.get(field);
+    if (value) {
+      overrides = {...overrides, [field]: discussionDocSnap.get(field)};
+    }
   }
 
   for (const field of ['topK', 'candidateCount']) {
