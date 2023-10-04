@@ -1,9 +1,10 @@
 import {storage} from 'firebase-admin';
+
+import {BigQuery, Dataset} from '@google-cloud/bigquery';
+
 import config from '../config';
 import * as logs from '../logs';
-import {Dataset} from '@google-cloud/bigquery';
 
-const {BigQuery} = require('@google-cloud/bigquery');
 const bq = new BigQuery({projectId: config.projectId});
 
 function bigqueryDataset(databaseId: string) {
@@ -53,6 +54,9 @@ async function initializeTable(
   try {
     logs.bigQueryTableCreating(tableId);
 
+    if (!dataset.id || !schema)
+      throw new Error('Dataset ID and schema must not be undefined');
+
     /**
      * TODO: Add time partitioning
      * TODO: Include expirationMs for partitioning based on config
@@ -61,10 +65,10 @@ async function initializeTable(
       schema,
       location: config.datasetLocation,
     });
+
     logs.bigQueryTableCreated(tableId);
     return table;
-  } catch (ex) {
-    //@ts-ignore
+  } catch (ex: any) {
     logs.tableCreationError(config.bqDataset, ex.message);
     return dataset;
   }
