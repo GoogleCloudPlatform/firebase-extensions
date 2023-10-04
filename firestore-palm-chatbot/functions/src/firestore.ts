@@ -1,10 +1,6 @@
 import config from './config';
 import {Message, GenerateMessageOptions} from './types';
-import {
-  DocumentSnapshot,
-  DocumentReference,
-  FieldValue,
-} from 'firebase-admin/firestore';
+import {DocumentSnapshot, DocumentReference} from 'firebase-admin/firestore';
 
 /** Utils for extracting conversation info from firestore */
 
@@ -49,13 +45,21 @@ export async function fetchDiscussionOptions(
     }
   }
 
+  if (discussionDocSnap.get('continue')) {
+    const continueHistory = discussionDocSnap.get('continue');
+    const validatedContinueHistory = validateExamples(continueHistory);
+    if (validatedContinueHistory.length > 0) {
+      overrides.examples = validatedContinueHistory;
+    }
+  }
+
   return overrides;
 }
 
 function extractOverrides(discussionDocSnap: DocumentSnapshot): any {
   const overrides = {};
 
-  const stringFields = ['context', 'model', 'examples', 'continue'];
+  const stringFields = ['context', 'model'];
   const intFields = ['topK', 'candidateCount'];
   const floatFields = ['topP', 'temperature'];
 
@@ -63,23 +67,57 @@ function extractOverrides(discussionDocSnap: DocumentSnapshot): any {
     stringFields,
     discussionDocSnap,
     overrides,
-    (value: any) => value
+    (value: any) => value,
+    value => typeof value === 'string'
   );
-  extractOverridesByType(intFields, discussionDocSnap, overrides, parseInt);
-  extractOverridesByType(floatFields, discussionDocSnap, overrides, parseFloat);
+  extractOverridesByType<number>(
+    intFields,
+    discussionDocSnap,
+    overrides,
+    parseMaybeInts,
+    value => typeof value === 'number' || typeof value === 'string'
+  );
+  extractOverridesByType<number>(
+    floatFields,
+    discussionDocSnap,
+    overrides,
+    parseMaybeFloats,
+    value => typeof value === 'number' || typeof value === 'string'
+  );
 
   return overrides;
 }
 
-function extractOverridesByType(
+function parseMaybeFloats(value: unknown): number {
+  if (typeof value === 'string') {
+    return parseFloat(value);
+  }
+  if (typeof value === 'number') {
+    return value;
+  }
+  return NaN;
+}
+
+function parseMaybeInts(value: unknown): number {
+  if (typeof value === 'string') {
+    return parseInt(value);
+  }
+  if (typeof value === 'number') {
+    return value;
+  }
+  return NaN;
+}
+
+function extractOverridesByType<T>(
   fields: string[],
   docSnap: DocumentSnapshot,
-  overrides: any,
-  parseFunc: Function
+  overrides: Record<string, T>,
+  parseFunc: (value: unknown) => T,
+  validateFunc: (value: unknown) => boolean
 ): void {
   for (const field of fields) {
     const value = parseFunc(docSnap.get(field));
-    if (value && !Number.isNaN(value)) {
+    if (validateFunc(value)) {
       overrides[field] = value;
     }
   }
@@ -95,7 +133,9 @@ function validateExamples(examples: Record<string, unknown>[]): Message[] {
     const prompt = example.prompt;
     const response = example.response;
     if (typeof prompt !== 'string' || typeof response !== 'string') {
-      throw new Error('Invalid example: ' + JSON.stringify(example));
+      throw new Error(
+        'Invalid examples or continue history: ' + JSON.stringify(example)
+      );
     }
     validExamples.push(example);
   }

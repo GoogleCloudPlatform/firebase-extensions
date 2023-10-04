@@ -1,3 +1,7 @@
+## Version 0.1.8
+
+fixed - bug where context could not be added
+
 ## Version 0.1.7
 
 

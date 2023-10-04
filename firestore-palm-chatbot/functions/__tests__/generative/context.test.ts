@@ -292,12 +292,6 @@ const simulateFunctionTriggered =
     return beforeFunctionExecution;
   };
 
-const expectNoOp = async () => {
-  await new Promise(resolve => setTimeout(resolve, 100));
-  expect(firestoreObserver).toHaveBeenCalledTimes(1);
-  expect(mockAPI).toHaveBeenCalledTimes(0);
-};
-
 const expectToHaveKeys = (obj: Record<string, unknown>, keys: string[]) => {
   expect(Object.keys(obj).sort()).toEqual(keys.sort());
 };
