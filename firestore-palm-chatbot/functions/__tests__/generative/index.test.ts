@@ -1,57 +1,52 @@
 import * as firebaseFunctionsTest from 'firebase-functions-test';
 import * as admin from 'firebase-admin';
-import config from '../src/config';
-import {generateMessage} from '../src/index';
+import config from '../../src/config';
+import {generateMessage} from '../../src/index';
 import {WrappedFunction} from 'firebase-functions-test/lib/v1';
 import {Change} from 'firebase-functions/v1';
+
+import {QuerySnapshot} from 'firebase-admin/firestore';
 
 process.env.GCLOUD_PROJECT = 'demo-gcp';
 
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 
 // // We mock out the config here instead of setting environment variables directly
-jest.mock('../src/config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
-    projectId: 'test-project',
-    collectionName: 'discussionsTestVertex/{discussionId}/messages',
+    collectionName: 'discussionsTestGenerative/{discussionId}/messages',
     location: 'us-central1',
     orderField: 'createTime',
     promptField: 'prompt',
     responseField: 'response',
     enableDiscussionOptionOverrides: true,
-    provider: 'vertex',
-    model: 'chat-bison@001',
+    candidatesField: 'candidates',
+    provider: 'generative',
+    model: 'chat-bison-001',
   },
 }));
 
 // // mock to check the arguments passed to the annotateVideo function+
 const mockAPI = jest.fn();
-import {helpers} from '@google-cloud/aiplatform';
 
-jest.mock('@google-cloud/aiplatform', () => {
+jest.mock('@google-ai/generativelanguage', () => {
   return {
-    ...jest.requireActual('@google-cloud/aiplatform'),
-    v1: {
-      PredictionServiceClient: function mockedClient() {
-        return {
-          predict: async (args: unknown) => {
-            mockAPI(args);
-            return [
-              {
-                predictions: [
-                  helpers.toValue({
-                    candidates: [
-                      {
-                        content: 'test response',
-                      },
-                    ],
-                  }),
-                ],
-              },
-            ];
-          },
-        };
-      },
+    ...jest.requireActual('@google-ai/generativelanguage'),
+    DiscussServiceClient: function mockedClient() {
+      return {
+        generateMessage: async (args: unknown) => {
+          mockAPI(args);
+          return [
+            {
+              candidates: [
+                {
+                  content: 'test response',
+                },
+              ],
+            },
+          ];
+        },
+      };
     },
   };
 });
@@ -77,7 +72,7 @@ const wrappedGenerateMessage = fft.wrap(
   generateMessage
 ) as WrappedFirebaseFunction;
 
-const firestoreObserver = jest.fn();
+const firestoreObserver = jest.fn((_x: any) => {});
 let collectionName: string;
 
 describe('generateMessage', () => {
@@ -85,22 +80,22 @@ describe('generateMessage', () => {
 
   // clear firestore
   beforeEach(async () => {
+    await fetch(
+      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
+      {method: 'DELETE'}
+    );
+    jest.clearAllMocks();
     const randomInteger = Math.floor(Math.random() * 1000000);
     collectionName = config.collectionName.replace(
       '{discussionId}',
       randomInteger.toString()
-    );
-    // jest.clearAllMocks();
-    await fetch(
-      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
-      {method: 'DELETE'}
     );
 
     // set up observer on collection
     unsubscribe = admin
       .firestore()
       .collection(collectionName)
-      .onSnapshot(snap => {
+      .onSnapshot((snap: QuerySnapshot) => {
         /** There is a bug on first init and write, causing the the emulator to the observer is called twice
          * A snapshot is registered on the first run, this affects the observer count
          * This is a workaround to ensure the observer is only called when it should be
@@ -283,30 +278,23 @@ describe('generateMessage', () => {
     });
     expect(firestoreCallData[2].response).toEqual('test response');
 
-    const prompt = {
-      messages: [
-        {
-          author: '0',
-          content: 'hello chat bison',
-        },
-      ],
-      context: '',
-      examples: [],
-    };
-
-    const instanceValue = helpers.toValue(prompt);
-    const instances = [instanceValue!];
-
-    const parameter = {};
-
-    const parameters = helpers.toValue(parameter);
-
     // verify SDK is called with expected arguments
     const expectedRequestData = {
-      endpoint:
-        'projects/test-project/locations/us-central1/publishers/google/models/chat-bison@001',
-      instances,
-      parameters,
+      candidateCount: undefined,
+      model: 'models/chat-bison-001',
+      prompt: {
+        messages: [
+          {
+            author: '0',
+            content: 'hello chat bison',
+          },
+        ],
+        context: '',
+        examples: [],
+      },
+      topP: undefined,
+      topK: undefined,
+      temperature: undefined,
     };
     // we expect the mock API to be called once
     expect(mockAPI).toHaveBeenCalledTimes(1);
@@ -380,30 +368,23 @@ describe('generateMessage', () => {
     });
     expect(firestoreCallData[3].response).toEqual('test response');
 
-    const prompt = {
-      messages: [
-        {
-          author: '0',
-          content: 'hello chat bison',
-        },
-      ],
-      context: '',
-      examples: [],
-    };
-
-    const instanceValue = helpers.toValue(prompt);
-    const instances = [instanceValue!];
-
-    const parameter = {};
-
-    const parameters = helpers.toValue(parameter);
-
     // verify SDK is called with expected arguments
     const expectedRequestData = {
-      endpoint:
-        'projects/test-project/locations/us-central1/publishers/google/models/chat-bison@001',
-      instances,
-      parameters,
+      candidateCount: undefined,
+      model: 'models/chat-bison-001',
+      prompt: {
+        messages: [
+          {
+            author: '0',
+            content: 'hello chat bison',
+          },
+        ],
+        context: '',
+        examples: [],
+      },
+      topP: undefined,
+      topK: undefined,
+      temperature: undefined,
     };
     // we expect the mock API to be called once
     expect(mockAPI).toHaveBeenCalledTimes(1);
@@ -425,7 +406,7 @@ const simulateFunctionTriggered =
   };
 
 const expectNoOp = async () => {
-  await new Promise(resolve => setTimeout(resolve, 500));
+  await new Promise(resolve => setTimeout(resolve, 100));
   expect(firestoreObserver).toHaveBeenCalledTimes(1);
   expect(mockAPI).toHaveBeenCalledTimes(0);
 };
