@@ -26,12 +26,16 @@ releaseNotesUrl: https://github.com/firebase/extensions/blob/master/delete-user-
 
 apis:
   - apiName: eventarc.googleapis.com
-    reason: >-
-      Powers all events and triggers
+    reason: Powers all events and triggers
 
   - apiName: run.googleapis.com
-    reason: >-
-      Powers v2 Cloud Functions
+    reason: Powers v2 Cloud Functions
+
+  - apiName: bigquery.googleapis.com
+    reason: Running queries
+
+  - apiName: dataflow.googleapis.com
+    reason: Running dataflow jobs
 
 roles:
   - role: datastore.user
@@ -46,13 +50,16 @@ roles:
   - role: storage.objectAdmin
     reason: Allows management of exported Firestore backups.
 
+  - role: pubsub.admin
+    reason: >-
+      Allows DTS to grant DTS service account permission to send notifications
+      to Pub/Sub topic.
+
   # - role: dataflow.developer
   #   reason: Allows this extension to create and run dataflow jobs.
 
-  - role: pubsub.admin
-    reason:
-      Allows DTS to grant DTS service account permission to send notifications
-      to Pub/Sub topic
+  # - role: artifactregistry.writer
+  #   reason: Allows this extension to write to the artifact registry.
 
 billingRequired: true
 
@@ -64,7 +71,7 @@ resources:
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       timeout: 540s
       taskQueueTrigger: {}
 
@@ -75,7 +82,7 @@ resources:
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       timeout: 540s
       taskQueueTrigger: {}
 
@@ -86,7 +93,7 @@ resources:
       collection, translates the strings, then writes the translated strings
       back to the same document.
     properties:
-      runtime: nodejs18
+      runtime: nodejs20
       location: ${LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
@@ -99,7 +106,7 @@ resources:
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       timeout: 540s
       taskQueueTrigger: {}
 
@@ -109,7 +116,7 @@ resources:
       Listens for completed cloud build tasks used in the deployment.
     properties:
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       httpsTrigger: {}
 
   - name: onHttpRunRestoration
@@ -118,7 +125,7 @@ resources:
       Starts a new restoration task
     properties:
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       httpsTrigger: {}
 
   - name: onFirestoreBackupInit
@@ -127,7 +134,7 @@ resources:
       Exports data from storage to a pre-defined Firestore instance.
     properties:
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       availableMemoryMb: 1024
       taskQueueTrigger: {}
 
@@ -137,7 +144,7 @@ resources:
       Builds a flex template for the dataflow job.
     properties:
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       availableMemoryMb: 1024
       taskQueueTrigger: {}
 
@@ -147,7 +154,7 @@ resources:
       Exports data from storage to a pre-defined Firestore instance.
     properties:
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       availableMemoryMb: 1024
       taskQueueTrigger: {}
 

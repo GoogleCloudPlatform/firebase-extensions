@@ -1,10 +1,10 @@
 import * as admin from 'firebase-admin';
 import {logger} from 'firebase-functions/v1';
-import {TemplatesServiceClient} from '@google-cloud/dataflow';
+import {FlexTemplatesServiceClient} from '@google-cloud/dataflow';
 
 import config from '../config';
 
-const dataflowClient = new TemplatesServiceClient();
+const dataflowClient = new FlexTemplatesServiceClient();
 
 export async function launchJob() {
   const projectId = config.projectId;
@@ -18,13 +18,13 @@ export async function launchJob() {
     launchParameters: {
       jobName: runId,
       parameters: {
-        // dataset: config.bqDataset,
-        // table: config.bqtable,
+        dataset: config.bqDataset,
+        table: config.bqtable,
       },
-    } as any,
+    },
   };
 
-  const [response] = await dataflowClient.launchTemplate(request);
+  const [response] = await dataflowClient.launchFlexTemplate(request);
 
   await runDoc.set({status: 'export triggered', runId: runId});
 
