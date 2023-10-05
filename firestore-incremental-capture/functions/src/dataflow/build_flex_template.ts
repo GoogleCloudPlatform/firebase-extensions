@@ -2,6 +2,14 @@ import config from '../config';
 
 import {exec} from 'child_process';
 
+/**
+ * This function builds the flex template for the dataflow job,
+ * but it is not used in the current implementation.
+ * The reason is that gcloud CLI is not available in the cloud functions runtime,
+ * hence the build process cannot be automated.
+ *
+ * It is included here for reference purposes.
+ */
 export async function buildFlexTemplateHandler() {
   const projectId = config.projectId;
   const bucketName = config.bucketName;
