@@ -1,19 +1,20 @@
 import * as admin from 'firebase-admin';
-import {WaitForImportCompletion, createImport} from '../utils/import_export';
+import {logger} from 'firebase-functions/v1';
+import {FieldValue} from 'firebase-admin/firestore';
+
 import config from '../config';
 import {launchJob} from '../dataflow/trigger_dataflow_job';
-import {FieldValue} from 'firebase-admin/firestore';
-import {logger} from 'firebase-functions/v1';
+import {waitForImportCompletion, createImport} from '../utils/import_export';
 
-export const onBackupRestoreHandler = async (data: any) => {
-  /** Set db and storage */
+export const onBackupRestoreHandler = async () => {
+  // Set db and storage
   const db = admin.firestore();
   const importDoc = await db
     .doc(config.backupDoc)
     .collection('imports')
     .add({});
 
-  /** Get the latest backup collection */
+  // Get the latest backup collection
   const backupExportsCollection = db
     .doc(config.backupDoc)
     .collection('exports');
@@ -44,20 +45,20 @@ export const onBackupRestoreHandler = async (data: any) => {
   //   .limit(1)
   //   .get();
 
-  /** Get the latest backup */
+  // Get the latest backup
   const backupId = doc?.id;
 
-  /** If no backup */
+  // If no backup
   if (!backupId) {
     logger.info('No backup found');
     return Promise.resolve();
   }
 
   try {
-    /** Export the Firestore db to storage */
+    // Export the Firestore db to storage
     const {id, operation} = await createImport(backupId);
 
-    /** Update Firestore for tracking */
+    // Update Firestore for tracking
     await importDoc.set({
       id,
       status: 'Running import...',
@@ -65,8 +66,8 @@ export const onBackupRestoreHandler = async (data: any) => {
       timestamp: FieldValue.serverTimestamp(),
     });
 
-    /** Wait for import completion */
-    await WaitForImportCompletion(operation.name || '');
+    // Wait for import completion
+    await waitForImportCompletion(operation.name || '');
 
     await importDoc.set({
       id,
@@ -75,7 +76,7 @@ export const onBackupRestoreHandler = async (data: any) => {
       timestamp: FieldValue.serverTimestamp(),
     });
 
-    /** Run DataFLow updates */
+    // Run DataFLow updates
     await launchJob();
 
     await importDoc.set({

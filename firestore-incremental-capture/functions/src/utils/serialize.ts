@@ -1,4 +1,5 @@
 import {DocumentReference} from 'firebase-admin/firestore';
+
 import * as traverse from 'traverse';
 
 export const serializeData = (eventData: any) => {

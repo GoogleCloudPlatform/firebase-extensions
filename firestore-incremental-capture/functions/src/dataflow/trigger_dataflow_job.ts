@@ -1,6 +1,9 @@
-import config from '../config';
-import {TemplatesServiceClient} from '@google-cloud/dataflow';
 import * as admin from 'firebase-admin';
+import {logger} from 'firebase-functions/v1';
+import {TemplatesServiceClient} from '@google-cloud/dataflow';
+
+import config from '../config';
+
 const dataflowClient = new TemplatesServiceClient();
 
 export async function launchJob() {
@@ -25,6 +28,7 @@ export async function launchJob() {
 
   await runDoc.set({status: 'export triggered', runId: runId});
 
-  console.log(`Launched job ${response.job?.id}`);
+  logger.log(`Launched job ${response.job?.id}`);
+
   return response;
 }

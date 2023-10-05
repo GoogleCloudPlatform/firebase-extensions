@@ -1,20 +1,20 @@
 import * as functions from 'firebase-functions';
-import config from '../config';
-
 import {getFunctions} from 'firebase-admin/functions';
 
+import config from '../config';
+import {syncDataTask} from '../index';
 import {firestoreSerializer} from '../utils/firestore_serializer';
 
 const getState = (
-  chnage: functions.Change<functions.firestore.DocumentSnapshot>
+  change: functions.Change<functions.firestore.DocumentSnapshot>
 ) => {
-  /** return if created */
-  if (!chnage.before?.exists) return 'CREATE';
+  // return if created
+  if (!change.before?.exists) return 'CREATE';
 
-  /** return if deleted */
-  if (!chnage.after?.exists) return 'DELETE';
+  // return if deleted
+  if (!change.after?.exists) return 'DELETE';
 
-  /** else return updated */
+  //else return updated
   return 'UPDATE';
 };
 
@@ -23,18 +23,18 @@ export const syncDataHandler = async (
   ctx: functions.EventContext
 ) => {
   const queue = getFunctions().taskQueue(
-    `locations/${config.location}/functions/syncDataTask`,
+    `locations/${config.location}/functions/${syncDataTask.name}`,
     config.instanceId
   );
 
-  /** state whether the update is an CREATE, UPDATE or DELETE */
+  //state whether the update is an CREATE, UPDATE or DELETE
   const changeType = getState(change);
 
-  /** format data */
+  // format data
   const beforeData = change.before ? change.before.data() : null;
   const afterData = change.after ? change.after.data() : null;
 
-  /** serialize data */
+  // serialize data
   const serializedBeforeData = await firestoreSerializer(beforeData);
   const serializedAfterData = await firestoreSerializer(afterData);
 

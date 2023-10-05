@@ -1,10 +1,13 @@
-import {logger} from 'firebase-functions/v1';
-import {initialize} from '../utils/big_query';
-import {getExtensions} from 'firebase-admin/extensions';
 import * as admin from 'firebase-admin';
-import config from '../config';
-import {createExport} from '../utils/import_export';
+
+import {logger} from 'firebase-functions/v1';
 import {getFunctions} from 'firebase-admin/functions';
+import {getExtensions} from 'firebase-admin/extensions';
+
+import config from '../config';
+import {initialize} from '../utils/big_query';
+import {createExport} from '../utils/import_export';
+import {buildFlexTemplate, onFirestoreBackupInit} from '../index';
 
 export async function runInitialSetupHandler() {
   // Setup the db
@@ -62,12 +65,12 @@ export async function runInitialSetupHandler() {
   });
 
   logger.info(
-    `Queuing Firestore backup task: locations/${config.location}/functions/ext-${config.instanceId}-onFirestoreBackupInit`
+    `Queuing Firestore backup task: locations/${config.location}/functions/ext-${config.instanceId}-${onFirestoreBackupInit.name}`
   );
 
   // Add a cloud task to track the progress of the export
   const queue1 = getFunctions().taskQueue(
-    `locations/${config.location}/functions/onFirestoreBackupInit`,
+    `locations/${config.location}/functions/${onFirestoreBackupInit.name}`,
     config.instanceId
   );
 
@@ -77,11 +80,11 @@ export async function runInitialSetupHandler() {
   });
 
   logger.info(
-    `Queuing a task for building the template: locations/${config.location}/functions/ext-${config.instanceId}-buildFlexTemplate`
+    `Queuing a task for building the template: locations/${config.location}/functions/ext-${config.instanceId}-${onFirestoreBackupInit.name}`
   );
 
   const queue2 = getFunctions().taskQueue(
-    `locations/${config.location}/functions/buildFlexTemplate`,
+    `locations/${config.location}/functions/${buildFlexTemplate.name}`,
     config.instanceId
   );
 

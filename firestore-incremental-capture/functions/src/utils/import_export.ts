@@ -30,7 +30,7 @@ export async function createExport() {
   const name = client.databasePath(projectId, '(default)');
   const id = new Date().valueOf();
 
-  /** Start backup */
+  // Start backup
   const [operation] = await client.exportDocuments({
     name,
     outputUriPrefix: `gs://${bucketName}/backups/${id}`,
@@ -44,14 +44,14 @@ export async function createExport() {
 /**
  * Regularly ping the import operation to check for completion
  */
-export async function WaitForImportCompletion(name: string) {
+export async function waitForImportCompletion(name: string) {
   logger.log('Checking for import progress: ', name);
   const response = await client.checkImportDocumentsProgress(name);
   if (!response.done) {
     // Wait for 1 minute retrying
     await new Promise(resolve => setTimeout(resolve, 60000));
-    /** try again */
-    await WaitForImportCompletion(name);
+    // try again
+    await waitForImportCompletion(name);
   }
   return Promise.resolve(response);
 }
@@ -62,13 +62,13 @@ export async function WaitForImportCompletion(name: string) {
 export async function createImport(id: string) {
   const {projectId, syncCollectionPath, bucketName} = config;
 
-  /** Extract the database name from the backup instance name */
+  // Extract the database name from the backup instance name
   const values = config.backupInstanceName.split('/');
   const database = values[values.length - 1];
 
   const name = client.databasePath(projectId, database);
 
-  /** Start backup */
+  // Start backup
   const [operation] = await client.importDocuments({
     name,
     inputUriPrefix: `gs://${bucketName}/backups/${id}`,
