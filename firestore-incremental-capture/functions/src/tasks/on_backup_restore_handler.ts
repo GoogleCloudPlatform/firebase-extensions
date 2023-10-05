@@ -1,7 +1,7 @@
 import * as admin from 'firebase-admin';
-import {WaitForImportCompletion, createImport} from '../utils/importExport';
+import {WaitForImportCompletion, createImport} from '../utils/import_export';
 import config from '../config';
-import {launchJob} from '../dataflow/triggerDataflow';
+import {launchJob} from '../dataflow/trigger_dataflow_job';
 import {FieldValue} from 'firebase-admin/firestore';
 import {logger} from 'firebase-functions/v1';
 

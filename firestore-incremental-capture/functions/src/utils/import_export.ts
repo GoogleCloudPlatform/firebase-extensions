@@ -1,3 +1,4 @@
+// eslint-disable-next-line node/no-unpublished-import
 import * as firestore from '@google-cloud/firestore';
 import config from '../config';
 import {logger} from 'firebase-functions/v1';
@@ -9,14 +10,14 @@ const client = new firestore.v1.FirestoreAdminClient({
 /**
  * Regularly ping the export operation to check for completion
  */
-export async function WaitForExportCompletion(name: string) {
+export async function waitForExportCompletion(name: string) {
   logger.log('Checking for export progress: ', name);
   const response = await client.checkExportDocumentsProgress(name);
   if (!response.done) {
     // Wait for 1 minute retrying
     await new Promise(resolve => setTimeout(resolve, 60000));
-    /** try again */
-    await WaitForExportCompletion(name);
+    //try again
+    await waitForExportCompletion(name);
   }
   return Promise.resolve(response);
 }

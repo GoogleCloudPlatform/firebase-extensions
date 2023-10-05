@@ -24,8 +24,8 @@ export const bigQueryTableCreated = (table: string) => {
   logger.log(`successfully created table: ${table}`);
 };
 
-export const tableCreationError = (table: string) => {
-  logger.log(`error creating table: ${table}`);
+export const tableCreationError = (table: string, message: string) => {
+  logger.log(`error creating table: ${table}, ${message}`);
 };
 
 export const datasetCeationError = (dataset: string) => {

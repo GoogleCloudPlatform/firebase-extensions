@@ -3,7 +3,7 @@ import {getExtensions} from 'firebase-admin/extensions';
 import {logger} from 'firebase-functions/v1';
 import {updateBackup, updateStatus} from '../utils/database';
 
-import {WaitForExportCompletion} from '../utils/importExport';
+import {waitForExportCompletion} from '../utils/import_export';
 import {FieldValue} from 'firebase-admin/firestore';
 
 export const onFirestoreCloudTaskBackupInitHandler = async (data: any) => {
@@ -23,7 +23,7 @@ export const onFirestoreCloudTaskBackupInitHandler = async (data: any) => {
     });
 
     /** Start polling for updates */
-    await WaitForExportCompletion(name);
+    await waitForExportCompletion(name);
 
     /** Set status to completed */
     await updateStatus(id, {

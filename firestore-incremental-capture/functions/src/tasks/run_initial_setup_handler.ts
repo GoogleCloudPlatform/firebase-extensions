@@ -1,16 +1,16 @@
 import {logger} from 'firebase-functions/v1';
-import {initialize} from '../bigquery';
+import {initialize} from '../utils/big_query';
 import {getExtensions} from 'firebase-admin/extensions';
 import * as admin from 'firebase-admin';
 import config from '../config';
-import {createExport} from '../utils/importExport';
+import {createExport} from '../utils/import_export';
 import {getFunctions} from 'firebase-admin/functions';
 
 export async function runInitialSetupHandler() {
-  /** Setup the db */
+  // Setup the db
   const db = admin.firestore();
 
-  /** Setup runtime */
+  // Setup runtime
   const runtime = getExtensions().runtime();
 
   await runtime.setProcessingState(
@@ -18,7 +18,7 @@ export async function runInitialSetupHandler() {
     `Creating/updating dataset and table ${config.bqDataset}.${config.bqtable}`
   );
 
-  /** Setup sync dataset and tables */
+  // Setup sync dataset and tables
   const [syncDataset, syncTable] = await initialize(
     config.bqDataset,
     config.bqtable,
@@ -46,38 +46,46 @@ export async function runInitialSetupHandler() {
     `Setting up initial backup for ${config.syncCollectionPath}...`
   );
 
-  /** Export the Firestore db to storage */
+  // Export the Firestore db to storage
   const {id, operation} = await createExport();
 
-  /** Update Firestore for tracking */
+  // Update Firestore for tracking
   await db.doc(config.statusDoc).set({
     status: 'Preparing export...',
     operation: operation.name,
   });
 
-  /** Update the list of backups */
+  // Update the list of backups
   await db.doc(config.backupDoc).collection('exports').doc(`${id}`).set({
     status: 'Running...',
     operation: operation.name,
   });
 
+  logger.info(
+    `Queuing Firestore backup task: locations/${config.location}/functions/ext-${config.instanceId}-onFirestoreBackupInit`
+  );
+
   // Add a cloud task to track the progress of the export
-  const queue = getFunctions().taskQueue(
+  const queue1 = getFunctions().taskQueue(
     `locations/${config.location}/functions/onFirestoreBackupInit`,
     config.instanceId
   );
 
-  await queue.enqueue({
+  await queue1.enqueue({
     id,
     name: operation.name,
   });
 
-  await getFunctions()
-    .taskQueue(
-      `locations/${config.location}/functions/buildFlexTemplate`,
-      config.instanceId
-    )
-    .enqueue({});
+  logger.info(
+    `Queuing a task for building the template: locations/${config.location}/functions/ext-${config.instanceId}-buildFlexTemplate`
+  );
+
+  const queue2 = getFunctions().taskQueue(
+    `locations/${config.location}/functions/buildFlexTemplate`,
+    config.instanceId
+  );
+
+  await queue2.enqueue({});
 
   return runtime.setProcessingState(
     'PROCESSING_COMPLETE',

@@ -1,5 +1,4 @@
 import {storage} from 'firebase-admin';
-
 import {BigQuery, Dataset} from '@google-cloud/bigquery';
 
 import config from '../config';
