@@ -21,8 +21,8 @@ description: TODO
 
 license: Apache-2.0
 
-sourceUrl: https://github.com/firebase/extensions/tree/master/delete-user-data
-releaseNotesUrl: https://github.com/firebase/extensions/blob/master/delete-user-data/CHANGELOG.md
+sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/
+releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/
 
 apis:
   - apiName: eventarc.googleapis.com
@@ -75,7 +75,7 @@ resources:
       timeout: 540s
       taskQueueTrigger: {}
 
-  - name: onFirestoreCloudTaskBackupInit
+  - name: onFirestoreBackupInit
     type: firebaseextensions.v1beta.function
     description: >-
       Runs an initial backup of the database
@@ -127,16 +127,6 @@ resources:
       location: ${LOCATION}
       runtime: nodejs20
       httpsTrigger: {}
-
-  - name: onFirestoreBackupInit
-    type: firebaseextensions.v1beta.function
-    description: >-
-      Exports data from storage to a pre-defined Firestore instance.
-    properties:
-      location: ${LOCATION}
-      runtime: nodejs20
-      availableMemoryMb: 1024
-      taskQueueTrigger: {}
 
   - name: buildFlexTemplate
     type: firebaseextensions.v1beta.function

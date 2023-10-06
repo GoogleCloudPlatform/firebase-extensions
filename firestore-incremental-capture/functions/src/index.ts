@@ -34,13 +34,6 @@ export const syncDataTask = functions.tasks
 export const runInitialSetup = async () => await runInitialSetupHandler();
 
 /**
- * Handles the export of the database to storage
- */
-export const onFirestoreBackupInit = functions.tasks
-  .taskQueue()
-  .onDispatch(onFirestoreBackupInitHandler);
-
-/**
  * Run a backup restoration.
  * */
 export const onHttpRunRestoration = functions.https.onRequest(
@@ -54,7 +47,7 @@ export const onBackupRestore = functions.tasks
 /**
  * Cloud task for handling database restoration
  * */
-export const onFirestoreCloudTaskBackupInit = functions.tasks
+export const onFirestoreBackupInit = functions.tasks
   .taskQueue()
   .onDispatch(onFirestoreBackupInitHandler);
 

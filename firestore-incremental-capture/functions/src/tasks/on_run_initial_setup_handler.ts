@@ -5,7 +5,6 @@ import {getFunctions} from 'firebase-admin/functions';
 import {getExtensions} from 'firebase-admin/extensions';
 
 import config from '../config';
-import {onFirestoreBackupInit} from '../index';
 
 import {initialize} from '../utils/big_query';
 import {createExport} from '../utils/import_export';
@@ -60,12 +59,12 @@ export async function runInitialSetupHandler() {
   });
 
   logger.info(
-    `Queuing Firestore backup task: locations/${config.location}/functions/ext-${config.instanceId}-${onFirestoreBackupInit.name}`
+    `Queuing Firestore backup task: locations/${config.location}/functions/ext-${config.instanceId}-onFirestoreBackupInit`
   );
 
   // Add a cloud task to track the progress of the export
   const backupQueue = getFunctions().taskQueue(
-    `locations/${config.location}/functions/${onFirestoreBackupInit.name}`,
+    `locations/${config.location}/functions/onFirestoreBackupInit`,
     config.instanceId
   );
 
