@@ -47,7 +47,7 @@ roles:
   - role: bigquery.admin
     reason: Allows the creation of BQ jobs to import Firestore backups.
 
-  - role: storage.objectAdmin
+  - role: storage.admin
     reason: Allows management of exported Firestore backups.
 
   - role: pubsub.admin
@@ -263,8 +263,8 @@ params:
       The name of the Firestore instance to backup the database to.
 
     example: projects/my-project/databases/my-backup
-    validationRegex: '^projects/[a-z0-9\-_]+/databases/[a-z0-9\-_]+$'
-    validationErrorMessage: Enter a valid instance id.
+    validationRegex: '^projects/(.*?)+/databases/(.*?)+$'
+    validationErrorMessage: Enter a valid instance id
     required: true
 
 lifecycleEvents:

@@ -2,7 +2,6 @@ import * as functions from 'firebase-functions';
 import {getFunctions} from 'firebase-admin/functions';
 
 import config from '../config';
-import {syncDataTask} from '../index';
 import {firestoreSerializer} from '../utils/firestore_serializer';
 
 const getState = (
@@ -23,7 +22,7 @@ export const syncDataHandler = async (
   ctx: functions.EventContext
 ) => {
   const queue = getFunctions().taskQueue(
-    `locations/${config.location}/functions/${syncDataTask.name}`,
+    `locations/${config.location}/functions/syncDataTask`,
     config.instanceId
   );
 

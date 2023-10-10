@@ -1,59 +1,78 @@
 package com.pipeline;
 
-import com.google.firestore.v1.Document;
-import com.google.firestore.v1.Value;
-import com.google.firestore.v1.Write;
-
 import java.text.SimpleDateFormat;
 import java.util.Map;
-import com.google.cloud.firestore.FirestoreOptions;
 
+import org.apache.avro.generic.GenericRecord;
+import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
 import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.io.gcp.bigquery.SchemaAndRecord;
 import org.apache.beam.sdk.io.gcp.firestore.FirestoreIO;
 import org.apache.beam.sdk.io.gcp.firestore.RpcQosOptions;
+import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.SerializableFunction;
-import org.apache.beam.sdk.PipelineResult;
-import org.apache.avro.generic.GenericRecord;
-import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
+import org.apache.beam.sdk.values.KV;
+
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+
+import com.google.cloud.firestore.FirestoreOptions;
+import com.google.firestore.v1.Value;
+import com.google.firestore.v1.Write;
+import com.google.firestore.v1.Document;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RestorationPipeline {
   private static final FirestoreOptions DEFAULT_FIRESTORE_OPTIONS = FirestoreOptions.getDefaultInstance();
 
-  public interface CustomPipelineOptions extends org.apache.beam.sdk.io.gcp.firestore.FirestoreOptions {
+  public interface MyOptions extends PipelineOptions {
+    // ValueProvider<String> getFirestoreCollection();
 
+    // void setFirestoreCollection(ValueProvider<String> value);
+
+    // ValueProvider<String> getFirestoreDatabaseId();
+
+    // void setFirestoreDatabaseId(ValueProvider<String> value);
   }
 
-  static class TransformToFirestoreDocument extends DoFn<Document, Write> {
+  static class TransformToFirestoreDocument extends DoFn<KV<String, Document>, Write> {
 
     private static final Logger LOG = LoggerFactory.getLogger(TransformToFirestoreDocument.class);
 
     @ProcessElement
     public void processElement(ProcessContext context) {
-      Document doc = context.element();
 
-      Write write = Write.newBuilder()
-          .setUpdate(doc)
-          .build();
+      String changeType = context.element().getKey();
+      Document document = context.element().getValue();
 
-      context.output(write);
+      switch (changeType) {
+        case "CREATE":
+          context.output(Write.newBuilder()
+              .setDelete(document.getName())
+              .build());
+
+          break;
+
+        default:
+          context.output(Write.newBuilder()
+              .setUpdate(document)
+              .build());
+      }
+
     }
   }
 
   public static void main(String[] args) {
-    CustomPipelineOptions options = PipelineOptionsFactory.fromArgs(args).withValidation()
-        .as(CustomPipelineOptions.class);
+    MyOptions options = PipelineOptionsFactory.fromArgs(args).as(MyOptions.class);
 
     Pipeline pipeline = Pipeline.create(options);
+
     RpcQosOptions rpcQosOptions = RpcQosOptions.newBuilder()
         .build();
 
@@ -88,9 +107,9 @@ public class RestorationPipeline {
 
     pipeline
         .apply("ReadFromBigQuery",
-            BigQueryIO.read(new SerializableFunction<SchemaAndRecord, Document>() {
-              public Document apply(SchemaAndRecord schemaAndRecord) {
-                return convertToFirestoreValue(schemaAndRecord, projectId, options.getFirestoreDb());
+            BigQueryIO.read(new SerializableFunction<SchemaAndRecord, KV<String, Document>>() {
+              public KV<String, Document> apply(SchemaAndRecord schemaAndRecord) {
+                return convertToFirestoreValue(schemaAndRecord, projectId, DEFAULT_FIRESTORE_OPTIONS.getDatabaseId());
               }
             }).withoutValidation().fromQuery(query).usingStandardSql()
                 .withTemplateCompatibility())
@@ -117,25 +136,27 @@ public class RestorationPipeline {
     return documentPath + "/" + path;
   }
 
-  private static Document convertToFirestoreValue(SchemaAndRecord schemaAndRecord, String projectId,
+  private static KV<String, Document> convertToFirestoreValue(SchemaAndRecord schemaAndRecord, String projectId,
       String databaseId) {
 
     GenericRecord record = schemaAndRecord.getRecord();
 
-    String afterData = record.get("afterData").toString();
-
+    String data = record.get("beforeData").toString();
     String documentPath = createDocumentName(record.get("documentPath").toString(), projectId, databaseId);
+    String changeType = record.get("changeType").toString();
 
     // this JsonElement has serialized data, e.g a string would be represented on
     // the json tree as {type: "STRING", value: "some string"}
-    JsonElement afterDataJson = JsonParser.parseString(afterData);
+    JsonElement dataJson = JsonParser.parseString(data);
+
+    Map<String, Value> firestoreMap = FirestoreReconstructor.buildFirestoreMap(dataJson, projectId, databaseId);
 
     // using static methods as beam seems to error when passing an instance version
     // of FirestoreReconstructor to the transform
-    Map<String, Value> firestoreMap = FirestoreReconstructor.buildFirestoreMap(afterDataJson, projectId, databaseId);
-
     Document doc = Document.newBuilder().putAllFields((Map<String, Value>) firestoreMap).setName(documentPath).build();
 
-    return doc;
+    KV<String, Document> kv = KV.of(changeType, doc);
+
+    return kv;
   }
 }

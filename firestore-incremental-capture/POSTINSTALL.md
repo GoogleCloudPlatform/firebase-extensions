@@ -35,9 +35,10 @@ Before this extension can run restoration jobs from BigQuery to Firestore, you m
     --project ${param:PROJECT_ID} \
     --member=serviceAccount:SA_EMAIL \
     --role=roles/dataflow.developer
+    --role=roles/iam.serviceAccountUser
    ```
   
-5. Download the JAR file for the Dataflow Flex Template [here](functions/src/restore-1.0.jar).
+5. Download the JAR file for the Dataflow Flex Template [here](functions/src/restore-firestore.jar).
 6. Run the following command to build the Dataflow Flex Template:
 
   ```bash

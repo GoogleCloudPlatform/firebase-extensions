@@ -1,6 +1,8 @@
 import * as admin from 'firebase-admin';
 import {logger} from 'firebase-functions/v1';
 import {FlexTemplatesServiceClient} from '@google-cloud/dataflow';
+// Cloud Firestore
+import {Timestamp} from 'firebase-admin/firestore';
 
 import config from '../config';
 
@@ -8,27 +10,32 @@ const dataflowClient = new FlexTemplatesServiceClient();
 
 export async function launchJob() {
   const projectId = config.projectId;
-  const runId = `${config.instanceId}-dataflow-run-${Date.now()}`;
+  const serverTimestamp = Timestamp.now().toMillis();
+
+  const runId = `${config.instanceId}-dataflow-run-${serverTimestamp}`;
+
+  logger.info(`Launching job ${runId}`, {
+    labels: {run_id: runId},
+  });
 
   const runDoc = admin.firestore().doc(`restore/${runId}`);
 
-  const request = {
+  const [response] = await dataflowClient.launchFlexTemplate({
     projectId,
-    gcsPath: config.templateLocation,
-    launchParameters: {
+    location: config.location,
+    launchParameter: {
       jobName: runId,
-      parameters: {
-        dataset: config.bqDataset,
-        table: config.bqtable,
-      },
+      //launchOptions: {dataset: config.bqDataset, table: config.bqtable},
+      containerSpecGcsPath: `gs://${config.bucketName}/${config.instanceId}-dataflow-restore`,
     },
-  };
-
-  const [response] = await dataflowClient.launchFlexTemplate(request);
+  });
 
   await runDoc.set({status: 'export triggered', runId: runId});
 
-  logger.log(`Launched job ${response.job?.id}`);
+  logger.info(`Launched job named ${response.job?.name} successfully`, {
+    job_response: response,
+    labels: {run_id: runId},
+  });
 
   return response;
 }

@@ -16,13 +16,16 @@ export async function buildFlexTemplateHandler() {
   const location = config.location;
   const instanceId = config.instanceId;
 
+  // Building JAR: mvn clean package -DskipTests -Dexec.mainClass=com.pipeline.RestorationPipeline
+
   exec(
-    `gcloud dataflow flex-template build gs://${bucketName}/dataflow-templates/${instanceId}.json \
-        --image-gcr-path "${location}-docker.pkg.dev/${projectId}/${instanceId}:latest" \
+    `gcloud dataflow flex-template build gs://${bucketName}/dataflow-templates/${instanceId} \
+        --image-gcr-path "${location}-docker.pkg.dev/${projectId}/${instanceId}/dataflow/restore:latest" \
         --sdk-language "JAVA" \
         --flex-template-base-image JAVA11 \
-        --jar "target/restore-1.0.jar" \
-        --env FLEX_TEMPLATE_JAVA_MAIN_CLASS="com.pipeline.RestorationPipeline"`,
+        --jar "path/to/pipeline.jar" \
+        --env FLEX_TEMPLATE_JAVA_MAIN_CLASS="com.pipeline.RestorationPipeline" \
+        --project ${projectId}`,
     (err, stdout) => {
       if (err) {
         console.log(err);
