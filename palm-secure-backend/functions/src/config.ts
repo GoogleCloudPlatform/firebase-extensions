@@ -19,6 +19,7 @@ export interface Config {
   palmEndpoint: string;
   apiVersion: string;
   enforceAppCheck: boolean;
+  customHookUrl?: string;
 }
 
 if (!process.env.API_KEY) {
@@ -32,6 +33,7 @@ const config: Config = {
   palmEndpoint: 'generativelanguage.googleapis.com',
   apiVersion: 'v1beta2',
   enforceAppCheck: process.env.ENFORCE_APP_CHECK === 'yes',
+  customHookUrl: process.env.CUSTOM_HOOK_URL,
 };
 
 export default config;

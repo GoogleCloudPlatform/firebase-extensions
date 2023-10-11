@@ -1,5 +1,5 @@
 name: storage-extract-image-text
-version: 0.1.3
+version: 0.1.4
 specVersion: v1beta
 
 displayName: Extract Image Text with Cloud Vision AI
@@ -55,7 +55,7 @@ resources:
       eventTrigger:
         eventType: google.storage.object.finalize
         resource: projects/_/buckets/${param:IMG_BUCKET}
-      runtime: 'nodejs16'
+      runtime: nodejs18
 
 params:
   - param: LOCATION

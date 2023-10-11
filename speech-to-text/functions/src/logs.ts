@@ -103,7 +103,7 @@ export const logResponseTranscription = (
 };
 
 export const ffmpegStderr = (stderr: string) => {
-  logger.error('stderr output of audio transcoder:', stderr);
+  logger.warn('stderr output of audio transcoder:', stderr);
 };
 
 export const ffmpegStdout = (stdout: string) => {

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 name: bigquery-firestore-export
-version: 0.1.3
+version: 0.1.4
 specVersion: v1beta
 
 displayName: Export BigQuery to Firestore
@@ -74,7 +74,7 @@ resources:
       Creates transfer config if doesn't exist yet.
     properties:
       location: ${LOCATION}
-      runtime: nodejs16
+      runtime: nodejs18
       availableMemoryMb: 1024
       taskQueueTrigger: {}
 

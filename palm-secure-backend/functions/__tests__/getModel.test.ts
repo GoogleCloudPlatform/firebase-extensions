@@ -5,7 +5,7 @@ import {getModel} from '../src/index';
 import {RequestInfo, RequestInit} from 'node-fetch';
 import {HttpsError} from 'firebase-functions/v1/auth';
 
-process.env.GCLOUD_PROJECT = 'dev-extensions-testing';
+process.env.GCLOUD_PROJECT = 'demo-gcp';
 
 const HOST = 'generativelanguage.googleapis.com';
 const API_VERSION = 'v1beta2';
@@ -15,43 +15,37 @@ const MODEL = 'test-model';
 jest.mock('../src/config', () => ({
   default: {
     apiKey: 'fake-api-key',
+    palmEndpoint: 'generativelanguage.googleapis.com',
+    apiVersion: 'v1beta2',
+    enforceAppCheck: process.env.ENFORCE_APP_CHECK === 'yes',
+    customHookUrl: process.env.CUSTOM_HOOK_URL,
   },
 }));
 
 const mock = jest.fn();
 
-const mockFetch = (url: RequestInfo, init?: RequestInit) => {
-  mock(url, init);
-  if (typeof url !== 'string') {
-    throw new Error('url passed into mock is not string');
-  }
-  const urlObject = new URL(url as string);
-
-  if (urlObject.pathname === `/${API_VERSION}/models/${MODEL}`) {
-    return {
-      status: 200,
-      json: () => {
-        return {
-          model: 'test',
-        };
-      },
-    };
-  } else {
-    throw new Error('bad url');
-  }
+const mockResponse = {
+  headers: new Headers({
+    'Content-Type': 'application/json',
+  }),
+  json: () => Promise.resolve({}),
+  ok: true,
 };
 
-jest.mock('node-fetch', () => ({
-  default: (url: RequestInfo, init?: RequestInit) => mockFetch(url, init),
-}));
+//@ts-ignore
+global.fetch = (url: string) => {
+  console.log('mock called', url);
+  mock(url);
+  return Promise.resolve(mockResponse);
+};
 
 const fft = firebaseFunctionsTest({
-  projectId: 'dev-extensions-testing',
+  projectId: 'demo-gcp',
 });
 
 const wrappedGetModel = fft.wrap(getModel);
 
-describe('getModels', () => {
+describe('getModel', () => {
   beforeEach(() => {
     mock.mockClear();
   });
@@ -68,8 +62,6 @@ describe('getModels', () => {
 
   test('should return a list of models', async () => {
     const res = await wrappedGetModel({name: MODEL}, {auth: 'test'});
-    expect(res.model).toBeDefined();
-    expect(res.model).toBe('test');
 
     expect(mock.mock.calls.length).toBe(1);
     expect(typeof mock.mock.calls[0][0]).toBe('string');

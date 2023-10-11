@@ -1,10 +1,10 @@
 import {chunkArray} from '../../src/common/utils';
 
-jest.mock('config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',
-    projectId: 'dev-extensions-testing',
+    projectId: 'demo-gcp',
     instanceId: 'test-instance',
 
     // User-defined vars
@@ -17,7 +17,7 @@ jest.mock('config', () => ({
     tasksDoc: '_ext-test-instance/tasks',
     metadataDoc: '_ext-test-instance/metadata',
     dimensions: 512,
-    bucketName: 'dev-extensions-testing-ext-test-instance',
+    bucketName: 'demo-gcp-ext-test-instance',
   },
 }));
 

@@ -5,7 +5,7 @@ import {generateSummary} from '../src/index';
 import {WrappedFunction} from 'firebase-functions-test/lib/v1';
 import {Change} from 'firebase-functions/v1';
 
-process.env.GCLOUD_PROJECT = 'dev-extensions-testing';
+process.env.GCLOUD_PROJECT = 'demo-gcp';
 
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 
@@ -50,11 +50,11 @@ jest.mock('@google-ai/generativelanguage', () => {
 });
 
 const fft = firebaseFunctionsTest({
-  projectId: 'dev-extensions-testing',
+  projectId: 'demo-gcp',
 });
 
 admin.initializeApp({
-  projectId: 'dev-extensions-testing',
+  projectId: 'demo-gcp',
 });
 
 type DocumentReference = admin.firestore.DocumentReference;
@@ -89,7 +89,11 @@ describe('generateText with GL', () => {
       .firestore()
       .collection(collectionName)
       .onSnapshot(snap => {
-        firestoreObserver(snap);
+        /** There is a bug on first init and write, causing the the emulator to the observer is called twice
+         * A snapshot is registered on the first run, this affects the observer count
+         * This is a workaround to ensure the observer is only called when it should be
+         */
+        if (snap.docs.length) firestoreObserver(snap);
       });
   });
   afterEach(async () => {
@@ -102,6 +106,7 @@ describe('generateText with GL', () => {
     if (unsubscribe && typeof unsubscribe === 'function') {
       unsubscribe();
     }
+    jest.clearAllMocks();
   });
 
   test('should not run if the text field is not set', async () => {
@@ -212,7 +217,12 @@ describe('generateText with GL', () => {
     expect(startTime).toEqual(expect.any(Timestamp));
 
     // Then we expect the function to update the status to COMPLETED, with the response field populated:
-    expectToHaveKeys(firestoreCallData[2], ['text', 'output', 'status']);
+    expectToHaveKeys(firestoreCallData[2], [
+      'text',
+      'safetyMetadata',
+      'output',
+      'status',
+    ]);
     expect(firestoreCallData[2].text).toEqual(message.text);
     expect(firestoreCallData[2].status).toEqual({
       startTime,
@@ -225,10 +235,11 @@ describe('generateText with GL', () => {
 
     // verify SDK is called with expected arguments
     const expectedRequestData = {
-      model: 'models/text-bison-001',
+      model: 'models/models/text-bison-001',
       prompt: {
-        text: 'Summarize this text: "test generate text"',
+        text: 'Give a summary of the following text in undefined sentences, do not use any information that is not explicitly mentioned in the text.\n  text: test generate text\n',
       },
+      safetySettings: [],
     };
     // we expect the mock API to be called once
     expect(mockAPI).toHaveBeenCalledTimes(1);

@@ -1,3 +1,12 @@
+## Version 0.1.4
+
+
+fixed - updated regex validation for collection paths (#133)
+
+fixed - correct typo in extension yaml of vision AI exts
+
+fixed - fix write to firestore
+
 ## Version 0.1.3
 
 Fix description of `INCLUDE_PATH_LIST` parameter in extension.yaml
