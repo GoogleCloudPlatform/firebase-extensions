@@ -2,11 +2,11 @@ import {getFeatureVectors} from '../../../src/common/feature_vectors';
 import * as admin from 'firebase-admin';
 import config from '../../../src/config';
 
-jest.mock('config', () => ({
+jest.mock('../../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',
-    projectId: 'dev-extensions-testing',
+    projectId: 'demo-gcp',
     instanceId: 'test-instance',
 
     // User-defined vars

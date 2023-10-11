@@ -10,6 +10,6 @@ const path = require('path');
 
   process.env.EXT_INSTANCE_ID = 'storage-image-labelling';
 
-  process.env.GCLOUD_PROJECT = 'demo-test';
-  process.env.PROJECT_ID = 'demo-test';
+  process.env.GCLOUD_PROJECT = 'demo-gcp';
+  process.env.PROJECT_ID = 'demo-gcp';
 })();

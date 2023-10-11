@@ -23,7 +23,7 @@ jest.mock('@google-cloud/text-to-speech', () => {
 });
 
 /** Setu[ project config */
-const projectId = 'demo-test';
+const projectId = 'demo-gcp';
 const testEnv = functions({projectId});
 setupEnvironment();
 const db = admin.firestore();

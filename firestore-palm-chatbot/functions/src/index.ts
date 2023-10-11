@@ -18,9 +18,10 @@ import * as functions from 'firebase-functions';
 import * as logs from './logs';
 import config from './config';
 import {Discussion} from './discussion';
-import {Message, GenerateMessageOptions} from './types';
+import {GenerateMessageOptions} from './types';
 import {DocumentReference, FieldValue} from 'firebase-admin/firestore';
 import {createErrorMessage} from './errors';
+import {fetchDiscussionOptions, fetchHistory} from './firestore';
 
 const {
   model,
@@ -139,82 +140,3 @@ export const generateMessage = functions.firestore
       });
     }
   });
-
-async function fetchHistory(ref: DocumentReference) {
-  const collSnap = await ref.parent.orderBy(orderField, 'desc').get();
-
-  const refData = await ref.get();
-  const refOrderFieldVal = refData.get(orderField);
-  //filter any docs that don't have an order field or have an order field that is greater than the current doc
-
-  return collSnap.docs
-    .filter(
-      snap => snap.get(orderField) && snap.get(orderField) < refOrderFieldVal
-    )
-    .map(snap => ({
-      path: snap.ref.path,
-      prompt: snap.get(promptField),
-      response: snap.get(responseField),
-    }));
-}
-
-async function fetchDiscussionOptions(
-  ref: DocumentReference
-): Promise<GenerateMessageOptions> {
-  const discussionDocRef = ref.parent.parent;
-
-  if (discussionDocRef === null) {
-    return {};
-  }
-  const discussionDocSnap = await discussionDocRef.get();
-  if (!discussionDocSnap.exists) {
-    return {};
-  }
-  let overrides = {};
-
-  for (const field of ['context', 'model', 'examples', 'continue']) {
-    overrides = {...overrides, [field]: discussionDocSnap.get(field)};
-  }
-
-  for (const field of ['topK', 'candidateCount']) {
-    const value = parseInt(discussionDocSnap.get(field));
-    if (value && !Number.isNaN(value)) {
-      overrides = {...overrides, [field]: value};
-    }
-  }
-
-  for (const field of ['topP', 'temperature']) {
-    const value = parseFloat(discussionDocSnap.get(field));
-    if (value && !Number.isNaN(value)) {
-      overrides = {...overrides, [field]: value};
-    }
-  }
-
-  if (discussionDocSnap.get('examples')) {
-    const examples = discussionDocSnap.get('examples');
-    if (examples) {
-      const validatedExamples = validateExamples(examples);
-      if (validatedExamples.length > 0) {
-        overrides = {...overrides, examples: validatedExamples};
-      }
-    }
-  }
-  return overrides;
-}
-
-function validateExamples(examples: Record<string, unknown>[]): Message[] {
-  if (!Array.isArray(examples)) {
-    throw new Error('Invalid examples: ' + JSON.stringify(examples));
-  }
-  const validExamples: Message[] = [];
-  for (const example of examples) {
-    // check obj has prompt or response
-    const prompt = example.prompt;
-    const response = example.response;
-    if (typeof prompt !== 'string' || typeof response !== 'string') {
-      throw new Error('Invalid example: ' + JSON.stringify(example));
-    }
-    validExamples.push(example);
-  }
-  return validExamples;
-}

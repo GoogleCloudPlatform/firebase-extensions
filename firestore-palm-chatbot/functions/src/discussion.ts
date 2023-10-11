@@ -115,10 +115,7 @@ export class Discussion {
 
     const prompt: PaLMPrompt = truncatePrompt({
       messages,
-      context:
-        options.context || this.context || config.provider === 'vertex'
-          ? ''
-          : undefined,
+      context: options.context || this.context || '',
       examples: this.messagesToExamples(
         options.examples || this.examples || []
       ),
@@ -140,6 +137,7 @@ export class Discussion {
     const temperature = options.temperature || this.temperature;
     const topP = options.topP || this.topP;
     const topK = options.topK || this.topK;
+    const context = prompt.context || options.context || this.context || '';
 
     const parameter: Record<string, string | number> = {};
 
@@ -152,6 +150,10 @@ export class Discussion {
     }
     if (topK) {
       parameter.top_k = topK;
+    }
+
+    if (context) {
+      parameter.context = context;
     }
 
     const parameters = helpers.toValue(parameter);

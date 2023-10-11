@@ -1,12 +1,12 @@
 import * as dotenv from 'dotenv';
 dotenv.config({path: __dirname + '/.env'});
-process.env.GCLOUD_PROJECT = 'dev-extensions-testing';
+process.env.GCLOUD_PROJECT = 'demo-gcp';
 process.env.API_KEY = 'fake-api-key';
 import * as firebaseFunctionsTest from 'firebase-functions-test';
 import {post} from '../src/index';
 
 const fft = firebaseFunctionsTest({
-  projectId: 'dev-extensions-testing',
+  projectId: 'demo-gcp',
 });
 
 const wrappedPost = fft.wrap(post);

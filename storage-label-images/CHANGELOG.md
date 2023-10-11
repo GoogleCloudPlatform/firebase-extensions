@@ -1,3 +1,8 @@
+## Version 0.1.6
+
+
+fixed - correct typo in extension yaml of vision AI exts
+
 ## Version 0.1.5
 
 Fix description of `INCLUDE_PATH_LIST` parameter in extension.yaml
