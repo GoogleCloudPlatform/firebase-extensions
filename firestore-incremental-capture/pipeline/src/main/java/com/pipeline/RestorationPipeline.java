@@ -1,49 +1,51 @@
 package com.pipeline;
 
 import java.text.SimpleDateFormat;
-import java.util.Map;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
-import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
-import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
-import org.apache.beam.sdk.io.gcp.bigquery.SchemaAndRecord;
+import org.apache.beam.sdk.coders.VoidCoder;
 import org.apache.beam.sdk.io.gcp.firestore.FirestoreIO;
+import org.apache.beam.sdk.io.gcp.firestore.FirestoreV1.BatchWriteWithSummary;
 import org.apache.beam.sdk.io.gcp.firestore.RpcQosOptions;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
+import org.apache.beam.sdk.options.ValueProvider;
+import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
-import org.apache.beam.sdk.transforms.SerializableFunction;
+import org.apache.beam.sdk.transforms.Wait;
 import org.apache.beam.sdk.values.KV;
-
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
+import org.apache.beam.sdk.values.PCollection;
 
 import com.google.cloud.firestore.FirestoreOptions;
-import com.google.firestore.v1.Value;
-import com.google.firestore.v1.Write;
 import com.google.firestore.v1.Document;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
+import com.google.firestore.v1.RunQueryResponse;
+import com.google.firestore.v1.Write;
 
 public class RestorationPipeline {
   private static final FirestoreOptions DEFAULT_FIRESTORE_OPTIONS = FirestoreOptions.getDefaultInstance();
 
   public interface MyOptions extends PipelineOptions {
-    // ValueProvider<String> getFirestoreCollection();
+    ValueProvider<Long> getTimestamp();
 
-    // void setFirestoreCollection(ValueProvider<String> value);
+    void setTimestamp(ValueProvider<Long> value);
 
-    // ValueProvider<String> getFirestoreDatabaseId();
+    ValueProvider<String> getFirestoreDatabaseId();
 
-    // void setFirestoreDatabaseId(ValueProvider<String> value);
+    void setFirestoreDatabaseId(ValueProvider<String> value);
+
+    ValueProvider<String> getFirestoreCollectionId();
+
+    void setFirestoreCollectionId(ValueProvider<String> value);
   }
 
-  static class TransformToFirestoreDocument extends DoFn<KV<String, Document>, Write> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(TransformToFirestoreDocument.class);
+  static class DocumentToWrite extends DoFn<KV<String, Document>, Write> {
 
     @ProcessElement
     public void processElement(ProcessContext context) {
@@ -73,48 +75,36 @@ public class RestorationPipeline {
 
     Pipeline pipeline = Pipeline.create(options);
 
-    RpcQosOptions rpcQosOptions = RpcQosOptions.newBuilder()
-        .build();
+    // Format timestamp to be used in the query
+    Long timestamp = options.getTimestamp().get();
+    String formattedTimestamp;
 
-    java.util.Date date = new java.util.Date();
-    SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    String outputDateString = outputFormat.format(date);
+    try {
+      formattedTimestamp = adjustDate(timestamp);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("The provided date is in the future!");
+    }
 
     String projectId = DEFAULT_FIRESTORE_OPTIONS.getProjectId();
+    String collectionId = options.getFirestoreCollectionId().get();
 
-    String query = "WITH RankedChanges AS (" +
-        "    SELECT " +
-        "        documentId," +
-        "        documentPath," +
-        "        changeType," +
-        "        beforeData," +
-        "        afterData," +
-        "        timestamp," +
-        "        ROW_NUMBER() OVER(PARTITION BY documentId ORDER BY timestamp DESC) as rank" +
-        "    FROM `" + projectId + ".syncData.syncData`" +
-        "    WHERE timestamp < '" + outputDateString + "' " +
-        ") " +
-        "SELECT " +
-        "    documentId," +
-        "    documentPath," +
-        "    changeType," +
-        "    beforeData," +
-        "    afterData," +
-        "    timestamp " +
-        "FROM RankedChanges " +
-        "WHERE rank = 1 " +
-        "ORDER BY documentId, timestamp DESC";
+    // Prepare basline data
+    PCollection<BatchWriteWithSummary> baseline = pipeline
+        .apply(Create.of(collectionId))
+        .apply("Build the baseline query", new SelectCollectionQuery(projectId, options.getFirestoreDatabaseId().get()))
+        .apply("Batch read from Firestore in the given time", new ReadFromFirestoreWithTimestamp(timestamp))
+        .apply("Convert RunQueryResponse to Document", ParDo.of(new RunQueryResponseToDocument()))
+        .apply("Write to the Firestore database instance", ParDo.of(new RunBatchWrite()));
 
-    pipeline
-        .apply("ReadFromBigQuery",
-            BigQueryIO.read(new SerializableFunction<SchemaAndRecord, KV<String, Document>>() {
-              public KV<String, Document> apply(SchemaAndRecord schemaAndRecord) {
-                return convertToFirestoreValue(schemaAndRecord, projectId, DEFAULT_FIRESTORE_OPTIONS.getDatabaseId());
-              }
-            }).withoutValidation().fromQuery(query).usingStandardSql()
-                .withTemplateCompatibility())
-        .apply("TransformToFirestoreDocument", ParDo.of(new TransformToFirestoreDocument()))
-        .apply("WriteToFirestore", FirestoreIO.v1().write().batchWrite().withRpcQosOptions(rpcQosOptions).build());
+    // Read from BigQuery
+    PCollection<KV<String, Document>> applyIncrementalCapture = pipeline
+        .apply(Create.empty(VoidCoder.of()))
+        .apply("Read from BigQuery with Side Input", new IncrementalCaptureLog(projectId, formattedTimestamp));
+
+    applyIncrementalCapture
+        .apply(Wait.on(baseline))
+        .apply("Prepare write operations", ParDo.of(new DocumentToWrite()))
+        .apply("Write to the Firestore database instance", ParDo.of(new RunBatchWrite()));
 
     PipelineResult result = pipeline.run();
 
@@ -127,36 +117,45 @@ public class RestorationPipeline {
     }
   }
 
-  private static String createDocumentName(String path, String projectId, String databaseId) {
-    String documentPath = String.format(
-        "projects/%s/databases/%s/documents",
-        projectId,
-        databaseId);
+  public static String adjustDate(Long timestamp) {
+    Instant instant = Instant.ofEpochMilli(timestamp);
 
-    return documentPath + "/" + path;
+    LocalDateTime t0 = LocalDateTime.from(instant);
+    LocalDateTime now = LocalDateTime.now();
+
+    Duration duration = Duration.between(t0, now);
+
+    SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+    if (duration.isNegative()) {
+      // t0 is in the future
+      throw new IllegalArgumentException("The provided date is in the future!");
+    }
+
+    long daysDiff = duration.toDays();
+
+    if (daysDiff > 7) {
+      // Set t0 as the date representing 7 days before the "now" date
+      return outputFormat.format(now.minus(7, ChronoUnit.DAYS));
+    }
+
+    return outputFormat.format(t0);
   }
 
-  private static KV<String, Document> convertToFirestoreValue(SchemaAndRecord schemaAndRecord, String projectId,
-      String databaseId) {
+  private static final class RunBatchWrite extends DoFn<Write, BatchWriteWithSummary> {
+    RpcQosOptions rpcQosOptions = RpcQosOptions.newBuilder().build();
 
-    GenericRecord record = schemaAndRecord.getRecord();
-
-    String data = record.get("beforeData").toString();
-    String documentPath = createDocumentName(record.get("documentPath").toString(), projectId, databaseId);
-    String changeType = record.get("changeType").toString();
-
-    // this JsonElement has serialized data, e.g a string would be represented on
-    // the json tree as {type: "STRING", value: "some string"}
-    JsonElement dataJson = JsonParser.parseString(data);
-
-    Map<String, Value> firestoreMap = FirestoreReconstructor.buildFirestoreMap(dataJson, projectId, databaseId);
-
-    // using static methods as beam seems to error when passing an instance version
-    // of FirestoreReconstructor to the transform
-    Document doc = Document.newBuilder().putAllFields((Map<String, Value>) firestoreMap).setName(documentPath).build();
-
-    KV<String, Document> kv = KV.of(changeType, doc);
-
-    return kv;
+    @ProcessElement
+    public void processElement(ProcessContext c) {
+      c.output(FirestoreIO.v1().write().batchWrite().withRpcQosOptions(rpcQosOptions).build());
+    }
   }
+
+  private static final class RunQueryResponseToDocument extends DoFn<RunQueryResponse, Write> {
+    @ProcessElement
+    public void processElement(ProcessContext c) {
+      c.output(Write.newBuilder().setUpdate(c.element().getDocument()).build());
+    }
+  }
+
 }

@@ -8,7 +8,7 @@ import config from '../config';
 
 const dataflowClient = new FlexTemplatesServiceClient();
 
-export async function launchJob() {
+export async function launchJob(timestamp: number) {
   const projectId = config.projectId;
   const serverTimestamp = Timestamp.now().toMillis();
 
@@ -25,7 +25,9 @@ export async function launchJob() {
     location: config.location,
     launchParameter: {
       jobName: runId,
-      //launchOptions: {dataset: config.bqDataset, table: config.bqtable},
+      launchOptions: {
+        timestamp: timestamp.toString(),
+      },
       containerSpecGcsPath: `gs://${config.bucketName}/${config.instanceId}-dataflow-restore`,
     },
   });
