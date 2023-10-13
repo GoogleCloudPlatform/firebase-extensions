@@ -21,6 +21,7 @@ import * as speech from '@google-cloud/speech';
 import * as path from 'path';
 import * as os from 'os';
 import * as mkdirp from 'mkdirp';
+import {FieldValue} from 'firebase-admin/firestore';
 
 import * as logs from './logs';
 import {publishFailureEvent, errorFromAny, publishCompleteEvent} from './util';
@@ -30,8 +31,9 @@ import {
   uploadTranscodedFile,
 } from './transcribe-audio';
 
-import {Status} from './types';
+import {Status, TranscribeAudioResult} from './types';
 import config from './config';
+import {updateFirestoreDocument} from './firestore';
 
 admin.initializeApp();
 
@@ -53,23 +55,42 @@ export const transcribeAudio = functions.storage
     logs.start();
     const {contentType} = object; // the MIME type
 
+    /** Return early if no file name is specified */
+    if (object.name === undefined) {
+      logs.undefinedObjectName(object);
+      return;
+    }
+
+    /** Set a sanitizd document ID */
+    const sanitizedDocumentId = object.name?.replace(/\//g, '_');
+
+    /** Start tracking progress in Firestore, if configured */
+    await updateFirestoreDocument(sanitizedDocumentId, {status: 'PROCESSING'});
+
     if (object.metadata && object.metadata.isTranscodeOutput === 'true') {
       logs.audioAlreadyProcessed();
       return;
     }
 
     if (!contentType) {
+      /** Start tracking progress in Firestore, if configured */
+      await updateFirestoreDocument(sanitizedDocumentId, {
+        status: 'FAILED',
+        message: 'No content type provided.',
+      });
+
       logs.noContentType();
       return;
     }
 
     if (!contentType.startsWith('audio/')) {
-      logs.contentTypeInvalid(contentType);
-      return;
-    }
+      /** Updated failed status Firestore, if configured */
+      await updateFirestoreDocument(sanitizedDocumentId!, {
+        status: 'FAILED',
+        message: 'Invalid content type.',
+      });
 
-    if (object.name === undefined) {
-      logs.undefinedObjectName(object);
+      logs.contentTypeInvalid(contentType);
       return;
     }
 
@@ -100,6 +121,13 @@ export const transcribeAudio = functions.storage
       }
 
       logs.debug('uploading transcoded file');
+
+      /** Update processing status */
+      await updateFirestoreDocument(sanitizedDocumentId, {
+        status: 'PROCESSING',
+        message: 'Transcoding audio file.',
+      });
+
       const transcodedUploadResult = await uploadTranscodedFile({
         localPath: transcodeResult.outputPath,
         storagePath: config.outputStoragePath
@@ -107,6 +135,7 @@ export const transcribeAudio = functions.storage
           : transcodeResult.outputPath.slice(1),
         bucket: bucket,
       });
+
       if (transcodedUploadResult.status == Status.FAILURE) {
         logs.transcodeUploadFailed(transcodedUploadResult);
         if (eventChannel) {
@@ -128,6 +157,13 @@ export const transcribeAudio = functions.storage
         file,
         sampleRateHertz,
         audioChannelCount,
+      });
+
+      /** Update the collecton with the tranacribed audio  */
+      await updateFirestoreDocument(sanitizedDocumentId, {
+        ...(transcriptionResult as TranscribeAudioResult),
+        message: FieldValue.delete(),
+        status: Status[transcriptionResult.status],
       });
 
       if (transcriptionResult.status == Status.FAILURE) {
