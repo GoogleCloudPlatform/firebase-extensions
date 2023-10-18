@@ -176,7 +176,7 @@ params:
       This threshold is applicable only to the Generative Language PaLM API.
     type: select
     options:
-      - label: Block none
+      - label: Default
         value: HARM_BLOCK_THRESHOLD_UNSPECIFIED
       - label: Block low and above
         value: BLOCK_LOW_AND_ABOVE
@@ -184,8 +184,10 @@ params:
         value: BLOCK_MEDIUM_AND_ABOVE
       - label: Block only high
         value: BLOCK_ONLY_HIGH
+      - label: Block none
+        value: BLOCK_NONE
     required: false
-    default: BLOCK_ONLY_HIGH
+    default: HARM_BLOCK_THRESHOLD_UNSPECIFIED
     immutable: false
 
   - param: LOCATION
