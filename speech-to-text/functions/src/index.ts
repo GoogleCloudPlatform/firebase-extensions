@@ -61,7 +61,7 @@ export const transcribeAudio = functions.storage
       return;
     }
 
-    /** Set a sanitizd document ID */
+    /** Set a sanitized document ID */
     const sanitizedDocumentId = object.name?.replace(/\//g, '_');
 
     /** Start tracking progress in Firestore, if configured */
