@@ -1,3 +1,9 @@
+## Version 0.1.9
+
+fixed - fixed issue with "Block none" in safety threshold configs
+
+docs - update to reflect current state of PaLM safety thresholds
+
 ## Version 0.1.8
 
 - Added parameters for configuring filter thresholds on developers PaLM API
