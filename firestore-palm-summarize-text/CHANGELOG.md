@@ -1,5 +1,10 @@
-## Version 0.1.9
+## Version 0.1.10
 
+fixed - fixed issue with "Block none" in safety threshold configs
+
+docs - update to reflect current state of PaLM safety thresholds
+
+## Version 0.1.9
 
 fixed - improved safety metadata format
 
