@@ -159,7 +159,7 @@ export const transcribeAudio = functions.storage
         audioChannelCount,
       });
 
-      /** Update the collecton with the tranacribed audio  */
+      /** Update the collecton with the transcribed audio  */
       await updateFirestoreDocument(sanitizedDocumentId, {
         ...(transcriptionResult as TranscribeAudioResult),
         message: FieldValue.delete(),
