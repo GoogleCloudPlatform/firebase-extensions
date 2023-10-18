@@ -52,14 +52,14 @@ There are currently two different APIs providing access to PaLM large language m
 - For more details on the Vertex AI PaLM API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview)
 
 
-### Harm filter thresholds
+## Safety Thresholds
 
-PaLM provides content filters in different categories. This extension currently allows the developer to specify thresholds for these categories. Note that
-the filtering is based on the probability that the prompt or response contains the category of content, and not necessarily the severity of the content.
+Both the Generative Language for Developers and Vertex AI models have safety thresholds, to block inappropriate content. You can read the details here:
 
-Currently the extension only supports this feature for the Generative AI for developers PaLM Provider.
+- [Vertex AI responsible AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/responsible-ai)
+- [Generative AI for Developers safety settings documentation](https://developers.generativeai.google/guide/safety_setting)
 
-For more information see the [documentation](https://developers.generativeai.google/guide/safety_setting) for the Generative AI for Developers PaLM API.
+At this moment, only Generative AI for Developers allows configuring safety thresholds via their API, and only for their text generation models, not their chat-bison models.
 
 ### Regenerating a response
 
