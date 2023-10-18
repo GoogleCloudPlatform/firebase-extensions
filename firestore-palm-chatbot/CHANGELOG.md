@@ -1,3 +1,7 @@
+## Version 0.1.9
+
+docs - update to reflect current state of PaLM safety thresholds
+
 ## Version 0.1.8
 
 fixed - bug where context could not be added
