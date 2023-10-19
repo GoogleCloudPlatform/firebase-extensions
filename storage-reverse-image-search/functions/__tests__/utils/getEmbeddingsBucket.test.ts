@@ -6,7 +6,7 @@ const mockCreate = jest.fn();
 jest.mock('firebase-admin', () => {
   return {
     storage: () => ({
-      bucket: (bucketName: string) => ({
+      bucket: () => ({
         getMetadata: mockGetMetadata,
         create: mockCreate,
       }),
@@ -18,7 +18,7 @@ jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',
-    projectId: 'dev-extensions-testing',
+    projectId: 'demo-gcp',
     instanceId: 'test-instance',
 
     // User-defined vars
@@ -29,7 +29,7 @@ jest.mock('../../src/config', () => ({
     distanceMeasureType: 'DOT_PRODUCT_DISTANCE',
     algorithmConfig: 'treeAhConfig',
     inputShape: 256,
-    bucketName: 'dev-extensions-testing-ext-test-instance',
+    bucketName: 'demo-gcp-ext-test-instance',
 
     // Extension-specific vars
     tasksDoc: '_ext-test-instance/tasks',

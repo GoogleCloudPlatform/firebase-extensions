@@ -20,9 +20,9 @@ import {helpers, v1} from '@google-cloud/aiplatform';
 import * as logs from './logs';
 import {GoogleAuth} from 'google-auth-library';
 import {
-  APIGenerateTextRequest,
+  GLGenerateTextRequest,
   VertexPredictResponse,
-  APIGenerateTextResponse,
+  GLGenerateTextResponse,
 } from './types';
 import config from './config';
 
@@ -34,10 +34,11 @@ export interface TextGeneratorOptions {
   topK?: number;
   maxOutputTokens?: number;
   instruction?: string;
+  generativeSafetySettings?: GLGenerateTextRequest['safetySettings'];
 }
 
 export type TextGeneratorRequestOptions = Omit<
-  APIGenerateTextRequest,
+  GLGenerateTextRequest,
   'prompt' | 'model'
 >;
 
@@ -53,6 +54,7 @@ export class TextGenerator {
   topP?: number;
   topK?: number;
   maxOutputTokens?: number;
+  generativeSafetySettings: TextGeneratorRequestOptions['safetySettings'];
 
   constructor(options: TextGeneratorOptions = {}) {
     this.temperature = options.temperature;
@@ -61,6 +63,7 @@ export class TextGenerator {
     this.maxOutputTokens = options.maxOutputTokens;
     this.candidateCount = options.candidateCount;
     this.instruction = options.instruction;
+    this.generativeSafetySettings = options.generativeSafetySettings;
     if (options.model) this.model = options.model;
 
     this.endpoint = `projects/${config.projectId}/locations/${config.location}/publishers/google/models/${this.model}`;
@@ -133,15 +136,14 @@ export class TextGenerator {
       topK: this.topK,
       temperature: this.temperature,
       candidateCount: this.candidateCount,
+      safetySettings: this.generativeSafetySettings,
       maxOutputTokens: this.maxOutputTokens,
       ...options,
     };
     return request;
   }
 
-  private extractGenerativeCandidationResponse(
-    result: APIGenerateTextResponse
-  ) {
+  private extractGenerativeCandidationResponse(result: GLGenerateTextResponse) {
     return convertToTextGeneratorResponse(result as GenerativePrediction);
   }
 

@@ -43,6 +43,15 @@ There are currently two different APIs providing access to PaLM large language m
 
 - For more details on the Vertex AI PaLM API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview)
 
+## Safety Thresholds
+
+Both the Generative Language for Developers and Vertex AI models have safety thresholds, to block inappropriate content. You can read the details here:
+
+- [Vertex AI responsible AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/responsible-ai)
+- [Generative AI for Developers safety settings documentation](https://developers.generativeai.google/guide/safety_setting)
+
+At this moment, only Generative AI for Developers allows configuring safety thresholds via their API, and only for their text generation models, not their chat-bison models.
+
 ### Regenerating a response
 
 Changing the state field of a completed document's status from `COMPLETED` to anything else will retrigger the extension for that document.
@@ -83,6 +92,10 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 * Response Field: The field in the message document into which to put the response.
 
 * Target Summary Length: Number of sentences you would like the summary to be.
+
+* Maximum number of tokens: If you have selected the Vertex AI service as your PaLM API provider, this parameter will be used to set the max_tokens parameter in the Vertex API request. It should be an integer in the range [1,1024]. The default value for the extension is 1024.
+
+* Content Filter Threshold: Threshold for harmful content. Specify what level of harmful content is blocked by the PaLM provider. This threshold is applicable only to the Generative Language PaLM API.
 
 * Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
 

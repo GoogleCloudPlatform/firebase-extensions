@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {GLSafetySetting, GLHarmCategory, GLHarmBlockThreshold} from './types';
+
 export interface Config {
   location: string;
   projectId: string;
@@ -32,6 +34,7 @@ export interface Config {
   maxOutputTokensVertex?: number;
   provider?: string;
   apiKey?: string;
+  generativeSafetySettings?: GLSafetySetting[];
 }
 
 function getModel() {
@@ -47,6 +50,50 @@ function getModel() {
           return 'text-bison@001';
       }
   }
+}
+
+function getGenerativeSafetySettings() {
+  const {
+    UNSPECIFIED_THRESHOLD,
+    DEROGATORY_THRESHOLD,
+    TOXICITY_THRESHOLD,
+    VIOLENCE_THRESHOLD,
+    SEXUAL_THRESHOLD,
+    MEDICAL_THRESHOLD,
+    DANGEROUS_THRESHOLD,
+  } = process.env as Record<string, keyof typeof GLHarmBlockThreshold>;
+
+  // Array to map categories to their environmental variables
+  return [
+    {
+      category: GLHarmCategory.HARM_CATEGORY_UNSPECIFIED,
+      threshold: UNSPECIFIED_THRESHOLD!,
+    },
+    {
+      category: GLHarmCategory.HARM_CATEGORY_DEROGATORY,
+      threshold: DEROGATORY_THRESHOLD!,
+    },
+    {
+      category: GLHarmCategory.HARM_CATEGORY_TOXICITY,
+      threshold: TOXICITY_THRESHOLD!,
+    },
+    {
+      category: GLHarmCategory.HARM_CATEGORY_VIOLENCE,
+      threshold: VIOLENCE_THRESHOLD!,
+    },
+    {
+      category: GLHarmCategory.HARM_CATEGORY_SEXUAL,
+      threshold: SEXUAL_THRESHOLD!,
+    },
+    {
+      category: GLHarmCategory.HARM_CATEGORY_MEDICAL,
+      threshold: MEDICAL_THRESHOLD!,
+    },
+    {
+      category: GLHarmCategory.HARM_CATEGORY_DANGEROUS,
+      threshold: DANGEROUS_THRESHOLD!,
+    },
+  ];
 }
 
 const config: Config = {
@@ -76,6 +123,7 @@ const config: Config = {
     ? parseInt(process.env.MAX_OUTPUT_TOKENS)
     : 100,
   apiKey: process.env.API_KEY,
+  generativeSafetySettings: getGenerativeSafetySettings(),
 };
 
 export default config;

@@ -1,5 +1,5 @@
 name: speech-to-text
-version: 0.1.3
+version: 0.1.4
 specVersion: v1beta
 
 displayName: Transcribe Speech to Text
@@ -33,7 +33,7 @@ resources:
       storage, or in firestore, or in both.
     properties:
       location: ${param:LOCATION}
-      runtime: nodejs14
+      runtime: nodejs16
       availableMemoryMb: 1024
       eventTrigger:
         eventType: google.storage.object.finalize

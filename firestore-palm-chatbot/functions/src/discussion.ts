@@ -113,16 +113,13 @@ export class Discussion {
       {author: '0', content: message},
     ];
 
-    const prompt: PaLMPrompt = {
+    const prompt: PaLMPrompt = truncatePrompt({
       messages,
-      context:
-        options.context || this.context || config.provider === 'vertex'
-          ? ''
-          : undefined,
+      context: options.context || this.context || '',
       examples: this.messagesToExamples(
         options.examples || this.examples || []
       ),
-    };
+    });
 
     if (config.provider === 'vertex') {
       const request = this.createVertexRequest(prompt, options);
@@ -140,6 +137,7 @@ export class Discussion {
     const temperature = options.temperature || this.temperature;
     const topP = options.topP || this.topP;
     const topK = options.topK || this.topK;
+    const context = prompt.context || options.context || this.context || '';
 
     const parameter: Record<string, string | number> = {};
 
@@ -152,6 +150,10 @@ export class Discussion {
     }
     if (topK) {
       parameter.top_k = topK;
+    }
+
+    if (context) {
+      parameter.context = context;
     }
 
     const parameters = helpers.toValue(parameter);
@@ -178,6 +180,7 @@ export class Discussion {
       topK: options.topK || this.topK,
       candidateCount: options.candidateCount || this.candidateCount,
     };
+
     return request;
   }
 
@@ -282,4 +285,22 @@ export class Discussion {
       output: {author: '1', content: m.response!},
     }));
   }
+}
+
+// function to truncate payload to an upper limit of bytes (20k but leave some room for other fields and overhead)
+function truncatePrompt(prompt: PaLMPrompt, bytes = 19500): PaLMPrompt {
+  let payloadBytes = Buffer.byteLength(JSON.stringify(prompt), 'utf8');
+
+  while (payloadBytes > bytes) {
+    prompt.messages.shift();
+    payloadBytes = Buffer.byteLength(JSON.stringify(prompt), 'utf8');
+  }
+
+  if (prompt.messages.length === 0) {
+    throw new Error(
+      'Payload size exceeded. This is either because the latest message is too long, or the context/examples you have provided are too long. Please try again with a shorter message, or reconfigure examples/context.'
+    );
+  }
+
+  return prompt;
 }

@@ -4,6 +4,6 @@ export const mockedConfig = {
     languageCode: 'en-GB',
     ssmlGender: 'MALE',
     audioEncoding: 'MP3',
-    bucketName: 'demo-test.appspot.com',
+    bucketName: 'demo-gcp.appspot.com',
   },
 };

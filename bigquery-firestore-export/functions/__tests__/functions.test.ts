@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import {BigQuery, Dataset, Table} from '@google-cloud/bigquery';
+import {BigQuery, Dataset} from '@google-cloud/bigquery';
 import * as firebaseFunctionsTest from 'firebase-functions-test';
 import * as admin from 'firebase-admin';
 
@@ -49,7 +49,6 @@ jest.mock('../src/config', () => {
 xdescribe('e2e testing', () => {
   describe('transfer configuration', () => {
     let dataset: Dataset;
-    let table: Table;
 
     beforeEach(() => {
       // Reset the config object before each test
@@ -58,11 +57,7 @@ xdescribe('e2e testing', () => {
 
     beforeAll(async () => {
       //@ts-ignore
-      [dataset, table] = await setupDataset(
-        bq,
-        config.datasetId,
-        config.tableName
-      );
+      [dataset] = await setupDataset(bq, config.datasetId, config.tableName);
 
       await deleteAllDocumentsInCollection(db, 'dev-extensions-testing');
     });

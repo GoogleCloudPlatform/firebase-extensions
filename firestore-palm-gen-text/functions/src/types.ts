@@ -17,14 +17,22 @@
 import * as generativeLanguage from '@google-ai/generativelanguage';
 import * as vertex from '@google-cloud/aiplatform';
 
-export type APIGenerateTextRequest =
+export type GLGenerateTextRequest =
   generativeLanguage.protos.google.ai.generativelanguage.v1beta2.IGenerateTextRequest;
-export type APIGenerateTextResponse =
+export type GLGenerateTextResponse =
   generativeLanguage.protos.google.ai.generativelanguage.v1beta2.IGenerateTextResponse;
-export type APITextPrompt =
+export type GLTextPrompt =
   generativeLanguage.protos.google.ai.generativelanguage.v1beta2.TextPrompt;
-export type APITextCompletion =
+export type GLTextCompletion =
   generativeLanguage.protos.google.ai.generativelanguage.v1beta2.ITextCompletion;
+
+export const GLHarmBlockThreshold =
+  generativeLanguage.protos.google.ai.generativelanguage.v1beta2.SafetySetting
+    .HarmBlockThreshold;
+export const GLHarmCategory =
+  generativeLanguage.protos.google.ai.generativelanguage.v1beta2.HarmCategory;
+export type GLSafetySetting =
+  generativeLanguage.protos.google.ai.generativelanguage.v1beta2.ISafetySetting;
 
 export type VertexPredictRequest =
   vertex.protos.google.cloud.aiplatform.v1beta1.IPredictRequest;
