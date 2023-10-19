@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-export default Object.freeze({
+export default {
   bucket: process.env.EXTENSION_BUCKET,
   languageCode: process.env.LANGUAGE_CODE,
   model: process.env.MODEL,
   outputStoragePath: process.env.OUTPUT_STORAGE_PATH,
-});
+  collectionPath: process.env.COLLECTION_PATH,
+};
