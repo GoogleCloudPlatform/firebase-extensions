@@ -92,6 +92,16 @@ params:
     example: transcriptions
     required: false
 
+  - param: COLLECTION_PATH
+    label: Firestore collection for storing transcribed audio
+    description: >
+      The firestore collection in which to output transcriptions. If this is not
+      set, the extension will not output the data to Firestore.
+    validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
+    validationErrorMessage: Must be a valid Cloud Firestore Collection
+    example: transcriptions
+    required: false
+
   - param: LANGUAGE_CODE
     label: BCP-47 code of the transcription language
     description: >
