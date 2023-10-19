@@ -78,28 +78,42 @@
     </build>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>2.0.9</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.9</version>
+        </dependency>
+
         <!--
         https://mvnrepository.com/artifact/org.apache.beam/beam-sdks-java-google-cloud-platform-bom -->
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-core</artifactId>
-            <version>2.50.0</version>
+            <version>2.51.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-runners-google-cloud-dataflow-java</artifactId>
-            <version>2.50.0</version>
+            <version>2.51.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-google-cloud-platform</artifactId>
-            <version>2.50.0</version>
+            <version>2.51.0</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.beam/beam-runners-direct-java -->
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-runners-direct-java</artifactId>
-            <version>2.50.0</version>
+            <version>2.51.0</version>
         </dependency>
     </dependencies>
 

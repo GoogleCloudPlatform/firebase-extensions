@@ -5,35 +5,42 @@ import java.util.Map;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.io.gcp.bigquery.SchemaAndRecord;
+import org.apache.beam.sdk.io.gcp.firestore.FirestoreV1.BatchWriteWithSummary;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
+import org.joda.time.Instant;
 
 import com.google.firestore.v1.Document;
 import com.google.firestore.v1.Value;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
-public class IncrementalCaptureLog extends PTransform<PCollection<Void>, PCollection<KV<String, Document>>> {
+public class IncrementalCaptureLog
+    extends PTransform<PCollection<String>, PCollection<KV<String, Document>>> {
 
   final private String projectId;
-  final private String timestamp;
+  final private String firestoreDbId;
+  final private Instant timestamp;
 
-  public IncrementalCaptureLog(String projectId, String timestamp) {
+  public IncrementalCaptureLog(String projectId, Instant timestamp, String firestoreDbId) {
     this.projectId = projectId;
     this.timestamp = timestamp;
+    this.firestoreDbId = firestoreDbId;
   }
 
   @Override
-  public PCollection<KV<String, Document>> expand(PCollection<Void> input) {
+  public PCollection<KV<String, Document>> expand(PCollection<String> input) {
+
+    String formattedTimestamp = Utils.adjustDate(timestamp);
+
     return input.getPipeline().apply("Read from BigQuery with Dynamic Query",
         BigQueryIO.read(new SerializableFunction<SchemaAndRecord, KV<String, Document>>() {
           public KV<String, Document> apply(SchemaAndRecord schemaAndRecord) {
-            String query = constructQuery(timestamp);
-            return convertToFirestoreValue(schemaAndRecord, projectId, query);
+            return convertToFirestoreValue(schemaAndRecord, projectId, firestoreDbId);
           }
-        }).fromQuery(constructQuery(timestamp)).usingStandardSql().withTemplateCompatibility());
+        }).fromQuery(constructQuery(formattedTimestamp)).usingStandardSql().withTemplateCompatibility());
   }
 
   private String constructQuery(String timestamp) {
