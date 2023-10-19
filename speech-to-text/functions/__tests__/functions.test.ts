@@ -263,18 +263,22 @@ describe('Firestore integration', () => {
     const fn = testEnv.wrap(transcribeAudio);
     await fn(object);
 
-    // Assert: check if the proper functions are called and the processing is halted due to the error
-    const collection = db.collection(config.collectionPath!);
-    const document = collection.doc('test.wav');
-
-    /** Wait for 3 seconds */
+    /** Wait for 5 seconds */
     await new Promise(resolve => setTimeout(resolve, 5000));
 
-    const doc = await document.get();
+    /** Get the new document */
+    const collection = db.collection(config.collectionPath!);
+    const doc = await collection
+      .where('fileName', '==', 'test.wav')
+      .limit(1)
+      .get()
+      .then(snapshot => snapshot.docs[0]);
 
-    const {status, transcription} = doc.data() || {};
+    /** Check assertions */
+    const {status, transcription, created} = doc.data() || {};
     expect(transcription).toBe('test transcription');
     expect(Status[status]).toBe(Status.SUCCESS);
+    expect(created).toBeDefined();
   }, 12000);
 
   test('Should not write the result to Firestore when not configured', async () => {
