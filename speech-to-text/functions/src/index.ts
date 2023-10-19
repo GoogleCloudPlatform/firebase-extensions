@@ -33,7 +33,7 @@ import {
 
 import {Status, TranscribeAudioResult} from './types';
 import config from './config';
-import {updateFirestoreDocument} from './firestore';
+import {getFirestoreDocument, updateFirestoreDocument} from './firestore';
 
 admin.initializeApp();
 
@@ -61,20 +61,18 @@ export const transcribeAudio = functions.storage
       return;
     }
 
-    /** Set a sanitized document ID */
-    const sanitizedDocumentId = object.name?.replace(/\//g, '_');
-
     /** Start tracking progress in Firestore, if configured */
-    await updateFirestoreDocument(sanitizedDocumentId, {status: 'PROCESSING'});
-
     if (object.metadata && object.metadata.isTranscodeOutput === 'true') {
       logs.audioAlreadyProcessed();
       return;
     }
 
+    /** Create a new document and extract the document ID */
+    const docId = await getFirestoreDocument(object.name);
+
     if (!contentType) {
       /** Start tracking progress in Firestore, if configured */
-      await updateFirestoreDocument(sanitizedDocumentId, {
+      await updateFirestoreDocument(docId, {
         status: 'FAILED',
         message: 'No content type provided.',
       });
@@ -85,7 +83,7 @@ export const transcribeAudio = functions.storage
 
     if (!contentType.startsWith('audio/')) {
       /** Updated failed status Firestore, if configured */
-      await updateFirestoreDocument(sanitizedDocumentId!, {
+      await updateFirestoreDocument(docId!, {
         status: 'FAILED',
         message: 'Invalid content type.',
       });
@@ -123,7 +121,7 @@ export const transcribeAudio = functions.storage
       logs.debug('uploading transcoded file');
 
       /** Update processing status */
-      await updateFirestoreDocument(sanitizedDocumentId, {
+      await updateFirestoreDocument(docId, {
         status: 'PROCESSING',
         message: 'Transcoding audio file.',
       });
@@ -160,7 +158,7 @@ export const transcribeAudio = functions.storage
       });
 
       /** Update the collecton with the transcribed audio  */
-      await updateFirestoreDocument(sanitizedDocumentId, {
+      await updateFirestoreDocument(docId, {
         ...(transcriptionResult as TranscribeAudioResult),
         message: FieldValue.delete(),
         status: Status[transcriptionResult.status],
