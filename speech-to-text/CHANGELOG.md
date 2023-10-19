@@ -1,3 +1,12 @@
+## Version 0.1.4
+
+
+feature - add object name to events (#94)
+
+fixed - downgrade err to warning
+
+fixed - fix storage path param
+
 ## Version 0.1.3
 
 Update docs.

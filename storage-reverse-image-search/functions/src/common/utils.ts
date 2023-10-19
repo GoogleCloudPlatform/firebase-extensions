@@ -145,7 +145,6 @@ export async function listImagesInBucket(
         .bucket(config.imgBucket)
         .file(object.name!)
         .get();
-
       return [file];
     }
 
@@ -153,7 +152,7 @@ export async function listImagesInBucket(
     const [files] = await admin
       .storage()
       .bucket(config.imgBucket)
-      .getFiles({prefix: config.path, autoPaginate: false});
+      .getFiles({prefix: config.path, autoPaginate: true});
 
     // Filter out non-image files
     const imageFiles = files.filter(file => isImage(file.name));

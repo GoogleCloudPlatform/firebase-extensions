@@ -2,11 +2,11 @@ import * as firebaseFunctionsTest from 'firebase-functions-test';
 import {onIndexCreated} from '../../src/index';
 import config from '../../src/config';
 
-jest.mock('config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',
-    projectId: 'dev-extensions-testing',
+    projectId: 'demo-gcp',
     instanceId: 'test-instance',
 
     // User-defined vars
@@ -19,20 +19,20 @@ jest.mock('config', () => ({
     tasksDoc: '_ext-test-instance/tasks',
     metadataDoc: '_ext-test-instance/metadata',
     dimensions: 512,
-    bucketName: 'dev-extensions-testing-ext-test-instance',
+    bucketName: 'demo-gcp-ext-test-instance',
   },
 }));
 
 const mockGetOperationByName = jest.fn();
 const mockCreateIndexEndpoint = jest.fn();
 
-jest.mock('vertex', () => ({
+jest.mock('../../src/common/vertex', () => ({
   createIndexEndpoint: (args: unknown) => mockCreateIndexEndpoint(args),
   getOperationByName: (args: unknown) => mockGetOperationByName(args),
 }));
 
 const fft = firebaseFunctionsTest({
-  projectId: 'dev-extensions-testing',
+  projectId: 'demo-gcp',
   storageBucket: config.bucketName,
 });
 
@@ -57,7 +57,7 @@ describe('onIndexDeployed', () => {
   });
 
   test('should error if getOperation fails', async () => {
-    mockGetOperationByName.mockImplementationOnce((id: any) => ({
+    mockGetOperationByName.mockImplementationOnce(() => ({
       error: 'test-error',
     }));
 
@@ -75,7 +75,7 @@ describe('onIndexDeployed', () => {
   });
 
   test('should error if index endpoint operation errors', async () => {
-    mockCreateIndexEndpoint.mockImplementationOnce((args: any) => ({
+    mockCreateIndexEndpoint.mockImplementationOnce(() => ({
       error: 'test-error',
     }));
     try {

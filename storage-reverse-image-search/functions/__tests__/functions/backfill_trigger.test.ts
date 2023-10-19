@@ -2,13 +2,18 @@ import {backfillTriggerHandler} from '../../src/functions/backfill_trigger';
 const mockAdminBatchCommit = jest.fn();
 const mockAdminBatchCreate = jest.fn();
 const mockAdminDocSet = jest.fn();
+const mockAdminBatchSet = jest.fn();
 
 jest.mock('firebase-admin', () => {
   return {
     firestore: () => {
       return {
         batch: () => {
-          return {commit: mockAdminBatchCommit, create: mockAdminBatchCreate};
+          return {
+            commit: mockAdminBatchCommit,
+            create: mockAdminBatchCreate,
+            set: mockAdminBatchSet,
+          };
         },
         doc: () => {
           return {set: mockAdminDocSet};
@@ -33,7 +38,7 @@ jest.mock('firebase-functions', () => {
 const mockListImagesInBucket = jest.fn();
 const mockChunkArray = jest.fn();
 
-jest.mock('utils', () => {
+jest.mock('../../src/common/utils', () => {
   return {
     listImagesInBucket: () => mockListImagesInBucket(),
     chunkArray: () => mockChunkArray(),
@@ -43,7 +48,7 @@ jest.mock('utils', () => {
 const mockQueue = jest.fn();
 
 const getFunctionsMock = () => ({
-  taskQueue: (functionName: string, instanceId: string) => ({
+  taskQueue: () => ({
     enqueue: (data: any) => {
       mockQueue(data);
       return Promise.resolve();
@@ -70,11 +75,11 @@ jest.mock('firebase-admin/extensions', () => ({
   getExtensions: () => getExtensionsMock(),
 }));
 
-jest.mock('config', () => ({
+jest.mock('../../src/config', () => ({
   default: {
     // System vars
     location: 'us-central1',
-    projectId: 'dev-extensions-testing',
+    projectId: 'demo-gcp',
     instanceId: 'test-instance',
 
     // User-defined vars
@@ -85,21 +90,25 @@ jest.mock('config', () => ({
     distanceMeasureType: 'DOT_PRODUCT_DISTANCE',
     algorithmConfig: 'treeAhConfig',
     inputShape: 256,
-    bucketName: 'dev-extensions-testing-ext-test-instance',
+    bucketName: 'demo-gcp-ext-test-instance',
 
     // Extension-specific vars
     tasksDoc: '_ext-test-instance/tasks',
     metadataDoc: '_ext-test-instance/metadata',
+    doBackfill: true,
   },
 }));
 
+// admin.initializeApp({
+//   projectId: 'demo-gcp',
+// });
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 
 describe('backfillTriggerHandler', () => {
   afterEach(async () => {
     jest.clearAllMocks();
     await fetch(
-      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/dev-extensions-testing/databases/(default)/documents`,
+      `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
       {method: 'DELETE'}
     );
   });
@@ -109,7 +118,7 @@ describe('backfillTriggerHandler', () => {
 
     expect(mockSetProcessingState).toHaveBeenCalled();
     expect(mockSetProcessingState).toHaveBeenCalledWith(
-      'PROCESSING_COMPLETE',
+      'PROCESSING_WARNING',
       'No images found in the bucket. You can start uploading images to the bucket to generate embeddings.'
     );
   });

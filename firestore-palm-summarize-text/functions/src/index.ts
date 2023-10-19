@@ -26,6 +26,7 @@ const {textField, responseField, collectionName, targetSummaryLength} = config;
 const textGenerator = new TextGenerator({
   model: config.model,
   maxOutputTokens: config.maxOutputTokens,
+  generativeSafetySettings: config.generativeSafetySettings,
 });
 
 logs.init(config);
@@ -81,7 +82,14 @@ export const generateSummary = functions.firestore
       };
 
       if (result.safetyMetadata) {
-        metadata['safetyMetadata'] = result.safetyMetadata;
+        metadata.safetyMetadata = {};
+
+        /** Ensure only defined data is added to the metadata */
+        for (const key of Object.keys(result.safetyMetadata)) {
+          if (result.safetyMetadata[key] !== undefined) {
+            metadata.safetyMetadata[key] = result.safetyMetadata[key];
+          }
+        }
       }
 
       if (result.safetyMetadata?.blocked) {
@@ -92,6 +100,7 @@ export const generateSummary = functions.firestore
             'The prompt or summary was blocked by the PaLM content filter.',
         });
       }
+
       return ref.update({
         ...metadata,
         [responseField]: result.candidates[0],
@@ -110,7 +119,7 @@ export const generateSummary = functions.firestore
 
 const createSummaryPrompt = (text: string, targetSummaryLength?: number) => {
   const prompt = `Give a summary of the following text in ${targetSummaryLength} sentences, do not use any information that is not explicitly mentioned in the text.
-text: ${text}
+  text: ${text}
 `;
 
   return prompt;

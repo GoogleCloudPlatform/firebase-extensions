@@ -83,9 +83,10 @@ export const writeRunResultsToFirestore = async (
       promises.push(collection.add(convertUnsupportedDataTypes(rows[j])));
     }
 
-    const results = await Promise.allSettled<
-      admin.firestore.DocumentReference<admin.firestore.DocumentData>
-    >(promises);
+    const results =
+      await Promise.allSettled<
+        admin.firestore.DocumentReference<admin.firestore.DocumentData>
+      >(promises);
 
     for (let k = 0; k < results.length; k++) {
       const result = results[k];

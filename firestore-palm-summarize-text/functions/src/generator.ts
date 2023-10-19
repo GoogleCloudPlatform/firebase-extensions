@@ -19,7 +19,7 @@ import {helpers, v1, protos} from '@google-cloud/aiplatform';
 
 import * as logs from './logs';
 import {GoogleAuth} from 'google-auth-library';
-import {APIGenerateTextRequest} from './types';
+import {GLGenerateTextRequest} from './types';
 import config from './config';
 
 export interface TextGeneratorOptions {
@@ -30,10 +30,11 @@ export interface TextGeneratorOptions {
   topK?: number;
   maxOutputTokens?: number;
   instruction?: string;
+  generativeSafetySettings?: GLGenerateTextRequest['safetySettings'];
 }
 
 export type TextGeneratorRequestOptions = Omit<
-  APIGenerateTextRequest,
+  GLGenerateTextRequest,
   'prompt' | 'model'
 >;
 
@@ -52,6 +53,7 @@ export class TextGenerator {
   topP?: number;
   topK?: number;
   maxOutputTokens: number;
+  generativeSafetySettings: TextGeneratorRequestOptions['safetySettings'];
 
   constructor(options: TextGeneratorOptions = {}) {
     this.temperature = options.temperature;
@@ -60,6 +62,7 @@ export class TextGenerator {
     this.maxOutputTokens = options.maxOutputTokens || 1024;
     this.candidateCount = options.candidateCount;
     this.instruction = options.instruction;
+    this.generativeSafetySettings = options.generativeSafetySettings || [];
     if (options.model) this.model = options.model;
 
     this.endpoint = `projects/${config.projectId}/locations/${config.location}/publishers/google/models/${this.model}`;
@@ -156,6 +159,7 @@ export class TextGenerator {
       },
       model: `models/${this.model}`,
       ...options,
+      safetySettings: this.generativeSafetySettings,
     };
 
     if (!this.generativeClient) {
