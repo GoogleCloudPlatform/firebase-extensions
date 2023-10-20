@@ -1,16 +1,22 @@
 package com.pipeline;
 
+import org.apache.beam.sdk.io.gcp.firestore.FirestoreIO;
+import org.apache.beam.sdk.io.gcp.firestore.FirestoreV1.BatchWriteWithSummary;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
+import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.firestore.v1.Document;
 import com.google.firestore.v1.RunQueryRequest;
+import com.google.firestore.v1.RunQueryResponse;
 import com.google.firestore.v1.StructuredQuery;
-import com.google.firestore.v1.WriteRequest;
 import com.google.firestore.v1.StructuredQuery.CollectionSelector;
+import com.google.firestore.v1.Write;
 
 public class FirestoreHelpers {
   public static final class RunQuery extends BasePTransform<String, RunQueryRequest> {
@@ -19,7 +25,7 @@ public class FirestoreHelpers {
     final String projectId;
 
     public RunQuery(String projectId, String database) {
-      super(database, "projects/" + projectId + "/databases/" + database + "/documents");
+      super("projects/" + projectId + "/databases/" + database + "/documents");
       this.projectId = projectId;
     }
 
@@ -32,6 +38,17 @@ public class FirestoreHelpers {
                 @ProcessElement
                 public void processElement(ProcessContext c) {
                   final String collectionId = c.element();
+
+                  if (collectionId.equals("*")) {
+                    LOG.info("Querying all collections");
+                    RunQueryRequest runQueryRequest = RunQueryRequest.newBuilder()
+                        .setParent(baseDocumentPath)
+                        .setStructuredQuery(StructuredQuery.newBuilder().build())
+                        .build();
+
+                    c.output(runQueryRequest);
+                    return;
+                  }
 
                   CollectionSelector collection = CollectionSelector
                       .newBuilder()
@@ -52,23 +69,93 @@ public class FirestoreHelpers {
     }
   }
 
+  public static final class BatchWrite extends BasePTransform<Write, BatchWriteWithSummary> {
+
+    public BatchWrite() {
+
+      super("");
+
+    }
+
+    @Override
+    public PCollection<BatchWriteWithSummary> expand(PCollection<Write> input) {
+      return input.apply(
+          ParDo.of(
+              new DoFn<Write, BatchWriteWithSummary>() {
+                @ProcessElement
+                public void processElement(ProcessContext c) {
+                  c.output(FirestoreIO.v1().write().batchWrite().build());
+                }
+              }));
+    }
+  }
+
+  public static final class RunQueryResponseToDocument extends BasePTransform<RunQueryResponse, Document> {
+
+    public RunQueryResponseToDocument() {
+      super("");
+    }
+
+    @Override
+    public PCollection<Document> expand(PCollection<RunQueryResponse> input) {
+      return input.apply(
+          ParDo.of(
+              new DoFn<RunQueryResponse, Document>() {
+                @ProcessElement
+                public void processElement(ProcessContext c) {
+                  RunQueryResponse response = c.element();
+                  c.output(response.getDocument());
+                }
+              }));
+    }
+  }
+
+  public static final class DocumentToWrite extends BasePTransform<KV<String, Document>, Write> {
+
+    final String projectId;
+
+    public DocumentToWrite(String projectId, String database) {
+      super("projects/" + projectId + "/databases/" + database + "/documents");
+      this.projectId = projectId;
+    }
+
+    @Override
+    public PCollection<Write> expand(PCollection<KV<String, Document>> input) {
+      return input.apply(
+          ParDo.of(
+              new DoFn<KV<String, Document>, Write>() {
+                @ProcessElement
+                public void processElement(ProcessContext c) {
+                  String changeType = c.element().getKey();
+                  Document document = c.element().getValue();
+
+                  switch (changeType) {
+                    case "CREATE":
+                      c.output(Write.newBuilder()
+                          .setDelete(document.getName())
+                          .build());
+
+                      break;
+
+                    default:
+                      c.output(Write.newBuilder()
+                          .setUpdate(document)
+                          .build());
+                  }
+                }
+              }));
+    }
+  }
+
   private abstract static class BasePTransform<InT, OutT>
       extends PTransform<PCollection<InT>, PCollection<OutT>> {
 
-    protected final String database;
     protected final String baseDocumentPath;
 
-    private BasePTransform(String database, String baseDocumentPath) {
-      this.database = database;
+    private BasePTransform(String baseDocumentPath) {
       this.baseDocumentPath = baseDocumentPath;
     }
 
-    // protected String docPath(String docId) {
-    // return FirestoreHelpers.docPath(baseDocumentPath, docId);
-    // }
   }
 
-  private static String docPath(String baseDocumentPath, String collectionId, String docId) {
-    return String.format("%s/%s/%s", baseDocumentPath, collectionId, docId);
-  }
 }

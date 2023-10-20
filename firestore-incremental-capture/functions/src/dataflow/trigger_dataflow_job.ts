@@ -27,6 +27,8 @@ export async function launchJob(timestamp: number) {
       jobName: runId,
       launchOptions: {
         timestamp: timestamp.toString(),
+        firestoreCollectionId: config.syncCollectionPath,
+        firestoreDb: config.backupInstanceName,
       },
       containerSpecGcsPath: `gs://${config.bucketName}/${config.instanceId}-dataflow-restore`,
     },
