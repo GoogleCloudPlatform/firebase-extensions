@@ -28,7 +28,10 @@ export async function launchJob(timestamp: number) {
       launchOptions: {
         timestamp: timestamp.toString(),
         firestoreCollectionId: config.syncCollectionPath,
-        firestoreDb: config.backupInstanceName,
+        firestoreDb:
+          config.backupInstanceName.split('/').length > 1
+            ? config.backupInstanceName.split('/')[1]
+            : config.backupInstanceName,
       },
       containerSpecGcsPath: `gs://${config.bucketName}/${config.instanceId}-dataflow-restore`,
     },

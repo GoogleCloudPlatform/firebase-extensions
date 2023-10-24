@@ -4,6 +4,7 @@ import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
 import org.apache.beam.sdk.io.gcp.firestore.FirestoreIO;
+import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -23,17 +24,20 @@ public class RestorationPipeline {
 
   public interface MyOptions extends DataflowPipelineOptions,
       org.apache.beam.sdk.io.gcp.firestore.FirestoreOptions {
+
+    @Description("The timestamp to read from Firestore")
     Long getTimestamp();
 
     void setTimestamp(Long value);
 
+    @Description("The Firestore collection to read from, or '*' to read from all collections")
     String getFirestoreCollectionId();
 
     void setFirestoreCollectionId(String value);
   }
 
   public static void main(String[] args) {
-    MyOptions options = PipelineOptionsFactory.fromArgs(args).as(MyOptions.class);
+    MyOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(MyOptions.class);
 
     Pipeline pipeline = Pipeline.create(options);
 
@@ -45,9 +49,9 @@ public class RestorationPipeline {
 
     options.setFirestoreDb(secondaryDatabase);
 
-    LOG.info(defaultDatabase);
-
     // Read from Firestore at the specified timestamp to form the baseline
+    // The returned PCollection contains the documents at the specified timestamp in
+    // Firestore
     PCollection<Document> documentsAtReadTime = pipeline
         .apply(Create.of(collectionId))
         .apply("Prepare the PITR query", new FirestoreHelpers.RunQuery(project, defaultDatabase))
@@ -102,5 +106,4 @@ public class RestorationPipeline {
       result.waitUntilFinish();
     }
   }
-
 }

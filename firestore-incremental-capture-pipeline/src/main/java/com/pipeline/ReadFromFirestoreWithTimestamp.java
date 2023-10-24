@@ -2,14 +2,11 @@ package com.pipeline;
 
 import org.apache.beam.sdk.io.gcp.firestore.FirestoreIO;
 import org.apache.beam.sdk.transforms.PTransform;
-import org.apache.beam.sdk.transforms.DoFn.Setup;
 import org.apache.beam.sdk.values.PCollection;
 import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.FirestoreOptions;
 import com.google.firestore.v1.RunQueryRequest;
 import com.google.firestore.v1.RunQueryResponse;
 
