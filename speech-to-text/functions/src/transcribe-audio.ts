@@ -53,6 +53,7 @@ export async function transcribeAndUpload({
   const request: google.cloud.speech.v1.ILongRunningRecognizeRequest = {
     config: {
       encoding,
+      enableAutomaticPunctuation: true,
       sampleRateHertz,
       languageCode: config.languageCode,
       model: config.model,
