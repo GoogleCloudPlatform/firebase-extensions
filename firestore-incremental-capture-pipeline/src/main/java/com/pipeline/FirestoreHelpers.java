@@ -68,27 +68,6 @@ public class FirestoreHelpers {
     }
   }
 
-  public static final class BatchWrite extends BasePTransform<Write, BatchWriteWithSummary> {
-
-    public BatchWrite() {
-
-      super("");
-
-    }
-
-    @Override
-    public PCollection<BatchWriteWithSummary> expand(PCollection<Write> input) {
-      return input.apply(
-          ParDo.of(
-              new DoFn<Write, BatchWriteWithSummary>() {
-                @ProcessElement
-                public void processElement(ProcessContext c) {
-                  c.output(FirestoreIO.v1().write().batchWrite().build());
-                }
-              }));
-    }
-  }
-
   public static final class RunQueryResponseToDocument extends BasePTransform<RunQueryResponse, Document> {
 
     public RunQueryResponseToDocument() {

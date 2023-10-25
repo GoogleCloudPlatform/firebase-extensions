@@ -3,11 +3,11 @@ import {logger} from 'firebase-functions/v1';
 import {launchJob} from '../dataflow/trigger_dataflow_job';
 
 export const onBackupRestoreHandler = async (data: any) => {
-  const timestamp = data.timestamp;
+  const timestamp = data.timestamp as number;
 
-  if (!timestamp) {
+  if (!isValidUnixTimestamp(timestamp)) {
     logger.error(
-      '"timestamp" field is missing, please ensure that you are sending a valid timestamp in the request body'
+      '"timestamp" field is missing, please ensure that you are sending a valid timestamp in the request body, is in seconds since epoch and is not in the future.'
     );
     return Promise.resolve();
   }
@@ -102,3 +102,26 @@ export const onBackupRestoreHandler = async (data: any) => {
     return Promise.resolve();
   }
 };
+
+/**
+ * Checks if a long integer is a valid UNIX timestamp in seconds.
+ *
+ * @param timestamp The timestamp to check.
+ * @returns Whether the timestamp is valid.
+ */
+function isValidUnixTimestamp(timestamp: number): boolean {
+  // Ensure it's a non-negative integer
+  if (!timestamp || timestamp < 0 || !Number.isInteger(timestamp)) {
+    return false;
+  }
+
+  // Get the current UNIX timestamp
+  const currentTimestamp: number = Math.floor(Date.now() / 1000);
+
+  // Ensure the timestamp isn't in the future
+  if (timestamp > currentTimestamp) {
+    return false;
+  }
+
+  return true;
+}

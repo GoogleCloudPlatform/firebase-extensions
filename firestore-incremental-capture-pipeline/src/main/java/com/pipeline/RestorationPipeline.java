@@ -45,7 +45,7 @@ public class RestorationPipeline {
     String collectionId = options.getFirestoreCollectionId();
     String secondaryDatabase = options.getFirestoreDb();
     String defaultDatabase = DEFAULT_FIRESTORE_OPTIONS.getDatabaseId();
-    Instant readTime = Instant.ofEpochSecond(options.getTimestamp());
+    Instant readTime = Utils.adjustDate(Instant.ofEpochSecond(options.getTimestamp()));
 
     options.setFirestoreDb(secondaryDatabase);
 
@@ -53,7 +53,7 @@ public class RestorationPipeline {
     // The returned PCollection contains the documents at the specified timestamp in
     // Firestore
     PCollection<Document> documentsAtReadTime = pipeline
-        .apply(Create.of(collectionId))
+        .apply("Passing the collection ID " + collectionId, Create.of(collectionId))
         .apply("Prepare the PITR query", new FirestoreHelpers.RunQuery(project, defaultDatabase))
         .apply(
             FirestoreIO.v1()
@@ -79,12 +79,14 @@ public class RestorationPipeline {
                     .putAllFields(document.getFieldsMap())
                     .build();
 
+                LOG.info("Writing document " + id + " to the secondary database");
+
                 c.output(Write.newBuilder()
                     .setUpdate(newDocument)
                     .build());
               }
             }))
-        .apply("Write to the Firestore database instance", new FirestoreHelpers.BatchWrite());
+        .apply("Write to the Firestore database instance", FirestoreIO.v1().write().batchWrite().build());
 
     // BigQuery read and subsequent Firestore write
     pipeline
@@ -94,7 +96,7 @@ public class RestorationPipeline {
         .apply("Prepare write operations",
             new FirestoreHelpers.DocumentToWrite(defaultDatabase, defaultDatabase))
         .apply("Write to the Firestore database instance (From BigQuery)",
-            new FirestoreHelpers.BatchWrite());
+            FirestoreIO.v1().write().batchWrite().build());
 
     PipelineResult result = pipeline.run();
 

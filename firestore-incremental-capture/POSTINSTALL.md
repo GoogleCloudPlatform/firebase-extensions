@@ -1,3 +1,7 @@
+## Enable PITR in the Google Cloud Console
+
+## Creating a secondary Firestore database
+
 ## Building the Dataflow Flex Template
 
 Before this extension can run restoration jobs from BigQuery to Firestore, you must build the Dataflow Flex Template. This is a one-time process that you must perform before you can use the extension.
@@ -34,11 +38,11 @@ Before this extension can run restoration jobs from BigQuery to Firestore, you m
     gcloud projects add-iam-policy-binding ${param:PROJECT_ID} \
     --project ${param:PROJECT_ID} \
     --member=serviceAccount:SA_EMAIL \
-    --role=roles/dataflow.developer
+    --role=roles/dataflow.developer \
     --role=roles/iam.serviceAccountUser
    ```
   
-5. Download the JAR file for the Dataflow Flex Template [here](functions/src/restore-firestore.jar).
+5. Download the JAR file for the Dataflow Flex Template [here](../firestore-incremental-capture-pipeline/target/restore-firestore.jar).
 6. Run the following command to build the Dataflow Flex Template:
 
   ```bash
@@ -47,10 +51,15 @@ Before this extension can run restoration jobs from BigQuery to Firestore, you m
       --sdk-language JAVA \
       --flex-template-base-image JAVA11 \
       --jar path/to/restore-1.0.jar \
-      --env FLEX_TEMPLATE_JAVA_MAIN_CLASS="com.pipeline.RestorationPipeline"
+      --env FLEX_TEMPLATE_JAVA_MAIN_CLASS="com.pipeline.RestorationPipeline" \
       --project ${param:PROJECT_ID}
   ```
 
 ### Required roles
 - `roles/artifactregistry.writer`
 - `roles/dataflow.developer`
+
+## Triggering a restoration job
+
+You can trigger a restoration job by calling the `restoreFirestore` function. 
+

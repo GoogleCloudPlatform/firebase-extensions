@@ -25,7 +25,7 @@ export async function launchJob(timestamp: number) {
     location: config.location,
     launchParameter: {
       jobName: runId,
-      launchOptions: {
+      parameters: {
         timestamp: timestamp.toString(),
         firestoreCollectionId: config.syncCollectionPath,
         firestoreDb:

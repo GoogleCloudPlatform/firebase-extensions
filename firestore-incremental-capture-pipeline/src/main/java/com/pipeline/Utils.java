@@ -9,9 +9,9 @@ import org.slf4j.LoggerFactory;
 public class Utils {
   private static final Logger LOG = LoggerFactory.getLogger(Utils.class);
 
-  public static String adjustDate(Instant timestamp) {
-    DateTime providedDate = new DateTime(timestamp);
-    DateTime now = DateTime.now();
+  public static Instant adjustDate(Instant timestamp) {
+    DateTime providedDate = new DateTime(timestamp).withSecondOfMinute(0);
+    DateTime now = DateTime.now().withSecondOfMinute(0);
 
     int daysDiff = Days.daysBetween(providedDate.withTimeAtStartOfDay(), now.withTimeAtStartOfDay()).getDays();
 
@@ -25,10 +25,10 @@ public class Utils {
 
     if (daysDiff > 7) {
       // Set the date representing 7 days before the "now" date
-      return now.minusDays(7).toString("yyyy-MM-dd HH:mm:ss");
+      return Instant.parse(now.minusDays(7).toString("yyyy-MM-dd'T'HH:mm:ss.SSS"));
     }
 
-    return providedDate.toString("yyyy-MM-dd HH:mm:ss");
+    return Instant.parse(providedDate.toString("yyyy-MM-dd'T'HH:mm:ss.SSS"));
   }
 
 }

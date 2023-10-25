@@ -9,6 +9,7 @@ import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
+import org.joda.time.DateTime;
 import org.joda.time.Instant;
 
 import com.google.firestore.v1.Document;
@@ -32,7 +33,7 @@ public class IncrementalCaptureLog
   @Override
   public PCollection<KV<String, Document>> expand(PCollection<String> input) {
 
-    String formattedTimestamp = Utils.adjustDate(timestamp);
+    String formattedTimestamp = new DateTime(Utils.adjustDate(timestamp)).toString("yyyy-MM-dd HH:mm:ss");
 
     return input.getPipeline().apply("Read from BigQuery with Dynamic Query",
         BigQueryIO.read(new SerializableFunction<SchemaAndRecord, KV<String, Document>>() {
