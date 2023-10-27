@@ -17,7 +17,7 @@ version: 0.0.1
 specVersion: v1beta
 
 displayName: Firestore Incremental Capture
-description: TODO
+description: Provides fine-grained Point-in-time-recovery allowing restoration to a database of your choice.
 
 license: Apache-2.0
 
