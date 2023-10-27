@@ -1,4 +1,4 @@
-### Setuo
+### Setup
 
 A valid database must exist for the restoration to backup to. Ensure a seperate Firestore existance exists.
 
