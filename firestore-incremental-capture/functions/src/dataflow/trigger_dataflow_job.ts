@@ -1,7 +1,6 @@
 import * as admin from 'firebase-admin';
 import {logger} from 'firebase-functions/v1';
 import {FlexTemplatesServiceClient} from '@google-cloud/dataflow';
-// Cloud Firestore
 import {Timestamp} from 'firebase-admin/firestore';
 
 import config from '../config';
