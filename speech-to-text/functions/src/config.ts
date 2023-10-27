@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
+const enableAutomaticPunctuation =
+  process.env.ENABLE_AUTOMATIC_PUNCTUATION === 'true';
+
 export default {
   bucket: process.env.EXTENSION_BUCKET,
   languageCode: process.env.LANGUAGE_CODE,
   model: process.env.MODEL,
   outputStoragePath: process.env.OUTPUT_STORAGE_PATH,
   collectionPath: process.env.COLLECTION_PATH,
+  enableAutomaticPunctuation,
 };

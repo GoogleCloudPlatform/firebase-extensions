@@ -130,6 +130,14 @@ params:
     default: default
     required: true
 
+  - param: ENABLE_AUTOMATIC_PUNCTUATION
+    label: Enable automatic punctuation
+    description: >
+      Should the transcription algorithm attempt to add punctuation to the
+      transcription? For details, see [the documentation](https://cloud.google.com/speech-to-text/docs/automatic-punctuation)
+    type: boolean
+    default: true
+
 roles:
   - role: storage.objectAdmin
     reason: Allows the extension to write to your Cloud Storage.
