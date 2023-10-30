@@ -1,6 +1,10 @@
 ## Enable PITR in the Google Cloud Console
 
+gcloud alpha firestore databases create command
+
 ## Creating a secondary Firestore database
+
+gcloud alpha firestore databases create command
 
 ## Building the Dataflow Flex Template
 
