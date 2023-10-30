@@ -1,6 +1,6 @@
 import * as admin from 'firebase-admin';
 
-import {Timestamp, GeoPoint} from '@google-cloud/firestore';
+const {Timestamp, GeoPoint} = require('@google-cloud/firestore');
 
 import {verifySchema} from './helpers';
 

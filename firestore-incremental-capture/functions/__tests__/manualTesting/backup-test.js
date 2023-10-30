@@ -4,9 +4,9 @@ const {PreciseDate} = require('@google-cloud/precise-date');
 (async () => {
   const projectId = 'dev-extensions-testing';
   const instanceId = 'my-instance';
-  // const databaseId = 'my-database';
-  // const backupId = 'my-backup';
-  // const versionTime = Date.now() - 1000 * 60 * 60 * 24; // One day ago
+  const databaseId = 'my-database';
+  const backupId = 'my-backup';
+  const versionTime = Date.now() - 1000 * 60 * 60 * 24; // One day ago
 
   const spanner = new Spanner({
     projectId: projectId,

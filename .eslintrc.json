@@ -10,7 +10,7 @@
     "node/no-unpublished-require": [
       "error",
       {
-        "allowModules": ["firebase-functions-test", "dotenv", "node-fetch"]
+        "allowModules": ["firebase-functions-test", "dotenv", "node-fetch", "@google-cloud/precise-date", "@google-cloud/spanner", "@google-cloud/firestore"]
       }
     ],
     "no-useless-catch": "off",
@@ -18,5 +18,6 @@
     "eqeqeq": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/ban-ts-ignore": "off"
+    
   }
 }

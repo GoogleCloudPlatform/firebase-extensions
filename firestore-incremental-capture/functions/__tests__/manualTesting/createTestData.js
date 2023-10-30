@@ -1,28 +1,28 @@
-const admin = require("firebase-admin");
+const admin = require('firebase-admin');
 
-admin.initializeApp({ projectId: "dev-extensions-testing" });
+admin.initializeApp({projectId: 'dev-extensions-testing'});
 
 /** add a root level collections */
-const rootCollection = admin.firestore().collection("sync");
+const rootCollection = admin.firestore().collection('sync');
 
 (async () => {
   const rootCollectionDocument = await rootCollection.add({
-    name: "Sample Document",
-    description: "This is a sample document for reference.",
+    name: 'Sample Document',
+    description: 'This is a sample document for reference.',
   });
 
   /** Set the reference and Wait 5 seconds */
-  const subCollectionRef = rootCollection.doc().collection("subCollection");
-  await new Promise((resolve) => setTimeout(resolve, 5000));
+  const subCollectionRef = rootCollection.doc().collection('subCollection');
+  await new Promise(resolve => setTimeout(resolve, 5000));
 
   /** Add a sub collection document */
-  let i = "first update";
+  let i = 'first update';
 
-  const firstDocument = await subCollectionRef.add({
+  await subCollectionRef.add({
     stringField: `This is a string ${i}`,
     numberField: 12345 + i,
     booleanField: i % 2 === 0, // Will alternate between true and false
-    arrayField: ["apple", "banana", "cherry"],
+    arrayField: ['apple', 'banana', 'cherry'],
     dateField: new Date(),
     nullField: null,
     objectField: {
@@ -34,15 +34,15 @@ const rootCollection = admin.firestore().collection("sync");
   });
 
   /** Wait 5 seconds */
-  await new Promise((resolve) => setTimeout(resolve, 5000));
+  await new Promise(resolve => setTimeout(resolve, 5000));
 
-  i = "second update";
+  i = 'second update';
 
-  const secondDocument = await subCollectionRef.add({
+  await subCollectionRef.add({
     stringField: `This is a string ${i}`,
     numberField: 12345 + i,
     booleanField: i % 2 === 0, // Will alternate between true and false
-    arrayField: ["apple", "banana", "cherry"],
+    arrayField: ['apple', 'banana', 'cherry'],
     dateField: new Date(),
     nullField: null,
     objectField: {
@@ -54,5 +54,5 @@ const rootCollection = admin.firestore().collection("sync");
   });
 
   /** Wait 30 seconds */
-  await new Promise((resolve) => setTimeout(resolve, 5000));
+  await new Promise(resolve => setTimeout(resolve, 5000));
 })();
