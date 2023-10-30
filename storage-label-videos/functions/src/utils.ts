@@ -71,21 +71,15 @@ const validMediaExtensions = [
 export function shouldProcessStorageObject(objectName?: string): boolean {
   if (!objectName) return false;
 
-  console.log('Test2  >>>>  ');
-
   // Is the file located in INPUT_VIDEOS_PATH.
   if (!`/${objectName}`.startsWith(config.inputVideosPath)) {
     logs.skipPath(objectName);
     return false;
   }
 
-  console.log('Test3  >>>>  ');
-
   for (const type of validMediaExtensions) {
     if (objectName.endsWith(type)) return true;
   }
-
-  console.log('Test4  >>>>  ');
 
   return false;
 }

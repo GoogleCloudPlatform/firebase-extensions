@@ -1,5 +1,5 @@
 name: storage-reverse-image-search
-version: 0.1.4
+version: 0.1.5
 specVersion: v1beta
 
 icon: icon.png
@@ -108,7 +108,8 @@ resources:
     properties:
       location: ${LOCATION}
       buildConfig:
-        ? runtime:nodejs18      serviceConfig
+        runtime: nodejs18
+      serviceConfig:
         availableMemory: 512M
       eventTrigger:
         eventType: google.cloud.audit.log.v1.written
@@ -127,7 +128,8 @@ resources:
     properties:
       location: ${LOCATION}
       buildConfig:
-        ? runtime:nodejs18      serviceConfig
+        runtime: nodejs18
+      serviceConfig:
         availableMemory: 512M
       eventTrigger:
         eventType: google.cloud.audit.log.v1.written

@@ -1,5 +1,5 @@
 name: speech-to-text
-version: 0.1.3
+version: 0.1.4
 specVersion: v1beta
 
 displayName: Transcribe Speech to Text
@@ -33,7 +33,7 @@ resources:
       storage, or in firestore, or in both.
     properties:
       location: ${param:LOCATION}
-      runtime: nodejs14
+      runtime: nodejs16
       availableMemoryMb: 1024
       eventTrigger:
         eventType: google.storage.object.finalize
@@ -92,6 +92,16 @@ params:
     example: transcriptions
     required: false
 
+  - param: COLLECTION_PATH
+    label: Firestore collection for storing transcribed audio
+    description: >
+      The firestore collection in which to output transcriptions. If this is not
+      set, the extension will not output the data to Firestore.
+    validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
+    validationErrorMessage: Must be a valid Cloud Firestore Collection
+    example: transcriptions
+    required: false
+
   - param: LANGUAGE_CODE
     label: BCP-47 code of the transcription language
     description: >
@@ -119,6 +129,14 @@ params:
     example: default
     default: default
     required: true
+
+  - param: ENABLE_AUTOMATIC_PUNCTUATION
+    label: Enable automatic punctuation
+    description: >
+      Should the transcription algorithm attempt to add punctuation to the
+      transcription? For details, see [the documentation](https://cloud.google.com/speech-to-text/docs/automatic-punctuation)
+    type: boolean
+    default: true
 
 roles:
   - role: storage.objectAdmin

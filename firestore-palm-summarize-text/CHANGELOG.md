@@ -1,3 +1,29 @@
+## Version 0.1.10
+
+fixed - fixed issue with "Block none" in safety threshold configs
+
+docs - update to reflect current state of PaLM safety thresholds
+
+## Version 0.1.9
+
+fixed - improved safety metadata format
+
+feature - add content filter threshold param
+
+feature - add max output tokens param
+
+feature - improve prompt
+
+fixed - fix apiEndpoints location error (#142)
+
+feature - handle content filters for both APIs (#138)
+
+fixed - fix PaLM collection name regex
+
+fixed - fix PaLM loop bug (#88)
+
+fixed - fix regen functionality for PaLM (#86)
+
 ## Version 0.1.8
 
 - Added a content filter threshold parameter

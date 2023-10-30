@@ -3,7 +3,7 @@ import * as firebaseFunctionsTest from 'firebase-functions-test';
 import {getModel} from '../src/index';
 import {HttpsError} from 'firebase-functions/v1/auth';
 
-process.env.GCLOUD_PROJECT = 'dev-extensions-testing';
+process.env.GCLOUD_PROJECT = 'demo-gcp';
 
 const MODEL = 'test-model';
 
@@ -36,7 +36,7 @@ global.fetch = (url: string) => {
 };
 
 const fft = firebaseFunctionsTest({
-  projectId: 'dev-extensions-testing',
+  projectId: 'demo-gcp',
 });
 
 const wrappedGetModel = fft.wrap(getModel);

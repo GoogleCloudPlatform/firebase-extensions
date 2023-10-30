@@ -197,14 +197,9 @@ describe('helpers', () => {
       updateConfig(config, {instanceId: 'alternate-instance-id'});
 
       /** Set variables **/
-      const collection = db.collection(config.firestoreCollection);
       const transferConfigId = generateRandomString();
       const runId = generateRandomString();
       const name = `projects/409146382768/locations/us/transferConfigs/${transferConfigId}/runs/${runId}`;
-
-      /** Assign documents */
-      const document = collection.doc(transferConfigId);
-      const runDoc = document.collection('runs').doc(runId);
 
       /** Run function */
       await expect(
@@ -219,7 +214,6 @@ describe('helpers', () => {
       const collection = db.collection(config.firestoreCollection);
       const transferConfigId = generateRandomString();
       const runId = generateRandomString();
-      const name = `projects/409146382768/locations/us/transferConfigs/${transferConfigId}/runs/${runId}`;
 
       /** Assign documents */
       const document = collection.doc(transferConfigId);

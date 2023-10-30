@@ -68,12 +68,15 @@ export async function getDatapointsList(
 }
 
 export const mapAndFilterData = (data: any) => {
-  return Object.entries(data)
-    .filter(
-      ([key, value]) =>
-        value && (config.fields.length === 0 || config.fields.includes(key))
-    )
-    .map(([_, value]) =>
-      typeof value === 'string' ? value : JSON.stringify(value)
-    );
+  return (
+    Object.entries(data)
+      .filter(
+        ([key, value]) =>
+          value && (config.fields.length === 0 || config.fields.includes(key))
+      )
+      /* eslint-disable no-unused-vars */
+      .map(([_, value]) =>
+        typeof value === 'string' ? value : JSON.stringify(value)
+      )
+  );
 };
