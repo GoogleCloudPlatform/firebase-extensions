@@ -21,7 +21,7 @@ import com.google.gson.JsonParser;
 
 public class IncrementalCaptureLog
     extends PTransform<PCollection<String>, PCollection<KV<String, Document>>> {
-        private static final Logger LOG = LoggerFactory.getLogger(Utils.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Utils.class);
 
   final private String projectId;
   final private String firestoreDbId;
@@ -29,7 +29,8 @@ public class IncrementalCaptureLog
   final private String datasetId;
   final private String tableId;
 
-  public IncrementalCaptureLog(String projectId, Instant timestamp, String firestoreDbId, String datasetId, String tableId) {
+  public IncrementalCaptureLog(String projectId, Instant timestamp, String firestoreDbId, String datasetId,
+      String tableId) {
     this.projectId = projectId;
     this.timestamp = timestamp;
     this.firestoreDbId = firestoreDbId;
@@ -51,7 +52,7 @@ public class IncrementalCaptureLog
   }
 
   private String constructQuery(String timestamp) {
-    
+
     LOG.info("Querying BigQuery for changes before timestamp: " + timestamp);
     String query = "WITH RankedChanges AS (" +
         "    SELECT " +
@@ -97,7 +98,8 @@ public class IncrementalCaptureLog
 
     // using static methods as beam seems to error when passing an instance version
     // of FirestoreReconstructor to the transform
-    Document doc = Document.newBuilder().putAllFields((Map<String, Value>) firestoreMap).setName(documentPath).build();
+    Document doc = Document.newBuilder().putAllFields((Map<String, Value>) firestoreMap).setName(createDocumentName(
+        documentPath, projectId, databaseId)).build();
 
     KV<String, Document> kv = KV.of(changeType, doc);
 

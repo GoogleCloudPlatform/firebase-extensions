@@ -107,8 +107,8 @@ public class FirestoreHelpers {
                   String changeType = c.element().getKey();
                   Document document = c.element().getValue();
 
-                  LOG.info("STEP ONE >>>>>>> changeType: {}, documentName: {}", changeType, document.getName());
-
+                  // LOG.info("STEP ONE >>>>>>> changeType: {}, documentName: {}", changeType,
+                  // document.getName());
 
                   switch (changeType) {
                     case "DELETE":
