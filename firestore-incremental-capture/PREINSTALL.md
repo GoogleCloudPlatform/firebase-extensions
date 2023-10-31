@@ -12,3 +12,8 @@ If one does not exist, you can create one with the following:
     --project=PROJECT_ID
 
 ```
+
+
+## Enable PITR in the Google Cloud Console
+
+Foolow the guidelines here [here](https://firebase.google.com/docs/firestore/use-pitr#gcloud) to enable PITR on your current database.
