@@ -15,7 +15,7 @@ More information on this can be found [here](https://cloud.google.com/sdk/gcloud
 Before this extension can run restoration jobs from BigQuery to Firestore, you must build the Dataflow Flex Template. This is a one-time process that you must perform before you can use the extension.
 1. Find your extensions's service account email:
    ```bash
-    gcloud iam service-accounts list --format="value(EMAIL)" --filter="EMAIL~ext-${param:EXT_INSTANCE_ID} AND DISABLED=False" --project="${param:PROJECT_ID}"
+   gcloud iam service-accounts list --format="value(EMAIL)" -- filter="displayName='Firebase Extensions ${param:EXT_INSTANCE_ID} service account' AND DISABLED=False" --project="${param:PROJECT_ID}
    ```
 
 2. [Configure the Artificat Registery](https://cloud.google.com/dataflow/docs/guides/templates/using-flex-templates?hl=en#configure):
@@ -46,8 +46,23 @@ Before this extension can run restoration jobs from BigQuery to Firestore, you m
     gcloud projects add-iam-policy-binding ${param:PROJECT_ID} \
     --project ${param:PROJECT_ID} \
     --member=serviceAccount:SA_EMAIL \
-    --role=roles/dataflow.developer \
+    --role=roles/dataflow.developer
+   ```
+
+5. Add the required role for the extension service account to trigger Dataflow:
+   ```bash
+    gcloud projects add-iam-policy-binding ${param:PROJECT_ID} \
+    --project ${param:PROJECT_ID} \
+    --member=serviceAccount:SA_EMAIL \
     --role=roles/iam.serviceAccountUser
+   ```
+
+6. Add the required role for the extension service account to trigger Dataflow:
+   ```bash
+    gcloud projects add-iam-policy-binding ${param:PROJECT_ID} \
+    --project ${param:PROJECT_ID} \
+    --member=serviceAccount:SA_EMAIL \
+    --role=roles/artifactregistry.writer
    ```
   
 5. Download the JAR file for the Dataflow Flex Template [here](https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-incremental-capture-pipeline/target/restore-firestore.jar).
@@ -75,6 +90,9 @@ Filter on `incremental-capture` to find your extension service account.
 
 - `roles/artifactregistry.writer`
 - `roles/dataflow.developer`
+
+
+
 
 ## Triggering a restoration job
 
