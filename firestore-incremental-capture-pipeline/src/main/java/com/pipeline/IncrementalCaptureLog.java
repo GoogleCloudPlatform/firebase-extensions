@@ -11,6 +11,8 @@ import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
 import org.joda.time.DateTime;
 import org.joda.time.Instant;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.firestore.v1.Document;
 import com.google.firestore.v1.Value;
@@ -19,6 +21,7 @@ import com.google.gson.JsonParser;
 
 public class IncrementalCaptureLog
     extends PTransform<PCollection<String>, PCollection<KV<String, Document>>> {
+        private static final Logger LOG = LoggerFactory.getLogger(Utils.class);
 
   final private String projectId;
   final private String firestoreDbId;
@@ -48,6 +51,8 @@ public class IncrementalCaptureLog
   }
 
   private String constructQuery(String timestamp) {
+    
+    LOG.info("Querying BigQuery for changes before timestamp: " + timestamp);
     String query = "WITH RankedChanges AS (" +
         "    SELECT " +
         "        documentId," +
@@ -58,7 +63,7 @@ public class IncrementalCaptureLog
         "        timestamp," +
         "        ROW_NUMBER() OVER(PARTITION BY documentId ORDER BY timestamp DESC) as rank" +
         "    FROM `" + projectId + "." + datasetId + "." + tableId + "`" +
-        "    WHERE timestamp < '" + timestamp + "' " +
+        "    WHERE timestamp < TIMESTAMP('" + (timestamp) + "') " +
         ") " +
         "SELECT " +
         "    documentId," +
