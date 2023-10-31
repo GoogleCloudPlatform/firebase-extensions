@@ -1,10 +1,14 @@
 ## Enable PITR in the Google Cloud Console
 
-gcloud alpha firestore databases create command
+Follow the guidelines here [here](https://firebase.google.com/docs/firestore/use-pitr#gcloud) to enable PITR on your current database.
 
 ## Creating a secondary Firestore database
 
-gcloud alpha firestore databases create command
+```bash
+   gcloud alpha firestore databases create --database=DATABASE_ID --location=LOCATION --type=firestore-native --project=${param:PROJECT_ID}
+```
+
+More information on this can be found [here](https://cloud.google.com/sdk/gcloud/reference/alpha/firestore/databases/create)
 
 ## Building the Dataflow Flex Template
 
@@ -37,7 +41,7 @@ Before this extension can run restoration jobs from BigQuery to Firestore, you m
     --role=roles/artifactregistry.writer
   ```
 
-4. Add the requiured role for the extension service account to trigger Dataflow:
+4. Add the required role for the extension service account to trigger Dataflow:
    ```bash
     gcloud projects add-iam-policy-binding ${param:PROJECT_ID} \
     --project ${param:PROJECT_ID} \
@@ -46,24 +50,44 @@ Before this extension can run restoration jobs from BigQuery to Firestore, you m
     --role=roles/iam.serviceAccountUser
    ```
   
-5. Download the JAR file for the Dataflow Flex Template [here](../firestore-incremental-capture-pipeline/target/restore-firestore.jar).
+5. Download the JAR file for the Dataflow Flex Template [here](https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-incremental-capture-pipeline/target/restore-firestore.jar).
 6. Run the following command to build the Dataflow Flex Template:
 
   ```bash
-    gcloud dataflow flex-template build gs://${param:PROJECT_ID}.appspot.com/${param:EXT_INSTANCE_ID} \
+    gcloud dataflow flex-template build gs://${param:PROJECT_ID}.appspot.com/${param:EXT_INSTANCE_ID}-dataflow-restore \
       --image-gcr-path ${param:LOCATION}-docker.pkg.dev/${param:PROJECT_ID}/${param:EXT_INSTANCE_ID}/dataflow/restore:latest \
       --sdk-language JAVA \
       --flex-template-base-image JAVA11 \
-      --jar path/to/restore-1.0.jar \
+      --jar /path/to/restore-firestore.jar \
       --env FLEX_TEMPLATE_JAVA_MAIN_CLASS="com.pipeline.RestorationPipeline" \
       --project ${param:PROJECT_ID}
   ```
 
 ### Required roles
+
+Find your service account by navigating to https://console.cloud.google.com/iam-admin/serviceaccounts?authuser=0&project=${PROJECT_ID}
+
+Filter on `incremental-capture` to find your extension service account.
+
+1. Select the service account
+2. Choose permissions tab.
+3. Select Grant access and add the follwoimng
+
 - `roles/artifactregistry.writer`
 - `roles/dataflow.developer`
 
 ## Triggering a restoration job
 
-You can trigger a restoration job by calling the `restoreFirestore` function. 
+You can trigger a restoration job by calling the `restoreFirestore` function [here](https://${LOCATION}-${POJECT_ID}.cloudfunctions.net/${EXT_INSTANCE_ID} 
+). 
 
+Here is an example that will run from one hour ago:
+
+```bash
+curl -m 70 -X POST https://us-central1-rc-release-testing.cloudfunctions.net/ext-firestore-incremental-capture-onHttpRunRestoration \
+-H "Authorization: bearer $(gcloud auth print-identity-token)" \
+-H "Content-Type: application/json" \
+-d "{\"timestamp\":$(date -u -v-1H +%s)}"
+
+
+```

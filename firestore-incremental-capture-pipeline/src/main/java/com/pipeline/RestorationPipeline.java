@@ -34,9 +34,19 @@ public class RestorationPipeline {
     String getFirestoreCollectionId();
 
     void setFirestoreCollectionId(String value);
+
+    @Description("The BigQuery dataset Id to export the data from")
+    String getBigQueryDataset();
+    void setBigQueryDataset(String value);
+
+    @Description("The BigQuery table Id to export the data from")
+    String getBigQueryTable();
+    void setBigQueryTable(String value);
+
   }
 
   public static void main(String[] args) {
+
     MyOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(MyOptions.class);
 
     Pipeline pipeline = Pipeline.create(options);
@@ -44,6 +54,8 @@ public class RestorationPipeline {
     String project = options.getProject();
     String collectionId = options.getFirestoreCollectionId();
     String secondaryDatabase = options.getFirestoreDb();
+    String datasetId = options.getBigQueryDataset();
+    String tableId = options.getBigQueryTable();
     String defaultDatabase = DEFAULT_FIRESTORE_OPTIONS.getDatabaseId();
     Instant readTime = Utils.adjustDate(Instant.ofEpochSecond(options.getTimestamp()));
 
@@ -79,8 +91,6 @@ public class RestorationPipeline {
                     .putAllFields(document.getFieldsMap())
                     .build();
 
-                LOG.info("Writing document " + id + " to the secondary database");
-
                 c.output(Write.newBuilder()
                     .setUpdate(newDocument)
                     .build());
@@ -92,7 +102,7 @@ public class RestorationPipeline {
     pipeline
         .apply(Create.of(""))
         .apply("Read from BigQuery",
-            new IncrementalCaptureLog(project, readTime, secondaryDatabase))
+            new IncrementalCaptureLog(project, readTime, secondaryDatabase, datasetId, tableId))
         .apply("Prepare write operations",
             new FirestoreHelpers.DocumentToWrite(defaultDatabase, defaultDatabase))
         .apply("Write to the Firestore database instance (From BigQuery)",

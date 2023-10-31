@@ -18,6 +18,10 @@ export async function launchJob(timestamp: number) {
   });
 
   const runDoc = admin.firestore().doc(`restore/${runId}`);
+  
+  // Extract the database name from the backup instance name
+  const values = config.backupInstanceName.split('/');
+  const firestoreDb = values[values.length - 1];
 
   const [response] = await dataflowClient.launchFlexTemplate({
     projectId,
@@ -27,10 +31,9 @@ export async function launchJob(timestamp: number) {
       parameters: {
         timestamp: timestamp.toString(),
         firestoreCollectionId: config.syncCollectionPath,
-        firestoreDb:
-          config.backupInstanceName.split('/').length > 1
-            ? config.backupInstanceName.split('/')[1]
-            : config.backupInstanceName,
+        firestoreDb,
+        bigQueryDataset: config.bqDataset,
+        bigQueryTable: config.bqtable,
       },
       containerSpecGcsPath: `gs://${config.bucketName}/${config.instanceId}-dataflow-restore`,
     },

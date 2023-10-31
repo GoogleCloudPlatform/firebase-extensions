@@ -8,5 +8,7 @@ If one does not exist, you can create one with the following:
     gcloud alpha firestore databases create \
     --database=DATABASE_ID \
     --location=LOCATION \
-    --type=DATABASE_TYPE
+    --type=DATABASE_TYPE \
+    --project=PROJECT_ID
+
 ```

@@ -23,11 +23,15 @@ public class IncrementalCaptureLog
   final private String projectId;
   final private String firestoreDbId;
   final private Instant timestamp;
+  final private String datasetId;
+  final private String tableId;
 
-  public IncrementalCaptureLog(String projectId, Instant timestamp, String firestoreDbId) {
+  public IncrementalCaptureLog(String projectId, Instant timestamp, String firestoreDbId, String datasetId, String tableId) {
     this.projectId = projectId;
     this.timestamp = timestamp;
     this.firestoreDbId = firestoreDbId;
+    this.datasetId = datasetId;
+    this.tableId = tableId;
   }
 
   @Override
@@ -53,7 +57,7 @@ public class IncrementalCaptureLog
         "        afterData," +
         "        timestamp," +
         "        ROW_NUMBER() OVER(PARTITION BY documentId ORDER BY timestamp DESC) as rank" +
-        "    FROM `" + projectId + ".syncData.syncData`" +
+        "    FROM `" + projectId + "." + datasetId + "." + tableId + "`" +
         "    WHERE timestamp < '" + timestamp + "' " +
         ") " +
         "SELECT " +

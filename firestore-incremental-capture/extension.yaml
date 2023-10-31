@@ -71,7 +71,7 @@ resources:
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: nodejs20
+      runtime: nodejs18
       timeout: 540s
       taskQueueTrigger: {}
 
@@ -93,7 +93,7 @@ resources:
       collection, translates the strings, then writes the translated strings
       back to the same document.
     properties:
-      runtime: nodejs20
+      runtime: nodejs18
       location: ${LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
@@ -106,7 +106,7 @@ resources:
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: nodejs20
+      runtime: nodejs18
       timeout: 540s
       taskQueueTrigger: {}
 
@@ -116,7 +116,7 @@ resources:
       Listens for completed cloud build tasks used in the deployment.
     properties:
       location: ${LOCATION}
-      runtime: nodejs20
+      runtime: nodejs18
       httpsTrigger: {}
 
   - name: onHttpRunRestoration
@@ -125,7 +125,7 @@ resources:
       Starts a new restoration task
     properties:
       location: ${LOCATION}
-      runtime: nodejs20
+      runtime: nodejs18
       httpsTrigger: {}
 
   - name: buildFlexTemplate
@@ -134,7 +134,7 @@ resources:
       Builds a flex template for the dataflow job.
     properties:
       location: ${LOCATION}
-      runtime: nodejs20
+      runtime: nodejs18
       availableMemoryMb: 1024
       taskQueueTrigger: {}
 
@@ -144,7 +144,7 @@ resources:
       Exports data from storage to a pre-defined Firestore instance.
     properties:
       location: ${LOCATION}
-      runtime: nodejs20
+      runtime: nodejs18
       availableMemoryMb: 1024
       taskQueueTrigger: {}
 
@@ -217,32 +217,20 @@ params:
     default: sync
     required: true
 
-  - param: RETENTION_PERIOD
-    label: Retention Period
-    description: >
-      The rention of the backup. At what relative time in the future, compared
-      to the creation time of the backup should the backup be deleted, i.e. keep
-      backups for 7 days. For example, to set retention as 7 days.
-
-    example: 7d
-    validationRegex: '^([1-7]d|([1-9]|1[0-4])w)$'
-    validationErrorMessage:
-      Must be a valid retention value, for example (7d or 10w)
-    default: 7d
-    required: true
-
   - param: SYNC_DATASET
     label: Bigquery dataset Id
     description: >
       The id of the Bigquery dataset to sync data to.
 
     example: sync
+    default: backup_dataset
     required: true
 
   - param: SYNC_TABLE
     label: Bigquery table Id
     description: >
       The id of the Bigquery table to sync data to. example: sync
+    default: backup-table
     required: true
 
   - param: BUCKET_NAME
@@ -265,6 +253,7 @@ params:
     example: projects/my-project/databases/my-backup
     validationRegex: '^projects/(.*?)+/databases/(.*?)+$'
     validationErrorMessage: Enter a valid instance id
+    default: projects/my-project/databases/my-backup/(default)
     required: true
 
 lifecycleEvents:
