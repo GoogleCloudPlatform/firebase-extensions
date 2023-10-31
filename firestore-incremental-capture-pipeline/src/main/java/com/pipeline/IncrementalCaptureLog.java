@@ -85,7 +85,7 @@ public class IncrementalCaptureLog
 
     GenericRecord record = schemaAndRecord.getRecord();
 
-    String data = record.get("beforeData").toString();
+    String data = record.get("afterData").toString();
     String documentPath = createDocumentName(record.get("documentPath").toString(), projectId, databaseId);
     String changeType = record.get("changeType").toString();
 
