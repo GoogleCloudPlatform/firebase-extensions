@@ -136,7 +136,12 @@ params:
       Should the transcription algorithm attempt to add punctuation to the
       transcription? For details, see [the
       documentation](https://cloud.google.com/speech-to-text/docs/automatic-punctuation)
-    type: boolean
+    type: select
+    options:
+      - label: Enabled
+        value: true
+      - label: Disabled
+        value: false
     default: true
 
 roles:
