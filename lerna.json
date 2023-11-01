@@ -11,7 +11,8 @@
     "storage-label-videos/functions",
     "storage-transcode-videos/functions",
     "firestore-semantic-search/functions",
-    "text-to-speech/functions"
+    "text-to-speech/functions",
+    "firestore-incremental-capture/functions"
   ],
   "version": "0.0.0",
   "npmClient": "npm"
