@@ -262,7 +262,7 @@ params:
       The name of the Firestore instance to backup the database to.
 
     example: projects/my-project/databases/my-backup
-    validationRegex: '^projects/(.*?)+/databases/(.*?)+$'
+    validationRegex: '^projects\/(.*?)+\/databases\/(.*?)+$'
     validationErrorMessage: Enter a valid instance id
     default: projects/my-project/databases/my-backup/(default)
     required: true
