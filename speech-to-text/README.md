@@ -67,6 +67,9 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 If you're not sure, just use the default.
 
 
+* Enable automatic punctuation: Should the transcription algorithm attempt to add punctuation to the transcription? For details, see [the documentation](https://cloud.google.com/speech-to-text/docs/automatic-punctuation)
+
+
 
 
 **Cloud Functions:**

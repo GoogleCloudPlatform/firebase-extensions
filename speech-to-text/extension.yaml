@@ -1,5 +1,5 @@
 name: speech-to-text
-version: 0.1.4
+version: 0.1.5
 specVersion: v1beta
 
 displayName: Transcribe Speech to Text
@@ -134,7 +134,8 @@ params:
     label: Enable automatic punctuation
     description: >
       Should the transcription algorithm attempt to add punctuation to the
-      transcription? For details, see [the documentation](https://cloud.google.com/speech-to-text/docs/automatic-punctuation)
+      transcription? For details, see [the
+      documentation](https://cloud.google.com/speech-to-text/docs/automatic-punctuation)
     type: boolean
     default: true
 
