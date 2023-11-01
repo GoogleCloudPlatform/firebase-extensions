@@ -14,7 +14,7 @@ process.env.PUBSUB_EMULATOR_HOST = '127.0.0.1:8085';
 process.env.GOOGLE_CLOUD_PROJECT = 'demo-test';
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 
-admin.initializeApp({projectId: 'demo-test'});
+admin.initializeApp({projectId: 'demo-gcp'});
 
 describe('transcribe-audio', () => {
   describe('uploadTranscodedFile', () => {

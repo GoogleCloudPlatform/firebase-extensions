@@ -1,5 +1,10 @@
-## Version 0.1.4
+## Version 0.1.5
 
+feature - add config for enabling/disabling automatic punctuation
+
+feature - add optional collection for transcribed output
+
+## Version 0.1.4
 
 feature - add object name to events (#94)
 

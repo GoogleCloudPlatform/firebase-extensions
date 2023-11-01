@@ -57,11 +57,17 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 * Storage path for transcriptions: The storage path in which to output transcriptions. If this is not set, the extension will output to the root of the bucket.
 
 
+* Firestore collection for storing transcribed audio: The firestore collection in which to output transcriptions. If this is not set, the extension will not output the data to Firestore.
+
+
 * BCP-47 code of the transcription language: The BCP-47 code of the transcription language, as shown in the [Language support documentation](https://cloud.google.com/speech-to-text/docs/languages)
 
 
 * Language model used for transcription: Which kind of use-case should the speech-to-text transcription algorithm be honed for? For details, see [the model field in the documentation](https://cloud.google.com/speech-to-text/docs/reference/rest/v1/RecognitionConfig)
 If you're not sure, just use the default.
+
+
+* Enable automatic punctuation: Should the transcription algorithm attempt to add punctuation to the transcription? For details, see [the documentation](https://cloud.google.com/speech-to-text/docs/automatic-punctuation)
 
 
 
