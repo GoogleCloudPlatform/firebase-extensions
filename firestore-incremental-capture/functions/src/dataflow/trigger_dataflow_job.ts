@@ -19,13 +19,14 @@ export async function launchJob(timestamp: number) {
   });
 
   const runDoc = admin.firestore().doc(`restore/${runId}`);
-  
+
   // Extract the database name from the backup instance name
   const values = config.backupInstanceName.split('/');
   const firestoreDb = values[values.length - 1];
 
   /** Select the correct collection Id for apache beam */
-  const firestoreCollectionId = syncCollectionPath === "{document=**}" ? "*": syncCollectionPath;
+  const firestoreCollectionId =
+    syncCollectionPath === '{document=**}' ? '*' : syncCollectionPath;
 
   const [response] = await dataflowClient.launchFlexTemplate({
     projectId,

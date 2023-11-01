@@ -10,6 +10,7 @@ module.exports = {
     },
   },
   testMatch: ['**/__tests__/*.test.ts'],
+  testPathIgnorePatterns: ['manualTesting'],
   testEnvironment: 'node',
   preset: 'ts-jest',
 };
