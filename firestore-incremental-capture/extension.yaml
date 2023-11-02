@@ -23,6 +23,15 @@ description:
 
 license: Apache-2.0
 
+author:
+  authorName: Google Cloud
+  url: https://cloud.google.com/
+
+contributors:
+  - authorName: Invertase
+    email: oss@invertase.io
+    url: https://github.com/invertase
+
 sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/
 releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/
 
