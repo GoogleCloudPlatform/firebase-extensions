@@ -1,6 +1,6 @@
 # Firestore Incremental Capture
 
-**Author**: undefined 
+**Author**: Google Cloud (**[https://cloud.google.com/](https://cloud.google.com/)**)
 
 **Description**: Provides fine-grained Point-in-time-recovery allowing restoration to a database of your choice.
 
