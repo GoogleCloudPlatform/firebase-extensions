@@ -14,7 +14,7 @@ This extension watches either a single collection or your whole database, and st
 
 ## Enable PITR in the Google Cloud Console
 
-_Note:_ You must have PITR enabled for your firestore database in order for this extension to work. Information on how to enable PITR can be found [here in the docs](https://firebase.google.com/docs/firestore/use-pitr).
+You _must_ have PITR enabled for your firestore database in order for this extension to work. Information on how to enable PITR can be found [here in the docs](https://firebase.google.com/docs/firestore/use-pitr).
 
 ### Setup
 
