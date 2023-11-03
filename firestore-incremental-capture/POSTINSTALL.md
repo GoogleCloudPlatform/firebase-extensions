@@ -14,6 +14,8 @@ More information on this can be found [here](https://cloud.google.com/sdk/gcloud
 
 Before this extension can run restoration jobs from BigQuery to Firestore, you must build the Dataflow Flex Template. This is a one-time process that you must perform before you can use the extension.
 
+We have detailed the steps below, or there is a single script you can run which will perform all the steps for you [here](https://github.com/GoogleCloudPlatform/firebase-extensions/blob/main/firestore-incremental-capture/install/run.sh).
+
 1. Find your extensions's service account email:
 
    ```bash

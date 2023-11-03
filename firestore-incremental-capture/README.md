@@ -20,7 +20,7 @@ The extension then provides an http endpoint for you to recover the state of you
 
 You _must_ have PITR enabled for your firestore database in order for this extension to work. Information on how to enable PITR can be found [here in the docs](https://firebase.google.com/docs/firestore/use-pitr).
 
-### Set up a backup instance
+### Set up a backup firestore instance
 
 A valid database must exist for the restoration to backup to. Ensure that a separate Firestore existance exists.
 
@@ -46,7 +46,6 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 - Artifact Registry
 - Cloud EventArc
 - Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
-- Cloud Run (powers v2 functions)
 
 [Learn more about Firebase billing](https://firebase.google.com/pricing).
 
@@ -64,16 +63,13 @@ Google Cloud Console [here](https://console.cloud.google.com/dataflow/pipelines)
 
 * Cloud Functions location: Where do you want to deploy the functions created for this extension? You usually want a location close to your database. For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
 
-* Collection path: What is the path to the collection that contains the strings that you want to translate?
+* Collection path: What is the path to the collection that contains the strings that you want to capture all changes of? Use `*` to capture all collections.
 
 
 * Bigquery dataset Id: The id of the Bigquery dataset to sync data to.
 
 
-* Bigquery table Id: The id of the Bigquery table to sync data to. example: sync
-
-
-* Bucket name: In which storage bucket do you want to keep converted text?
+* Bigquery table Id: The id of the Bigquery table to sync data to.
 
 
 * Backup instance Id: The name of the Firestore instance to backup the database to.
@@ -83,29 +79,19 @@ Google Cloud Console [here](https://console.cloud.google.com/dataflow/pipelines)
 
 **Cloud Functions:**
 
-* **runInitialSetup:** Creates a Firestore backup for the configured instance.
+* **runInitialSetup:** Creates the backup BigQuery database if it does not exist
 
-* **onFirestoreBackupInit:** Runs an initial backup of the database
-
-* **syncData:** Listens for writes of new strings to your specified Cloud Firestore collection, translates the strings, then writes the translated strings back to the same document.
+* **syncData:** Enqueues a task to sync data to BigQuery
 
 * **syncDataTask:** Distributed cloud task for syncing data to BigQuery
 
-* **onCloudBuildComplete:** Listens for completed cloud build tasks used in the deployment.
-
 * **onHttpRunRestoration:** Starts a new restoration task
-
-* **buildFlexTemplate:** Builds a flex template for the dataflow job.
-
-* **onBackupRestore:** Exports data from storage to a pre-defined Firestore instance.
 
 
 
 **APIs Used**:
 
 * eventarc.googleapis.com (Reason: Powers all events and triggers)
-
-* run.googleapis.com (Reason: Powers v2 Cloud Functions)
 
 * bigquery.googleapis.com (Reason: Running queries)
 
@@ -121,10 +107,4 @@ This extension will operate with the following project IAM roles:
 
 * datastore.user (Reason: Allows the extension to write updates to the database.)
 
-* datastore.importExportAdmin (Reason: Allows the extension to backup the Firestore database.)
-
-* bigquery.admin (Reason: Allows the creation of BQ jobs to import Firestore backups.)
-
-* storage.admin (Reason: Allows management of exported Firestore backups.)
-
-* pubsub.admin (Reason: Allows DTS to grant DTS service account permission to send notifications to Pub/Sub topic.)
+* bigquery.dataEditor (Reason: Allows the creation of BQ jobs to import Firestore backups.)

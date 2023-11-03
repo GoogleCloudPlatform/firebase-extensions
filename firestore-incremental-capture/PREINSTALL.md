@@ -12,7 +12,7 @@ The extension then provides an http endpoint for you to recover the state of you
 
 You _must_ have PITR enabled for your firestore database in order for this extension to work. Information on how to enable PITR can be found [here in the docs](https://firebase.google.com/docs/firestore/use-pitr).
 
-### Set up a backup instance
+### Set up a backup firestore instance
 
 A valid database must exist for the restoration to backup to. Ensure that a separate Firestore existance exists.
 
@@ -38,7 +38,6 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 - Artifact Registry
 - Cloud EventArc
 - Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
-- Cloud Run (powers v2 functions)
 
 [Learn more about Firebase billing](https://firebase.google.com/pricing).
 

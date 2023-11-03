@@ -39,25 +39,6 @@ export async function waitForExportCompletion(name: string) {
 }
 
 /**
- * Export data from Firestore to GCS
- */
-export async function createExport() {
-  const {projectId, syncCollectionPath, bucketName} = config;
-  const name = client.databasePath(projectId, '(default)');
-  const id = new Date().valueOf();
-
-  // Start backup
-  const [operation] = await client.exportDocuments({
-    name,
-    outputUriPrefix: `gs://${bucketName}/backups/${id}`,
-    collectionIds:
-      syncCollectionPath === '**' ? [] : syncCollectionPath.split(','),
-  });
-
-  return {id, operation};
-}
-
-/**
  * Regularly ping the import operation to check for completion
  */
 export async function waitForImportCompletion(name: string) {
