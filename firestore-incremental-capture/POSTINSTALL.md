@@ -44,7 +44,7 @@ gcloud auth configure-docker ${param:LOCATION}-docker.pkg.dev
   gcloud artifacts repositories add-iam-policy-binding ${param:EXT_INSTANCE_ID} \
   --location=${param:LOCATION} \
   --project=${param:PROJECT_ID} \
-  --member=serviceAccount:SA_EMAIL \
+  --member=serviceAccount:SERVICE_ACCOUNT_EMAIL \
   --role=roles/artifactregistry.writer
 ```
 

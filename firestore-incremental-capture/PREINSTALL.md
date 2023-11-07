@@ -45,5 +45,5 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 > ⚠️ The extension does not delete various resources automatically on uninstall.
 
-After you have uninstalled this extension, you will probably want to remove the dataflow pipeline which was set up. You can do this through the
+After you have uninstalled this extension, you will be required to remove the dataflow pipeline which was set up. You can do this through the
 Google Cloud Console [here](https://console.cloud.google.com/dataflow/pipelines). This extension will also create artifacts stored in the Artifact Registry, which you can also manage from the console [here](https://console.cloud.google.com/artifacts).
