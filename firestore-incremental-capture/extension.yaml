@@ -21,6 +21,8 @@ description:
   Provides fine-grained Point-in-time-recovery allowing restoration to a
   database of your choice.
 
+icon: icon.png
+
 license: Apache-2.0
 
 author:
