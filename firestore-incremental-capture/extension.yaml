@@ -13,13 +13,14 @@
 # limitations under the License.
 
 name: firestore-incremental-capture
-version: 0.0.3
+version: 0.0.4
 specVersion: v1beta
 
-displayName: Firestore Incremental Capture
+icon: icon.png
+
+displayName: Firestore Incremental Backup Stream
 description:
-  Provides fine-grained Point-in-time-recovery allowing restoration to a
-  database of your choice.
+  Offers a cost-effective, flexible disaster recovery mechanism for Firestore.
 
 license: Apache-2.0
 
@@ -39,9 +40,6 @@ apis:
   - apiName: eventarc.googleapis.com
     reason: Powers all events and triggers
 
-  - apiName: run.googleapis.com
-    reason: Powers v2 Cloud Functions
-
   - apiName: bigquery.googleapis.com
     reason: Running queries
 
@@ -52,19 +50,8 @@ roles:
   - role: datastore.user
     reason: Allows the extension to write updates to the database.
 
-  - role: datastore.importExportAdmin
-    reason: Allows the extension to backup the Firestore database.
-
-  - role: bigquery.admin
+  - role: bigquery.dataEditor
     reason: Allows the creation of BQ jobs to import Firestore backups.
-
-  - role: storage.admin
-    reason: Allows management of exported Firestore backups.
-
-  - role: pubsub.admin
-    reason: >-
-      Allows DTS to grant DTS service account permission to send notifications
-      to Pub/Sub topic.
 
   # - role: dataflow.developer
   #   reason: Allows this extension to create and run dataflow jobs.
@@ -78,7 +65,7 @@ resources:
   - name: runInitialSetup
     type: firebaseextensions.v1beta.function
     description: >-
-      Creates a Firestore backup for the configured instance.
+      Creates the backup BigQuery database if it does not exist
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
@@ -86,23 +73,9 @@ resources:
       timeout: 540s
       taskQueueTrigger: {}
 
-  - name: onFirestoreBackupInit
-    type: firebaseextensions.v1beta.function
-    description: >-
-      Runs an initial backup of the database
-    properties:
-      availableMemoryMb: 512
-      location: ${LOCATION}
-      runtime: nodejs20
-      timeout: 540s
-      taskQueueTrigger: {}
-
   - name: syncData
     type: firebaseextensions.v1beta.function
-    description:
-      Listens for writes of new strings to your specified Cloud Firestore
-      collection, translates the strings, then writes the translated strings
-      back to the same document.
+    description: Enqueues a task to sync data to BigQuery
     properties:
       runtime: nodejs18
       location: ${LOCATION}
@@ -121,15 +94,6 @@ resources:
       timeout: 540s
       taskQueueTrigger: {}
 
-  - name: onCloudBuildComplete
-    type: firebaseextensions.v1beta.function
-    description: >-
-      Listens for completed cloud build tasks used in the deployment.
-    properties:
-      location: ${LOCATION}
-      runtime: nodejs18
-      httpsTrigger: {}
-
   - name: onHttpRunRestoration
     type: firebaseextensions.v1beta.function
     description: >-
@@ -138,26 +102,6 @@ resources:
       location: ${LOCATION}
       runtime: nodejs18
       httpsTrigger: {}
-
-  - name: buildFlexTemplate
-    type: firebaseextensions.v1beta.function
-    description: >-
-      Builds a flex template for the dataflow job.
-    properties:
-      location: ${LOCATION}
-      runtime: nodejs18
-      availableMemoryMb: 1024
-      taskQueueTrigger: {}
-
-  - name: onBackupRestore
-    type: firebaseextensions.v1beta.function
-    description: >-
-      Exports data from storage to a pre-defined Firestore instance.
-    properties:
-      location: ${LOCATION}
-      runtime: nodejs18
-      availableMemoryMb: 1024
-      taskQueueTrigger: {}
 
 params:
   - param: LOCATION
@@ -221,59 +165,45 @@ params:
     label: Collection path
     description: >
       What is the path to the collection that contains the strings that you want
-      to translate?
-    example: sync
+      to capture all changes of? Use `{document=**}` to capture all collections.
+    example: users
     validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
     validationErrorMessage: Must be a valid Cloud Firestore Collection
-    default: sync
     required: true
 
   - param: SYNC_DATASET
     label: Bigquery dataset Id
     description: >
       The id of the Bigquery dataset to sync data to.
-
-    example: sync
+    example: backup_dataset
     default: backup_dataset
     required: true
 
   - param: SYNC_TABLE
     label: Bigquery table Id
     description: >
-      The id of the Bigquery table to sync data to. example: sync
-    default: backup-table
+      The id of the Bigquery table to sync data to.
+    example: backup_table
+    default: backup_table
     required: true
 
-  - param: BUCKET_NAME
-    label: Bucket name
-    description: >
-      In which storage bucket do you want to keep converted text?
-    type: selectResource
-    resourceType: storage.googleapis.com/Bucket
-    example: my-project-12345.appspot.com
-    validationRegex: ^([0-9a-z_.-]*)$
-    validationErrorMessage: Invalid storage bucket
-    default: ${STORAGE_BUCKET}
-    required: true
-
+  # TODO: we shouldn't ask them to input the full path as it suggests we support inter-project backups
   - param: BACKUP_INSTANCE_ID
     label: Backup instance Id
     description: >
       The name of the Firestore instance to backup the database to.
-
     example: projects/my-project/databases/my-backup
     validationRegex: '^projects/.+/databases/.+$'
     validationErrorMessage: Enter a valid instance id
-    default: projects/my-project/databases/my-backup/(default)
     required: true
 
 lifecycleEvents:
   onInstall:
     function: runInitialSetup
-    processingMessage: Creating a Firestore backup for the configured instance.
+    processingMessage: Creates the backup BigQuery database if it does not exist
   onUpdate:
     function: runInitialSetup
-    processingMessage: Creating a Firestore backup for the configured instance.
+    processingMessage: Creates the backup BigQuery database if it does not exist
   onConfigure:
     function: runInitialSetup
-    processingMessage: Creating a Firestore backup for the configured instance.
+    processingMessage: Creates the backup BigQuery database if it does not exist
