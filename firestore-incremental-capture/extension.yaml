@@ -16,10 +16,11 @@ name: firestore-incremental-capture
 version: 0.0.4
 specVersion: v1beta
 
-displayName: Firestore Incremental Capture
+icon: icon.png
+
+displayName: Firestore Incremental Backup Stream
 description:
-  Provides fine-grained Point-in-time-recovery allowing restoration to a
-  database of your choice.
+  Offers a cost-effective, flexible disaster recovery mechanism for Firestore.
 
 license: Apache-2.0
 
