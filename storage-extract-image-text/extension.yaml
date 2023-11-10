@@ -117,12 +117,6 @@ params:
       `/users/pictures,/restaurants/menuItems` will process any images found in
       any subdirectories of `/users/pictures` and `/restaurants/menuItems`.
 
-      You may also use wildcard notation for directories in the path. For
-      example, `/users/*/pictures` would include any images in any
-      subdirectories of `/users/foo/pictures` as well as any images in
-      subdirectories of `/users/bar/pictures`, but also any images in
-      subdirectories of `/users/any/level/of/subdirectories/pictures`. 
-
       If you prefer not to explicitly exclude any directories of your Storage
       bucket, leave this field empty.
     type: string
@@ -140,12 +134,6 @@ params:
       comma-separated list of absolute paths. For example, to *exclude* the
       images  stored in the `/foo/alpha` and its subdirectories and `/bar/beta`
       and its subdirectories, specify the paths `/foo/alpha,/bar/beta`.
-
-      You may also use wildcard notation for directories in the path. For
-      example, `/users/*/pictures` would exclude any images in any
-      subdirectories of `/users/foo/pictures` as well as any images in
-      subdirectories of `/users/bar/pictures`, but also any images in
-      subdirectories of `/users/any/level/of/subdirectories/pictures`.
 
       If you prefer to process every image uploaded to your Storage bucket,
       leave this field empty.
