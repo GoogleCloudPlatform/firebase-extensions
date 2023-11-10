@@ -10,7 +10,7 @@
 
 On install, you will be asked to provide a Cloud Storage bucket where files will be uploaded, and a Firestore collection to write extracted text back to.
 
-Whenever a new jpg or png image is uploaded to the specified bucket, a Cloud Function will trigger that calls the Cloud Vision API to extract text, and stores the result in a new document with the ID matching the name of the file which was uploaded. (If the file was in a subfolder, the forward slashes will be converted to underscores.)
+When a JPG or PNG file is uploaded to the designated bucket, the extension automatically triggers a Cloud Function. This function then employs the Google Cloud Vision API to process the image, effectively extracting any discernible text. Following this extraction process, the resulting text is saved in a specific Firestore collection. In this collection, each document will have a field named 'file' whose value matches the full storage path of the uploaded image.
 
 ### Use Cases
 
@@ -32,7 +32,7 @@ Alternatively, the extension also provides a `exclude path list` parameter. This
 
 Setting is will ensure the extension does not extract text from images in the specific locations.
 
-For example, to exclude the images stored in the `/foo/alpha` and its subdirectories and `/bar/beta` and its subdirectories, specify the paths `/foo/alpha,/bar/beta`. You may also use wildcard notation for directories in the path.
+For example, to exclude the images stored in the `/foo/alpha` and its subdirectories and `/bar/beta` and its subdirectories, specify the paths `/foo/alpha,/bar/beta`.
 
 ### Detail
 
@@ -67,12 +67,10 @@ When you use Firebase Extensions, you're only charged for the underlying resourc
 
 
 * Paths that contain images you want to extract text from: Restrict storage-image-text-extraction to only extract text from images in specific locations in your Storage bucket by  supplying a comma-separated list of absolute paths. For example, specifying the paths `/users/pictures,/restaurants/menuItems` will process any images found in any subdirectories of `/users/pictures` and `/restaurants/menuItems`.
-You may also use wildcard notation for directories in the path. For example, `/users/*/pictures` would include any images in any subdirectories of `/users/foo/pictures` as well as any images in subdirectories of `/users/bar/pictures`, but also any images in subdirectories of `/users/any/level/of/subdirectories/pictures`. 
 If you prefer not to explicitly exclude any directories of your Storage bucket, leave this field empty.
 
 
 * List of absolute paths not included for image text extraction: Ensure storage-image-text-extraction does *not* process images in _specific locations_ in your Storage bucket by  supplying a comma-separated list of absolute paths. For example, to *exclude* the images  stored in the `/foo/alpha` and its subdirectories and `/bar/beta` and its subdirectories, specify the paths `/foo/alpha,/bar/beta`.
-You may also use wildcard notation for directories in the path. For example, `/users/*/pictures` would exclude any images in any subdirectories of `/users/foo/pictures` as well as any images in subdirectories of `/users/bar/pictures`, but also any images in subdirectories of `/users/any/level/of/subdirectories/pictures`.
 If you prefer to process every image uploaded to your Storage bucket, leave this field empty.
 
 
