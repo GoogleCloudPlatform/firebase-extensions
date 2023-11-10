@@ -17,7 +17,6 @@ This extension is subject to [BigQuery write throughput limitations and availabi
 Before installing this extension, you’ll need to
 
 - [Set up Cloud Firestore in your Firebase project](https://firebase.google.com/docs/firestore/quickstart).
-- [Enable PITR in the Google Cloud Console](https://github.com/GoogleCloudPlatform/firebase-extensions/blob/next/firestore-incremental-capture/README.md#enable-pitr-in-the-google-cloud-console).
 - [Enable PiTR in your Firestore database instance](https://firebase.google.com/docs/firestore/use-pitr)
 - Ensure that a separate Firestore instance exists. A valid database must exist for the restoration to backup to. Ensure that a separate Firestore instance exists If one does not exist, you can create one with the following script:
 
