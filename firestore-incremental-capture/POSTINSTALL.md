@@ -97,7 +97,7 @@ You can trigger a restoration job by calling the `restoreFirestore` function [he
 Here is an example that will run from one hour ago:
 
 ```bash
-curl -m 70 -X POST https://us-central1-rc-release-testing.cloudfunctions.net/ext-firestore-incremental-capture-onHttpRunRestoration \
+curl -m 70 -X POST https://us-central1-${PROJECT_ID}.cloudfunctions.net/ext-firestore-incremental-capture-onHttpRunRestoration \
 -H "Authorization: bearer $(gcloud auth print-identity-token)" \
 -H "Content-Type: application/json" \
 -d "{\"timestamp\":$(date -u -v-1H +%s)}"
