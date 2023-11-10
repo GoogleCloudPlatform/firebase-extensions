@@ -18,6 +18,8 @@ const projectId = process.env.PROJECT_ID!;
 const bucketName = process.env.BUCKET_NAME || `${projectId}.appspot.com`;
 const instanceId = process.env.EXT_INSTANCE_ID!;
 const location = process.env.LOCATION!;
+const backupInstance = process.env.BACKUP_INSTANCE_ID!;
+const backupInstanceFullId = `projects/${projectId}/databases/${backupInstance}`;
 
 export default {
   projectId,
@@ -38,7 +40,7 @@ export default {
   bqDataset: process.env.SYNC_DATASET!,
   bqtable: process.env.SYNC_TABLE!,
 
-  backupInstanceName: process.env.BACKUP_INSTANCE_ID!,
+  backupInstanceName: backupInstanceFullId,
 
   stagingLocation: `gs://${bucketName}/${instanceId}/staging`,
   templateLocation: `gs://${bucketName}/${instanceId}/templates/myTemplate`,

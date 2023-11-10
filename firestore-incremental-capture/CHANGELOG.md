@@ -1,3 +1,7 @@
+## Version 0.0.5
+
+docs: fix POSTINSTALL instruction scripts, improve backup instance id param and regexes
+
 ## Version 0.0.4
 
 docs: update PREINSTALL, display name, and icon.
