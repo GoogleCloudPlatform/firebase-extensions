@@ -1,3 +1,7 @@
+## Version 0.0.6
+
+fixed - deployment, documentation and scripting updates
+
 ## Version 0.0.5
 
 docs: fix POSTINSTALL instruction scripts, improve backup instance id param and regexes
