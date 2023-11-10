@@ -89,6 +89,8 @@ Google Cloud Console [here](https://console.cloud.google.com/dataflow/pipelines)
 
 * **onHttpRunRestoration:** Starts a new restoration task
 
+* **onBackupRestore:** Exports data from storage to a pre-defined Firestore instance.
+
 
 
 **APIs Used**:
