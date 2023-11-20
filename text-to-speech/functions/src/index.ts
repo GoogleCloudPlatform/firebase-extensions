@@ -74,6 +74,10 @@ export const textToSpeech = functions.firestore
           const file = bucket.file(fileName);
           await file.save(Buffer.from(speech.audioContent));
 
+          await snap.ref.update({
+            audioPath: `gs://${config.bucketName}/${fileName}`,
+          });
+
           return;
         }
       } catch (error) {

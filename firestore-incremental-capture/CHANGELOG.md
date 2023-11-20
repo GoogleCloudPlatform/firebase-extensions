@@ -1,6 +1,14 @@
+## Version 0.0.6
+
+fixed - deployment, documentation and scripting updates
+
+## Version 0.0.5
+
+docs: fix POSTINSTALL instruction scripts, improve backup instance id param and regexes
+
 ## Version 0.0.4
 
-docs: Make docs more comprehensive
+docs: update PREINSTALL, display name, and icon.
 
 refactor: removed legacy code
 

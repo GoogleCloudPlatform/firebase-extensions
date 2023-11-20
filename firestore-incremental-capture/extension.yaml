@@ -13,13 +13,14 @@
 # limitations under the License.
 
 name: firestore-incremental-capture
-version: 0.0.4
+version: 0.0.6
 specVersion: v1beta
 
-displayName: Firestore Incremental Capture
+icon: icon.png
+
+displayName: Firestore Incremental Backup Stream
 description:
-  Provides fine-grained Point-in-time-recovery allowing restoration to a
-  database of your choice.
+  Offers a cost-effective, flexible disaster recovery mechanism for Firestore.
 
 license: Apache-2.0
 
@@ -102,6 +103,16 @@ resources:
       runtime: nodejs18
       httpsTrigger: {}
 
+  - name: onBackupRestore
+    type: firebaseextensions.v1beta.function
+    description: >-
+      Exports data from storage to a pre-defined Firestore instance.
+    properties:
+      location: ${LOCATION}
+      runtime: nodejs18
+      availableMemoryMb: 1024
+      taskQueueTrigger: {}
+
 params:
   - param: LOCATION
     label: Cloud Functions location
@@ -164,7 +175,7 @@ params:
     label: Collection path
     description: >
       What is the path to the collection that contains the strings that you want
-      to capture all changes of? Use `*` to capture all collections.
+      to capture all changes of? Use `{document=**}` to capture all collections.
     example: users
     validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
     validationErrorMessage: Must be a valid Cloud Firestore Collection
@@ -176,6 +187,10 @@ params:
       The id of the Bigquery dataset to sync data to.
     example: backup_dataset
     default: backup_dataset
+    validationRegex: '^[a-zA-Z0-9_]+$'
+    validationErrorMessage: >
+      BigQuery dataset IDs must be alphanumeric (plus underscores) and must be
+      no more than 1024 characters.
     required: true
 
   - param: SYNC_TABLE
@@ -186,13 +201,12 @@ params:
     default: backup_table
     required: true
 
-  # TODO: we shouldn't ask them to input the full path as it suggests we support inter-project backups
   - param: BACKUP_INSTANCE_ID
     label: Backup instance Id
     description: >
       The name of the Firestore instance to backup the database to.
-    example: projects/my-project/databases/my-backup
-    validationRegex: '^projects/(.*?)+/databases/(.*?)+$'
+    example: my-backup
+    validationRegex: '^[a-zA-Z][a-zA-Z0-9-]{2,61}[a-zA-Z0-9]$'
     validationErrorMessage: Enter a valid instance id
     required: true
 

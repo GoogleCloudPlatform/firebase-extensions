@@ -39,6 +39,6 @@ export async function runInitialSetupHandler() {
 
   return runtime.setProcessingState(
     'PROCESSING_COMPLETE',
-    `Initialized dataset and table ${syncDataset}.${syncTable}`
+    `Initialized dataset and table ${syncDataset.id}.${syncTable.id}`
   );
 }

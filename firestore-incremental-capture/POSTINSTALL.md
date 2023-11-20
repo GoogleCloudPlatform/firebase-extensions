@@ -19,8 +19,10 @@ We have detailed the steps below, or there is a single script you can run which 
 1. Find your extensions's service account email:
 
    ```bash
-   gcloud iam service-accounts list --format="value(EMAIL)" -- filter="displayName='Firebase Extensions ${param:EXT_INSTANCE_ID} service account' AND DISABLED=False" --project="${param:PROJECT_ID}
+   gcloud iam service-accounts list --format="value(EMAIL)" --filter="displayName='Firebase Extensions ${param:EXT_INSTANCE_ID} service account' AND DISABLED=False" --project="${param:PROJECT_ID}"
    ```
+
+   You can also do this through the console, by navigating to https://console.cloud.google.com/iam-admin/serviceaccounts?authuser=0&project=${param:PROJECT_ID}
 
 2. [Configure the Artificat Registery](https://cloud.google.com/dataflow/docs/guides/templates/using-flex-templates?hl=en#configure):
 
@@ -44,7 +46,7 @@ gcloud auth configure-docker ${param:LOCATION}-docker.pkg.dev
   gcloud artifacts repositories add-iam-policy-binding ${param:EXT_INSTANCE_ID} \
   --location=${param:LOCATION} \
   --project=${param:PROJECT_ID} \
-  --member=serviceAccount:SA_EMAIL \
+  --member=serviceAccount:SERVICE_ACCOUNT_EMAIL \
   --role=roles/artifactregistry.writer
 ```
 
@@ -88,19 +90,6 @@ gcloud auth configure-docker ${param:LOCATION}-docker.pkg.dev
     --project ${param:PROJECT_ID}
 ```
 
-### Required roles
-
-Find your service account by navigating to https://console.cloud.google.com/iam-admin/serviceaccounts?authuser=0&project=${PROJECT_ID}
-
-Filter on `incremental-capture` to find your extension service account.
-
-1. Select the service account
-2. Choose permissions tab.
-3. Select Grant access and add the follwoimng
-
-- `roles/artifactregistry.writer`
-- `roles/dataflow.developer`
-
 ## Triggering a restoration job
 
 You can trigger a restoration job by calling the `restoreFirestore` function [here](https://${LOCATION}-${POJECT_ID}.cloudfunctions.net/${EXT_INSTANCE_ID}).
@@ -108,10 +97,8 @@ You can trigger a restoration job by calling the `restoreFirestore` function [he
 Here is an example that will run from one hour ago:
 
 ```bash
-curl -m 70 -X POST https://us-central1-rc-release-testing.cloudfunctions.net/ext-firestore-incremental-capture-onHttpRunRestoration \
+curl -m 70 -X POST https://us-central1-${PROJECT_ID}.cloudfunctions.net/ext-firestore-incremental-capture-onHttpRunRestoration \
 -H "Authorization: bearer $(gcloud auth print-identity-token)" \
 -H "Content-Type: application/json" \
 -d "{\"timestamp\":$(date -u -v-1H +%s)}"
-
-
 ```
