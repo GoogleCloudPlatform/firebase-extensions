@@ -1,80 +1,75 @@
 import {program} from 'commander';
-// import chalk from 'chalk';
-import {exec} from 'child_process';
-import {chmod} from 'fs';
+
+import buildDataflowFlexTemplate from './functions/buildDataFlowTemplate';
+import configureArtifactRegistry from './functions/setupArtifactRegistry';
+import enablePITR from './functions/enablePitr';
+import setupFirestoreDatabase from './functions/setupFirestore';
+import setupServiceAccount from './functions/setupServiceAccount';
+
+import {parseConfig, CliConfig, StatusResponse} from './utils';
+import downloadJarFile from './functions/downloadRestoreFirestore';
+
+// const jarPath = 'restore-firestore.jar';
 
 program
+  .option(
+    '--non-interactive',
+    'Parse all input from command line flags instead of prompting the caller.',
+    false
+  )
   .option('-p, --project <project>', 'Project ID')
   .option('-d, --database <database>', 'Database ID')
   .option('-l, --location <location>', 'Location')
   .option('-dl --databaseLocation <databaseLocation>', 'Database location')
   .option('-e, --extInstanceId <extInstanceId>', 'Extension instance ID')
-  //   .option('-j, --jarPath <jarPath>', 'Path to the JAR file')
+  .option('-e, --jarPath <jarPath>', 'Jar path', 'restore-firestore.jar')
   .parse(process.argv);
 
-const jarPath = 'restore-firestore.jar';
+// Assuming these functions are async and require arguments
+async function run() {
+  try {
+    const statuses: StatusResponse[] = [];
+    const config: CliConfig = await parseConfig();
 
-const {
-  project: projectId,
-  database: databaseId,
-  location: location,
-  databaseLocation: databaseLocation,
-  extInstanceId,
-} = program.opts();
+    // Set project ID so it can be used in the cli
+    process.env.PROJECT_ID = config.projectId;
+    // Set google cloud project ID so it can be used in the cli
+    process.env.GOOGLE_CLOUD_PROJECT = config.projectId;
 
-process.env.PROJECT_ID = projectId;
-process.env.DATABASE_ID = databaseId;
-process.env.DATABASE_LOCATION = databaseLocation;
-process.env.LOCATION = location;
-process.env.EXT_INSTANCE_ID = extInstanceId;
-process.env.JAR_PATH = jarPath;
+    // Collect the promises
+    const promises = [
+      downloadJarFile(config),
+      enablePITR(config),
+      setupFirestoreDatabase(config),
+      configureArtifactRegistry(config),
+      setupServiceAccount(config),
+      buildDataflowFlexTemplate(config),
+    ];
 
-// export RED='\033[0;31m'
-// export GREEN='\033[0;32m'
-// export YELLOW='\033[1;33m'
-// export NC='\033[0m'
-// export TICK="✓"
-
-process.env.RED = '\\033[0;31m';
-process.env.GREEN = '\\033[0;32m';
-process.env.YELLOW = '\\033[1;33m';
-process.env.NC = '\\033[0m';
-process.env.TICK = '✓';
-
-const cwd = __dirname;
-
-console.log('cwd', __dirname);
-
-const scripts = cwd + '/bash';
-
-// Require dependent scripts
-const downloadRestoreFirestoreScript =
-  scripts + '/download_restore_firestore.sh';
-
-const enablePitrScript = scripts + '/enable_pitr.sh';
-
-const setupFirestoreScript = scripts + '/setup_firestore.sh';
-
-const setupArtifactRegistryScript = scripts + '/setup_artifact_registry.sh';
-
-const setupServiceAccountScript = scripts + '/setup_service_account.sh';
-
-const buildDataflowTemplateScript = scripts + '/build_dataflow_template.sh';
-
-[
-  downloadRestoreFirestoreScript,
-  enablePitrScript,
-  setupFirestoreScript,
-  setupArtifactRegistryScript,
-  setupServiceAccountScript,
-  buildDataflowTemplateScript,
-].forEach(filePath => {
-  chmod(filePath, 0o755, () => {});
-  exec(filePath, (error, stdout, stderr) => {
-    console.log(stdout);
-    console.log(stderr);
-    if (error !== null) {
-      console.log(`exec error: ${error}`);
+    // Wait for all promises to resolve
+    for (const promise of promises) {
+      const response = await promise;
+      statuses.push(response);
     }
+
+    // Print all statuses at the end
+    statuses.forEach(status => console.log(status.message));
+
+    /** Return an empty promise */
+    return Promise.resolve();
+  } catch (error) {
+    console.error(error);
+    process.exit();
+  }
+}
+
+run()
+  .then(() => {
+    console.log('done.');
+    process.exit();
+  })
+  .catch(error => {
+    console.log(JSON.stringify(error));
+    console.error(error.message);
+    process.exit();
   });
-});
