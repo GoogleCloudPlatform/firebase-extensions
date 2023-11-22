@@ -59,6 +59,7 @@ async function run() {
     return Promise.resolve();
   } catch (error) {
     console.error(error);
+    // eslint-disable-next-line no-process-exit
     process.exit();
   }
 }
@@ -66,10 +67,12 @@ async function run() {
 run()
   .then(() => {
     console.log('done.');
+    // eslint-disable-next-line no-process-exit
     process.exit();
   })
   .catch(error => {
     console.log(JSON.stringify(error));
     console.error(error.message);
+    // eslint-disable-next-line no-process-exit
     process.exit();
   });

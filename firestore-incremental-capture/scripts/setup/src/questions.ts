@@ -1,4 +1,5 @@
 const BIGQUERY_VALID_CHARACTERS = /^[a-zA-Z0-9_]+$/;
+/* eslint-disable-next-line no-useless-escape */
 const FIRESTORE_VALID_CHARACTERS = /^[^\/]+$/;
 
 const validateInput = (value: any, name: string, regex: RegExp) => {

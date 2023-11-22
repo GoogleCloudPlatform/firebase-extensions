@@ -35,6 +35,7 @@ export async function parseConfig(): Promise<CliConfig> {
       program.databaseLocation === undefined
     ) {
       program.outputHelp();
+      // eslint-disable-next-line no-process-exit
       process.exit(1);
     }
     return {
