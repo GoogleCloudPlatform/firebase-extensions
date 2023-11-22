@@ -11,7 +11,7 @@ describe('e2e', () => {
     const location = 'us-central1';
     const databaseLocation = 'nam5';
     const extInstanceId = 'firestore-incremental-capture';
-    const nonInteractive = `--non-interactive`;
+    const nonInteractive = '--non-interactive';
 
     /** Generate command */
     const command = `node ${cliPath} --project ${projectId} --database ${database} --location ${location} --databaseLocation ${databaseLocation} --extInstanceId ${extInstanceId} ${nonInteractive}`;

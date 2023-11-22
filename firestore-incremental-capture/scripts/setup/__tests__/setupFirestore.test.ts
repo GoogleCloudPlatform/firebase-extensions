@@ -66,7 +66,7 @@ describe('setupFirestore', () => {
 
     expect(execMock).toHaveBeenCalledWith(
       expect.stringContaining(
-        `gcloud alpha firestore databases list --project=test-project --format=\"value(name)`
+        'gcloud alpha firestore databases list --project=test-project --format="value(name)'
       ),
 
       expect.any(Function)

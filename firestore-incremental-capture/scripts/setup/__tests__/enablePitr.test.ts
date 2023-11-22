@@ -66,7 +66,7 @@ describe('enablePitr', () => {
 
     expect(execMock).toHaveBeenCalledWith(
       expect.stringContaining(
-        `gcloud alpha firestore databases create --location=test-location --project=test-project --enable-pitr`
+        'gcloud alpha firestore databases create --location=test-location --project=test-project --enable-pitr'
       ),
 
       expect.any(Function)

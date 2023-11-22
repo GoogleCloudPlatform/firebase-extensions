@@ -66,7 +66,7 @@ describe('setupArtifactRegistry', () => {
 
     expect(execMock).toHaveBeenCalledWith(
       expect.stringContaining(
-        `gcloud artifacts repositories list --location=test-location --project=test-project --format=\"value(name)`
+        'gcloud artifacts repositories list --location=test-location --project=test-project --format="value(name)'
       ),
 
       expect.any(Function)

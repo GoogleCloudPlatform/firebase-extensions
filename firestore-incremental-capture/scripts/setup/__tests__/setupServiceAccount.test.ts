@@ -66,7 +66,7 @@ describe('setupServiceAccount', () => {
 
     expect(execMock).toHaveBeenCalledWith(
       expect.stringContaining(
-        `gcloud iam service-accounts list --format=\"value(EMAIL)\" --filter=\"displayName='Firebase Extensions test-instance service account' AND DISABLED=False\" --project=\"test-project`
+        'gcloud iam service-accounts list --format="value(EMAIL)" --filter="displayName=\'Firebase Extensions test-instance service account\' AND DISABLED=False" --project="test-project'
       ),
 
       expect.any(Function)
