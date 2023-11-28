@@ -37,7 +37,7 @@ jobs:
 
           # Create release candidates
           for extension_name in "${extension_names[@]}"; do
-            command="yes | firebase ext:dev:upload $RC_PUBLISHER/$extension_name --repo=$RC_REPO --root=$extension_name --ref=next --project $RC_PROJECT -s rc"
+            command="yes | firebase ext:dev:upload $RC_PUBLISHER/$extension_name --repo=$RC_REPO --root=$extension_name --ref=next --project $RC_PROJECT --force -s rc"
             echo "Running command: $command"
             if bash -c "$command"; then
               echo "Successfully processed $extension_name"
