@@ -25,7 +25,7 @@ jobs:
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
           RC_PUBLISHER: ${{ secrets.RC_PUBLISHER }}
-          RC_REPO: ${{ secrets.RC_REPO }}
+          RC_REPO: https://github.com/googlecloudplatform/firebase-extensions
           RC_PROJECT: ${{ secrets.RC_PROJECT }}
         run: |
           # Find changed CHANGELOG.md files
