@@ -1,5 +1,5 @@
 name: firestore-semantic-search
-version: 0.1.7
+version: 0.1.8
 specVersion: v1beta
 
 icon: icon.png
@@ -130,7 +130,7 @@ resources:
     properties:
       location: ${LOCATION}
       buildConfig:
-        runtime: nodejs18   
+        runtime: nodejs18
       serviceConfig:
         availableMemory: 512M
       eventTrigger:
@@ -150,7 +150,7 @@ resources:
     properties:
       location: ${LOCATION}
       buildConfig:
-        runtime: nodejs18    
+        runtime: nodejs18
       serviceConfig:
         availableMemory: 512M
       eventTrigger:
