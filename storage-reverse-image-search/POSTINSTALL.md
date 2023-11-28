@@ -1,20 +1,10 @@
 ## Complete your installation
 
-You will need to first add some security rules to a new Firestore collection used for storing backfill state.
+Make sure you enabled data **read & write access in Cloud Audit Log** for Vertex AI API. The instructions to enable are as follows:
 
-Head to [Cloud Firestore Rules](https://console.firebase.google.com/u/0/project/${param:PROJECT_ID}/firestore/rules) page, and add the following rules:
-
-```js
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /_ext-${param:EXT_INSTANCE_ID}/{document=**} {
-      // Deny read and write operations
-      allow read, write: if false;
-    }
-  }
-}
-```
+- [Visit this page](https://console.cloud.google.com/iam-admin/audit?cloudshell=false) and ensure that you have selected the project you’d like to install this extension in, using the project picker.
+- Filter for “Vertex AI API” and click on the checkbox next to it. A new panel should appear on the right side of the page.
+- On the new panel, click on the checkboxes next to “Data Read” and “Data Write”, and click Save.
 
 ## Try it out
 
