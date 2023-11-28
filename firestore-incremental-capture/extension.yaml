@@ -94,15 +94,16 @@ resources:
       timeout: 540s
       taskQueueTrigger: {}
 
-  - name: onHttpRunRestoration
-    type: firebaseextensions.v1beta.function
-    description: >-
-      Starts a new restoration task
-    properties:
-      location: ${LOCATION}
-      runtime: nodejs18
-      httpsTrigger: {}
+  # - name: onHttpRunRestoration
+  #   type: firebaseextensions.v1beta.function
+  #   description: >-
+  #     Starts a new restoration task
+  #   properties:
+  #     location: ${LOCATION}
+  #     runtime: nodejs18
+  #     httpsTrigger: {}
 
+  # TODO change to a Firestore trigger
   - name: onBackupRestore
     type: firebaseextensions.v1beta.function
     description: >-
