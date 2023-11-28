@@ -39,5 +39,9 @@ jobs:
           for extension_name in "${extension_names[@]}"; do
             command="yes | firebase ext:dev:upload $RC_PUBLISHER/$extension_name --repo=$RC_REPO --root=$extension_name --ref=next --project $RC_PROJECT -s rc"
             echo "Running command: $command"
-            bash -c "$command"
+            if bash -c "$command"; then
+              echo "Successfully processed $extension_name"
+            else
+              echo "Error processing $extension_name, continuing with next"
+            fi
           done
