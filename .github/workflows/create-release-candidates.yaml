@@ -24,6 +24,9 @@ jobs:
       - name: Create release candidates
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          RC_PUBLISHER: ${{ secrets.RC_PUBLISHER }}
+          RC_REPO: ${{ secrets.RC_REPO }}
+          RC_PROJECT: ${{ secrets.RC_PROJECT }}
         run: |
           # Find changed CHANGELOG.md files
           changed_changelogs=$(git diff --name-only --diff-filter=AM origin/next origin/main | grep 'CHANGELOG.md')
@@ -34,7 +37,7 @@ jobs:
 
           # Create release candidates
           for extension_name in "${extension_names[@]}"; do
-            command="yes | firebase ext:dev:upload ${{ secrets.RC_PUBLISHER }}/$extension_name --repo=${{ secrets.RC_REPO }} --root=$extension_name --ref=next --project ${{ secrets.RC_PROJECT }} -s rc"
+            command="yes | firebase ext:dev:upload $RC_PUBLISHER/$extension_name --repo=$RC_REPO --root=$extension_name --ref=next --project $RC_PROJECT -s rc"
             echo "Running command: $command"
             bash -c "$command"
           done
