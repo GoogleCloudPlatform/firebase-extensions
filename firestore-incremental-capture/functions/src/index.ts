@@ -16,17 +16,17 @@
 
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
+import * as functionsv2 from 'firebase-functions/v2';
 
 import config from './config';
 
 import {syncDataHandler} from './tasks/on_sync_data_handler';
-import {onCompleteHandler} from './dataflow/on_complete_handler';
-import {syncDataTaskHandler} from './tasks/sync_data_task_handler';
-import {buildFlexTemplateHandler} from './dataflow/build_flex_template';
-import {onBackupRestoreHandler} from './tasks/on_backup_restore_handler';
+import {triggerRestorationJobHandler} from './tasks/trigger_restoration_job_handler';
 import {runInitialSetupHandler} from './tasks/on_run_initial_setup_handler';
-import {onHttpRunRestorationHandler} from './tasks/on_http_run_restoration_handler';
-import {onFirestoreBackupInitHandler} from './tasks/on_firestore_backup_init_handler';
+import {
+  restoreDoneTriggerConfig,
+  restoreDoneTriggerHandler,
+} from './tasks/restore_done_trigger_handler';
 
 admin.initializeApp();
 
@@ -38,13 +38,6 @@ export const syncData = functions.firestore
   .onWrite(syncDataHandler);
 
 /**
- * Cloud task to handle data sync
- * */
-export const syncDataTask = functions.tasks
-  .taskQueue()
-  .onDispatch(syncDataTaskHandler);
-
-/**
  * Backup the entire database on initial deployment
  * */
 export const runInitialSetup = async () => await runInitialSetupHandler();
@@ -52,27 +45,16 @@ export const runInitialSetup = async () => await runInitialSetupHandler();
 /**
  * Run a backup restoration.
  * */
-export const onHttpRunRestoration = functions.https.onRequest(
-  onHttpRunRestorationHandler
+export const triggerRestorationJob = functions.firestore
+  .document(config.restoreDoc)
+  .onWrite(triggerRestorationJobHandler);
+
+/**
+ * Triggered once the restore is complete.
+ *
+ * Uses the event log method `google.firestore.admin.v1.FirestoreAdmin.RestoreDatabase`.
+ */
+export const restoreDoneTrigger = functionsv2.eventarc.onCustomEventPublished(
+  restoreDoneTriggerConfig,
+  restoreDoneTriggerHandler
 );
-
-export const onBackupRestore = functions.tasks
-  .taskQueue()
-  .onDispatch(onBackupRestoreHandler);
-
-/**
- * Cloud task for handling database restoration
- * */
-export const onFirestoreBackupInit = functions.tasks
-  .taskQueue()
-  .onDispatch(onFirestoreBackupInitHandler);
-
-/**
- * Cloud task for staging the dataflow template
- * */
-export const buildFlexTemplate = functions.tasks
-  .taskQueue()
-  .onDispatch(buildFlexTemplateHandler);
-
-export const onCloudBuildComplete =
-  functions.https.onRequest(onCompleteHandler);

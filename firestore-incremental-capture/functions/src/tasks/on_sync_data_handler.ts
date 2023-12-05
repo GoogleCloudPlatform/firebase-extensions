@@ -15,10 +15,10 @@
  */
 
 import * as functions from 'firebase-functions';
-import {getFunctions} from 'firebase-admin/functions';
 
 import config from '../config';
 import {firestoreSerializer} from '../utils/firestore_serializer';
+import {getTable} from '../utils/big_query';
 
 const getState = (
   change: functions.Change<functions.firestore.DocumentSnapshot>
@@ -37,11 +37,6 @@ export const syncDataHandler = async (
   change: functions.Change<functions.firestore.DocumentSnapshot>,
   ctx: functions.EventContext
 ) => {
-  const queue = getFunctions().taskQueue(
-    `locations/${config.location}/functions/syncDataTask`,
-    config.instanceId
-  );
-
   //state whether the update is an CREATE, UPDATE or DELETE
   const changeType = getState(change);
 
@@ -53,12 +48,23 @@ export const syncDataHandler = async (
   const serializedBeforeData = await firestoreSerializer(beforeData);
   const serializedAfterData = await firestoreSerializer(afterData);
 
-  return queue.enqueue({
+  const table = await getTable(config.bqDataset, config.bqtable);
+
+  const data = {
     beforeData: JSON.stringify(serializedBeforeData),
     afterData: JSON.stringify(serializedAfterData),
     documentId: change.before?.id || change.after.id,
     documentPath: change.before?.ref?.path || change.after.ref.path,
     timestamp: ctx.timestamp,
     changeType,
+  };
+
+  // Write the data to the database
+  await table.insert(data).catch((ex: any) => {
+    for (const error of ex.errors) {
+      for (const err of error.errors) {
+        functions.logger.error(err);
+      }
+    }
   });
 };

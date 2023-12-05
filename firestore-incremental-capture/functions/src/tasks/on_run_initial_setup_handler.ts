@@ -20,6 +20,7 @@ import config from '../config';
 
 import {initialize} from '../utils/big_query';
 import {bqBackupSchema} from '../constants/bq_backup_schema';
+import {setupScheduledBackups} from '../utils/scheduled_backups';
 
 export async function runInitialSetupHandler() {
   // Setup runtime
@@ -37,8 +38,23 @@ export async function runInitialSetupHandler() {
     bqBackupSchema
   );
 
-  return runtime.setProcessingState(
-    'PROCESSING_COMPLETE',
-    `Initialized dataset and table ${syncDataset.id}.${syncTable.id}`
-  );
+  try {
+    await runtime.setProcessingState(
+      'NONE',
+      'Creating a scheduled backup for the Firestore database'
+    );
+
+    // Setup scheduled backups for the Firestore database
+    const metadata = await setupScheduledBackups();
+
+    return runtime.setProcessingState(
+      'PROCESSING_COMPLETE',
+      `Initialized dataset and table ${syncDataset.id}.${syncTable.id}, and enabled scheduled backups for the Firestore database ${metadata?.name}.`
+    );
+  } catch (error) {
+    return runtime.setProcessingState(
+      'PROCESSING_FAILED',
+      `Failed to enable scheduled backups for the Firestore database. Error: ${error}`
+    );
+  }
 }
