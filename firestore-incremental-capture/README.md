@@ -83,13 +83,15 @@ Google Cloud Console [here](https://console.cloud.google.com/dataflow/pipelines)
 
 * **runInitialSetup:** Creates the backup BigQuery database if it does not exist
 
-* **syncData:** Enqueues a task to sync data to BigQuery
+* **syncData:** Syncs data changelog to BigQuery
 
-* **syncDataTask:** Distributed cloud task for syncing data to BigQuery
+* **triggerRestorationJob:** Starts a new restoration task
 
-* **onHttpRunRestoration:** Starts a new restoration task
 
-* **onBackupRestore:** Exports data from storage to a pre-defined Firestore instance.
+
+**Other Resources**:
+
+* restoreDoneTrigger (firebaseextensions.v1beta.v2function)
 
 
 
@@ -109,6 +111,6 @@ Google Cloud Console [here](https://console.cloud.google.com/dataflow/pipelines)
 
 This extension will operate with the following project IAM roles:
 
-* datastore.user (Reason: Allows the extension to write updates to the database.)
+* datastore.owner (Reason: Allows the extension to write updates to the database, and manage scheduled backups.)
 
 * bigquery.dataEditor (Reason: Allows the creation of BQ jobs to import Firestore backups.)
