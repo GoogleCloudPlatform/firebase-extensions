@@ -103,6 +103,8 @@ Google Cloud Console [here](https://console.cloud.google.com/dataflow/pipelines)
 
 * dataflow.googleapis.com (Reason: Running dataflow jobs)
 
+* run.googleapis.com (Reason: Powers v2 Cloud Functions)
+
 
 
 **Access Required**:
@@ -114,3 +116,5 @@ This extension will operate with the following project IAM roles:
 * datastore.owner (Reason: Allows the extension to write updates to the database, and manage scheduled backups.)
 
 * bigquery.dataEditor (Reason: Allows the creation of BQ jobs to import Firestore backups.)
+
+* dataflow.developer (Reason: Allows this extension to create and run dataflow jobs.)
