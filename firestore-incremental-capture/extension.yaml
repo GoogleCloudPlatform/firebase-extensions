@@ -46,6 +46,9 @@ apis:
   - apiName: dataflow.googleapis.com
     reason: Running dataflow jobs
 
+  - apiName: run.googleapis.com
+    reason: Powers v2 Cloud Functions
+
 roles:
   - role: datastore.owner
     reason:
@@ -55,8 +58,8 @@ roles:
   - role: bigquery.dataEditor
     reason: Allows the creation of BQ jobs to import Firestore backups.
 
-  # - role: dataflow.developer
-  #   reason: Allows this extension to create and run dataflow jobs.
+  - role: dataflow.developer
+    reason: Allows this extension to create and run dataflow jobs.
 
   # - role: artifactregistry.writer
   #   reason: Allows this extension to write to the artifact registry.
@@ -93,8 +96,8 @@ resources:
       location: ${LOCATION}
       runtime: nodejs18
       eventTrigger:
-        eventType: providers/cloud.firestore/eventTypes/document.write
-        resource: projects/${param:PROJECT_ID}/databases/(default)/documents/${param:BACKUP_INSTANCE_ID}/restore/{docId}
+        eventType: providers/cloud.firestore/eventTypes/document.create
+        resource: projects/${param:PROJECT_ID}/databases/(default)/documents/_ext-${param:EXT_INSTANCE_ID}/restore/jobs/{docId}
 
   - name: restoreDoneTrigger
     type: firebaseextensions.v1beta.v2function

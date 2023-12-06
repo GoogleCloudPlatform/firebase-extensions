@@ -1,13 +1,13 @@
 import {firestore} from 'firebase-admin';
 import {logger} from 'firebase-functions/v1';
 
-import * as google from 'googleapis';
+import {google, firestore_v1} from 'googleapis';
 
 import config from '../config';
 import {RestoreJobInfo} from '../models/restore_job_info';
 
-const firestore_api = new google.firestore_v1.Firestore({
-  rootUrl: `https://${config.location}-firestore.googleapis.com`,
+const firestore_api = new firestore_v1.Firestore({
+  rootUrl: 'https://firestore.googleapis.com',
 });
 
 export function updateRestoreJobDoc(
@@ -21,13 +21,14 @@ export function updateRestoreJobDoc(
  * Checks if a backup exists for the given source database ID.
  *
  * @param databaseId The source database ID.
- * @returns {google.firestore_v1.Schema$GoogleFirestoreAdminV1Backup} The most recent backup for the database.
+ * @returns {firestore_v1.Schema$GoogleFirestoreAdminV1Backup} The most recent backup for the database.
  */
 export async function checkIfBackupExists(
   databaseId: string
-): Promise<google.firestore_v1.Schema$GoogleFirestoreAdminV1Backup> {
+): Promise<firestore_v1.Schema$GoogleFirestoreAdminV1Backup[]> {
   const backups = await firestore_api.projects.locations.backups.list({
     parent: `projects/${config.projectId}/locations/${config.location}`,
+    auth: await getAuthClient(),
   });
 
   if (!backups.data?.backups || backups.data?.backups?.length === 0)
@@ -41,24 +42,33 @@ export async function checkIfBackupExists(
     );
   });
 
+  logger.debug(`Found ${sortedBackups.length} backups`, sortedBackups);
+
   // Filter by databaseId and state
   const filteredBackups = sortedBackups.filter(backup => {
-    return backup.name?.includes(databaseId) && backup.state === 'READY';
+    return (
+      backup.database ===
+        `projects/${config.projectId}/databases/${databaseId}` &&
+      backup.state === 'READY'
+    );
   });
+
+  logger.debug(`Found ${filteredBackups.length} backups`, filteredBackups);
 
   if (filteredBackups.length === 0) throw new Error('BACKUP_NOT_FOUND');
 
-  return Promise.resolve(filteredBackups[0]);
+  return Promise.resolve(filteredBackups);
 }
 
 export async function checkIfBackupScheduleExists(
   databaseId: string
 ): Promise<
-  google.firestore_v1.Schema$GoogleFirestoreAdminV1BackupSchedule | undefined
+  firestore_v1.Schema$GoogleFirestoreAdminV1BackupSchedule | undefined
 > {
   try {
     const bs = await firestore_api.projects.databases.backupSchedules.list({
       parent: `projects/${config.projectId}/databases/${databaseId}`,
+      auth: await getAuthClient(),
     });
 
     if (!bs.data?.backupSchedules || bs.data?.backupSchedules?.length === 0)
@@ -86,22 +96,33 @@ export async function checkIfBackupScheduleExists(
  * @param resourceName The resource name of the database to delete, must be in the format `projects/{project_id}/databases/{database_id}`.
  * @returns A promise that resolves when the database has been deleted.
  */
-export async function deleteExistingDestinationDatabase(resourceName: string) {
-  const databaseMetadata = await firestore_api.projects.databases.get({
-    name: resourceName,
-  });
+export async function deleteExistingDestinationDatabase(destination: string) {
+  let databaseMetadata;
 
-  if (databaseMetadata.data) {
-    // Delete the existing database
-    try {
-      await firestore_api.projects.databases.delete({
-        name: resourceName,
-      });
-    } catch (ex: any) {
-      logger.warn('Error deleting database', ex);
+  try {
+    databaseMetadata = await firestore_api.projects.databases.get({
+      name: `projects/${config.projectId}/databases/${destination}`,
+      auth: await getAuthClient(),
+    });
+
+    if (databaseMetadata && databaseMetadata.data) {
+      // Delete the existing database
+      try {
+        await firestore_api.projects.databases.delete({
+          name: `projects/${config.projectId}/databases/${destination}`,
+          auth: await getAuthClient(),
+        });
+      } catch (ex: any) {
+        logger.warn('Error deleting database', ex.message);
+      }
+    } else {
+      logger.warn(`Database ${destination} does not exist`);
     }
-  } else {
-    logger.info('Database does not exist');
+  } catch (error: any) {
+    logger.warn(
+      `Database ${destination} does not exist, skipping`,
+      error.message
+    );
   }
 
   return;
@@ -111,7 +132,7 @@ export async function deleteExistingDestinationDatabase(resourceName: string) {
  * Setup scheduled backups for the Firestore database.
  * Could be the default database or any other database in the project.
  * */
-export async function setupScheduledBackups(): Promise<google.firestore_v1.Schema$GoogleFirestoreAdminV1BackupSchedule> {
+export async function setupScheduledBackups(): Promise<firestore_v1.Schema$GoogleFirestoreAdminV1BackupSchedule> {
   try {
     // Check if a backup schedule already exists
     const bs = await checkIfBackupScheduleExists('(default)');
@@ -130,6 +151,7 @@ export async function setupScheduledBackups(): Promise<google.firestore_v1.Schem
           dailyRecurrence: {},
         },
         parent: `projects/${config.projectId}/databases/(default)`,
+        auth: await getAuthClient(),
       }
     );
 
@@ -138,4 +160,37 @@ export async function setupScheduledBackups(): Promise<google.firestore_v1.Schem
     logger.warn(`Failed to setup scheduled backups: ${error}`);
     throw error;
   }
+}
+
+/**
+ *
+ * Run a backup restoration.
+ */
+export async function restoreBackup(
+  databaseId: string,
+  backupId: string
+): Promise<firestore_v1.Schema$GoogleLongrunningOperation> {
+  try {
+    const operation = await firestore_api.projects.databases.restore({
+      auth: await getAuthClient(),
+      parent: `projects/${config.projectId}`,
+      requestBody: {
+        databaseId: databaseId,
+        backup: backupId,
+      },
+    });
+
+    logger.info(`Restoring backup ${backupId} to the database ${databaseId}`);
+
+    return operation.data;
+  } catch (error) {
+    logger.warn(`Failed to restore backup: ${error}`);
+    throw error;
+  }
+}
+
+function getAuthClient() {
+  return google.auth.getClient({
+    scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+  });
 }

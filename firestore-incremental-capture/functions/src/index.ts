@@ -47,7 +47,7 @@ export const runInitialSetup = async () => await runInitialSetupHandler();
  * */
 export const triggerRestorationJob = functions.firestore
   .document(config.restoreDoc)
-  .onWrite(triggerRestorationJobHandler);
+  .onCreate(triggerRestorationJobHandler);
 
 /**
  * Triggered once the restore is complete.

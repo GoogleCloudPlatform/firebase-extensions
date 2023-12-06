@@ -15,30 +15,31 @@
  */
 
 import * as google from 'googleapis';
-import {Change, logger} from 'firebase-functions/v1';
-import {DocumentSnapshot} from 'firebase-admin/firestore';
+import {logger} from 'firebase-functions/v1';
+import {QueryDocumentSnapshot} from 'firebase-admin/firestore';
 
 import config from '../config';
 import {
   checkIfBackupExists,
   deleteExistingDestinationDatabase,
+  restoreBackup,
   updateRestoreJobDoc,
 } from '../utils/scheduled_backups';
 import {RestoreError, RestoreStatus} from '../models/restore_status';
 import {RestoreJobData} from '../models/restore_job_data';
 import {firestore} from 'firebase-admin';
+import {GaxiosError} from 'googleapis-common';
 
 const firestore_api = new google.firestore_v1.Firestore({
   rootUrl: `https://${config.location}-firestore.googleapis.com`,
 });
 
 export const triggerRestorationJobHandler = async (
-  snapshot: Change<DocumentSnapshot>
+  snapshot: QueryDocumentSnapshot
 ) => {
-  const ref = snapshot.after.ref;
-  const data = snapshot.after.data() as RestoreJobData | undefined;
+  const ref = snapshot.ref;
+  const data = snapshot.data() as RestoreJobData | undefined;
   const timestamp = data?.timestamp as firestore.Timestamp | undefined;
-  const destinationDatabaseResourceName = `projects/${config.projectId}/databases/${data?.destinationDatabaseId}`;
 
   if (!timestamp || !isValidTimestamp(timestamp)) {
     logger.error(
@@ -70,11 +71,11 @@ export const triggerRestorationJobHandler = async (
     return;
   }
 
-  let backup: google.firestore_v1.Schema$GoogleFirestoreAdminV1Backup;
+  let backups: google.firestore_v1.Schema$GoogleFirestoreAdminV1Backup[];
 
   // Check if there's a valid backup
   try {
-    backup = await checkIfBackupExists(data?.destinationDatabaseId);
+    backups = await checkIfBackupExists('(default)');
   } catch (ex: any) {
     logger.error('Error getting backup', ex);
     await updateRestoreJobDoc(ref, {
@@ -87,31 +88,31 @@ export const triggerRestorationJobHandler = async (
     return;
   }
 
+  // Pick the closest backup to the requested timestamp
+  const backup = pickClosestBackup(backups, timestamp);
+
   // The destination database already exists, delete it before restoring
-  await deleteExistingDestinationDatabase(destinationDatabaseResourceName);
+  await deleteExistingDestinationDatabase(data?.destinationDatabaseId);
 
   // Call restore function to build the baseline DB
   try {
-    const operation = await firestore_api.projects.databases.restore({
-      requestBody: {
-        databaseId: data?.destinationDatabaseId,
-        backup: backup.name,
-      },
-    });
+    const operation = await restoreBackup(
+      data?.destinationDatabaseId,
+      backup.name as string
+    );
 
-    logger.info(`Running backup restoration at point-in-time ${timestamp}`);
     await updateRestoreJobDoc(ref, {
       status: {
         message: RestoreStatus.RUNNING,
       },
-      operation: operation.data,
+      operation: operation,
     });
   } catch (ex: any) {
-    logger.error('Error restoring backup', ex);
+    logger.error('Error restoring backup', (ex as GaxiosError).message);
     await updateRestoreJobDoc(ref, {
       status: {
         message: RestoreStatus.FAILED,
-        error: `${RestoreError.EXCEPTION}: ${ex}`,
+        error: `${RestoreError.EXCEPTION}: ${(ex as GaxiosError).message}`,
       },
     });
 
@@ -135,4 +136,20 @@ function isValidTimestamp(timestamp: firestore.Timestamp): boolean {
   }
 
   return true;
+}
+
+function pickClosestBackup(
+  backups: google.firestore_v1.Schema$GoogleFirestoreAdminV1Backup[],
+  timestamp: firestore.Timestamp
+) {
+  return backups.reduce((prev, curr) => {
+    const prevDiff = Math.abs(
+      timestamp.toMillis() - new Date(prev.snapshotTime as string).getTime()
+    );
+    const currDiff = Math.abs(
+      timestamp.toMillis() - new Date(curr.snapshotTime as string).getTime()
+    );
+
+    return prevDiff < currDiff ? prev : curr;
+  });
 }
