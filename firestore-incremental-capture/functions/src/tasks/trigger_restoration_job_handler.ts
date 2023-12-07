@@ -18,21 +18,13 @@ import * as google from 'googleapis';
 import {logger} from 'firebase-functions/v1';
 import {QueryDocumentSnapshot} from 'firebase-admin/firestore';
 
-import config from '../config';
-import {
-  checkIfBackupExists,
-  deleteExistingDestinationDatabase,
-  restoreBackup,
-  updateRestoreJobDoc,
-} from '../utils/scheduled_backups';
+import {ScheduledBackups} from '../utils/scheduled_backups';
 import {RestoreError, RestoreStatus} from '../models/restore_status';
 import {RestoreJobData} from '../models/restore_job_data';
 import {firestore} from 'firebase-admin';
 import {GaxiosError} from 'googleapis-common';
 
-const firestore_api = new google.firestore_v1.Firestore({
-  rootUrl: `https://${config.location}-firestore.googleapis.com`,
-});
+const scheduledBackups = new ScheduledBackups();
 
 export const triggerRestorationJobHandler = async (
   snapshot: QueryDocumentSnapshot
@@ -46,7 +38,7 @@ export const triggerRestorationJobHandler = async (
       '"timestamp" field is missing, please ensure that you are sending a valid timestamp in the request body, is in seconds since epoch and is not in the future.'
     );
 
-    await updateRestoreJobDoc(ref, {
+    await scheduledBackups.updateRestoreJobDoc(ref, {
       status: {
         message: RestoreStatus.FAILED,
         error: RestoreError.INVALID_TIMESTAMP,
@@ -61,7 +53,7 @@ export const triggerRestorationJobHandler = async (
       '"destinationDatabaseId" field is missing, please ensure that you are sending a valid database ID in the request body.'
     );
 
-    await updateRestoreJobDoc(ref, {
+    await scheduledBackups.updateRestoreJobDoc(ref, {
       status: {
         message: RestoreStatus.FAILED,
         error: RestoreError.INVALID_TIMESTAMP,
@@ -75,10 +67,10 @@ export const triggerRestorationJobHandler = async (
 
   // Check if there's a valid backup
   try {
-    backups = await checkIfBackupExists('(default)');
+    backups = await scheduledBackups.checkIfBackupExists('(default)');
   } catch (ex: any) {
     logger.error('Error getting backup', ex);
-    await updateRestoreJobDoc(ref, {
+    await scheduledBackups.updateRestoreJobDoc(ref, {
       status: {
         message: RestoreStatus.FAILED,
         error: `${RestoreError.BACKUP_NOT_FOUND}`,
@@ -92,24 +84,26 @@ export const triggerRestorationJobHandler = async (
   const backup = pickClosestBackup(backups, timestamp);
 
   // The destination database already exists, delete it before restoring
-  await deleteExistingDestinationDatabase(data?.destinationDatabaseId);
+  await scheduledBackups.deleteExistingDestinationDatabase(
+    data?.destinationDatabaseId
+  );
 
   // Call restore function to build the baseline DB
   try {
-    const operation = await restoreBackup(
+    const operation = await scheduledBackups.restoreBackup(
       data?.destinationDatabaseId,
       backup.name as string
     );
 
-    await updateRestoreJobDoc(ref, {
+    await scheduledBackups.updateRestoreJobDoc(ref, {
       status: {
-        message: RestoreStatus.RUNNING,
+        message: RestoreStatus.RUNNING_RESTORE,
       },
       operation: operation,
     });
   } catch (ex: any) {
     logger.error('Error restoring backup', (ex as GaxiosError).message);
-    await updateRestoreJobDoc(ref, {
+    await scheduledBackups.updateRestoreJobDoc(ref, {
       status: {
         message: RestoreStatus.FAILED,
         error: `${RestoreError.EXCEPTION}: ${(ex as GaxiosError).message}`,

@@ -99,25 +99,26 @@ resources:
         eventType: providers/cloud.firestore/eventTypes/document.create
         resource: projects/${param:PROJECT_ID}/databases/(default)/documents/_ext-${param:EXT_INSTANCE_ID}/restore/jobs/{docId}
 
-  - name: restoreDoneTrigger
-    type: firebaseextensions.v1beta.v2function
-    description: >-
-      An event-triggered function that gets called when a scheduled backup is
-      done restoring.
-    properties:
-      location: ${LOCATION}
-      buildConfig:
-        runtime: nodejs18
-      serviceConfig:
-        availableMemory: 512M
-      eventTrigger:
-        eventType: google.cloud.audit.log.v1.written
-        triggerRegion: global
-        eventFilters:
-          - attribute: serviceName
-            value: firestore.googleapis.com
-          - attribute: methodName
-            value: google.firestore.admin.v1.FirestoreAdmin.RestoreDatabase
+  # This eventarc trigger is currently disabled as it does not yet support done events.
+  # - name: restoreDoneTrigger
+  #   type: firebaseextensions.v1beta.v2function
+  #   description: >-
+  #     An event-triggered function that gets called when a scheduled backup is
+  #     done restoring.
+  #   properties:
+  #     location: ${LOCATION}
+  #     buildConfig:
+  #       runtime: nodejs18
+  #     serviceConfig:
+  #       availableMemory: 512M
+  #     eventTrigger:
+  #       eventType: google.cloud.audit.log.v1.written
+  #       triggerRegion: global
+  #       eventFilters:
+  #         - attribute: serviceName
+  #           value: firestore.googleapis.com
+  #         - attribute: methodName
+  #           value: google.firestore.admin.v1.FirestoreAdmin.RestoreDatabase
 
 params:
   - param: LOCATION

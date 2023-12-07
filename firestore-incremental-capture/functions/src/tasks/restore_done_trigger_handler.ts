@@ -6,8 +6,9 @@ import * as functionsv2 from 'firebase-functions/v2';
 
 import config from '../config';
 import {RestoreStatus} from '../models/restore_status';
+import {launchJob} from '../dataflow/trigger_dataflow_job';
 
-const apiEndpoint = `${config.location}-firestore.googleapis.com`;
+const apiEndpoint = 'firestore.googleapis.com';
 
 export const restoreDoneTriggerConfig = {
   retry: false,
@@ -17,30 +18,44 @@ export const restoreDoneTriggerConfig = {
 
 export const restoreDoneTriggerHandler = async (event: any) => {
   const operation = event.data?.operation;
-  if (!operation) return;
-
   functionsv2.logger.info('An event has been recieved', event);
 
+  if (!operation) return;
+
   try {
+    if (operation && !operation.last) return;
     await processOperation(operation);
 
     // Once the operation is complete, update the restore doc to trigger the next step
-    await admin
+
+    const snapshot = await admin
       .firestore()
-      .doc(config.restoreDoc)
-      .set({status: RestoreStatus.COMPLETED}, {merge: true});
+      .collection(`_ext-${config.instanceId}/restore/jobs`)
+      .where('operation.metdata.name', '==', operation.metadata.name)
+      .limit(1)
+      .get();
+
+    if (snapshot.empty) throw new Error('No restore job found');
+
+    const restoreDoc = snapshot.docs[0].ref.parent.parent!;
+    await restoreDoc.set(
+      {status: {message: RestoreStatus.RUNNING_DATAFLOW}, operation: operation},
+      {merge: true}
+    );
+
+    // await launchJob(snapshot.docs[0].data().timestamp);
   } catch (error) {
     functionsv2.logger.error('Error processing operation', error);
   }
 };
 
 async function processOperation(operation: any) {
-  if (operation && !operation.last) return;
-
   const _operation = await getOperationByName(operation.id);
   if (_operation?.error) {
     throw new Error(_operation.error?.message ?? 'Unknown error.');
   }
+
+  functionsv2.logger.info('Operation found', {_operation});
 
   const backupId = (operation.id as string).split('/operations/')[0];
   functionsv2.logger.info('Restoration done', {backupId});
