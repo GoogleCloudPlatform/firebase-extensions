@@ -1,6 +1,14 @@
-import {DiscussionClient, Message} from './base_chat_client';
+import {DiscussionClient, Message} from './base_class';
 import {helpers, v1} from '@google-cloud/aiplatform';
 import {z} from 'zod';
+
+interface ApiMessage {
+  /** Message author */
+  author?: string | null;
+
+  /** Message content */
+  content?: string | null;
+}
 
 interface VertexChatOptions {
   history?: Message[];
@@ -26,7 +34,8 @@ type VertexPrediction = {
 
 export class VertexDiscussionClient extends DiscussionClient<
   v1.PredictionServiceClient,
-  VertexChatOptions
+  VertexChatOptions,
+  ApiMessage
 > {
   private endpoint: string;
 
@@ -40,12 +49,16 @@ export class VertexDiscussionClient extends DiscussionClient<
     this.client = new v1.PredictionServiceClient(clientOptions);
   }
 
-  async generateResponse(messages: Message[], options: VertexChatOptions) {
+  async generateResponse(
+    history: Message[],
+    latestApiMessage: ApiMessage,
+    options: VertexChatOptions
+  ) {
     if (!this.client) {
       throw new Error('Client not initialized.');
     }
     const instanceValue = helpers.toValue({
-      messages: this.messagesToApi(messages),
+      messages: [...this.messagesToApi(history), latestApiMessage],
     });
 
     const parameters = this.getParameters(options);
@@ -84,7 +97,7 @@ export class VertexDiscussionClient extends DiscussionClient<
       response: parsedVertexPrediction.content,
       candidates,
       safetyMetadata,
-      history: messages,
+      history: history,
     };
   }
 

@@ -17,35 +17,35 @@
 import * as functions from 'firebase-functions';
 import * as logs from './logs';
 import config from './config';
-import {Discussion} from './discussion';
+// import {Discussion} from './discussion';
 import {GenerateMessageOptions} from './types';
 import {DocumentReference, FieldValue} from 'firebase-admin/firestore';
 import {createErrorMessage} from './errors';
 import {fetchDiscussionOptions, fetchHistory} from './firestore';
+import {discussionClient} from './generative-client/chat';
 
 const {
-  model,
-  context,
+  // context,
   promptField,
   responseField,
   orderField,
   enableDiscussionOptionOverrides,
   collectionName,
-  temperature,
-  topP,
-  topK,
+  // temperature,
+  // topP,
+  // topK,
   candidateCount,
   candidatesField,
 } = config;
 
-const bot = new Discussion({
-  context,
-  model: model,
-  temperature,
-  topP,
-  topK,
-  candidateCount,
-});
+// const bot = new Discussion({
+//   context,
+//   model: model,
+//   temperature,
+//   topP,
+//   topK,
+//   candidateCount,
+// });
 
 logs.init(config);
 
@@ -101,7 +101,7 @@ export const generateMessage = functions.firestore
         }
       }
 
-      const result = await bot.send(newPrompt, requestOptions);
+      const result = await discussionClient.send(newPrompt, requestOptions);
 
       const duration = performance.now() - t0;
       logs.receivedAPIResponse(ref.path, history.length, duration);

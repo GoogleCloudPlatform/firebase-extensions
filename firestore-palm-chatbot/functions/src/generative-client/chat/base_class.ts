@@ -17,6 +17,7 @@ export abstract class DiscussionClient<
   ChatOptions extends {
     history?: Message[];
   },
+  ApiMessage,
 > {
   client?: Client;
   constructor() {}
@@ -29,17 +30,25 @@ export abstract class DiscussionClient<
     return history;
   }
 
-  async send(message: Message, options: ChatOptions): Promise<ChatResponse> {
+  async send(
+    messageContent: string,
+    options: ChatOptions
+  ): Promise<ChatResponse> {
     if (!this.client) {
       throw new Error('Client not initialized.');
     }
     const history = this.getHistory(options);
-    const messages = [...history, message];
-    return await this.generateResponse(messages, options);
+    const latestApiMessage = this.createLatestApiMessage(messageContent);
+    return await this.generateResponse(history, latestApiMessage, options);
+  }
+
+  createLatestApiMessage(_messageContent: string): ApiMessage {
+    throw new Error('Not implemented');
   }
 
   async generateResponse(
-    _messages: Message[],
+    _history: Message[],
+    _latestApiMessage: ApiMessage,
     _options: ChatOptions
   ): Promise<ChatResponse> {
     throw new Error('Not implemented');

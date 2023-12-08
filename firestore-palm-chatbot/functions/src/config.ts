@@ -15,10 +15,20 @@
  */
 
 export interface Config {
+  palm: {
+    model?: string;
+    apiKey?: string;
+  };
+  vertex: {
+    model?: string;
+  };
+  gemini: {
+    model?: string;
+    apiKey?: string;
+  };
   location: string;
   projectId: string;
   instanceId: string;
-  model: string;
   context?: string;
   promptField: string;
   responseField: string;
@@ -41,18 +51,38 @@ function getModel() {
         default:
           return 'chat-bison-001';
       }
-    default:
+    case 'vertex':
       switch (process.env.MODEL) {
-        case 'codechat-bison':
-          return 'codechat-bison@001';
         default:
           return 'chat-bison@001';
       }
+    case 'gemini':
+      switch (process.env.MODEL) {
+        case 'gemini-pro':
+          return 'gemini-pro';
+        case 'gemini-ultra':
+          return 'gemini-ultra';
+        default:
+          throw new Error('Invalid model');
+      }
+    default:
+      throw new Error('Invalid provider');
   }
 }
 
 const config: Config = {
   // system defined
+  palm: {
+    model: getModel(),
+    apiKey: process.env.API_KEY,
+  },
+  vertex: {
+    model: getModel(),
+  },
+  gemini: {
+    model: getModel(),
+    apiKey: process.env.API_KEY,
+  },
   location: process.env.LOCATION!,
   projectId: process.env.PROJECT_ID!,
   instanceId: process.env.EXT_INSTANCE_ID!,
@@ -60,7 +90,6 @@ const config: Config = {
   collectionName:
     process.env.COLLECTION_NAME ||
     'users/{uid}/discussions/{discussionId}/messages',
-  model: getModel(),
   context: process.env.CONTEXT,
   promptField: process.env.PROMPT_FIELD || 'prompt',
   responseField: process.env.RESPONSE_FIELD || 'response',

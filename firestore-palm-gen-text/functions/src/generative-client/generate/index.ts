@@ -18,15 +18,20 @@ type Client =
   | TextServiceClient
   | v1.PredictionServiceClient;
 
-// const textGenerator = new TextGenerator({
-//   model: config.model,
-//   maxOutputTokens: config.maxOutputTokens,
-//   generativeSafetySettings: config.generativeSafetySettings,
-// });
-
-const {maxOutputTokens, generativeSafetySettings} = config;
+const {
+  temperature,
+  topP,
+  topK,
+  candidateCount,
+  maxOutputTokens,
+  generativeSafetySettings,
+} = config;
 
 const palmOptions = {
+  temperature,
+  topP,
+  topK,
+  candidateCount,
   maxOutputTokens,
   generativeSafetySettings,
 };

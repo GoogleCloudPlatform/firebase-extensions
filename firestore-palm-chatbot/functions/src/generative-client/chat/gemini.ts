@@ -1,4 +1,4 @@
-import {DiscussionClient, Message} from './base_chat_client';
+import {DiscussionClient, Message} from './base_class';
 import {GoogleGenerativeAI} from '@google/generative-ai';
 
 interface GeminiChatOptions {
@@ -14,9 +14,22 @@ interface GeminiChatOptions {
   context?: string;
 }
 
+type ApiMessage = {
+  role: string;
+  parts: {
+    text: string;
+  }[];
+};
+
+enum Role {
+  USER = 'user',
+  GEMINI = 'assistant',
+}
+
 export class GeminiDiscussionClient extends DiscussionClient<
   GoogleGenerativeAI,
-  GeminiChatOptions
+  GeminiChatOptions,
+  ApiMessage
 > {
   modelName: string;
   constructor({apiKey, modelName}: {apiKey?: string; modelName: string}) {
@@ -31,14 +44,26 @@ export class GeminiDiscussionClient extends DiscussionClient<
     this.client = new GoogleGenerativeAI(apiKey);
   }
 
-  async generateResponse(messages: Message[], _options: GeminiChatOptions) {
+  createLatestApiMessage(messageContent: string): ApiMessage {
+    return {
+      role: Role.USER,
+      parts: [{text: messageContent}],
+    };
+  }
+
+  async generateResponse(
+    history: Message[],
+    latestApiMessage: ApiMessage,
+    _options: GeminiChatOptions
+  ) {
     if (!this.client) {
       throw new Error('Client not initialized.');
     }
     const model = await this.client.getGenerativeModel({
       model: this.modelName,
     });
-    const contents = this.messagesToApi(messages);
+    const contents = [...this.messagesToApi(history), latestApiMessage];
+
     const result = await model.generateContent({
       contents,
     });
@@ -58,7 +83,7 @@ export class GeminiDiscussionClient extends DiscussionClient<
       response: text,
       candidates: [text!],
       safetyMetadata: promptFeedback,
-      history: messages,
+      history,
     };
   }
 
@@ -69,8 +94,8 @@ export class GeminiDiscussionClient extends DiscussionClient<
         // logs.warnMissingPromptOrResponse(message.path!);
         continue;
       }
-      out.push({role: 'user', parts: [{text: message.prompt!}]});
-      out.push({role: 'ai', parts: [{text: message.response!}]});
+      out.push({role: Role.USER, parts: [{text: message.prompt!}]});
+      out.push({role: Role.GEMINI, parts: [{text: message.response!}]});
     }
     return out;
   }

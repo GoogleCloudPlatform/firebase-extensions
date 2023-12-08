@@ -1,11 +1,14 @@
 import config from '../../config';
-import {GenerativeClient} from './base_text_client';
-import {GeminiGenerativeClient} from './gemini';
-import {PalmGenerativeClient} from './generative';
-import {VertexGenerativeClient} from './vertex';
+import {GeminiDiscussionClient} from './gemini';
+import {PalmDiscussionClient} from './generative';
+import {VertexDiscussionClient} from './vertex';
 import {GoogleGenerativeAI} from '@google/generative-ai';
-import {TextServiceClient} from '@google-ai/generativelanguage';
+import {
+  DiscussServiceClient,
+  TextServiceClient,
+} from '@google-ai/generativelanguage';
 import {v1} from '@google-cloud/aiplatform';
+import {DiscussionClient} from './base_class';
 
 enum GenerativeAIProvider {
   PALM = 'palm',
@@ -15,38 +18,43 @@ enum GenerativeAIProvider {
 
 type Client =
   | GoogleGenerativeAI
-  | TextServiceClient
+  | DiscussServiceClient
   | v1.PredictionServiceClient;
 
-// const textGenerator = new TextGenerator({
-//   model: config.model,
-//   maxOutputTokens: config.maxOutputTokens,
-//   generativeSafetySettings: config.generativeSafetySettings,
+const {temperature, topP, topK, candidateCount, context} = config;
+
+// const bot = new Discussion({
+//   context,
+//   model: model,
+//   temperature,
+//   topP,
+//   topK,
+//   candidateCount,
 // });
 
-const {maxOutputTokens, generativeSafetySettings} = config;
-
 const palmOptions = {
-  maxOutputTokens,
-  generativeSafetySettings,
+  context,
+  temperature,
+  topP,
+  topK,
+  candidateCount,
 };
 
 const getGenerativeClient = (
   provider: GenerativeAIProvider
-  // TODO: types
-): GenerativeClient<any, Client> => {
+  // TODO: fix any
+): DiscussionClient<Client, any, any> => {
   switch (provider) {
     case GenerativeAIProvider.PALM:
       if (!config.palm.model) throw new Error('Palm model not set');
-      return new PalmGenerativeClient({
+      return new PalmDiscussionClient({
         model: config.palm.model,
-        safetySettings: config.palm.safetySettings,
         apiKey: config.palm.apiKey,
         ...palmOptions,
       });
     case GenerativeAIProvider.VERTEX:
       if (!config.vertex.model) throw new Error('Vertex model not set');
-      return new VertexGenerativeClient({
+      return new VertexDiscussionClient({
         model: config.vertex.model,
         projectId: config.projectId,
         location: config.location,
@@ -55,7 +63,7 @@ const getGenerativeClient = (
     case GenerativeAIProvider.GEMINI:
       if (!config.gemini.apiKey) throw new Error('Gemini API Key not set');
       if (!config.gemini.model) throw new Error('Gemini model not set');
-      return new GeminiGenerativeClient({
+      return new GeminiDiscussionClient({
         apiKey: config.gemini.apiKey,
         modelName: config.gemini.model,
       });
@@ -64,6 +72,6 @@ const getGenerativeClient = (
   }
 };
 
-export const generativeClient = getGenerativeClient(
+export const discussionClient = getGenerativeClient(
   config.provider as GenerativeAIProvider
 );
