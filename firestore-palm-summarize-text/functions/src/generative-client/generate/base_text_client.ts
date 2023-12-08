@@ -17,20 +17,3 @@ export abstract class GenerativeClient<GenerativeRequestOptions, Client> {
     throw new Error('Not implemented');
   }
 }
-
-// class DiscussionClient<
-//   GenerativeRequest,
-//   GenerativeResponse,
-//   Client,
-// > extends GenerativeClient<GenerativeRequest, Client> {
-//   constructor() {
-//     super();
-//   }
-
-//   messagesToApi() {}
-
-//   messagesFromApi() {}
-//   getHistory() {}
-
-//   async send(message: string, options?: any) {}
-// }
