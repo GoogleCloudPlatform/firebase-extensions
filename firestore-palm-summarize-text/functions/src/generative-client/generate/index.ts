@@ -1,5 +1,5 @@
-import config from '../config';
-import {GenerativeClient} from './base_classes';
+import config from '../../config';
+import {GenerativeClient} from './base_text_client';
 import {GeminiGenerativeClient} from './gemini';
 import {PalmGenerativeClient} from './generative';
 import {VertexGenerativeClient} from './vertex';

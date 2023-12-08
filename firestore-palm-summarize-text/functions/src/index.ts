@@ -22,7 +22,7 @@ import {DocumentReference, FieldValue} from 'firebase-admin/firestore';
 import {createErrorMessage} from './errors';
 
 const {textField, responseField, collectionName, targetSummaryLength} = config;
-import {generativeClient} from './generative-client';
+import {generativeClient} from './generative-client/generate';
 
 // const textGenerator = new TextGenerator({
 //   model: config.model,

@@ -1,4 +1,4 @@
-import {GenerativeClient} from './base_classes';
+import {GenerativeClient} from './base_text_client';
 import {TextServiceClient} from '@google-ai/generativelanguage';
 import {GoogleAuth} from 'google-auth-library';
 

@@ -1,4 +1,4 @@
-import {GenerativeClient} from './base_classes';
+import {GenerativeClient} from './base_text_client';
 import {helpers, v1} from '@google-cloud/aiplatform';
 import * as z from 'zod';
 
