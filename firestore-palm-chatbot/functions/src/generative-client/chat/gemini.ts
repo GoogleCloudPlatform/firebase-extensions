@@ -23,7 +23,7 @@ type ApiMessage = {
 
 enum Role {
   USER = 'user',
-  GEMINI = 'assistant',
+  GEMINI = 'model',
 }
 
 export class GeminiDiscussionClient extends DiscussionClient<
@@ -59,11 +59,10 @@ export class GeminiDiscussionClient extends DiscussionClient<
     if (!this.client) {
       throw new Error('Client not initialized.');
     }
-    const model = await this.client.getGenerativeModel({
+    const model = this.client.getGenerativeModel({
       model: this.modelName,
     });
     const contents = [...this.messagesToApi(history), latestApiMessage];
-
     const result = await model.generateContent({
       contents,
     });

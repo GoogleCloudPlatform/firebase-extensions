@@ -17,9 +17,12 @@
 import * as functions from 'firebase-functions';
 import * as logs from './logs';
 import config from './config';
-import {TextGenerator, TextGeneratorRequestOptions} from './generator';
 import {DocumentReference, FieldValue} from 'firebase-admin/firestore';
 import * as Mustache from 'mustache';
+import * as admin from 'firebase-admin';
+
+admin.initializeApp();
+
 import {
   createErrorMessage,
   missingVariableError,
@@ -112,8 +115,18 @@ export const generateText = functions.firestore
       const substitutedPrompt = Mustache.render(prompt, view);
 
       const t0 = performance.now();
+      let requestOptions = {};
+      if (data[config.imageField]) {
+        requestOptions = {
+          ...requestOptions,
+          image: data[config.imageField],
+        };
+      }
 
-      const result = await generativeClient.generate(substitutedPrompt, {});
+      const result = await generativeClient.generate(
+        substitutedPrompt,
+        requestOptions
+      );
 
       const duration = performance.now() - t0;
       logs.receivedAPIResponse(ref.path, duration);
@@ -122,8 +135,6 @@ export const generateText = functions.firestore
         'status.completeTime': FieldValue.serverTimestamp(),
         'status.updateTime': FieldValue.serverTimestamp(),
       };
-
-      console.log(result.safetyMetadata);
 
       if (result.safetyMetadata) {
         metadata.safetyMetadata = {};

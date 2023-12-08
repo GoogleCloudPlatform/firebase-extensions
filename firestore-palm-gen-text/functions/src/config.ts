@@ -47,6 +47,8 @@ export interface Config {
   provider?: string;
   apiKey?: string;
   generativeSafetySettings?: GLSafetySetting[];
+  bucketName?: string;
+  imageField: string;
 }
 
 function getModel() {
@@ -67,6 +69,8 @@ function getModel() {
           return 'gemini-pro';
         case 'gemini-ultra':
           return 'gemini-ultra';
+        case 'gemini-pro-vision':
+          return 'gemini-pro-vision';
         default:
           throw new Error('Invalid model');
       }
@@ -119,6 +123,8 @@ function getGenerativeSafetySettings() {
   ];
 }
 
+const defaultBucketName = `${process.env.PROJECT_ID}.appspot.com`;
+
 const config: Config = {
   palm: {
     model: getModel(),
@@ -159,6 +165,8 @@ const config: Config = {
     : 100,
   apiKey: process.env.API_KEY,
   generativeSafetySettings: getGenerativeSafetySettings(),
+  bucketName: process.env.BUCKET_NAME || defaultBucketName,
+  imageField: process.env.IMAGE_FIELD || 'image',
 };
 
 export default config;
