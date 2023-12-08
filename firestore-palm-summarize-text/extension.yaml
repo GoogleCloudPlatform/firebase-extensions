@@ -99,6 +99,29 @@ params:
         value: vertex
       - label: Generative Language AI for Developers
         value: generative
+      - label: Gemini
+        value: gemini
+    required: true
+    default: vertex
+    immutable: false
+
+  - param: MODEL
+    label: Palm API Provider
+    description: >-
+      There are two services which provide access to the PaLM API. Which would
+      you like to use? If Vertex AI is selected, the service will be
+      automatically enabled. If Generative Language is selected, you can provide
+      an API key obtained through MakerSuite or your GCP console, or use
+      Application Default Credentials if the Generative Language AI is enabled
+      in your google cloud project.
+    type: select
+    options:
+      - label: Text Bison (PaLM)
+        value: text-bison
+      - label: Ultra (Gemini)
+        value: gemini-ultra
+      - label: Pro (Gemini)
+        value: gemini-pro
     required: true
     default: vertex
     immutable: false
@@ -106,10 +129,10 @@ params:
   - param: API_KEY
     label: API Key (Generative Language AI for Developers Provider ONLY)
     description: >-
-      If you selected Generative AI for Developers as your PaLM API provider,
-      you can optionally choose to provide an API key. If you do not provide an
-      API key, the extension will use Application Default Credentials, but will
-      need the service enabled in GCP.
+      If you selected Generative AI for Developers, or Gemini as your AI
+      provider , you can optionally choose to provide an API key. If you do not
+      provide an API key, the extension will use Application Default
+      Credentials, but will need the service enabled in GCP.
     type: secret
     required: false
     immutable: false
@@ -172,8 +195,9 @@ params:
   - param: CONTENT_FILTER_THRESHOLD
     label: Content Filter Threshold
     description: >-
-      Threshold for harmful content. Specify what level of harmful content is blocked by the PaLM provider.
-      This threshold is applicable only to the Generative Language PaLM API.
+      Threshold for harmful content. Specify what level of harmful content is
+      blocked by the PaLM provider. This threshold is applicable only to the
+      Generative Language PaLM API.
     type: select
     options:
       - label: Default
