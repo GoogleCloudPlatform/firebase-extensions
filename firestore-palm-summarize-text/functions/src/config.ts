@@ -17,6 +17,18 @@
 import {GLHarmBlockThreshold, GLHarmCategory, GLSafetySetting} from './types';
 
 export interface Config {
+  palm: {
+    model?: string;
+    safetySettings?: GLSafetySetting[];
+    apiKey?: string;
+  };
+  vertex: {
+    model?: string;
+  };
+  gemini: {
+    model?: string;
+    apiKey?: string;
+  };
   location: string;
   projectId: string;
   instanceId: string;
@@ -39,11 +51,22 @@ function getModel() {
         default:
           return 'text-bison-001';
       }
-    default:
+    case 'vertex':
       switch (process.env.MODEL) {
         default:
           return 'text-bison@001';
       }
+    case 'gemini':
+      switch (process.env.MODEL) {
+        case 'gemini-pro':
+          return 'gemini-pro';
+        case 'gemini-ultra':
+          return 'gemini-ultra';
+        default:
+          throw new Error('Invalid model');
+      }
+    default:
+      throw new Error('Invalid provider');
   }
 }
 
@@ -87,6 +110,18 @@ function getGenerativeSafetySettings() {
 }
 
 const config: Config = {
+  palm: {
+    model: getModel(),
+    safetySettings: getGenerativeSafetySettings(),
+    apiKey: process.env.API_KEY,
+  },
+  vertex: {
+    model: getModel(),
+  },
+  gemini: {
+    model: getModel(),
+    apiKey: process.env.API_KEY,
+  },
   location: process.env.LOCATION!,
   projectId: process.env.PROJECT_ID!,
   instanceId: process.env.EXT_INSTANCE_ID!,

@@ -17,19 +17,21 @@
 import * as functions from 'firebase-functions';
 import * as logs from './logs';
 import config from './config';
-import {TextGenerator, TextGeneratorRequestOptions} from './generator';
+import {TextGeneratorRequestOptions} from './generator';
 import {DocumentReference, FieldValue} from 'firebase-admin/firestore';
 import {createErrorMessage} from './errors';
 
 const {textField, responseField, collectionName, targetSummaryLength} = config;
+import {generativeClient} from './generative-client';
 
-const textGenerator = new TextGenerator({
-  model: config.model,
-  maxOutputTokens: config.maxOutputTokens,
-  generativeSafetySettings: config.generativeSafetySettings,
-});
+// const textGenerator = new TextGenerator({
+//   model: config.model,
+//   maxOutputTokens: config.maxOutputTokens,
+//   generativeSafetySettings: config.generativeSafetySettings,
+// });
 
-logs.init(config);
+// TODO: make sure we redact keys here
+// logs.init(config);
 
 export const generateSummary = functions.firestore
   .document(collectionName)
@@ -71,7 +73,8 @@ export const generateSummary = functions.firestore
 
       const prompt = createSummaryPrompt(text, targetSummaryLength);
 
-      const result = await textGenerator.generate(prompt, requestOptions);
+      // const result = await textGenerator.generate(prompt, requestOptions);
+      const result = await generativeClient.generate(prompt, requestOptions);
 
       const duration = performance.now() - t0;
       logs.receivedAPIResponse(ref.path, duration);
