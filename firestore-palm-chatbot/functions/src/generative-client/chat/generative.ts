@@ -1,10 +1,10 @@
-import {DiscussionClient, Message} from './base_chat_client';
+import {DiscussionClient, Message} from './base_class';
 import {DiscussServiceClient} from '@google-ai/generativelanguage';
 import {GoogleAuth} from 'google-auth-library';
 
 interface PaLMChatOptions {
   history?: Message[];
-  model: string;
+  model?: string;
   temperature?: number;
   candidateCount?: number;
   topP?: number;
@@ -15,12 +15,50 @@ interface PaLMChatOptions {
   context?: string;
 }
 
+interface ApiMessage {
+  /** Message author */
+  author?: string | null;
+
+  /** Message content */
+  content?: string | null;
+}
+
 export class PalmDiscussionClient extends DiscussionClient<
   DiscussServiceClient,
-  PaLMChatOptions
+  PaLMChatOptions,
+  ApiMessage
 > {
-  constructor({apiKey}: {apiKey?: string}) {
+  model: string;
+  context?: string;
+  temperature?: number;
+  topP?: number;
+  topK?: number;
+  candidateCount?: number;
+
+  constructor({
+    apiKey,
+    model,
+    context,
+    temperature,
+    topP,
+    topK,
+    candidateCount,
+  }: {
+    apiKey?: string;
+    model: string;
+    context?: string;
+    temperature?: number;
+    topP?: number;
+    topK?: number;
+    candidateCount?: number;
+  }) {
     super();
+    this.model = model;
+    this.context = context;
+    this.temperature = temperature;
+    this.topP = topP;
+    this.topK = topK;
+    this.candidateCount = candidateCount;
 
     if (apiKey) {
       //   logs.usingAPIKey();
@@ -42,23 +80,30 @@ export class PalmDiscussionClient extends DiscussionClient<
     }
   }
 
-  async generateResponse(messages: Message[], options: PaLMChatOptions) {
+  async generateResponse(
+    history: Message[],
+    latestApiMessage: ApiMessage,
+    options: PaLMChatOptions
+  ) {
     if (!this.client) {
       throw new Error('Client not initialized.');
     }
+
+    const messages = [...this.messagesToApi(history), latestApiMessage];
+
     const prompt = {
-      messages: this.messagesToApi(messages),
+      messages,
       context: options.context || '',
       //TODO: examples
     };
 
     const request = {
       prompt,
-      model: options.model,
-      temperature: options.temperature,
-      topP: options.topP,
-      topK: options.topK,
-      candidateCount: options.candidateCount,
+      model: options.model || this.model,
+      temperature: options.temperature || this.temperature,
+      topP: options.topP || this.topP,
+      topK: options.topK || this.topK,
+      candidateCount: options.candidateCount || this.candidateCount,
     };
 
     const result = (await this.client.generateMessage(request))[0];
@@ -80,17 +125,16 @@ export class PalmDiscussionClient extends DiscussionClient<
     if (!content) {
       throw new Error('No content returned from server.');
     }
-    const _messagesReturned = result.messages || [];
 
     return {
       response: content,
       candidates,
       safetyMetadata: {},
-      history: messages,
+      history: history,
     };
   }
 
-  private messagesToApi(messages: Message[]) {
+  private messagesToApi(messages: Message[]): ApiMessage[] {
     const out = [];
     for (const message of messages) {
       if (!message.prompt || !message.response) {

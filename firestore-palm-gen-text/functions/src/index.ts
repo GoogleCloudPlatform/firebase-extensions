@@ -41,17 +41,20 @@ const {
   generativeSafetySettings,
 } = config;
 
-const textGenerator = new TextGenerator({
-  model: model,
-  temperature,
-  topP,
-  topK,
-  candidateCount,
-  maxOutputTokens,
-  generativeSafetySettings,
-});
+import {generativeClient} from './generative-client/generate';
 
-logs.init(config);
+// const textGenerator = new TextGenerator({
+// model: model,
+// temperature,
+// topP,
+// topK,
+// candidateCount,
+// maxOutputTokens,
+// generativeSafetySettings,
+// });
+
+// TODO: make sure we redact API KEY
+// logs.init(config);
 
 export const generateText = functions.firestore
   .document(collectionName)
@@ -109,12 +112,8 @@ export const generateText = functions.firestore
       const substitutedPrompt = Mustache.render(prompt, view);
 
       const t0 = performance.now();
-      const requestOptions: TextGeneratorRequestOptions = {};
 
-      const result = await textGenerator.generate(
-        substitutedPrompt,
-        requestOptions
-      );
+      const result = await generativeClient.generate(substitutedPrompt, {});
 
       const duration = performance.now() - t0;
       logs.receivedAPIResponse(ref.path, duration);
