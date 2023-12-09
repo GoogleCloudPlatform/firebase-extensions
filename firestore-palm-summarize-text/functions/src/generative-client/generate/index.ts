@@ -8,7 +8,7 @@ import {TextServiceClient} from '@google-ai/generativelanguage';
 import {v1} from '@google-cloud/aiplatform';
 
 enum GenerativeAIProvider {
-  PALM = 'palm',
+  PALM = 'generative',
   VERTEX = 'vertex',
   GEMINI = 'gemini',
 }

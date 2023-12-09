@@ -12,6 +12,12 @@ process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 // // We mock out the config here instead of setting environment variables directly
 jest.mock('../src/config', () => ({
   default: {
+    vertex: {
+      model: 'text-bison@001',
+    },
+    palm: {
+      model: 'models/text-bison-001',
+    },
     location: 'us-central1',
     projectId: 'test-project',
     instanceId: 'test-instance',
@@ -129,7 +135,8 @@ describe('generateText with vertex', () => {
 
     //Check that the document has not updated
     const updatedDoc = await ref.get();
-    expect(updatedDoc.data().notText).toEqual(notText);
+    expect(updatedDoc.data()).toBeDefined();
+    expect(updatedDoc.data()!.notText).toEqual(notText);
 
     //expectNoOp();
   }, 12000);
@@ -151,12 +158,14 @@ describe('generateText with vertex', () => {
 
     //Check that the document has not updated
     const updatedDoc = await ref.get();
-    expect(updatedDoc.data().text).toEqual('');
+    expect(updatedDoc.data()).toBeDefined();
+
+    expect(updatedDoc.data()!.text).toEqual('');
 
     //expectNoOp();
   }, 12000);
 
-  xtest('should not run if the text field is not a string', async () => {
+  test('should not run if the text field is not a string', async () => {
     const notMessage = {
       text: 123,
     };
@@ -185,7 +194,9 @@ describe('generateText with vertex', () => {
 
     /** Check that the document has not updated */
     const updatedDoc = await ref.get();
-    expect(updatedDoc.data()[config.responseField]).toEqual(
+    expect(updatedDoc.data()).toBeDefined();
+
+    expect(updatedDoc.data()![config.responseField]).toEqual(
       'user set response for some reason'
     );
 
@@ -208,7 +219,9 @@ describe('generateText with vertex', () => {
 
     /** Check that the document has not updated */
     const updatedDoc = await ref.get();
-    expect(updatedDoc.data().status).toEqual({
+    expect(updatedDoc.data()).toBeDefined();
+
+    expect(updatedDoc.data()!.status).toEqual({
       state: 'COMPLETED',
     });
 
