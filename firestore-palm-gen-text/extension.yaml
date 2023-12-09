@@ -93,8 +93,26 @@ params:
     default: vertex
     immutable: false
 
+  - param: MODEL
+    label: Language model
+    description: >-
+      Which language model do you want to use? Please ensure you pick a model
+      supported by your selected provider.
+    type: select
+    options:
+      - label: (Vertex or Generative AI for Developers) Text Bison
+        value: text-bison-001
+      - label: (Gemini) Gemini Ultra
+        value: gemini-ultra
+      - label: (Gemini) Gemini Pro
+        value: gemini-pro
+      - label: (Gemini) Gemini Pro Vision
+        value: gemini-pro-vision
+    required: true
+    immutable: false
+
   - param: API_KEY
-    label: API Key (PaLM or Gemini)
+    label: API Key (Generative AI for Developers, or Gemini)
     description: >-
       If you have selected Gemini as your provider, please enter your API key.
       If you selected Generative Language AI for Developers, you can enter your
@@ -211,24 +229,6 @@ params:
         value: australia-southeast1
     required: true
     immutable: true
-
-  - param: MODEL
-    label: Language model
-    description: >-
-      Which language model do you want to use? Please ensure you pick a model
-      supported by your selected provider.
-    type: select
-    options:
-      - label: (Vertex or Generative AI for Developers) Text Bison
-        value: text-bison-001
-      - label: (Gemini) Gemini Ultra
-        value: gemini-ultra
-      - label: (Gemini) Gemini Pro
-        value: gemini-pro
-      - label: (Gemini) Gemini Pro Vision
-        value: gemini-pro
-    required: true
-    immutable: false
 
   - param: TEMPERATURE
     label: Temperature

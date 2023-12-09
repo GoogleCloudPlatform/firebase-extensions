@@ -45,7 +45,7 @@ export interface Config {
 }
 
 function getModel() {
-  switch (process.env.PALM_API_PROVIDER) {
+  switch (process.env.GENERATIVE_AI_PROVIDER) {
     case 'generative':
       switch (process.env.MODEL) {
         default:
@@ -132,7 +132,7 @@ const config: Config = {
   targetSummaryLength: process.env.TARGET_SUMMARY_LENGTH
     ? parseInt(process.env.TARGET_SUMMARY_LENGTH)
     : 3,
-  provider: process.env.PALM_API_PROVIDER || 'vertex',
+  provider: process.env.GENERATIVE_AI_PROVIDER || 'vertex',
   model: getModel(),
   apiKey: process.env.API_KEY,
   maxOutputTokens: process.env.MAX_OUTPUT_TOKENS

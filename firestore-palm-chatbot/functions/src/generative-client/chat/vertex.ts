@@ -57,6 +57,9 @@ export class VertexDiscussionClient extends DiscussionClient<
     if (!this.client) {
       throw new Error('Client not initialized.');
     }
+
+    // todo: examples
+
     const instanceValue = helpers.toValue({
       messages: [...this.messagesToApi(history), latestApiMessage],
     });
