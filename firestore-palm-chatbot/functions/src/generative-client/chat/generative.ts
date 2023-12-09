@@ -13,6 +13,7 @@ interface PaLMChatOptions {
   projectId: string;
   location: string;
   context?: string;
+  examples?: any[];
 }
 
 interface ApiMessage {
@@ -34,6 +35,7 @@ export class PalmDiscussionClient extends DiscussionClient<
   topP?: number;
   topK?: number;
   candidateCount?: number;
+  examples?: any[];
 
   constructor({
     apiKey,
@@ -43,6 +45,7 @@ export class PalmDiscussionClient extends DiscussionClient<
     topP,
     topK,
     candidateCount,
+    examples,
   }: {
     apiKey?: string;
     model: string;
@@ -51,6 +54,7 @@ export class PalmDiscussionClient extends DiscussionClient<
     topP?: number;
     topK?: number;
     candidateCount?: number;
+    examples?: any[];
   }) {
     super();
     this.model = model;
@@ -59,6 +63,7 @@ export class PalmDiscussionClient extends DiscussionClient<
     this.topP = topP;
     this.topK = topK;
     this.candidateCount = candidateCount;
+    this.examples = examples;
 
     if (apiKey) {
       //   logs.usingAPIKey();
@@ -93,7 +98,8 @@ export class PalmDiscussionClient extends DiscussionClient<
 
     const prompt = {
       messages,
-      context: options.context || '',
+      context: options.context || this.context || '',
+      examples: options.examples || this.examples || [],
       //TODO: examples
     };
 
@@ -132,6 +138,10 @@ export class PalmDiscussionClient extends DiscussionClient<
       safetyMetadata: {},
       history: history,
     };
+  }
+
+  createLatestApiMessage(messageContent: string): ApiMessage {
+    return {author: '0', content: messageContent};
   }
 
   private messagesToApi(messages: Message[]): ApiMessage[] {

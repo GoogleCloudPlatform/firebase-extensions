@@ -12,6 +12,12 @@ process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 // // We mock out the config here instead of setting environment variables directly
 jest.mock('../../src/config', () => ({
   default: {
+    palm: {
+      model: 'chat-bison-001',
+    },
+    vertex: {
+      model: 'chat-bison@001',
+    },
     projectId: 'test-project',
     collectionName: 'discussionsTestVertex/{discussionId}/messages',
     location: 'us-central1',
@@ -42,7 +48,16 @@ jest.mock('@google-cloud/aiplatform', () => {
                   helpers.toValue({
                     candidates: [
                       {
+                        author: '1',
                         content: 'test response',
+                      },
+                    ],
+                    safetyAttributes: [
+                      {
+                        categories: [],
+                        scores: [],
+                        safetyRatings: [],
+                        blocked: false,
                       },
                     ],
                   }),
@@ -289,7 +304,6 @@ describe('generateMessage', () => {
           content: 'hello chat bison',
         },
       ],
-      context: '',
       examples: [],
     };
 
@@ -386,7 +400,6 @@ describe('generateMessage', () => {
           content: 'hello chat bison',
         },
       ],
-      context: '',
       examples: [],
     };
 

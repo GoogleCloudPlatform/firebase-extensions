@@ -14,6 +14,12 @@ process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 // // We mock out the config here instead of setting environment variables directly
 jest.mock('../../src/config', () => ({
   default: {
+    palm: {
+      model: 'models/chat-bison-001',
+    },
+    vertex: {
+      model: 'models/chat-bison-001',
+    },
     collectionName: 'discussionsTestGenerative/{discussionId}/messages',
     location: 'us-central1',
     orderField: 'createTime',
@@ -22,7 +28,7 @@ jest.mock('../../src/config', () => ({
     enableDiscussionOptionOverrides: true,
     candidatesField: 'candidates',
     provider: 'generative',
-    model: 'chat-bison-001',
+    model: 'models/chat-bison-001',
     context: 'Speak like Shakespeare',
   },
 }));

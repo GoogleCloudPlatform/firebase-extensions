@@ -13,11 +13,14 @@ process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 // // We mock out the config here instead of setting environment variables directly
 jest.mock('../src/config', () => ({
   default: {
+    vertex: {
+      model: 'text-bison',
+    },
     location: 'us-central1',
     projectId: 'test-project',
     instanceId: 'test-instance',
     collectionName: 'generateTest',
-    model: 'text-bison@001',
+    model: 'text-bison',
     textField: 'text',
     responseField: 'output',
     candidateCount: 1,
