@@ -14,7 +14,7 @@ process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 jest.mock('../src/config', () => ({
   default: {
     vertex: {
-      model: 'text-bison',
+      model: 'text-bison@001',
     },
     location: 'us-central1',
     projectId: 'test-project',
@@ -60,11 +60,7 @@ jest.mock('@google-cloud/aiplatform', () => {
 });
 
 const fft = firebaseFunctionsTest({
-  projectId: 'demo-gcp',
-});
-
-admin.initializeApp({
-  projectId: 'demo-gcp',
+  projectId: config.projectId,
 });
 
 type DocumentReference = admin.firestore.DocumentReference;
@@ -279,7 +275,9 @@ describe('generateText with vertex', () => {
     const instanceValue = helpers.toValue(prompt);
     const instances = [instanceValue!];
 
-    const parameter = {};
+    const parameter = {
+      maxOutputTokens: 1024,
+    };
 
     const parameters = helpers.toValue(parameter);
 

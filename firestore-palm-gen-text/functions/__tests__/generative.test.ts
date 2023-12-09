@@ -13,6 +13,9 @@ process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 // // We mock out the config here instead of setting environment variables directly
 jest.mock('../src/config', () => ({
   default: {
+    palm: {
+      model: 'models/text-bison-001',
+    },
     location: 'us-central1',
     projectId: 'test-project',
     instanceId: 'test-instance',
@@ -55,11 +58,7 @@ jest.mock('@google-ai/generativelanguage', () => {
 });
 
 const fft = firebaseFunctionsTest({
-  projectId: 'demo-gcp',
-});
-
-admin.initializeApp({
-  projectId: 'demo-gcp',
+  projectId: config.projectId,
 });
 
 type DocumentReference = admin.firestore.DocumentReference;
@@ -205,7 +204,7 @@ describe('generateText with GL', () => {
     expectNoOp();
   });
 
-  xtest('should not run if status field is set from the start', async () => {
+  test('should not run if status field is set from the start', async () => {
     const message = {
       text: 'hello chat bison',
       status: {

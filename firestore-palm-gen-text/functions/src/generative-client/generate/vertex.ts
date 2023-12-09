@@ -58,7 +58,8 @@ export class VertexGenerativeClient extends GenerativeClient<
     this.endpoint = `projects/${this.projectId}/locations/${this.location}/publishers/google/models/${this.model}`;
   }
 
-  async generate(promptText: string, generateOptions: any): Promise<any> {
+  async generate(promptText: string, options: any): Promise<any> {
+    console.log('options', options);
     if (!this.client) {
       throw new Error('Client not initialized');
     }
@@ -68,11 +69,12 @@ export class VertexGenerativeClient extends GenerativeClient<
     const instanceValue = helpers.toValue(prompt);
     const instances = [instanceValue!];
 
-    const temperature = generateOptions.temperature || this.temperature;
-    const topP = generateOptions.topP || this.topP;
-    const topK = generateOptions.topK || this.topK;
-    const maxOutputTokens =
-      generateOptions.maxOutputTokens || this.maxOutputTokens;
+    const temperature = options.temperature || this.temperature;
+    const topP = options.topP || this.topP;
+    const topK = options.topK || this.topK;
+    const maxOutputTokens = options.maxOutputTokens || this.maxOutputTokens;
+
+    console.log('MAX OUTPUT TOKENS HERE', maxOutputTokens);
 
     const parameter: Record<string, string | number> = {};
     // We have to set these conditionally or they get nullified and the request fails with a serialization error.
@@ -85,7 +87,9 @@ export class VertexGenerativeClient extends GenerativeClient<
     if (topK) {
       parameter.top_k = topK;
     }
-    parameter.maxOutputTokens = maxOutputTokens;
+    if (maxOutputTokens) {
+      parameter.maxOutputTokens = maxOutputTokens;
+    }
 
     const parameters = helpers.toValue(parameter);
 

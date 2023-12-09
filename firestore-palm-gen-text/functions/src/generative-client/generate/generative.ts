@@ -64,9 +64,10 @@ export class PalmGenerativeClient extends GenerativeClient<
       prompt: {
         text: promptText,
       },
-      model: `models/${this.model}`,
+      model: this.model,
+      safetySettings: options.safetySettings || this.safetySettings,
+      candidateCount: options.candidateCount || this.candidateCount,
       ...options,
-      safetySettings: this.safetySettings || options.safetySettings,
     };
 
     const [result] = await this.client.generateText(request);

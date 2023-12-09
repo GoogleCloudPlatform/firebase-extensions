@@ -56,7 +56,7 @@ function getModel() {
     case 'generative':
       switch (process.env.MODEL) {
         default:
-          return 'text-bison-001';
+          return 'models/text-bison-001';
       }
     case 'vertex':
       switch (process.env.MODEL) {
