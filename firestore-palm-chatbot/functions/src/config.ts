@@ -49,7 +49,7 @@ function getModel() {
     case 'generative':
       switch (process.env.MODEL) {
         case 'chat-bison':
-          return 'chat-bison-001';
+          return 'models/chat-bison-001';
         default:
           throw new Error('Invalid model');
       }

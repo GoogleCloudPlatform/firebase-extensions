@@ -96,11 +96,8 @@ export const generateMessage = functions.firestore
       if (enableDiscussionOptionOverrides) {
         const discussionOptions = await fetchDiscussionOptions(ref);
 
-        if (discussionOptions) {
-          requestOptions = {...requestOptions, ...discussionOptions};
-        }
+        requestOptions = {...requestOptions, ...discussionOptions};
       }
-
       const result = await discussionClient.send(newPrompt, requestOptions);
 
       const duration = performance.now() - t0;

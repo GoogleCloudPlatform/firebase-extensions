@@ -12,7 +12,13 @@ process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 // // We mock out the config here instead of setting environment variables directly
 jest.mock('../../src/config', () => ({
   default: {
-    projectId: 'test-project',
+    palm: {
+      model: 'chat-bison-001',
+    },
+    vertex: {
+      model: 'chat-bison@001',
+    },
+    projectId: 'invertase--palm-demo',
     collectionName: 'discussionsTestVertex/{discussionId}/messages',
     location: 'us-central1',
     orderField: 'createTime',
@@ -43,7 +49,16 @@ jest.mock('@google-cloud/aiplatform', () => {
                   helpers.toValue({
                     candidates: [
                       {
+                        author: '1',
                         content: 'test response',
+                      },
+                    ],
+                    safetyAttributes: [
+                      {
+                        categories: [],
+                        scores: [],
+                        safetyRatings: [],
+                        blocked: false,
                       },
                     ],
                   }),
@@ -196,7 +211,7 @@ describe('generateMessage', () => {
     // verify SDK is called with expected arguments
     const expectedRequestData = {
       endpoint:
-        'projects/test-project/locations/us-central1/publishers/google/models/chat-bison@001',
+        'projects/invertase--palm-demo/locations/us-central1/publishers/google/models/chat-bison@001',
       instances,
       parameters,
     };
@@ -293,7 +308,7 @@ describe('generateMessage', () => {
     // verify SDK is called with expected arguments
     const expectedRequestData = {
       endpoint:
-        'projects/test-project/locations/us-central1/publishers/google/models/chat-bison@001',
+        'projects/invertase--palm-demo/locations/us-central1/publishers/google/models/chat-bison@001',
       instances,
       parameters,
     };

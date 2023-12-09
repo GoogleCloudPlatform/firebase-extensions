@@ -21,6 +21,7 @@ interface VertexChatOptions {
   projectId: string;
   location: string;
   context?: string;
+  examples?: Message[];
 }
 
 type VertexPrediction = {
@@ -38,6 +39,12 @@ export class VertexDiscussionClient extends DiscussionClient<
   ApiMessage
 > {
   private endpoint: string;
+  context?: string;
+  temperature?: number;
+  topP?: number;
+  topK?: number;
+  candidateCount?: number;
+  examples?: any[];
 
   constructor(options: VertexChatOptions) {
     super();
@@ -47,6 +54,16 @@ export class VertexDiscussionClient extends DiscussionClient<
     };
 
     this.client = new v1.PredictionServiceClient(clientOptions);
+    this.context = options.context;
+    this.temperature = options.temperature;
+    this.topP = options.topP;
+    this.topK = options.topK;
+    this.candidateCount = options.candidateCount;
+    this.examples = options.examples;
+  }
+
+  createLatestApiMessage(messageContent: string): ApiMessage {
+    return {author: '0', content: messageContent};
   }
 
   async generateResponse(
@@ -60,9 +77,27 @@ export class VertexDiscussionClient extends DiscussionClient<
 
     // todo: examples
 
-    const instanceValue = helpers.toValue({
+    // todo: types
+    let instance: any = {
       messages: [...this.messagesToApi(history), latestApiMessage],
-    });
+    };
+    const context = options.context || this.context;
+    const examples = this.messagesToApi(options.examples || []);
+
+    if (context) {
+      instance = {
+        ...instance,
+        context,
+      };
+    }
+    if (examples) {
+      instance = {
+        ...instance,
+        examples,
+      };
+    }
+
+    const instanceValue = helpers.toValue(instance);
 
     const parameters = this.getParameters(options);
 
@@ -83,9 +118,9 @@ export class VertexDiscussionClient extends DiscussionClient<
     const parsedVertexPrediction = parseVertexPrediction(
       vertexPrediction as VertexPrediction
     );
-    const blocked = parsedVertexPrediction.safetyAttributes?.blocked || false;
+    const blocked = parsedVertexPrediction.safetyAttributes[0].blocked;
 
-    if (!blocked && !parsedVertexPrediction.content) {
+    if (!blocked && !parsedVertexPrediction.candidates.length) {
       throw new Error('No content returned from Vertex AI.');
     }
 
@@ -93,11 +128,12 @@ export class VertexDiscussionClient extends DiscussionClient<
       blocked,
       safetyAttributes: parsedVertexPrediction.safetyAttributes,
     };
-    const content = parsedVertexPrediction.content;
-    const candidates = content ? [content] : [];
+
+    const candidates = parsedVertexPrediction.candidates.map(c => c.content);
+    const content = candidates[0];
 
     return {
-      response: parsedVertexPrediction.content,
+      response: content,
       candidates,
       safetyMetadata,
       history: history,
@@ -110,7 +146,8 @@ export class VertexDiscussionClient extends DiscussionClient<
     const temperature = options.temperature;
     const topP = options.topP;
     const topK = options.topK;
-    const context = options.context || '';
+    const context = options.context || this.context || '';
+
     if (temperature) {
       parameter.temperature = temperature;
     }
@@ -140,13 +177,21 @@ export class VertexDiscussionClient extends DiscussionClient<
   }
 }
 
+const safetyAttributesSchema = z.object({
+  categories: z.array(z.any()),
+  scores: z.array(z.any()),
+  safetyRatings: z.array(z.any()),
+  blocked: z.boolean(),
+});
+
+const candidateSchema = z.object({
+  author: z.string(),
+  content: z.string(),
+});
+
 const vertexPredictionSchema = z.object({
-  content: z.string().optional(),
-  safetyAttributes: z
-    .object({
-      blocked: z.boolean(),
-    })
-    .optional(),
+  safetyAttributes: z.array(safetyAttributesSchema),
+  candidates: z.array(candidateSchema),
 });
 
 const parseVertexPrediction = (result: unknown) => {

@@ -3,15 +3,12 @@ import {GeminiDiscussionClient} from './gemini';
 import {PalmDiscussionClient} from './generative';
 import {VertexDiscussionClient} from './vertex';
 import {GoogleGenerativeAI} from '@google/generative-ai';
-import {
-  DiscussServiceClient,
-  TextServiceClient,
-} from '@google-ai/generativelanguage';
+import {DiscussServiceClient} from '@google-ai/generativelanguage';
 import {v1} from '@google-cloud/aiplatform';
 import {DiscussionClient} from './base_class';
 
 enum GenerativeAIProvider {
-  PALM = 'palm',
+  PALM = 'generative',
   VERTEX = 'vertex',
   GEMINI = 'gemini',
 }

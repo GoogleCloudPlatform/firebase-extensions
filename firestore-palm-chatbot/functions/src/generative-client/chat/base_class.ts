@@ -43,7 +43,7 @@ export abstract class DiscussionClient<
   }
 
   createLatestApiMessage(_messageContent: string): ApiMessage {
-    throw new Error('Not implemented');
+    throw new Error('Method Not implemented');
   }
 
   async generateResponse(

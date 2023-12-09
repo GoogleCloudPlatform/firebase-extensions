@@ -33,6 +33,8 @@ export async function fetchDiscussionOptions(
 
   const discussionDocSnap = await discussionDocRef.get();
 
+  console.log('discussionDocSnap', discussionDocSnap.data());
+
   if (!discussionDocSnap.exists) return {};
 
   const overrides = extractOverrides(discussionDocSnap);
@@ -55,72 +57,44 @@ export async function fetchDiscussionOptions(
 
   return overrides;
 }
+import {z} from 'zod';
 
-function extractOverrides(discussionDocSnap: DocumentSnapshot): any {
-  const overrides = {};
+const stringSchema = z.string();
+const intSchema = z.union([
+  z.string().transform(arg => parseInt(arg)),
+  z.number(),
+]);
+const floatSchema = z.union([z.string().transform(parseFloat), z.number()]);
+
+function extractOverrides(docSnap: DocumentSnapshot): Record<string, unknown> {
+  const overrides: Record<string, unknown> = {};
 
   const stringFields = ['context', 'model'];
   const intFields = ['topK', 'candidateCount'];
   const floatFields = ['topP', 'temperature'];
 
-  extractOverridesByType(
-    stringFields,
-    discussionDocSnap,
-    overrides,
-    (value: any) => value,
-    value => typeof value === 'string'
-  );
-  extractOverridesByType<number>(
-    intFields,
-    discussionDocSnap,
-    overrides,
-    parseMaybeInts,
-    value => typeof value === 'number' || typeof value === 'string'
-  );
-  extractOverridesByType<number>(
-    floatFields,
-    discussionDocSnap,
-    overrides,
-    parseMaybeFloats,
-    value => typeof value === 'number' || typeof value === 'string'
-  );
+  extractOverridesByType(stringFields, docSnap, overrides, stringSchema);
+  extractOverridesByType(intFields, docSnap, overrides, intSchema);
+  extractOverridesByType(floatFields, docSnap, overrides, floatSchema);
 
   return overrides;
 }
 
-function parseMaybeFloats(value: unknown): number {
-  if (typeof value === 'string') {
-    return parseFloat(value);
-  }
-  if (typeof value === 'number') {
-    return value;
-  }
-  return NaN;
-}
-
-function parseMaybeInts(value: unknown): number {
-  if (typeof value === 'string') {
-    return parseInt(value);
-  }
-  if (typeof value === 'number') {
-    return value;
-  }
-  return NaN;
-}
-
-function extractOverridesByType<T>(
+function extractOverridesByType(
   fields: string[],
   docSnap: DocumentSnapshot,
-  overrides: Record<string, T>,
-  parseFunc: (value: unknown) => T,
-  validateFunc: (value: unknown) => boolean
+  overrides: Record<string, unknown>,
+  schema: z.ZodType<any, any, any>
 ): void {
-  for (const field of fields) {
-    const value = parseFunc(docSnap.get(field));
-    if (validateFunc(value)) {
+  fields.forEach(field => {
+    const rawValue = docSnap.get(field);
+    try {
+      const value = schema.parse(rawValue);
       overrides[field] = value;
+    } catch (error) {
+      // TODO: add warning
     }
-  }
+  });
 }
 
 function validateExamples(examples: Record<string, unknown>[]): Message[] {
