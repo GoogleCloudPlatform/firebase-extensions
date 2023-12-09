@@ -30,18 +30,12 @@ import {
 } from './errors';
 
 const {
-  model,
   prompt,
   responseField,
   collectionName,
-  temperature,
-  topP,
-  topK,
   candidateCount,
   candidatesField,
-  maxOutputTokens,
   variableFields,
-  generativeSafetySettings,
 } = config;
 
 import {generativeClient} from './generative-client/generate';
@@ -116,7 +110,12 @@ export const generateText = functions.firestore
 
       const t0 = performance.now();
       let requestOptions = {};
-      if (data[config.imageField]) {
+      if (config.model === 'gemini-pro-vision') {
+        if (!data[config.imageField]) {
+          throw new Error(
+            `Gemini Pro Vision requires you to provide an image but you are missing any ${config.imageField} value!`
+          );
+        }
         requestOptions = {
           ...requestOptions,
           image: data[config.imageField],

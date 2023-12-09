@@ -44,7 +44,11 @@ export class GeminiGenerativeClient extends GenerativeClient<
     };
     const promptParts: Part[] = [textPart];
 
-    if (options.image && this.modelName === 'gemini-pro-vision') {
+    if (this.modelName === 'gemini-pro-vision') {
+      if (!options.image) {
+        throw new Error('Gemini Pro Vision selected, but missing Image Field');
+      }
+
       const base64String = await getImageBase64(options.image);
 
       const imagePart = {
