@@ -66,7 +66,7 @@ export class PalmGenerativeClient extends GenerativeClient<
       },
       model: `models/${this.model}`,
       ...options,
-      safetySettings: this.safetySettings || options.safetySettings,
+      safetySettings: this.safetySettings || options.safetySettings || [],
     };
 
     const [result] = await this.client.generateText(request);
