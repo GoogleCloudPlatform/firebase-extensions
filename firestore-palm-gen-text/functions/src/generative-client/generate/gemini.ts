@@ -4,10 +4,9 @@
 //   HarmBlockThreshold,
 // } from '@google/generative-ai-web';
 
-import {GoogleGenerativeAI, InlineDataPart, Part} from '@google/generative-ai';
+import {GoogleGenerativeAI, Part} from '@google/generative-ai';
 import {GenerativeClient} from './base_text_client';
 import * as admin from 'firebase-admin';
-import config from '../../config';
 enum Role {
   USER = 'user',
   GEMINI = 'model',
@@ -47,14 +46,14 @@ export class GeminiGenerativeClient extends GenerativeClient<
 
     if (options.image && this.modelName === 'gemini-pro-vision') {
       const base64String = await getImageBase64(options.image);
-      // @ts-ignore
+
       const imagePart = {
         inlineData: {
           mimeType: 'image/png',
           data: base64String,
         },
       };
-      // @ts-ignore
+
       promptParts.push(imagePart);
     }
 
@@ -127,7 +126,27 @@ async function getImageBase64(image: string): Promise<string> {
 }
 
 async function getBufferFromStorage(image: string) {
-  const fileName = image.split(config.bucketName + '/')[1];
+  // e.g from gs://invertase--palm-demo.appspot.com/the-matrix.jpeg
+  // we get invertase--palm-demo.appspot.com
+  const bucketName = extractBucketName(image);
 
-  return admin.storage().bucket(config.bucketName).file(fileName).download();
+  const fileName = image.split(bucketName + '/')[1];
+
+  return admin.storage().bucket(bucketName).file(fileName).download();
+}
+
+function extractBucketName(url: string) {
+  // Split the URL by '://'
+  const parts = url.split('gs://');
+
+  // Check if the URL is correctly formatted
+  if (parts.length !== 2) {
+    return 'Invalid URL format';
+  }
+
+  // Further split the second part by '/' to isolate the bucket name
+  const bucketAndPath = parts[1].split('/', 1);
+  const bucketName = bucketAndPath[0];
+
+  return bucketName;
 }

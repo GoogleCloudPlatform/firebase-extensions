@@ -45,16 +45,22 @@ export interface Config {
 }
 
 function getModel() {
-  switch (process.env.PALM_API_PROVIDER) {
+  switch (process.env.GENERATIVE_AI_PROVIDER) {
     case 'generative':
       switch (process.env.MODEL) {
-        default:
+        case 'chat-bison':
           return 'chat-bison-001';
+        default:
+          throw new Error('Invalid model');
       }
     case 'vertex':
       switch (process.env.MODEL) {
-        default:
+        case 'chat-bison':
           return 'chat-bison@001';
+        case 'codechat-bison':
+          return 'codechat-bison@001';
+        default:
+          throw new Error('Invalid model');
       }
     case 'gemini':
       switch (process.env.MODEL) {
@@ -105,7 +111,7 @@ const config: Config = {
     ? parseInt(process.env.CANDIDATE_COUNT)
     : 1,
   candidatesField: process.env.CANDIDATES_FIELD || 'candidates',
-  provider: process.env.PALM_API_PROVIDER || 'vertex',
+  provider: process.env.GENERATIVE_AI_PROVIDER || 'vertex',
   apiKey: process.env.API_KEY,
 };
 

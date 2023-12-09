@@ -60,7 +60,6 @@ const getGenerativeClient = (
     case GenerativeAIProvider.GEMINI:
       if (!config.gemini.apiKey) throw new Error('Gemini API Key not set');
       if (!config.gemini.model) throw new Error('Gemini model not set');
-      console.log('using gemini');
       return new GeminiGenerativeClient({
         apiKey: config.gemini.apiKey,
         modelName: config.gemini.model,

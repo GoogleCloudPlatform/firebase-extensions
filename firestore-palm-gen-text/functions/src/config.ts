@@ -52,7 +52,7 @@ export interface Config {
 }
 
 function getModel() {
-  switch (process.env.PALM_API_PROVIDER) {
+  switch (process.env.GENERATIVE_AI_PROVIDER) {
     case 'generative':
       switch (process.env.MODEL) {
         default:
@@ -159,10 +159,10 @@ const config: Config = {
   variableFields: process.env.VARIABLE_FIELDS
     ? process.env.VARIABLE_FIELDS.split(',')
     : undefined,
-  provider: process.env.PALM_API_PROVIDER,
+  provider: process.env.GENERATIVE_AI_PROVIDER,
   maxOutputTokensVertex: process.env.MAX_OUTPUT_TOKENS
     ? parseInt(process.env.MAX_OUTPUT_TOKENS)
-    : 100,
+    : 1024,
   apiKey: process.env.API_KEY,
   generativeSafetySettings: getGenerativeSafetySettings(),
   bucketName: process.env.BUCKET_NAME || defaultBucketName,
