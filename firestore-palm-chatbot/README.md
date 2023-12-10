@@ -10,8 +10,11 @@
 
 On install you will be asked to provide:
 
-- A **PaLM API Provider** This extension makes use of the PaLM large language model. There is a choice of provider for this API. See the section below for more details.
-- A **Firestore collection path**, used to store conversation history represented as documents. This extension will listen to the specified collection(s) for new message documents.
+- **Generative AI Provider** This extension makes use of either the Vertex AI PaLM API, the Generative Language for Developers PaLM API, or the API for the new Gemini large language models. To make use of the Gemini option you provide a valid API key during installation of the extension.
+
+- **Language model**: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
+
+- **Firestore collection path**, used to store conversation history represented as documents. This extension will listen to the specified collection(s) for new message documents.
 
 The collection path also supports wildcards, so you can trigger the extension on multiple collections, each with their own private conversation history. This is useful if you want to create separate conversations for different users, or support multiple chat sessions.
 
@@ -39,7 +42,9 @@ I want you to act as a travel guide. I will ask you questions about various trav
 
 You can also configure the model to return different results by tweaking model parameters (temperature, candidate count, etc.), which are exposed as configuration during install as well.
 
-### Choosing a PaLM Provider
+### Choosing a Generative AI Provider
+
+#### PaLM
 
 There are currently two different APIs providing access to PaLM large language models. The PaLM Developer (Generative Language) API, and Vertex AI. This extension will prompt you to pick an API on installation. For production use-cases we recommend Vertex AI, as the Generative Language API is still in public preview.
 
@@ -47,6 +52,9 @@ There are currently two different APIs providing access to PaLM large language m
 
 - The PaLM developer (Generative Language) API is currently in public preview, and you will need to sign up [waitlist](https://makersuite.google.com/waitlist) if you want to use it. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 
+#### (New!) Gemini
+
+This extension now has partial support of the latest Gemini AI models. Some parameters (such as temperature, candidate count, topP, topK) are not yet supported. The models supported by this extension are Gemini Ultra and Gemini Pro.
 
 ### Regenerating a response
 
@@ -86,9 +94,11 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 **Configuration Parameters:**
 
-* Palm API Provider: There are two services which provide access to the PaLM API. Which would you like to use? If Vertex AI is selected, the service will be automatically enabled. If Generative Language is selected, you can provide an API key obtained through MakerSuite or your GCP console, or use Application Default Credentials if the Generative Language AI is enabled in your google cloud project.
+* Generative AI Provider: Which large language model API do you want to power the extension? There are two services which provide access to the PaLM API: Vertex and Generative Language for Developers. If Vertex AI is selected, the service will be automatically enabled. If Generative Language is selected, you can provide an API key obtained through MakerSuite or your GCP console, or use Application Default Credentials if the Generative Language AI has been enabled in your google cloud project. The extension now provides support for the latest Gemini models, which require an API key.
 
-* API Key (Generative Language AI for Developers Provider ONLY): If you selected Generative AI for Developers as your PaLM API provider, you can optionally choose to provide an API key. If you do not provide an API key, the extension will use Application Default Credentials, but will need the service enabled in GCP.
+* API Key (PaLM or Gemini): If you have selected Gemini as your provider, please enter your API key. If you selected Generative Language AI for Developers, you can enter your API key here if you do not want the extension to use Application Default Credentials.
+
+* Language model: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
 
 * Collection Path: Path to a Cloud Firestore collection which will represent a discussion with a LLM on the PaLM API.
 
@@ -99,8 +109,6 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 * Order Field: The field by which to order when fetching conversation history. If absent when processing begins, the current timestamp will be written to this field. Sorting will be in descending order.
 
 * Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
-
-* Language model: Which language model do you want to use?
 
 * Context: Contextual preamble for the language model. A string giving context for the discussion.
 
