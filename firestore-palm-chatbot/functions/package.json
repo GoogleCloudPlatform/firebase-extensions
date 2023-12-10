@@ -3,8 +3,9 @@
   "scripts": {
     "lint": "eslint \"src/**/*\"",
     "lint:fix": "eslint \"src/**/*\" --fix",
-    "build": "tsc",
-    "build:watch": "tsc --watch",
+    "prebuild": "cd ../../common/ext-gen-ai && npm run build && cd ../../firestore-palm-chatbot/functions && npm pack ../../common/* && npm install --save *.tgz",
+    "build": "npm run prebuild && tsc",
+    "build:watch": "npm run prebuild && tsc --watch",
     "generate-readme": "firebase ext:info .. --markdown > ../README.md",
     "test": "jest --runInBand"
   },
@@ -12,6 +13,7 @@
   "dependencies": {
     "@google-ai/generativelanguage": "^1.0.0",
     "@google-cloud/aiplatform": "^3.0.0",
+    "ext-gen-ai": "file:ext-gen-ai-1.0.0.tgz",
     "firebase-admin": "^11.6.0",
     "firebase-functions": "^4.3.0",
     "google-auth-library": "^9.0.0",

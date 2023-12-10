@@ -23,6 +23,8 @@ import {DocumentReference, FieldValue} from 'firebase-admin/firestore';
 import {createErrorMessage} from './errors';
 import {fetchDiscussionOptions, fetchHistory} from './firestore';
 
+import {hi} from 'ext-gen-ai';
+
 const {
   model,
   context,
@@ -52,6 +54,8 @@ logs.init(config);
 export const generateMessage = functions.firestore
   .document(collectionName)
   .onWrite(async change => {
+    functions.logger.log(hi);
+
     if (!change.after) {
       return; // do nothing on delete
     }

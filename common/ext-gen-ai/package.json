@@ -1,0 +1,19 @@
+{
+  "name": "ext-gen-ai",
+  "version": "1.0.0",
+  "description": "collection of clients and utilities to use generative AI fromm Google designed for internal extensions",
+  "main": "src/index.ts",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "lint": "eslint \"src/**/*\"",
+    "lint:fix": "eslint \"src/**/*\" --fix",
+    "build": "tsc",
+    "build:watch": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}

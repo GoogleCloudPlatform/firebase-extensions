@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "NodeNext",
+    "declaration": true,
+    "outDir": "./lib",
+    "rootDir": "./src",
+    "esModuleInterop": true,
+    "moduleResolution": "nodenext",
+    "sourceMap": true
+  },
+  "include": ["src"]
+}
