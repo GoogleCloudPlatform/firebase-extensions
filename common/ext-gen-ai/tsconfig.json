@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
-    "target": "es2017",
-    "module": "NodeNext",
-    "declaration": true,
-    "outDir": "./lib",
-    "rootDir": "./src",
-    "esModuleInterop": true,
-    "moduleResolution": "nodenext",
-    "sourceMap": true
+    "module": "commonjs",
+    "noImplicitReturns": true,
+    "noUnusedLocals": false,
+    "outDir": "lib",
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "es2017"
   },
+  "compileOnSave": true,
   "include": ["src"]
 }

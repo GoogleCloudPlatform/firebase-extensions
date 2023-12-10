@@ -5,3 +5,5 @@ lib
 typings/
 
 node_modules/
+
+*.tgz

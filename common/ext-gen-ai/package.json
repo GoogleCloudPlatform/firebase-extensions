@@ -2,8 +2,7 @@
   "name": "ext-gen-ai",
   "version": "1.0.0",
   "description": "collection of clients and utilities to use generative AI fromm Google designed for internal extensions",
-  "main": "src/index.ts",
-  "type": "module",
+  "main": "lib/index.js",
   "engines": {
     "node": ">=18.0.0"
   },
