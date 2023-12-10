@@ -37,11 +37,13 @@ The extension gives you a choice of PaLM API provider
 
 - The Generative Language for Developers PaLM API [PaLM API](https://developers.generativeai.google/guide/palm_api_overview).
 
+- Gemini (TODO(?): documentation link pending)
+
 ## Handling errors
 
 If the extension encounters an error, it will write an error message to the document in `status` field. You can use this field to monitor for errors in your documents.
 
-### Handling `ACCESS_TOKEN_SCOPE_INSUFFICIENT` error
+### PaLM: Handling `ACCESS_TOKEN_SCOPE_INSUFFICIENT` error
 
 If the error message is `The project or service account likely does not have access to the PaLM API`, please ensure that you have already signed up for the [waitlist](https://makersuite.google.com/waitlist) and have been approved before installing the extension.
 

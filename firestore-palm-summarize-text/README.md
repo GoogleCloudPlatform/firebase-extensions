@@ -6,11 +6,12 @@
 
 
 
-**Details**: This extension allows you to summarize a field in a Firestore document using the PaLM API.
+**Details**: This extension allows you to summarize a field in a Firestore document using the PaLM or Gemini API.
 
 On installation, you will need to specify the following information:
 
-- **PaLM API Provider** This extension makes use of the PaLM large language model. There is a choice of provider for this API. See the section below for more details.
+- **Generative AI Provider** This extension makes use of either the Vertex AI PaLM API, the Generative Language for Developers PaLM API, or the API for the new Gemini large language models. To make use of the Gemini option you provide a valid API key during installation of the extension.
+- **Language model**: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
 - **Firestore collection path:** The path to the Firestore collection that contains the documents to summarize.
 - **Document field to summarize:** The name of the document field to summarize.
 - **Target summary length (number of sentences):** The desired length of the summary in sentences.
@@ -18,7 +19,7 @@ On installation, you will need to specify the following information:
 
 This extension will listen to the specified collection for new document writes and execute the following logic:
 
-1. Call the PaLM API to generate a summary of the document field.
+1. Call the selected large language model to generate a summary of the document field.
 2. Write the summary back to the triggering document in the response field.
 
 ### Use cases
@@ -35,13 +36,19 @@ Here are some examples of how this extension can be used:
 - A news website could use this extension to summarize articles, helping readers decide whether they want to invest their time in reading the full article.
 - A social media platform could use this extension to provide summaries of user-generated content, improving content discoverability and user engagement.
 
-### Choosing a PaLM Provider
+### Choosing a Generative AI Provider
+
+#### PaLM
 
 There are currently two different APIs providing access to PaLM large language models. The PaLM Developer (Generative Language) API, and Vertex AI. This extension will prompt you to pick an API on installation. For production use-cases we recommend Vertex AI, as the Generative Language API is still in public preview.
 
 - The PaLM developer (Generative Language) API is currently in public preview, and you will need to sign up [waitlist](https://makersuite.google.com/waitlist) if you want to use it. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 
-- For more details on the Vertex AI PaLM API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview)
+- For more details on the Vertex AI PaLM API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview).
+
+#### (New!) Gemini
+
+This extension now has partial support of the latest Gemini AI models. Some parameters (such as temperature, candidate count, topP, topK) are not yet supported. The models supported by this extension are Gemini Ultra and Gemini Pro.
 
 ## Safety Thresholds
 
@@ -81,9 +88,11 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 **Configuration Parameters:**
 
-* Palm API Provider: There are two services which provide access to the PaLM API. Which would you like to use? If Vertex AI is selected, the service will be automatically enabled. If Generative Language is selected, you can provide an API key obtained through MakerSuite or your GCP console, or use Application Default Credentials if the Generative Language AI is enabled in your google cloud project.
+* Generative AI Provider: Which large language model API do you want to power the extension? There are two services which provide access to the PaLM API: Vertex and Generative Language for Developers. If Vertex AI is selected, the service will be automatically enabled. If Generative Language is selected, you can provide an API key obtained through MakerSuite or your GCP console, or use Application Default Credentials if the Generative Language AI has been enabled in your google cloud project. The extension now provides support for the latest Gemini models, which require an API key.
 
-* API Key (Generative Language AI for Developers Provider ONLY): If you selected Generative AI for Developers as your PaLM API provider, you can optionally choose to provide an API key. If you do not provide an API key, the extension will use Application Default Credentials, but will need the service enabled in GCP.
+* Language model: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
+
+* API Key (Generative AI for Developers, or Gemini): If you have selected Gemini as your provider, please enter your API key. If you selected Generative Language AI for Developers, you can enter your API key here if you do not want the extension to use Application Default Credentials.
 
 * Collection Name: Path to the Firestore collection where messages will be generated.
 

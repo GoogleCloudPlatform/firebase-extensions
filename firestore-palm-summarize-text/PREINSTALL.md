@@ -1,8 +1,9 @@
-This extension allows you to summarize a field in a Firestore document using the PaLM API.
+This extension allows you to summarize a field in a Firestore document using the PaLM or Gemini API.
 
 On installation, you will need to specify the following information:
 
-- **PaLM API Provider** This extension makes use of the PaLM large language model. There is a choice of provider for this API. See the section below for more details.
+- **Generative AI Provider** This extension makes use of either the Vertex AI PaLM API, the Generative Language for Developers PaLM API, or the API for the new Gemini large language models. To make use of the Gemini option you provide a valid API key during installation of the extension.
+- **Language model**: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
 - **Firestore collection path:** The path to the Firestore collection that contains the documents to summarize.
 - **Document field to summarize:** The name of the document field to summarize.
 - **Target summary length (number of sentences):** The desired length of the summary in sentences.
@@ -10,7 +11,7 @@ On installation, you will need to specify the following information:
 
 This extension will listen to the specified collection for new document writes and execute the following logic:
 
-1. Call the PaLM API to generate a summary of the document field.
+1. Call the selected large language model to generate a summary of the document field.
 2. Write the summary back to the triggering document in the response field.
 
 ### Use cases
@@ -27,13 +28,25 @@ Here are some examples of how this extension can be used:
 - A news website could use this extension to summarize articles, helping readers decide whether they want to invest their time in reading the full article.
 - A social media platform could use this extension to provide summaries of user-generated content, improving content discoverability and user engagement.
 
-### Choosing a PaLM Provider
+### Choosing a Generative AI Provider
+
+#### PaLM
 
 There are currently two different APIs providing access to PaLM large language models. The PaLM Developer (Generative Language) API, and Vertex AI. This extension will prompt you to pick an API on installation. For production use-cases we recommend Vertex AI, as the Generative Language API is still in public preview.
 
 - The PaLM developer (Generative Language) API is currently in public preview, and you will need to sign up [waitlist](https://makersuite.google.com/waitlist) if you want to use it. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 
-- For more details on the Vertex AI PaLM API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview)
+- For more details on the Vertex AI PaLM API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview).
+
+#### (New!) Gemini
+
+This extension now has partial support of the latest Gemini AI models. Some parameters (such as temperature, candidate count, topP, topK) are not yet supported. The models supported by this extension are Gemini Ultra, Gemini Pro, and Gemini Pro Vision.
+
+##### Multimodal Prompts
+
+This extension now supports providing multimodal prompts. To use this feature, select the Gemini Pro Vision model on installation, and provide an Image Field parameter. The Image Field parameter should be the name of a document field in firestore.
+
+When you select these options, any document handled by the extension must contain an image field. The image field must be a string, and can either be the Cloud Storage URL of an object (e.g `gs://my-bucket.appspot.com/filename.png`) or the base64-encoded string of an image. This image will then be provided as part of the prompt to Gemini Pro Vision.
 
 ## Safety Thresholds
 

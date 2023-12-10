@@ -61,3 +61,5 @@ firebase-debug.*.log*
 # Extension assets
 /firestore-incremental-capture/install/restore-firestore.jar
 .DS_Store
+
+*.secret.local

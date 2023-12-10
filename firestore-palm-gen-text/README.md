@@ -6,11 +6,12 @@
 
 
 
-**Details**: This extension allows you to perform language tasks using the PaLM API, a custom prompt, and Firestore.
+**Details**: This extension allows you to perform language tasks using the PaLM or Gemini API, a custom prompt, and Firestore.
 
 On installation, you will be asked to provide the following information:
 
-- **PaLM API Provider** This extension makes use of the PaLM large language model. There is a choice of provider for this API. See the section below for more details.
+- **Generative AI Provider** This extension makes use of either the Vertex AI PaLM API, the Generative Language for Developers PaLM API, or the API for the new Gemini large language models. To make use of the Gemini option you provide a valid API key during installation of the extension.
+- **Language model**: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
 - **Prompt:** This is the text that you want the PaLM API to generate a response for. It can be free-form text or it can use handlebars variables to substitute values from the Firestore document.
 - **Firestore collection path:** This is the path to the Firestore collection that contains the documents that you want to perform the language task on.
 - **Response field:** This is the name of the field in the Firestore document where you want the extension to store the response from the PaLM API.
@@ -59,7 +60,6 @@ There are currently two different APIs providing access to PaLM large language m
 
 - For more details on the Vertex AI PaLM API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview)
 
-
 ## Safety Thresholds
 
 Both the Generative Language for Developers and Vertex AI models have safety thresholds, to block inappropriate content. You can read the details here:
@@ -98,9 +98,11 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 **Configuration Parameters:**
 
-* Palm API Provider: There are two services which provide access to the PaLM API. Which would you like to use? If Vertex AI is selected, the service will be automatically enabled. If Generative Language is selected, you can provide an API key obtained through MakerSuite or your GCP console, or use Application Default Credentials if the Generative Language AI is enabled in your google cloud project.
+* Generative AI Provider: Which large language model API do you want to power the extension? There are two services which provide access to the PaLM API: Vertex and Generative Language for Developers. If Vertex AI is selected, the service will be automatically enabled. If Generative Language is selected, you can provide an API key obtained through MakerSuite or your GCP console, or use Application Default Credentials if the Generative Language AI has been enabled in your google cloud project. The extension now provides support for the latest Gemini models, which require an API key.
 
-* API Key (Generative Language AI for Developers Provider ONLY): If you selected Generative AI for Developers as your PaLM API provider, you can optionally choose to provide an API key. If you do not provide an API key, the extension will use Application Default Credentials, but will need the service enabled in GCP.
+* Language model: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
+
+* API Key (Generative AI for Developers, or Gemini): If you have selected Gemini as your provider, please enter your API key. If you selected Generative Language AI for Developers, you can enter your API key here if you do not want the extension to use Application Default Credentials.
 
 * Collection Path: Path to the Firestore collection where text will be generated.
 
@@ -108,11 +110,11 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 * Variable fields: A comma separated list of fields to substitute as variables in the prompt.
 
+* Image field (Gemini Pro Vision): A document field containing a cloud storage URL of an image, or a base64 string of an image. Note that this field is only supported by Gemini, and only with the Gemini Pro Vision model.
+
 * Response Field: The field in the message document into which to put the response.
 
 * Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
-
-* Language model: Which language model do you want to use?
 
 * Temperature: Controls the randomness of the output. Values can range over [0,1], inclusive. A value closer to 1 will produce responses that are more varied, while a value closer to 0 will typically result in less surprising responses from the model.
 
@@ -161,5 +163,7 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 This extension will operate with the following project IAM roles:
 
 * datastore.user (Reason: Allows this extension to access Cloud Firestore to read and process added messages.)
+
+* storage.objectAdmin (Reason: Allows the extension to write to your Cloud Storage.)
 
 * aiplatform.user (Reason: Allows this extension to access the PaLM API via Vertex AI if this provider is chosen.)

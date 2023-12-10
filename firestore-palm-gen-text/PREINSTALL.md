@@ -1,8 +1,9 @@
-This extension allows you to perform language tasks using the PaLM API, a custom prompt, and Firestore.
+This extension allows you to perform language tasks using the PaLM or Gemini API, a custom prompt, and Firestore.
 
 On installation, you will be asked to provide the following information:
 
-- **PaLM API Provider** This extension makes use of the PaLM large language model. There is a choice of provider for this API. See the section below for more details.
+- **Generative AI Provider** This extension makes use of either the Vertex AI PaLM API, the Generative Language for Developers PaLM API, or the API for the new Gemini large language models. To make use of the Gemini option you provide a valid API key during installation of the extension.
+- **Language model**: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
 - **Prompt:** This is the text that you want the PaLM API to generate a response for. It can be free-form text or it can use handlebars variables to substitute values from the Firestore document.
 - **Firestore collection path:** This is the path to the Firestore collection that contains the documents that you want to perform the language task on.
 - **Response field:** This is the name of the field in the Firestore document where you want the extension to store the response from the PaLM API.
@@ -50,7 +51,6 @@ There are currently two different APIs providing access to PaLM large language m
 - The PaLM developer (Generative Language) API is currently in public preview, and you will need to sign up [waitlist](https://makersuite.google.com/waitlist) if you want to use it. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 
 - For more details on the Vertex AI PaLM API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview)
-
 
 ## Safety Thresholds
 

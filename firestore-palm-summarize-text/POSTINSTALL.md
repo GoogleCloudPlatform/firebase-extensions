@@ -28,7 +28,13 @@ ref.onSnapshot(snap => {
 
 ## About the models
 
-The extension uses the [PaLM API](https://developers.generativeai.google/guide/palm_api_overview) to generate responses. Each of the models supported by the API has its own metadata, please check the [PaLM API documentation](https://developers.generativeai.google/models/language#model) for more information on the capabilities of your chosen model.
+The extension gives you a choice of PaLM API provider
+
+- The Vertex AI PaLM API: For more details on the Vertex AI PaLM API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview)
+
+- The Generative Language for Developers PaLM API [PaLM API](https://developers.generativeai.google/guide/palm_api_overview).
+
+- Gemini (TODO(?): documentation link pending)
 
 ## Handling errors
 
