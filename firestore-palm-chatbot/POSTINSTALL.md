@@ -29,15 +29,20 @@ ref.onSnapshot(snap => {
 })
 ```
 
-## About the models
+## About the providers
 
-The extension gives you a choice of PaLM API provider
+The extension gives you a choice of what provider to use for the available models:
 
 - The Vertex AI PaLM API: For more details on the Vertex AI PaLM API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview)
+- The Generative Language For Developers PaLM API [PaLM API](https://developers.generativeai.google/guide/palm_api_overview).
+- The Gemini API: For more details on the Gemini API, see the [Gemini homepage](https://deepmind.google/technologies/gemini).
 
-- The Generative Language for Developers PaLM API [PaLM API](https://developers.generativeai.google/guide/palm_api_overview).
+## About the models
 
-- Gemini (TODO(?): documentation link pending)
+The extension gives you a choice of 2 models:
+
+- [Gemini family](https://deepmind.google/technologies/gemini), including the Pro and Ultra models.
+- [PaLM 2](https://ai.google/discover/palm2/)
 
 ## Handling errors
 
