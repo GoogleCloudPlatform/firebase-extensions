@@ -6,7 +6,7 @@ On install you will be asked to provide:
 
 - **Language model**: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
 
-- **Firestore collection path**, used to store conversation history represented as documents. This extension will listen to the specified collection(s) for new message documents.
+- **Firestore collection path**: Used to store conversation history represented as documents. This extension will listen to the specified collection(s) for new message documents.
 
 The collection path also supports wildcards, so you can trigger the extension on multiple collections, each with their own private conversation history. This is useful if you want to create separate conversations for different users, or support multiple chat sessions.
 
@@ -34,13 +34,14 @@ I want you to act as a travel guide. I will ask you questions about various trav
 
 You can also configure the model to return different results by tweaking model parameters (temperature, candidate count, etc.), which are exposed as configuration during install as well.
 
-### Choosing a Generative AI Provider
+### Choosing a language model
 
-#### (New!) Gemini
+This extension supports the following language models:
 
-This extension now has partial support of the latest Gemini AI models. The models supported by this extension are **Gemini Ultra** and **Gemini Pro**.
+- [Gemini family](https://deepmind.google/technologies/gemini/#introduction), including the Pro and Ultra models.
+- [PaLM 2](https://ai.google/discover/palm2/)
 
-#### PaLM
+### Choosing a Generative AI Provider for PaLM
 
 There are currently two different APIs providing access to PaLM large language models. The PaLM Developer (Generative Language) API, and Vertex AI. This extension will prompt you to pick an API on installation. For production use-cases we recommend Vertex AI, as the Generative Language API is still in public preview.
 
