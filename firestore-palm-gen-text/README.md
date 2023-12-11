@@ -10,17 +10,17 @@
 
 On installation, you will be asked to provide the following information:
 
-- **Generative AI Provider** This extension makes use of either the Vertex AI PaLM API, the Generative Language for Developers PaLM API, or the API for the new Gemini large language models. To make use of the Gemini option you provide a valid API key during installation of the extension.
+- **Generative AI Provider** This extension makes use of either the Vertex AI Model API, the Generative Language for Developers API, or the API for the new Gemini large language models. To make use of the Gemini option you provide a valid API key during installation of the extension.
 - **Language model**: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
-- **Prompt:** This is the text that you want the PaLM API to generate a response for. It can be free-form text or it can use handlebars variables to substitute values from the Firestore document.
+- **Prompt:** This is the text that you want the Model API to generate a response for. It can be free-form text or it can use handlebars variables to substitute values from the Firestore document.
 - **Firestore collection path:** This is the path to the Firestore collection that contains the documents that you want to perform the language task on.
-- **Response field:** This is the name of the field in the Firestore document where you want the extension to store the response from the PaLM API.
+- **Response field:** This is the name of the field in the Firestore document where you want the extension to store the response from the Model API.
 
 This extension will listen to the specified collection for new documents. When such a document is added, the extension will:
 
 1. Substitute any variables from the document into the prompt.
-2. Query the PaLM API to generate a response based on the prompt.
-3. Write the response from the PaLM API back to the triggering document in the response field.
+2. Query the Model API to generate a response based on the prompt.
+3. Write the response from the Model API back to the triggering document in the response field.
 
 Each instance of the extension should be configured to perform one particular task. If you have multiple tasks, you can install multiple instances.
 
@@ -50,9 +50,17 @@ Provide a star rating from 1-5 of the following review text: “Please don’t g
 Provide a star rating from 1-5 of the following review text: \“{{review_text}}\”
 ```
 
-In this case, review_text is a field of the Firestore document and will be substituted into the prompt when querying PaLM.
+In this case, `review_text`` is a field of the Firestore document and will be substituted into the prompt when querying.
 
-### Choosing a PaLM Provider
+### Choosing a language model
+
+This extension supports the following language models:
+
+- [Gemini family](https://deepmind.google/technologies/gemini/#introduction), including the Pro and Ultra models.
+- [PaLM 2](https://ai.google/discover/palm2/)
+
+
+### Choosing a Generative AI Provider for PaLM
 
 There are currently two different APIs providing access to PaLM large language models. The PaLM Developer (Generative Language) API, and Vertex AI. This extension will prompt you to pick an API on installation. For production use-cases we recommend Vertex AI, as the Generative Language API is still in public preview.
 
