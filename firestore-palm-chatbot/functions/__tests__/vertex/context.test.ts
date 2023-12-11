@@ -96,7 +96,7 @@ const wrappedGenerateMessage = fft.wrap(
 const firestoreObserver = jest.fn();
 let collectionName: string;
 
-describe('generateMessage', () => {
+describe('vertex generateMessage context', () => {
   let unsubscribe: (() => void) | undefined;
 
   // clear firestore

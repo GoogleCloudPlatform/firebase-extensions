@@ -1,7 +1,6 @@
 import config from './config';
 import {Message, GenerateMessageOptions} from './types';
-import {DocumentSnapshot, DocumentReference} from 'firebase-admin/firestore';
-import {z} from 'zod';
+import {DocumentReference} from 'firebase-admin/firestore';
 import {extractOverrides} from './overrides';
 
 /** Utils for extracting conversation info from firestore */
