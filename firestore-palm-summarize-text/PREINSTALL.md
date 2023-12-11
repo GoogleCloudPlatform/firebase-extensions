@@ -28,25 +28,21 @@ Here are some examples of how this extension can be used:
 - A news website could use this extension to summarize articles, helping readers decide whether they want to invest their time in reading the full article.
 - A social media platform could use this extension to provide summaries of user-generated content, improving content discoverability and user engagement.
 
-### Choosing a Generative AI Provider
+### Choosing a language model
 
-#### PaLM
+This extension supports the following language models:
+
+- [Gemini family](https://deepmind.google/technologies/gemini/#introduction), including the Pro and Ultra models.
+- [PaLM 2](https://ai.google/discover/palm2/)
+
+
+### Choosing a Generative AI Provider for PaLM
 
 There are currently two different APIs providing access to PaLM large language models. The PaLM Developer (Generative Language) API, and Vertex AI. This extension will prompt you to pick an API on installation. For production use-cases we recommend Vertex AI, as the Generative Language API is still in public preview.
 
 - The PaLM developer (Generative Language) API is currently in public preview, and you will need to sign up [waitlist](https://makersuite.google.com/waitlist) if you want to use it. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
 
-- For more details on the Vertex AI PaLM API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview).
-
-#### (New!) Gemini
-
-This extension now has partial support of the latest Gemini AI models. Some parameters (such as temperature, candidate count, topP, topK) are not yet supported. The models supported by this extension are Gemini Ultra, Gemini Pro, and Gemini Pro Vision.
-
-##### Multimodal Prompts
-
-This extension now supports providing multimodal prompts. To use this feature, select the Gemini Pro Vision model on installation, and provide an Image Field parameter. The Image Field parameter should be the name of a document field in firestore.
-
-When you select these options, any document handled by the extension must contain an image field. The image field must be a string, and can either be the Cloud Storage URL of an object (e.g `gs://my-bucket.appspot.com/filename.png`) or the base64-encoded string of an image. This image will then be provided as part of the prompt to Gemini Pro Vision.
+- For more details on the Vertex AI PaLM API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview)
 
 ## Safety Thresholds
 
