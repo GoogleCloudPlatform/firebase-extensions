@@ -1,5 +1,7 @@
 {
-  "extensions": {},
+  "extensions": {
+    "firestore-palm-chatbot": "../firestore-palm-chatbot"
+  },
   "storage": {
     "rules": "storage.rules"
   },

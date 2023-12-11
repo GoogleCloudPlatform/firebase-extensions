@@ -96,6 +96,32 @@
         "firestore-bundle-server": "2e66ebb5590eeb0f1fb666e837f704d5bb520743508739f5e961f2c578e37f3f",
         "firestore-algolia-search": "1a86c380ed65df472ef4bed172d305ce8cada22bc510e990897e1562e5f62009"
       }
+    },
+    "f3-flutterfirebase-staging": {
+      "extensionInstances": {
+        "firestore-palm-chatbot": "c01c21df488711376b1b2c726a5e72a238f414f26b583074a858038dc2c1ad69"
+      }
+    },
+    "rc-release-testing": {
+      "extensionInstances": {
+        "firestore-stripe-invoices": "03edbbf77ee76759ec570e5dec209ef1375dc082c006fb629e876805887c9ef5",
+        "firestore-bigquery-export-test": "d52ed19b704456a0b9b4b388f1b4af48ec393edba63d0f4439fc3775cd79d204",
+        "firestore-stripe-payments": "4cc2bcc9fe30bca550ab7f0befa12381bbae9088f38bc499f3153103a1aa3be0",
+        "text-to-speech": "daa26f1a0e981e8c14565e19a8f0a5aae259fcf391208be8f48f9b66b79b9d4c",
+        "firestore-semantic-search": "0fe9f75380d1fd724a15fc4a64753a9b3c955e57e2c042d37a3e34234dd54362",
+        "speech-to-text": "458e09c80dd3fb0782fc85cd65af59a04203ddf6f44586f7aa27aeff280bbdd0",
+        "rtdb-limit-child-nodes": "9e4018c338c194fe470d1efa56677f0fcbadadd941853847805136e5c43c93e7",
+        "storage-reverse-image-search": "7ccf9d69482017410a35400ecd392323d021eeaccae019e241716e34ca5b7d00",
+        "firestore-send-email": "f6a7eeb7e12f32643f8d8f920efdfb3399e3dea0e6e18063ea9fe298b76c0a5a",
+        "firestore-translate-text": "f601a81a6579b0b8b8cc495292696f4d28cfdede68a86475f777696a829dac34",
+        "storage-resize-images": "4a930ea987389bbdf16a54bc8f8d34fd48999a64f0c97f67e1d10c15f090dbfd",
+        "storage-label-images": "0a32f9345ab5b61bca3a3fe082529743d8ac78166d49b0fd19783e0ee9a1d1a9",
+        "firestore-palm-chatbot": "13431054a072595bf03733204bcdea5bd3e7703825199051beff8960ea3e63d5",
+        "storage-label-videos": "15794536ec11a7a9fca39f6c55d2e6406eb424e90ca80ac344681cbc470b7e96",
+        "firestore-palm-summarize-text": "d9359284991449f800577a8b363955185a67c38d6b07d81a22a56afc0544a2af",
+        "firestore-palm-gen-text": "ebcd8e30c445c0081ac75f46a235fe355de184ee8f3d4a2b4f13ee2cde4fce9b",
+        "storage-extract-image-text": "27da7e4212fd525844a5c741a9f463659d8bfa6b5f470cb2a99be6331998ba76"
+      }
     }
   }
 }

@@ -1,3 +1,7 @@
+## Version 0.2.0
+
+feature - add support for Gemini Pro & Ultra
+
 ## Version 0.1.9
 
 docs - update to reflect current state of PaLM safety thresholds
