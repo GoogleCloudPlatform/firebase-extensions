@@ -17,6 +17,20 @@ import {logger} from 'firebase-functions';
 import {Config} from './config';
 
 export const init = (config: Config) => {
+  const configCopy = {...config};
+
+  if (configCopy.apiKey) {
+    configCopy.apiKey = configCopy.apiKey.replace(/./g, '*');
+  }
+
+  if (configCopy.palm?.apiKey) {
+    configCopy.palm.apiKey = configCopy.palm.apiKey.replace(/./g, '*');
+  }
+
+  if (configCopy.gemini?.apiKey) {
+    configCopy.gemini.apiKey = configCopy.gemini.apiKey.replace(/./g, '*');
+  }
+
   logger.info(
     `[firestore-palm-gen-text] Initialized with config: ${JSON.stringify(
       config
