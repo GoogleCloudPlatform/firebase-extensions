@@ -36,11 +36,8 @@ const palmOptions = {
   generativeSafetySettings,
 };
 
-const getGenerativeClient = (
-  provider: GenerativeAIProvider
-  // TODO: types
-): GenerativeClient<any, Client> => {
-  switch (provider) {
+export const getGenerativeClient = (): GenerativeClient<any, Client> => {
+  switch (config.provider as GenerativeAIProvider) {
     case GenerativeAIProvider.PALM:
       if (!config.palm.model) throw new Error('Palm model not set');
       return new PalmGenerativeClient({
@@ -68,7 +65,3 @@ const getGenerativeClient = (
       throw new Error('Invalid provider');
   }
 };
-
-export const generativeClient = getGenerativeClient(
-  config.provider as GenerativeAIProvider
-);
