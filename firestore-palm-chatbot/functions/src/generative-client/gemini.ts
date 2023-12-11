@@ -65,13 +65,22 @@ export class GeminiDiscussionClient extends DiscussionClient<
     const contents = [...this.messagesToApi(history), latestApiMessage];
     const result = await model.generateContent({
       contents,
+      generationConfig: {
+        topP: _options.topP,
+        topK: _options.topK,
+        temperature: _options.temperature,
+        maxOutputTokens: _options.maxOutputTokens,
+        candidateCount: _options.candidateCount,
+      },
     });
+
     const candidates = result.response.candidates;
 
     if (!candidates || candidates.length === 0) {
       // TODO: handle blocked responses
       throw new Error('No candidates returned');
     }
+
     const firstCandidate = candidates[0];
     const content = firstCandidate.content;
     const parts = content.parts;
@@ -84,7 +93,7 @@ export class GeminiDiscussionClient extends DiscussionClient<
     const promptFeedback = result.response.promptFeedback;
     return {
       response: text,
-      candidates: [text!],
+      candidates: candidates.map(c => c.content.parts[0].text ?? ''),
       safetyMetadata: promptFeedback,
       history,
     };

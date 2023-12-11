@@ -2,7 +2,7 @@ Use this extension to easily deploy a chatbot using the PaLM or Gemini API, stor
 
 On install you will be asked to provide:
 
-- **Generative AI Provider** This extension makes use of either the Vertex AI PaLM API, the Generative Language for Developers PaLM API, or the API for the new Gemini large language models. To make use of the Gemini option you provide a valid API key during installation of the extension.
+- **Generative AI Provider** This extension makes use of either the Vertex AI PaLM API, the Generative Language for Developers PaLM API, or the API for the new Gemini large language models. To make use of the Gemini option you need to provide a valid API key during installation of the extension.
 
 - **Language model**: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
 
@@ -36,6 +36,10 @@ You can also configure the model to return different results by tweaking model p
 
 ### Choosing a Generative AI Provider
 
+#### (New!) Gemini
+
+This extension now has partial support of the latest Gemini AI models. The models supported by this extension are **Gemini Ultra** and **Gemini Pro**.
+
 #### PaLM
 
 There are currently two different APIs providing access to PaLM large language models. The PaLM Developer (Generative Language) API, and Vertex AI. This extension will prompt you to pick an API on installation. For production use-cases we recommend Vertex AI, as the Generative Language API is still in public preview.
@@ -43,10 +47,6 @@ There are currently two different APIs providing access to PaLM large language m
 - For more details on the Vertex AI PaLM API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview)
 
 - The PaLM developer (Generative Language) API is currently in public preview, and you will need to sign up [waitlist](https://makersuite.google.com/waitlist) if you want to use it. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
-
-#### (New!) Gemini
-
-This extension now has partial support of the latest Gemini AI models. Some parameters (such as temperature, candidate count, topP, topK) are not yet supported. The models supported by this extension are Gemini Ultra and Gemini Pro.
 
 ### Regenerating a response
 
