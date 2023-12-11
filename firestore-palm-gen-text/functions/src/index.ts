@@ -38,7 +38,7 @@ const {
   variableFields,
 } = config;
 
-import {generativeClient} from './generative-client/generate';
+import {getGenerativeClient} from './generative-client/generate';
 
 // const textGenerator = new TextGenerator({
 // model: model,
@@ -122,6 +122,7 @@ export const generateText = functions.firestore
         };
       }
 
+      const generativeClient = getGenerativeClient();
       const result = await generativeClient.generate(
         substitutedPrompt,
         requestOptions

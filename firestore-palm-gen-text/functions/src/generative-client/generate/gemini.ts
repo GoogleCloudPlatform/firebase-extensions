@@ -68,7 +68,15 @@ export class GeminiGenerativeClient extends GenerativeClient<
           parts: promptParts,
         },
       ],
+      generationConfig: {
+        topK: options.topK,
+        topP: options.topP,
+        temperature: options.temperature,
+        candidateCount: options.candidateCount,
+        maxOutputTokens: options.maxOutputTokens,
+      },
     });
+
     const candidates = result.response.candidates;
 
     if (!candidates || candidates.length === 0) {
@@ -76,18 +84,14 @@ export class GeminiGenerativeClient extends GenerativeClient<
       throw new Error('No candidates returned');
     }
 
-    const firstCandidate = candidates[0];
-
-    const content = firstCandidate.content;
-
-    const parts = content.parts;
-
-    const text = parts[0].text;
-
+    // const firstCandidate = candidates[0];
+    // const content = firstCandidate.content;
+    // const parts = content.parts;
+    // const text = parts[0].text;
     const promptFeedback = result.response.promptFeedback;
 
     return {
-      candidates: [text],
+      candidates: candidates,
       safetyMetadata: promptFeedback,
     };
   }
