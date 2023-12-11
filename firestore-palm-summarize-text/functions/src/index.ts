@@ -22,7 +22,7 @@ import {DocumentReference, FieldValue} from 'firebase-admin/firestore';
 import {createErrorMessage} from './errors';
 
 const {textField, responseField, collectionName, targetSummaryLength} = config;
-import {generativeClient} from './generative-client/generate';
+import {getGenerativeClient} from './generative-client/generate';
 
 // const textGenerator = new TextGenerator({
 //   model: config.model,
@@ -30,8 +30,8 @@ import {generativeClient} from './generative-client/generate';
 //   generativeSafetySettings: config.generativeSafetySettings,
 // });
 
-// TODO: make sure we redact keys here
-// logs.init(config);
+const generativeClient = getGenerativeClient();
+logs.init(config);
 
 export const generateSummary = functions.firestore
   .document(collectionName)
@@ -73,7 +73,6 @@ export const generateSummary = functions.firestore
 
       const prompt = createSummaryPrompt(text, targetSummaryLength);
 
-      // const result = await textGenerator.generate(prompt, requestOptions);
       const result = await generativeClient.generate(prompt, requestOptions);
 
       const duration = performance.now() - t0;
