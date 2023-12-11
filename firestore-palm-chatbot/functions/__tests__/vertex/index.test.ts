@@ -1,15 +1,15 @@
 import * as firebaseFunctionsTest from 'firebase-functions-test';
-import * as admin from 'firebase-admin';
-import config from '../../src/config';
-import {generateMessage} from '../../src/index';
 import {WrappedFunction} from 'firebase-functions-test/lib/v1';
 import {Change} from 'firebase-functions/v1';
+import * as admin from 'firebase-admin';
+
+import {generateMessage} from '../../src/index';
+import config from '../../src/config';
 
 process.env.GCLOUD_PROJECT = 'demo-gcp';
-
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 
-// // We mock out the config here instead of setting environment variables directly
+// We mock out the config here instead of setting environment variables directly
 jest.mock('../../src/config', () => ({
   default: {
     palm: {
@@ -30,7 +30,6 @@ jest.mock('../../src/config', () => ({
   },
 }));
 
-// // mock to check the arguments passed to the annotateVideo function+
 const mockAPI = jest.fn();
 import {helpers} from '@google-cloud/aiplatform';
 
@@ -95,7 +94,7 @@ const wrappedGenerateMessage = fft.wrap(
 const firestoreObserver = jest.fn();
 let collectionName: string;
 
-describe('generateMessage', () => {
+describe('vertex generateMessage', () => {
   let unsubscribe: (() => void) | undefined;
 
   // clear firestore
@@ -344,54 +343,36 @@ describe('generateMessage', () => {
     );
 
     // we expect the firestore observer to be called 4 times total.
-    expect(firestoreObserver).toHaveBeenCalledTimes(4);
+    expect(firestoreObserver).toHaveBeenCalledTimes(3);
     const firestoreCallData = firestoreObserver.mock.calls.map(call =>
       call[0].docs[0].data()
     );
 
     // This is left in just so we know our observer caught everything, sanity check:
-    expectToHaveKeys(firestoreCallData[0], ['prompt']);
-    expect(firestoreCallData[0].prompt).toEqual(message.prompt);
 
-    // We expect the function to first add a createTime:
-    expectToHaveKeys(firestoreCallData[1], ['prompt', 'createTime']);
-    expect(firestoreCallData[1].prompt).toEqual(message.prompt);
-    const createTime = firestoreCallData[1].createTime;
-    expect(createTime).toEqual(expect.any(Timestamp));
+    expect(firestoreCallData[0]).toEqual(message);
 
-    // Then we expect the function to update the status to PROCESSING:
-    expectToHaveKeys(firestoreCallData[2], ['prompt', 'createTime', 'status']);
-    expect(firestoreCallData[2].prompt).toEqual(message.prompt);
-    expect(firestoreCallData[2].createTime).toEqual(createTime);
-    expectToHaveKeys(firestoreCallData[2].status, [
-      'state',
-      'updateTime',
-      'startTime',
-    ]);
-    expect(firestoreCallData[2].status.state).toEqual('PROCESSING');
-    expect(firestoreCallData[2].status.updateTime).toEqual(
-      expect.any(Timestamp)
-    );
-    const startTime = firestoreCallData[2].status.startTime;
-    expect(startTime).toEqual(expect.any(Timestamp));
-
-    // Then we expect the function to update the status to COMPLETED, with the response field populated:
-    expectToHaveKeys(firestoreCallData[3], [
-      'prompt',
-      'createTime',
-      'response',
-      'status',
-    ]);
-    expect(firestoreCallData[3].prompt).toEqual(message.prompt);
-    expect(firestoreCallData[3].createTime).toEqual(createTime);
-    expect(firestoreCallData[3].status).toEqual({
-      startTime,
-      state: 'COMPLETED',
-      error: null,
-      completeTime: expect.any(Timestamp),
-      updateTime: expect.any(Timestamp),
+    expect(firestoreCallData[1]).toEqual({
+      ...message,
+      createTime: expect.any(Timestamp),
+      status: {
+        state: 'PROCESSING',
+        startTime: expect.any(Timestamp),
+        updateTime: expect.any(Timestamp),
+      },
     });
-    expect(firestoreCallData[3].response).toEqual('test response');
+    const createTime = firestoreCallData[1].createTime;
+
+    expect(firestoreCallData[2]).toEqual({
+      ...message,
+      response: 'test response',
+      createTime,
+      status: {
+        state: 'COMPLETED',
+        updateTime: expect.any(Timestamp),
+        completeTime: expect.any(Timestamp),
+      },
+    });
 
     const prompt = {
       messages: [

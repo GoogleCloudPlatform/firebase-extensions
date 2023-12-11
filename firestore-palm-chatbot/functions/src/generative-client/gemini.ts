@@ -77,6 +77,10 @@ export class GeminiDiscussionClient extends DiscussionClient<
     const parts = content.parts;
     const text = parts[0].text;
 
+    if (!text) {
+      throw new Error('No text returned candidate');
+    }
+
     const promptFeedback = result.response.promptFeedback;
     return {
       response: text,

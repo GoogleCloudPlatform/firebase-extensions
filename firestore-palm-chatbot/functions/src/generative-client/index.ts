@@ -1,6 +1,6 @@
-import config from '../../config';
+import config from '../config';
 import {GeminiDiscussionClient} from './gemini';
-import {PalmDiscussionClient} from './generative';
+import {PalmDiscussionClient} from './palm';
 import {VertexDiscussionClient} from './vertex';
 import {GoogleGenerativeAI} from '@google/generative-ai';
 import {DiscussServiceClient} from '@google-ai/generativelanguage';
@@ -37,11 +37,9 @@ const palmOptions = {
   candidateCount,
 };
 
-const getGenerativeClient = (
-  provider: GenerativeAIProvider
-  // TODO: fix any
-): DiscussionClient<Client, any, any> => {
-  switch (provider) {
+// TODO fix any
+export const getGenerativeClient = (): DiscussionClient<Client, any, any> => {
+  switch (config.provider as GenerativeAIProvider) {
     case GenerativeAIProvider.PALM:
       if (!config.palm.model) throw new Error('Palm model not set');
       return new PalmDiscussionClient({
@@ -68,7 +66,3 @@ const getGenerativeClient = (
       throw new Error('Invalid provider');
   }
 };
-
-export const discussionClient = getGenerativeClient(
-  config.provider as GenerativeAIProvider
-);
