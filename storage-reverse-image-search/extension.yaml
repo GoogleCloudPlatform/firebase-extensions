@@ -555,7 +555,7 @@ params:
   - param: ACCELERATOR_COUNT
     label: Accelerator Count
     description: >-
-      The number of accelerators to attach to the the deployed index endpoint
+      The number of accelerators to attach to the deployed index endpoint
       machine. [Read more about accelerator counts config
       here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec).
     default: 1

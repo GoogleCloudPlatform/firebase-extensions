@@ -97,7 +97,7 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Accelerator type: The accelerator type for the deployed index endpoint. [Read more about accelerator types config here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec#AcceleratorType).
 
-* Accelerator Count: The number of accelerators to attach to the the deployed index endpoint machine. [Read more about accelerator counts config here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec).
+* Accelerator Count: The number of accelerators to attach to the deployed index endpoint machine. [Read more about accelerator counts config here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec).
 
 * Min replica count: The minimum number of machine replicas for the deployed index endpoint. [Read more about min replica counts config here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/DedicatedResources).
 
