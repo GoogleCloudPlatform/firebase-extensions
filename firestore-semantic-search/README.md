@@ -107,7 +107,7 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 * Min replica count: The minimum number of machine replicas for the deployed index endpoint. [Read more about min replica counts config here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/DedicatedResources).
 
-* Max replica count: The maxiumum number of machine replicas for the deployed index endpoint when the traffic against it increases. [Read more about max replica config here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/DedicatedResources).
+* Max replica count: The maximum number of machine replicas for the deployed index endpoint when the traffic against it increases. [Read more about max replica config here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/DedicatedResources).
 
 * Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
 
