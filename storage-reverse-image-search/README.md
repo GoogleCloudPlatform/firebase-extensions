@@ -74,7 +74,7 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 * Cloud Storage bucket for images: Which Cloud Storage bucket will has images you want to index and search?
 
 
-* The path to images in the bucket: If images is located inside a folder in the bucket, what's the path? If empty the root of the bucket will be used.
+* The path to images in the bucket: If images are located inside a folder in the bucket, what's the path? If empty, the root of the bucket will be used.
 
 
 * Do backfill?: Whether to backfill embeddings for all documents currently in the collection.
