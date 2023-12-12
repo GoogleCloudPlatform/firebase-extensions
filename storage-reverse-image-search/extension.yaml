@@ -579,7 +579,7 @@ params:
   - param: MAX_REPLICA_COUNT
     label: Max replica count
     description: >-
-      The maxiumum number of machine replicas for the deployed index endpoint
+      The maximum number of machine replicas for the deployed index endpoint
       when the traffic against it increases. [Read more about max replica config
       here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/DedicatedResources).
     default: 1
