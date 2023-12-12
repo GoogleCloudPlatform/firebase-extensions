@@ -518,7 +518,7 @@ params:
         value: g2-standard-16
 
   - param: ACCELERATOR_TYPE
-    label: Acceletaor type
+    label: Accelerator type
     description: >-
       The accelerator type for the deployed index endpoint. [Read more about
       accelerator types config

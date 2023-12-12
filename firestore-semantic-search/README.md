@@ -101,7 +101,7 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 * Machine type: The type of machine that is deployed for the index endpoint. [Read more about machine types config here](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#g2-series).
 
-* Acceletaor type: The accelerator type for the deployed index endpoint. [Read more about accelerator types config here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec#AcceleratorType).
+* Accelerator type: The accelerator type for the deployed index endpoint. [Read more about accelerator types config here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec#AcceleratorType).
 
 * Accelerator Count: The number of accelerators to attach to the the deployed index endpoint machine. [Read more about accelerator counts config here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec).
 
