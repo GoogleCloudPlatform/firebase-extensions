@@ -208,8 +208,8 @@ params:
   - param: IMG_PATH
     label: The path to images in the bucket
     description: >
-      If images is located inside a folder in the bucket, what's the path? If
-      empty the root of the bucket will be used.
+      If images are located inside a folder in the bucket, what's the path? If
+      empty, the root of the bucket will be used.
     type: string
     example: root/images
     validationRegex: ^[\w-]+(\/[\w-]+)*$
@@ -518,7 +518,7 @@ params:
         value: g2-standard-16
 
   - param: ACCELERATOR_TYPE
-    label: Acceletaor type
+    label: Accelerator type
     description: >-
       The accelerator type for the deployed index endpoint. [Read more about
       accelerator types config
@@ -555,7 +555,7 @@ params:
   - param: ACCELERATOR_COUNT
     label: Accelerator Count
     description: >-
-      The number of accelerators to attach to the the deployed index endpoint
+      The number of accelerators to attach to the deployed index endpoint
       machine. [Read more about accelerator counts config
       here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec).
     default: 1
