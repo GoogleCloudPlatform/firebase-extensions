@@ -239,6 +239,7 @@ params:
     type: string
     required: true
     immutable: true
+    default: https://tfhub.dev/google/tfjs-model/imagenet/inception_resnet_v2/feature_vector/1/default/1
     validationRegex: ^https:\/\/.*$
     validationErrorMessage: Invalid URL
 
@@ -251,6 +252,7 @@ params:
     required: true
     immutable: true
     example: 224,224
+    default: 299,299
     validationRegex: ^\d+,\d+$
     validationErrorMessage: Invalid input shape
 
