@@ -50,7 +50,6 @@ billingRequired: true
 # In an `apis` field, list any Google APIs (like Cloud Translation, BigQuery, etc.)
 # required for your extension to operate.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#apis-field
-
 apis:
   - apiName: aiplatform.googleapis.com
     reason: For access to the PaLM API if this provider is chosen.
@@ -66,6 +65,7 @@ roles:
     reason:
       Allows this extension to access the PaLM API via Vertex AI if this
       provider is chosen.
+
 # In the `resources` field, list each of your extension's functions, including the trigger for each function.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#resources-field
 resources:
@@ -98,18 +98,18 @@ params:
       for the latest Gemini models, which require an API key.
     type: select
     options:
+      - label: Gemini
+        value: gemini
       - label: Vertex AI
         value: vertex
       - label: Generative Language AI for Developers
         value: generative
-      - label: Gemini
-        value: gemini
     required: true
-    default: vertex
+    default: gemini
     immutable: false
 
   - param: API_KEY
-    label: API Key (required Gemini, optional for PaLM)
+    label: API Key (required for Gemini, optional for PaLM)
     description: >-
       If you have selected Gemini as your provider, please enter your API key.
       If you selected Generative Language AI for Developers, you can enter your
@@ -126,15 +126,14 @@ params:
       supported by your selected provider.
     type: select
     options:
+      - label: (Gemini) Gemini Pro
+        value: gemini-pro
       - label: (Vertex or Generative AI for Developers) Chat Bison
         value: chat-bison
       - label: (Vertex) Codechat Bison
         value: codechat-bison
-      - label: (Gemini) Gemini Ultra
-        value: gemini-ultra
-      - label: (Gemini) Gemini Pro
-        value: gemini-pro
     required: true
+    default: gemini-pro
     immutable: false
 
   - param: COLLECTION_NAME
