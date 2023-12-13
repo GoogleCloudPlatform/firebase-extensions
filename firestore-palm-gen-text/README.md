@@ -6,7 +6,7 @@
 
 
 
-**Details**: This extension allows you to perform language tasks using the PaLM or Gemini API, a custom prompt, and Firestore.
+**Details**: This extension allows you to perform language tasks using Google AI, a custom prompt, and Firestore.
 
 On installation, you will be asked to provide the following information:
 
@@ -56,8 +56,9 @@ In this case, `review_text`` is a field of the Firestore document and will be su
 
 This extension supports the following language models:
 
-- [Gemini Pro](https://ai.google.dev/docs) text model
-- [PaLM 2](https://ai.google/discover/palm2/)
+- [Gemini Pro](https://ai.google.dev/models/gemini) text model
+- [Gemini Pro Vision](https://ai.google.dev/models/gemini)
+- [PaLM 2](https://ai.google.dev/models/palm)
 
 #### Multimodal Prompts
 

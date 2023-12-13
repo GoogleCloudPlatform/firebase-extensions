@@ -38,8 +38,8 @@ The extension gives you a choice of what provider to use for the available model
 
 The extension gives you a choice of 2 models:
 
-- [Gemini family](https://deepmind.google/technologies/gemini), including the Pro and Ultra models.
-- [PaLM 2](https://ai.google/discover/palm2/)
+- [Gemini Pro](https://ai.google.dev/models/gemini) text model
+- [PaLM 2](https://ai.google.dev/models/palm)
 
 ## Handling errors
 
