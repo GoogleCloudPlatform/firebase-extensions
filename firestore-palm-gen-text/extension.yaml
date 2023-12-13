@@ -83,14 +83,14 @@ params:
       for the latest Gemini models, which require an API key.
     type: select
     options:
+      - label: Gemini
+        value: gemini
       - label: Vertex AI
         value: vertex
       - label: Generative Language AI for Developers
         value: generative
-      - label: Gemini
-        value: gemini
     required: true
-    default: vertex
+    default: gemini
     immutable: false
 
   - param: MODEL
@@ -100,15 +100,14 @@ params:
       supported by your selected provider.
     type: select
     options:
-      - label: (Vertex or Generative AI for Developers) Text Bison
-        value: text-bison-001
-      - label: (Gemini) Gemini Ultra
-        value: gemini-ultra
       - label: (Gemini) Gemini Pro
         value: gemini-pro
       - label: (Gemini) Gemini Pro Vision
         value: gemini-pro-vision
+      - label: (Vertex or Generative AI for Developers) Text Bison
+        value: text-bison-001
     required: true
+    default: gemini-pro
     immutable: false
 
   - param: API_KEY
