@@ -1,5 +1,5 @@
 import {DiscussionClient, Message} from './base_class';
-import {GoogleGenerativeAI} from '@google/generative-ai';
+import {GoogleGenerativeAI, InputContent} from '@google/generative-ai';
 
 interface GeminiChatOptions {
   history?: Message[];
@@ -59,12 +59,13 @@ export class GeminiDiscussionClient extends DiscussionClient<
     if (!this.client) {
       throw new Error('Client not initialized.');
     }
+
     const model = this.client.getGenerativeModel({
       model: this.modelName,
     });
-    const contents = [...this.messagesToApi(history), latestApiMessage];
-    const result = await model.generateContent({
-      contents,
+
+    const chatSession = model.startChat({
+      history: this.messagesToApi(history),
       generationConfig: {
         topP: _options.topP,
         topK: _options.topK,
@@ -74,33 +75,28 @@ export class GeminiDiscussionClient extends DiscussionClient<
       },
     });
 
-    const candidates = result.response.candidates;
+    const result = await chatSession.sendMessage(
+      latestApiMessage.parts[0].text
+    );
 
-    if (!candidates || candidates.length === 0) {
-      // TODO: handle blocked responses
-      throw new Error('No candidates returned');
-    }
-
-    const firstCandidate = candidates[0];
-    const content = firstCandidate.content;
-    const parts = content.parts;
-    const text = parts[0].text;
+    const text = result.response.text();
 
     if (!text) {
       throw new Error('No text returned candidate');
     }
 
-    const promptFeedback = result.response.promptFeedback;
     return {
       response: text,
-      candidates: candidates.map(c => c.content.parts[0].text ?? ''),
-      safetyMetadata: promptFeedback,
+      candidates:
+        result.response.candidates?.map(c => c.content.parts[0].text ?? '') ??
+        [],
+      safetyMetadata: result.response.promptFeedback,
       history,
     };
   }
 
   private messagesToApi(messages: Message[]) {
-    const out = [];
+    const out: InputContent[] = [];
     for (const message of messages) {
       if (!message.prompt || !message.response) {
         // logs.warnMissingPromptOrResponse(message.path!);
