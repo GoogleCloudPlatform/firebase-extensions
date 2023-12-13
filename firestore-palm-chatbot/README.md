@@ -1,8 +1,8 @@
-# Chatbot with PaLM API
+# Chatbot with Google AI
 
 **Author**: Google Cloud (**[https://cloud.google.com/](https://cloud.google.com/)**)
 
-**Description**: Deploys customizable chatbots using PaLM API and Firestore.
+**Description**: Deploys customizable chatbots using Google AI and Firestore.
 
 
 
@@ -46,7 +46,7 @@ You can also configure the model to return different results by tweaking model p
 
 This extension supports the following language models:
 
-- [Gemini family](https://deepmind.google/technologies/gemini/#introduction), including the Pro and Ultra models.
+- [Gemini Pro](https://ai.google.dev/docs) chat model
 - [PaLM 2](https://ai.google/discover/palm2/)
 
 ### Choosing a Generative AI Provider for PaLM
@@ -97,7 +97,7 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 * Generative AI Provider: Which large language model API do you want to power the extension? There are two services which provide access to the PaLM API: Vertex and Generative Language for Developers. If Vertex AI is selected, the service will be automatically enabled. If Generative Language is selected, you can provide an API key obtained through MakerSuite or your GCP console, or use Application Default Credentials if the Generative Language AI has been enabled in your google cloud project. The extension now provides support for the latest Gemini models, which require an API key.
 
-* API Key (required Gemini, optional for PaLM): If you have selected Gemini as your provider, please enter your API key. If you selected Generative Language AI for Developers, you can enter your API key here if you do not want the extension to use Application Default Credentials.
+* API Key (required for Gemini, optional for PaLM): If you have selected Gemini as your provider, please enter your API key. If you selected Generative Language AI for Developers, you can enter your API key here if you do not want the extension to use Application Default Credentials.
 
 * Language model: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
 

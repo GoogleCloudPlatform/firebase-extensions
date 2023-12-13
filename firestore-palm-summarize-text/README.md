@@ -1,8 +1,8 @@
-# Summarize Text with PaLM API
+# Summarize Text with Google AI
 
 **Author**: Google Cloud (**[https://cloud.google.com/](https://cloud.google.com/)**)
 
-**Description**: Summarizes text in Firestore documents using PaLM API.
+**Description**: Summarizes text in Firestore documents using Google AI.
 
 
 
@@ -40,7 +40,7 @@ Here are some examples of how this extension can be used:
 
 This extension supports the following language models:
 
-- [Gemini family](https://deepmind.google/technologies/gemini/#introduction), including the Pro and Ultra models.
+- [Gemini Pro](https://ai.google.dev/docs) text model
 - [PaLM 2](https://ai.google/discover/palm2/)
 
 
