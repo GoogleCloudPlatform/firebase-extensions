@@ -1,6 +1,6 @@
 ## Version 0.2.0
 
-feature - add support for Gemini Pro & Ultra
+feature - add support for Gemini Pro
 
 ## Version 0.1.10
 
