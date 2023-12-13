@@ -32,7 +32,7 @@ Here are some examples of how this extension can be used:
 
 This extension supports the following language models:
 
-- [Gemini family](https://deepmind.google/technologies/gemini/#introduction), including the Pro and Ultra models.
+- [Gemini Pro](https://ai.google.dev/docs) text model
 - [PaLM 2](https://ai.google/discover/palm2/)
 
 

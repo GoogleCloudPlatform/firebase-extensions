@@ -38,7 +38,7 @@ You can also configure the model to return different results by tweaking model p
 
 This extension supports the following language models:
 
-- [Gemini family](https://deepmind.google/technologies/gemini/#introduction), including the Pro and Ultra models.
+- [Gemini Pro](https://ai.google.dev/docs) chat model
 - [PaLM 2](https://ai.google/discover/palm2/)
 
 ### Choosing a Generative AI Provider for PaLM
