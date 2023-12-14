@@ -15,14 +15,17 @@
  */
 
 import * as google from 'googleapis';
+import {firestore} from 'firebase-admin';
 import {logger} from 'firebase-functions/v1';
 import {QueryDocumentSnapshot} from 'firebase-admin/firestore';
-
-import {ScheduledBackups} from '../utils/scheduled_backups';
-import {RestoreError, RestoreStatus} from '../models/restore_status';
-import {RestoreJobData} from '../models/restore_job_data';
-import {firestore} from 'firebase-admin';
 import {GaxiosError} from 'googleapis-common';
+
+import {
+  ScheduledBackups,
+  RestoreJobData,
+  RestoreError,
+  RestoreStatus,
+} from '../common';
 
 const scheduledBackups = new ScheduledBackups();
 

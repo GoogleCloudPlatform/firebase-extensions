@@ -20,9 +20,9 @@ import * as functionsv2 from 'firebase-functions/v2';
 
 import config from './config';
 
-import {syncDataHandler} from './tasks/on_sync_data_handler';
+import {syncDataHandler} from './tasks/sync_data_handler';
 import {triggerRestorationJobHandler} from './tasks/trigger_restoration_job_handler';
-import {runInitialSetupHandler} from './tasks/on_run_initial_setup_handler';
+import {runInitialSetupHandler} from './tasks/run_initial_setup_handler';
 import {
   restoreDoneTriggerConfig,
   restoreDoneTriggerHandler,

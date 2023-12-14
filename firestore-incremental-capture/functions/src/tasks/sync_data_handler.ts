@@ -17,8 +17,7 @@
 import * as functions from 'firebase-functions';
 
 import config from '../config';
-import {firestoreSerializer} from '../utils/firestore_serializer';
-import {getTable} from '../utils/big_query';
+import {firestoreSerializer, getTable} from '../common';
 
 const getState = (
   change: functions.Change<functions.firestore.DocumentSnapshot>
@@ -29,7 +28,7 @@ const getState = (
   // return if deleted
   if (!change.after?.exists) return 'DELETE';
 
-  //else return updated
+  // else return updated
   return 'UPDATE';
 };
 

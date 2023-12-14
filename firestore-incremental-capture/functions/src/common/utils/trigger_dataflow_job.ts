@@ -19,7 +19,7 @@ import {logger} from 'firebase-functions/v1';
 import {FlexTemplatesServiceClient} from '@google-cloud/dataflow';
 import {Timestamp} from 'firebase-admin/firestore';
 
-import config from '../config';
+import config from '../../config';
 
 const dataflowClient = new FlexTemplatesServiceClient();
 

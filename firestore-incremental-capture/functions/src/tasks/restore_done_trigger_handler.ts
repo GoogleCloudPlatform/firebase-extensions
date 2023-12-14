@@ -5,8 +5,7 @@ import {GoogleAuth} from 'google-auth-library';
 import * as functionsv2 from 'firebase-functions/v2';
 
 import config from '../config';
-import {RestoreStatus} from '../models/restore_status';
-import {launchJob} from '../dataflow/trigger_dataflow_job';
+import {RestoreStatus} from '../common/models/restore_job_status';
 
 const apiEndpoint = 'firestore.googleapis.com';
 

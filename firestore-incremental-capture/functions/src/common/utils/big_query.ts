@@ -17,8 +17,8 @@
 import {storage} from 'firebase-admin';
 import {BigQuery, Dataset} from '@google-cloud/bigquery';
 
-import config from '../config';
-import * as logs from '../logs';
+import config from '../../config';
+import * as logs from '../../logs';
 
 const bq = new BigQuery({projectId: config.projectId});
 

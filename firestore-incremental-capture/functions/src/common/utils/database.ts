@@ -15,8 +15,9 @@
  */
 
 import * as admin from 'firebase-admin';
-import config from '../config';
 import {logger} from 'firebase-functions/v1';
+
+import config from '../../config';
 
 export const updateStatus = (id: string, data: any) => {
   // log update

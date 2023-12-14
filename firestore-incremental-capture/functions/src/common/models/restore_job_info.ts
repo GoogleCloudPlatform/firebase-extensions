@@ -1,5 +1,5 @@
 import {firestore} from 'firebase-admin';
-import {RestoreStatus} from './restore_status';
+import {RestoreStatus} from './restore_job_status';
 import * as google from 'googleapis';
 
 export interface RestoreJobInfo {

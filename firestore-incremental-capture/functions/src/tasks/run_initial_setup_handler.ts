@@ -18,9 +18,10 @@ import {getExtensions} from 'firebase-admin/extensions';
 
 import config from '../config';
 
-import {initialize} from '../utils/big_query';
-import {bqBackupSchema} from '../constants/bq_backup_schema';
-import {setupScheduledBackups} from '../utils/scheduled_backups';
+import {initialize, bqBackupSchema} from '../common';
+import {ScheduledBackups} from '../common';
+
+const scheduledBackups = new ScheduledBackups();
 
 export async function runInitialSetupHandler() {
   // Setup runtime
@@ -45,7 +46,7 @@ export async function runInitialSetupHandler() {
     );
 
     // Setup scheduled backups for the Firestore database
-    const metadata = await setupScheduledBackups();
+    const metadata = await scheduledBackups.setupScheduledBackups();
 
     return runtime.setProcessingState(
       'PROCESSING_COMPLETE',

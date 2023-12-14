@@ -3,7 +3,7 @@ import {logger} from 'firebase-functions/v1';
 
 import {google, firestore_v1} from 'googleapis';
 
-import config from '../config';
+import config from '../../config';
 import {RestoreJobInfo} from '../models/restore_job_info';
 
 export class ScheduledBackups {
