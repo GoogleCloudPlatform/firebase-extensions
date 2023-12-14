@@ -87,6 +87,8 @@ Google Cloud Console [here](https://console.cloud.google.com/dataflow/pipelines)
 
 * **triggerRestorationJob:** Starts a new restoration task
 
+* **checkScheduledBackupState:** Checks if a scheduled backup is done to trigger the DataFlow job
+
 
 
 **APIs Used**:
