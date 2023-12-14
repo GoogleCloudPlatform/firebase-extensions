@@ -28,7 +28,8 @@ const scheduledBackups = new ScheduledBackups();
 
 export async function launchJob(
   timestamp: number,
-  jobRef: admin.firestore.DocumentReference
+  jobRef: admin.firestore.DocumentReference,
+  destinationDb: string
 ) {
   const projectId = config.projectId;
   const serverTimestamp = Timestamp.now().toMillis();
@@ -42,7 +43,7 @@ export async function launchJob(
 
   // Extract the database name from the backup instance name
   const values = config.backupInstanceName.split('/');
-  const firestoreDb = values[values.length - 1];
+  const firestorePrimaryDb = values[values.length - 1];
 
   /** Select the correct collection Id for apache beam */
   const firestoreCollectionId =
@@ -56,7 +57,8 @@ export async function launchJob(
       parameters: {
         timestamp: timestamp.toString(),
         firestoreCollectionId,
-        firestoreDb,
+        firestorePrimaryDb,
+        firestoreSecondaryDb: destinationDb,
         bigQueryDataset: config.bqDataset,
         bigQueryTable: config.bqtable,
       },

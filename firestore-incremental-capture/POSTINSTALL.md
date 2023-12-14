@@ -1,15 +1,3 @@
-## Enable PITR in the Google Cloud Console
-
-Follow the guidelines here [here](https://firebase.google.com/docs/firestore/use-pitr#gcloud) to enable PITR on your current database.
-
-## Creating a secondary Firestore database
-
-```bash
-   gcloud alpha firestore databases create --database=DATABASE_ID --location=LOCATION --type=firestore-native --project=${param:PROJECT_ID}
-```
-
-More information on this can be found [here](https://cloud.google.com/sdk/gcloud/reference/alpha/firestore/databases/create)
-
 ## Building the Dataflow Flex Template
 
 Before this extension can run restoration jobs from BigQuery to Firestore, you must build the Dataflow Flex Template. This is a one-time process that you must perform before you can use the extension.
@@ -26,31 +14,31 @@ We have detailed the steps below, or there is a single script you can run which 
 
 2. [Configure the Artificat Registery](https://cloud.google.com/dataflow/docs/guides/templates/using-flex-templates?hl=en#configure):
 
-```bash
-  gcloud artifacts repositories create ${param:EXT_INSTANCE_ID} \
-  --repository-format=docker \
-  --location=${param:LOCATION} \
-  --project=${param:PROJECT_ID} \
-  --async
-```
+  ```bash
+    gcloud artifacts repositories create ${param:EXT_INSTANCE_ID} \
+    --repository-format=docker \
+    --location=${param:LOCATION} \
+    --project=${param:PROJECT_ID} \
+    --async
+  ```
 
-Configure Docker to authenticate requests for Artifact Registry:
+3. Configure Docker to authenticate requests for Artifact Registry:
 
-```bash
-gcloud auth configure-docker ${param:LOCATION}-docker.pkg.dev
-```
+    ```bash
+    gcloud auth configure-docker ${param:LOCATION}-docker.pkg.dev
+    ```
 
-3. Add required policy binding for the repository:
+4. Add required policy binding for the repository:
 
-```bash
-  gcloud artifacts repositories add-iam-policy-binding ${param:EXT_INSTANCE_ID} \
-  --location=${param:LOCATION} \
-  --project=${param:PROJECT_ID} \
-  --member=serviceAccount:SERVICE_ACCOUNT_EMAIL \
-  --role=roles/artifactregistry.writer
-```
+  ```bash
+    gcloud artifacts repositories add-iam-policy-binding ${param:EXT_INSTANCE_ID} \
+    --location=${param:LOCATION} \
+    --project=${param:PROJECT_ID} \
+    --member=serviceAccount:SERVICE_ACCOUNT_EMAIL \
+    --role=roles/artifactregistry.writer
+  ```
 
-4. Add the required role for the extension service account to trigger Dataflow:
+5. Add the required role for the extension service account to trigger Dataflow:
 
    ```bash
     gcloud projects add-iam-policy-binding ${param:PROJECT_ID} \
@@ -59,7 +47,7 @@ gcloud auth configure-docker ${param:LOCATION}-docker.pkg.dev
     --role=roles/iam.serviceAccountUser
    ```
 
-5. Add the required role for the extension service account to trigger Dataflow:
+6. Add the required role for the extension service account to trigger Dataflow:
 
    ```bash
     gcloud projects add-iam-policy-binding ${param:PROJECT_ID} \
@@ -68,18 +56,19 @@ gcloud auth configure-docker ${param:LOCATION}-docker.pkg.dev
     --role=roles/artifactregistry.writer
    ```
 
-6. Download the JAR file for the Dataflow Flex Template [here](https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-incremental-capture-pipeline/target/restore-firestore.jar).
-7. Run the following command to build the Dataflow Flex Template:
+7. Download the JAR file for the Dataflow Flex Template [here](https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-incremental-capture-pipeline/target/restore-firestore.jar).
+  
+8. Run the following command to build the Dataflow Flex Template:
 
-```bash
-  gcloud dataflow flex-template build gs://${param:PROJECT_ID}.appspot.com/${param:EXT_INSTANCE_ID}-dataflow-restore \
-    --image-gcr-path ${param:LOCATION}-docker.pkg.dev/${param:PROJECT_ID}/${param:EXT_INSTANCE_ID}/dataflow/restore:latest \
-    --sdk-language JAVA \
-    --flex-template-base-image JAVA11 \
-    --jar /path/to/restore-firestore.jar \
-    --env FLEX_TEMPLATE_JAVA_MAIN_CLASS="com.pipeline.RestorationPipeline" \
-    --project ${param:PROJECT_ID}
-```
+  ```bash
+    gcloud dataflow flex-template build gs://${param:PROJECT_ID}.appspot.com/${param:EXT_INSTANCE_ID}-dataflow-restore \
+      --image-gcr-path ${param:LOCATION}-docker.pkg.dev/${param:PROJECT_ID}/${param:EXT_INSTANCE_ID}/dataflow/restore:latest \
+      --sdk-language JAVA \
+      --flex-template-base-image JAVA11 \
+      --jar /path/to/restore-firestore.jar \
+      --env FLEX_TEMPLATE_JAVA_MAIN_CLASS="com.pipeline.RestorationPipeline" \
+      --project ${param:PROJECT_ID}
+  ```
 
 ## Triggering a restoration job
 
@@ -88,5 +77,6 @@ You can trigger a restoration job by adding a new document to `${param:EXT_INSTA
 ```json
 {
   "timestamp": "2021-01-01T00:00:00Z", // A valid Firestore timestamp in the past
+  "destinationDatabaseId": "test", // The destination Firestore database to restore to
 }
 ```

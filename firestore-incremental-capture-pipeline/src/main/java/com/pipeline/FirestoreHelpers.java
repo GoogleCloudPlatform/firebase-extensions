@@ -106,11 +106,8 @@ public class FirestoreHelpers {
 
   public static final class DocumentToWrite extends BasePTransform<KV<String, Document>, Write> {
 
-    final String projectId;
-
-    public DocumentToWrite(String projectId, String database) {
-      super("projects/" + projectId + "/databases/" + database + "/documents");
-      this.projectId = projectId;
+    public DocumentToWrite() {
+      super("");
     }
 
     @Override

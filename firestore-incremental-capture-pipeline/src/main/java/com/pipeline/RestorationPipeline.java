@@ -46,6 +46,16 @@ public class RestorationPipeline {
 
     void setTimestamp(Long value);
 
+    @Description("The Firestore database to read from")
+    String getFirestorePrimaryDb();
+
+    void setFirestorePrimaryDb(String value);
+
+    @Description("The Firestore database to write to")
+    String getFirestoreSecondaryDb();
+
+    void setFirestoreSecondaryDb(String value);
+
     @Description("The Firestore collection to read from, or '*' to read from all collections")
     String getFirestoreCollectionId();
 
@@ -71,27 +81,13 @@ public class RestorationPipeline {
 
     String project = options.getProject();
     String collectionId = options.getFirestoreCollectionId();
-    String secondaryDatabase = options.getFirestoreDb();
+    String primaryDatabase = options.getFirestorePrimaryDb();
+    String secondaryDatabase = options.getFirestoreSecondaryDb();
     String datasetId = options.getBigQueryDataset();
     String tableId = options.getBigQueryTable();
-    String defaultDatabase = DEFAULT_FIRESTORE_OPTIONS.getDatabaseId();
     Instant readTime = Utils.adjustDate(Instant.ofEpochSecond(options.getTimestamp()));
 
     options.setFirestoreDb(secondaryDatabase);
-
-    // Read from Firestore at the specified timestamp to form the baseline
-    // The returned PCollection contains the documents at the specified timestamp in
-    // Firestore
-    PCollection<Document> documentsAtReadTime = pipeline
-        .apply("Passing the collection ID " + collectionId, Create.of(collectionId))
-        .apply("Prepare the PITR query", new FirestoreHelpers.RunQuery(project, defaultDatabase))
-        .apply(
-            FirestoreIO.v1()
-                .read()
-                .runQuery()
-                .withReadTime(readTime)
-                .build())
-        .apply(new FirestoreHelpers.RunQueryResponseToDocument());
 
     // Write the documents to the secondary database
     documentsAtReadTime
@@ -102,7 +98,7 @@ public class RestorationPipeline {
                 Document document = c.element();
 
                 // Replace the default database with the secondary database in the document id
-                String id = document.getName().replace(defaultDatabase, secondaryDatabase);
+                String id = document.getName().replace(primaryDatabase, secondaryDatabase);
 
                 Document newDocument = Document.newBuilder()
                     .setName(id)
@@ -122,7 +118,7 @@ public class RestorationPipeline {
         .apply("Read from BigQuery",
             new IncrementalCaptureLog(project, readTime, secondaryDatabase, datasetId, tableId))
         .apply("Prepare write operations",
-            new FirestoreHelpers.DocumentToWrite(defaultDatabase, defaultDatabase))
+            new FirestoreHelpers.DocumentToWrite())
         .apply("Write to the Firestore database instance (From BigQuery)",
             FirestoreIO.v1().write().batchWrite().build());
 

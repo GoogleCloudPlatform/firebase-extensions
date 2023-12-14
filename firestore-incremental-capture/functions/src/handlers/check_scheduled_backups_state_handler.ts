@@ -59,7 +59,8 @@ export const checkScheduledBackupStateHandler = async (data: any) => {
 
       await launchJob(
         (restoreData.data()!.timestamp as admin.firestore.Timestamp).toMillis(),
-        restoreRef
+        restoreRef,
+        restoreData.data()?.destinationDb
       );
     } else {
       functions.logger.info('Operation still running');
