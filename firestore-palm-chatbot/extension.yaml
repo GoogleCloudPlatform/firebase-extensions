@@ -6,7 +6,7 @@ version: 0.2.0 # Follow semver versioning
 specVersion: v1beta # Version of the Firebase Extensions specification
 
 # Friendly display name for your extension (~3-5 words)
-displayName: Chatbot with Google AI
+displayName: Chatbot with PaLM API
 
 # Brief description of the task your extension performs (~1 sentence)
 description: >-

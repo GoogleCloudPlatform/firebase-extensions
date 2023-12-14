@@ -74,8 +74,6 @@ export class VertexGenerativeClient extends GenerativeClient<
     const topK = options.topK || this.topK;
     const maxOutputTokens = options.maxOutputTokens || this.maxOutputTokens;
 
-    console.log('MAX OUTPUT TOKENS HERE', maxOutputTokens);
-
     const parameter: Record<string, string | number> = {};
     // We have to set these conditionally or they get nullified and the request fails with a serialization error.
     if (temperature) {
