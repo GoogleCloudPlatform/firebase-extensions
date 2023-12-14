@@ -28,9 +28,7 @@ ref.onSnapshot(snap => {
 
 The extension gives you a choice of what provider to use for the available models:
 
-- The Vertex AI PaLM API: For more details on the Vertex AI PaLM API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview)
-- The Generative Language For Developers PaLM API [PaLM API](https://developers.generativeai.google/guide/palm_api_overview).
-- The Gemini API: For more details on the Gemini API, see the [Gemini homepage](https://deepmind.google/technologies/gemini).
+- Google AI: For more details on this Gemini API, see the [Gemini homepage](https://ai.google.dev/docs).
 
 ## About the models
 
@@ -38,17 +36,10 @@ The extension gives you a choice of 3 models:
 
 - [Gemini Pro](https://ai.google.dev/models/gemini) text model
 - [Gemini Pro Vision](https://ai.google.dev/models/gemini)
-- [PaLM 2](https://ai.google.dev/models/palm)
 
 ## Handling errors
 
-If the extension encounters an error, it will write an error message to the document in `status` field. You can use this field to monitor for errors in your documents.
-
-### PaLM: Handling `ACCESS_TOKEN_SCOPE_INSUFFICIENT` error
-
-If the error message is `The project or service account likely does not have access to the PaLM API`, please ensure that you have already signed up for the [waitlist](https://makersuite.google.com/waitlist) and have been approved before installing the extension.
-
-Then, you need to add the PaLM API to your project. You can do this by going to the [PaLM API page](https://console.cloud.google.com/apis/library/language.googleapis.com) in the Google Cloud Console and clicking "Enable".
+If the extension encounters an error, it will write an error message to the document in `status` field. You can use this field to monitor for errors in your documents. Currently some errors will instruct you to visit the Cloud Function logs for the extension, to avoid exposing sensitive information.
 
 ## Monitoring
 

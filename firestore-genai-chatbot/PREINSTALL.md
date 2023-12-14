@@ -24,7 +24,7 @@ When a message document is added, the extension will:
 - Query the language model you selected during configuration.
 - Write the message back to the triggering document in a configurable response field.
 
-A createTime field will be automatically created for you on document creation, and will be used to order the conversation history. PaLM has a limited context window, so only the most recent messages will be used as history to generate the next response. Alternatively, If documents in the specified collection already contain a field representing timestamps, you can use that as the order field instead.
+A createTime field will be automatically created for you on document creation, and will be used to order the conversation history. Gemini, like any other LLM, will have a limited context window, so only the most recent messages will be used as history to generate the next response. Alternatively, If documents in the specified collection already contain a field representing timestamps, you can use that as the order field instead.
 
 You can configure the chatbot to return different responses by providing context during installation. For example, if you want the chatbot to act as a travel guide, you might use this as the context:
 
@@ -44,15 +44,6 @@ This extension supports the following language models:
 
 Changing the state field of a completed document's status from `COMPLETED` to anything else will retrigger the extension for that document.
 
-## Safety Thresholds
-
-Both the Generative Language for Developers and Vertex AI models have safety thresholds, to block inappropriate content. You can read the details here:
-
-- [Vertex AI responsible AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/responsible-ai)
-- [Generative AI for Developers safety settings documentation](https://developers.generativeai.google/guide/safety_setting)
-
-At this moment, only Generative AI for Developers allows configuring safety thresholds via their API, and only for their text generation models, not their chat-bison models.
-
 ## Billing
 
 To install an extension, your project must be on the Blaze (pay as you go) plan. You will be charged a small amount (typically around $0.01/month) for the Firebase resources required by this extension (even if it is not used).
@@ -63,4 +54,4 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 [Learn more about Firebase billing.](https://firebase.google.com/pricing)
 
-Additionally, this extension uses the PaLM API, which is currently in public preview. During the preview period, developers can try the PaLM API at no cost. Pricing will be announced closer to general availability. For more information on the PaLM API public preview, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
+Additionally, this extension uses the Google AI Gemini API. For more details on this Gemini API, see the [Gemini homepage](https://ai.google.dev/docs).

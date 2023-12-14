@@ -40,16 +40,6 @@ const {
 
 import {getGenerativeClient} from './generative-client/generate';
 
-// const textGenerator = new TextGenerator({
-// model: model,
-// temperature,
-// topP,
-// topK,
-// candidateCount,
-// maxOutputTokens,
-// generativeSafetySettings,
-// });
-
 // TODO: make sure we redact API KEY
 // logs.init(config);
 
@@ -110,7 +100,7 @@ export const generateText = functions.firestore
 
       const t0 = performance.now();
       let requestOptions = {};
-      if (config.model === 'gemini-pro-vision') {
+      if (config.googleAi.model === 'gemini-pro-vision') {
         if (!data[config.imageField]) {
           throw new Error(
             `Gemini Pro Vision requires you to provide an image but you are missing any ${config.imageField} value!`
@@ -147,15 +137,6 @@ export const generateText = functions.firestore
         }
       }
 
-      if (result.safetyMetadata?.blocked) {
-        return ref.update({
-          ...metadata,
-          'status.state': 'ERRORED',
-          'status.error':
-            'The generated text was blocked by the safety filter.',
-        });
-      }
-
       const addCandidatesField =
         config.provider === 'generative' &&
         candidatesField &&
@@ -174,7 +155,6 @@ export const generateText = functions.firestore
         ...metadata,
         [responseField]: result.candidates[0],
         'status.state': 'COMPLETED',
-        'status.error': null,
       });
     } catch (e: any) {
       logs.errorCallingGLMAPI(ref.path, e);

@@ -7,6 +7,7 @@
 import {GoogleGenerativeAI, Part} from '@google/generative-ai';
 import {GenerativeClient} from './base_text_client';
 import * as admin from 'firebase-admin';
+import {logger} from 'firebase-functions/v1';
 enum Role {
   USER = 'user',
   GEMINI = 'model',
@@ -60,39 +61,45 @@ export class GeminiGenerativeClient extends GenerativeClient<
 
       promptParts.push(imagePart);
     }
-
-    const result = await model.generateContent({
-      contents: [
-        {
-          role: Role.USER,
-          parts: promptParts,
+    let result;
+    try {
+      result = await model.generateContent({
+        contents: [
+          {
+            role: Role.USER,
+            parts: promptParts,
+          },
+        ],
+        generationConfig: {
+          topK: options.topK,
+          topP: options.topP,
+          temperature: options.temperature,
+          candidateCount: options.candidateCount,
+          maxOutputTokens: options.maxOutputTokens,
         },
-      ],
-      generationConfig: {
-        topK: options.topK,
-        topP: options.topP,
-        temperature: options.temperature,
-        candidateCount: options.candidateCount,
-        maxOutputTokens: options.maxOutputTokens,
-      },
-    });
+      });
+    } catch (e) {
+      logger.error(e);
+      // TODO: the error message provided exposes the API key, so we should handle this/ get the Gemini team to fix it their side.
+      throw new Error(
+        'failed to generate content, see function logs for details'
+      );
+    }
 
-    const candidates = result.response.candidates;
+    const candidates =
+      result.response.candidates?.map(c => c.content.parts[0].text) || [];
 
     if (!candidates || candidates.length === 0) {
       // TODO: handle blocked responses
       throw new Error('No candidates returned');
     }
-
-    // const firstCandidate = candidates[0];
-    // const content = firstCandidate.content;
-    // const parts = content.parts;
-    // const text = parts[0].text;
-    const promptFeedback = result.response.promptFeedback;
+    const firstCandidate = candidates[0];
 
     return {
+      response: firstCandidate!,
       candidates: candidates,
-      safetyMetadata: promptFeedback,
+      // TODO: add this as a feature:
+      // safetyMetadata: promptFeedback,
     };
   }
 }

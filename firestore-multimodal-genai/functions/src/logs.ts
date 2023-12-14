@@ -47,7 +47,7 @@ export const receivedAPIResponse = (path: string, duration: number) => {
 
 export const errorCallingGLMAPI = (path: string, error: any) => {
   logger.error(
-    `[${extensionName}] Error calling PaLM API for document '${path}': ${
+    `[${extensionName}] Error calling Gemini API for document '${path}': ${
       error.message || 'UNKNOWN ERROR'
     }`
   );

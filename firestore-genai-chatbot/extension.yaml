@@ -19,7 +19,6 @@ icon: icon.png
 tags:
   [
     ai,
-    palm,
     chatbot-api,
     generative-ai,
     text-ai,
@@ -40,8 +39,8 @@ contributors:
     url: https://github.com/invertase
 
 # Public URL for the source code of your extension
-sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-palm-chatbot
-releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-palm-chatbot/CHANGELOG.md
+sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-genai-chatbot
+releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-genai-chatbot/CHANGELOG.md
 
 # Specify whether a paid-tier billing plan is required to use your extension.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#billing-required-field
@@ -50,9 +49,9 @@ billingRequired: true
 # In an `apis` field, list any Google APIs (like Cloud Translation, BigQuery, etc.)
 # required for your extension to operate.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#apis-field
-apis:
-  - apiName: aiplatform.googleapis.com
-    reason: For access to the PaLM API if this provider is chosen.
+# apis:
+#   - apiName: aiplatform.googleapis.com
+#     reason: For access to the Vertex API if this provider is chosen.
 
 # In a `roles` field, list any IAM access roles required for your extension to operate.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#roles-field
@@ -61,10 +60,10 @@ roles:
     reason:
       Allows this extension to access Cloud Firestore to read and process added
       messages.
-  - role: aiplatform.user
-    reason:
-      Allows this extension to access the PaLM API via Vertex AI if this
-      provider is chosen.
+  # - role: aiplatform.user
+  #   reason:
+  #     Allows this extension to access the PaLM API via Vertex AI if this
+  #     provider is chosen.
 
 # In the `resources` field, list each of your extension's functions, including the trigger for each function.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#resources-field
@@ -98,7 +97,7 @@ params:
     immutable: false
 
   - param: API_KEY
-    label: API Key (required for Gemini, optional for PaLM)
+    label: API Key for Gemini
     description: >-
       Please enter your API key for the Google AI Gemini API.
     type: secret
@@ -126,7 +125,7 @@ params:
     label: Collection Path
     description: >-
       Path to a Cloud Firestore collection which will represent a discussion
-      with a LLM on the PaLM API.
+      with a LLM on the Google AI Gemini API.
     type: string
     validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
     validationErrorMessage: Must be a valid Cloud Firestore Collection

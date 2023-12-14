@@ -25,14 +25,13 @@ export interface Config {
   vertex: {
     model?: string;
   };
-  gemini: {
+  googleAi: {
     model?: string;
     apiKey?: string;
   };
   location: string;
   projectId: string;
   instanceId: string;
-  model: string;
   prompt: string;
   responseField: string;
   collectionName: string;
@@ -130,7 +129,7 @@ const config: Config = {
   vertex: {
     model: getModel(),
   },
-  gemini: {
+  googleAi: {
     model: getModel(),
     apiKey: process.env.API_KEY,
   },
@@ -140,7 +139,6 @@ const config: Config = {
   collectionName:
     process.env.COLLECTION_NAME ||
     'users/{uid}/discussions/{discussionId}/messages',
-  model: getModel(),
   prompt: process.env.PROMPT!,
   responseField: process.env.RESPONSE_FIELD || 'output',
   temperature: process.env.TEMPERATURE
