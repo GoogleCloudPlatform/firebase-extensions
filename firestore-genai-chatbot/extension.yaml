@@ -111,10 +111,6 @@ params:
     options:
       - label: (Gemini) Gemini Pro
         value: gemini-pro
-      - label: (Vertex or Generative AI for Developers) Chat Bison
-        value: chat-bison
-      - label: (Vertex) Codechat Bison
-        value: codechat-bison
     required: true
     default: gemini-pro
     immutable: false
