@@ -23,12 +23,15 @@ description:
   Offers a cost-effective, flexible disaster recovery mechanism for Firestore.
 
 license: Apache-2.0
+billingRequired: true
 
 author:
   authorName: Google Cloud
   url: https://cloud.google.com/
 
 contributors:
+  - authorName: Mais Alheraki
+    email: mais@invertase.io
   - authorName: Invertase
     email: oss@invertase.io
     url: https://github.com/invertase
@@ -63,8 +66,6 @@ roles:
 
   # - role: artifactregistry.writer
   #   reason: Allows this extension to write to the artifact registry.
-
-billingRequired: true
 
 resources:
   - name: runInitialSetup
