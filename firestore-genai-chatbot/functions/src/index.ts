@@ -23,7 +23,8 @@ import {createErrorMessage} from './errors';
 
 // TODO: needs logging/error logging, and fixing tests
 
-logs.init(config);
+//TODO: redact googleAi.apiKey from logs
+// logs.init(config);
 
 const processorOptions = {
   inputField: config.promptField,

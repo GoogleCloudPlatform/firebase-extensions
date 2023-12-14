@@ -88,9 +88,7 @@ params:
   - param: GENERATIVE_AI_PROVIDER
     label: Gemini API Provider
     description: >-
-      Which provider of the Gemini Language models would you like to use? Google
-      AI requires a valid API key, whereas Vertex AI will use Application
-      Default Credentials.
+      Which provider of the Gemini Language models would you like to use?
     type: select
     options:
       - label: Google AI
@@ -102,12 +100,9 @@ params:
   - param: API_KEY
     label: API Key (required for Gemini, optional for PaLM)
     description: >-
-      If you have selected Gemini as your provider, please enter your API key.
-      If you selected Generative Language AI for Developers, you can enter your
-      API key here if you do not want the extension to use Application Default
-      Credentials.
+      Please enter your API key for the Google AI Gemini API.
     type: secret
-    required: false
+    required: true
     immutable: false
 
   - param: MODEL

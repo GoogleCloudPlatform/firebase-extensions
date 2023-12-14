@@ -108,10 +108,9 @@ params:
   - param: API_KEY
     label: API Key (Generative AI for Developers, or Gemini)
     description: >-
-      If you have selected Google AI as your provider, please enter your API
-      key.
+      Please enter your API key for the Google AI Gemini API.
     type: secret
-    required: false
+    required: true
     immutable: false
 
   - param: COLLECTION_NAME
