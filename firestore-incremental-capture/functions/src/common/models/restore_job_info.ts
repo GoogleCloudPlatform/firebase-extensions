@@ -25,4 +25,5 @@ export interface RestoreJobInfo {
   };
   operation?: google.firestore_v1.Schema$GoogleLongrunningOperation;
   updated?: firestore.Timestamp;
+  dataflowJob?: any;
 }

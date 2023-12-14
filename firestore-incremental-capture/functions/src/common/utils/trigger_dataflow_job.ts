@@ -20,10 +20,16 @@ import {FlexTemplatesServiceClient} from '@google-cloud/dataflow';
 import {Timestamp} from 'firebase-admin/firestore';
 
 import config from '../../config';
+import {ScheduledBackups} from './scheduled_backups';
+import {RestoreStatus} from '../models/restore_job_status';
 
 const dataflowClient = new FlexTemplatesServiceClient();
+const scheduledBackups = new ScheduledBackups();
 
-export async function launchJob(timestamp: number) {
+export async function launchJob(
+  timestamp: number,
+  jobRef: admin.firestore.DocumentReference
+) {
   const projectId = config.projectId;
   const serverTimestamp = Timestamp.now().toMillis();
   const {syncCollectionPath} = config;
@@ -33,8 +39,6 @@ export async function launchJob(timestamp: number) {
   logger.info(`Launching job ${runId}`, {
     labels: {run_id: runId},
   });
-
-  const runDoc = admin.firestore().doc(`restore/${runId}`);
 
   // Extract the database name from the backup instance name
   const values = config.backupInstanceName.split('/');
@@ -60,11 +64,15 @@ export async function launchJob(timestamp: number) {
     },
   });
 
-  await runDoc.set({status: 'export triggered', runId: runId});
+  await scheduledBackups.updateRestoreJobDoc(jobRef, {
+    status: {
+      message: RestoreStatus.RUNNING_DATAFLOW,
+    },
+    dataflowJob: response.job,
+  });
 
   logger.info(`Launched job named ${response.job?.name} successfully`, {
     job_response: response,
-    labels: {run_id: runId},
   });
 
   return response;

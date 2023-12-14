@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-import * as google from 'googleapis';
 import * as admin from 'firebase-admin';
-import axios, {AxiosError} from 'axios';
-import {GoogleAuth} from 'google-auth-library';
 import * as functions from 'firebase-functions';
-import {getFunctions} from 'firebase-admin/functions';
 
 import config from '../config';
-import {launchJob, RestoreStatus} from '../common';
+import {launchJob, RestoreStatus, ScheduledBackups} from '../common';
 
-const apiEndpoint = 'firestore.googleapis.com';
+const scheduledBackups = new ScheduledBackups();
 
 export const checkScheduledBackupStateHandler = async (data: any) => {
   const jobId = data?.jobId;
@@ -42,87 +38,37 @@ export const checkScheduledBackupStateHandler = async (data: any) => {
   if (!operation) return;
 
   try {
-    const newOperation = await processOperation(operation);
-
-    // Once the operation is complete, update the restore doc to trigger the next step
-    await restoreRef.set(
-      {
-        status: {message: RestoreStatus.RUNNING_DATAFLOW},
-        operation: newOperation,
-      },
-      {merge: true}
+    const newOperation = await scheduledBackups.describeBackupOperation(
+      operation.name
     );
 
-    await launchJob(restoreData.data()!.timestamp);
+    if (!newOperation) {
+      functions.logger.error('No operation found');
+      return;
+    }
+
+    if (newOperation.error) {
+      throw new Error(newOperation.error.message || 'Unknown error');
+    }
+
+    if (newOperation.done) {
+      // Once the operation is complete, update the restore doc to trigger the next step
+      await scheduledBackups.updateRestoreJobDoc(restoreRef, {
+        status: {message: RestoreStatus.RUNNING_DATAFLOW},
+      });
+
+      await launchJob(
+        (restoreData.data()!.timestamp as admin.firestore.Timestamp).toMillis(),
+        restoreRef
+      );
+    } else {
+      functions.logger.info('Operation still running');
+      await scheduledBackups.enqueueCheckOperationStatus(jobId);
+    }
   } catch (error: any) {
     functions.logger.error('Error processing operation', error);
-
-    if (error.message === 'OPERATION_NOT_COMPLETE') {
-      functions.logger.info(
-        'Scheduling task to check operation again in 4 mins'
-      );
-
-      await getFunctions()
-        .taskQueue(
-          `locations/${config.location}/functions/checkScheduledBackupState`,
-          config.instanceId
-        )
-        .enqueue(
-          {
-            jobId: jobId,
-          },
-          {scheduleDelaySeconds: 240}
-        );
-    }
+    await scheduledBackups.updateRestoreJobDoc(restoreRef, {
+      status: {message: RestoreStatus.FAILED, error: error.message},
+    });
   }
 };
-
-async function processOperation(
-  operation: any
-): Promise<google.firestore_v1.Schema$GoogleLongrunningOperation> {
-  const _operation = await getOperationByName(operation.id);
-  if (_operation?.error) {
-    throw new Error(_operation.error?.message ?? 'Unknown error.');
-  }
-
-  functions.logger.info('Operation found', {_operation});
-
-  if (_operation.done) {
-    functions.logger.info('Operation complete');
-    return _operation;
-  }
-
-  functions.logger.info('Operation not complete. Checking again in 4 mins');
-  throw new Error('OPERATION_NOT_COMPLETE');
-}
-
-async function getOperationByName(
-  operationName: string
-): Promise<google.firestore_v1.Schema$GoogleLongrunningOperation> {
-  const accessToken = await getAccessToken();
-  try {
-    const response = await axios.get(
-      `https://${apiEndpoint}/v1beta1/${operationName}`,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-      }
-    );
-
-    return response.data;
-  } catch (error) {
-    throw (error as AxiosError).response?.data;
-  }
-}
-
-const auth = new GoogleAuth({
-  scopes: ['https://www.googleapis.com/auth/cloud-platform'],
-});
-
-async function getAccessToken(): Promise<string | undefined> {
-  const client = await auth.getClient();
-  const _accessToken = await client.getAccessToken();
-  return _accessToken.token ?? undefined;
-}

@@ -24,6 +24,7 @@ export enum RestoreStatus {
 
 export enum RestoreError {
   INVALID_TIMESTAMP = 'The timestamp is invalid',
+  MISSING_DESTINATION_DATABASE_ID = 'The destination database ID is missing',
   EXCEPTION = 'An exception occurred',
   BACKUP_NOT_FOUND = 'Backup not found',
 }

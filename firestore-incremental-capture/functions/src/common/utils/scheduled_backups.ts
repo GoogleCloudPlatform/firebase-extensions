@@ -208,6 +208,18 @@ export class ScheduledBackups {
     }
   }
 
+  async describeBackupOperation(
+    operationName: string
+  ): Promise<firestore_v1.Schema$GoogleLongrunningOperation> {
+    const operation =
+      await this.firestore_api.projects.databases.operations.get({
+        name: operationName,
+        auth: await this.getAuthClient(),
+      });
+
+    return operation.data;
+  }
+
   async enqueueCheckOperationStatus(jobId: string) {
     logger.info('Scheduling task to check operation again in 4 mins');
 

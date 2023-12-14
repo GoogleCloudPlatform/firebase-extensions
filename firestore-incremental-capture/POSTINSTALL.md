@@ -56,7 +56,7 @@ gcloud auth configure-docker ${param:LOCATION}-docker.pkg.dev
     gcloud projects add-iam-policy-binding ${param:PROJECT_ID} \
     --project ${param:PROJECT_ID} \
     --member=serviceAccount:SA_EMAIL \
-    --role=roles/dataflow.developer
+    --role=roles/iam.serviceAccountUser
    ```
 
 5. Add the required role for the extension service account to trigger Dataflow:
@@ -65,20 +65,11 @@ gcloud auth configure-docker ${param:LOCATION}-docker.pkg.dev
     gcloud projects add-iam-policy-binding ${param:PROJECT_ID} \
     --project ${param:PROJECT_ID} \
     --member=serviceAccount:SA_EMAIL \
-    --role=roles/iam.serviceAccountUser
-   ```
-
-6. Add the required role for the extension service account to trigger Dataflow:
-
-   ```bash
-    gcloud projects add-iam-policy-binding ${param:PROJECT_ID} \
-    --project ${param:PROJECT_ID} \
-    --member=serviceAccount:SA_EMAIL \
     --role=roles/artifactregistry.writer
    ```
 
-7. Download the JAR file for the Dataflow Flex Template [here](https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-incremental-capture-pipeline/target/restore-firestore.jar).
-8. Run the following command to build the Dataflow Flex Template:
+6. Download the JAR file for the Dataflow Flex Template [here](https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-incremental-capture-pipeline/target/restore-firestore.jar).
+7. Run the following command to build the Dataflow Flex Template:
 
 ```bash
   gcloud dataflow flex-template build gs://${param:PROJECT_ID}.appspot.com/${param:EXT_INSTANCE_ID}-dataflow-restore \
@@ -92,13 +83,10 @@ gcloud auth configure-docker ${param:LOCATION}-docker.pkg.dev
 
 ## Triggering a restoration job
 
-You can trigger a restoration job by calling the `restoreFirestore` function [here](https://${LOCATION}-${POJECT_ID}.cloudfunctions.net/${EXT_INSTANCE_ID}).
+You can trigger a restoration job by adding a new document to `${param:EXT_INSTANCE_ID}/restore/jobs` in your Firestore database. The document should have the following structure:
 
-Here is an example that will run from one hour ago:
-
-```bash
-curl -m 70 -X POST https://us-central1-${PROJECT_ID}.cloudfunctions.net/ext-firestore-incremental-capture-onHttpRunRestoration \
--H "Authorization: bearer $(gcloud auth print-identity-token)" \
--H "Content-Type: application/json" \
--d "{\"timestamp\":$(date -u -v-1H +%s)}"
+```json
+{
+  "timestamp": "2021-01-01T00:00:00Z", // A valid Firestore timestamp in the past
+}
 ```

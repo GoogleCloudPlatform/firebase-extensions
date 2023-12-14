@@ -59,7 +59,7 @@ export const triggerRestorationJobHandler = async (
     await scheduledBackups.updateRestoreJobDoc(ref, {
       status: {
         message: RestoreStatus.FAILED,
-        error: RestoreError.INVALID_TIMESTAMP,
+        error: RestoreError.MISSING_DESTINATION_DATABASE_ID,
       },
     });
 

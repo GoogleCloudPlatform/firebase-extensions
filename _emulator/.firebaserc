@@ -96,6 +96,12 @@
         "firestore-bundle-server": "2e66ebb5590eeb0f1fb666e837f704d5bb520743508739f5e961f2c578e37f3f",
         "firestore-algolia-search": "1a86c380ed65df472ef4bed172d305ce8cada22bc510e990897e1562e5f62009"
       }
+    },
+    "f3-flutterfirebase-staging": {
+      "extensionInstances": {
+        "incremental-capture": "bb9ee2bb72aec193da51f99e0104488bbc643989ddfec5c0dab74f7229e371be",
+        "firestore-palm-chatbot": "c01c21df488711376b1b2c726a5e72a238f414f26b583074a858038dc2c1ad69"
+      }
     }
   }
 }
