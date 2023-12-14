@@ -89,12 +89,6 @@ Google Cloud Console [here](https://console.cloud.google.com/dataflow/pipelines)
 
 
 
-**Other Resources**:
-
-* restoreDoneTrigger (firebaseextensions.v1beta.v2function)
-
-
-
 **APIs Used**:
 
 * eventarc.googleapis.com (Reason: Powers all events and triggers)
