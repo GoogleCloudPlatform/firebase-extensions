@@ -16,12 +16,12 @@
 
 import {GLSafetySetting, GLHarmCategory, GLHarmBlockThreshold} from './types';
 
+export enum GenerativeAIProvider {
+  GOOGLE_AI = 'google-ai',
+  VERTEX_AI = 'vertex-ai',
+}
+
 export interface Config {
-  palm: {
-    model?: string;
-    safetySettings?: GLSafetySetting[];
-    apiKey?: string;
-  };
   vertex: {
     model?: string;
   };
@@ -53,17 +53,18 @@ export interface Config {
 
 function getModel() {
   switch (process.env.GENERATIVE_AI_PROVIDER) {
-    case 'generative':
+    case 'vertex-ai':
       switch (process.env.MODEL) {
+        case 'gemini-pro':
+          return 'gemini-pro';
+        case 'gemini-ultra':
+          return 'gemini-ultra';
+        case 'gemini-pro-vision':
+          return 'gemini-pro-vision';
         default:
-          return 'models/text-bison-001';
+          throw new Error('Invalid model');
       }
-    case 'vertex':
-      switch (process.env.MODEL) {
-        default:
-          return 'text-bison@001';
-      }
-    case 'gemini':
+    case 'google-ai':
       switch (process.env.MODEL) {
         case 'gemini-pro':
           return 'gemini-pro';
@@ -126,11 +127,6 @@ function getGenerativeSafetySettings() {
 const defaultBucketName = `${process.env.PROJECT_ID}.appspot.com`;
 
 const config: Config = {
-  palm: {
-    model: getModel(),
-    safetySettings: getGenerativeSafetySettings(),
-    apiKey: process.env.API_KEY,
-  },
   vertex: {
     model: getModel(),
   },

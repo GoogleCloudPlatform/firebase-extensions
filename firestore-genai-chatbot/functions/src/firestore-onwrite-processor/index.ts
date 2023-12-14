@@ -18,7 +18,7 @@ export class FirestoreOnWriteProcessor<
   statusField: string;
   processUpdates: boolean;
   orderField: string;
-  createErrorMessage: (e: unknown) => string;
+  errorFn: (e: unknown) => string;
 
   constructor(options: ProcessConfig<TInput, TOutput>) {
     this.inputField = options.inputField;
@@ -26,7 +26,7 @@ export class FirestoreOnWriteProcessor<
     this.processFn = options.processFn;
     this.statusField = options.statusField || 'status';
     this.processUpdates = true;
-    this.createErrorMessage = options.createErrorMessage;
+    this.errorFn = options.errorFn;
   }
 
   private shouldProcess(change: Change, changeType: ChangeType, state: State) {
@@ -91,7 +91,7 @@ export class FirestoreOnWriteProcessor<
   private async writeErrorEvent(change: Change, e: unknown) {
     const eventTimestamp = now();
 
-    const errorMessage = this.createErrorMessage(e);
+    const errorMessage = this.errorFn(e);
     await change.after.ref.update({
       [this.statusField]: {
         state: State.ERROR,

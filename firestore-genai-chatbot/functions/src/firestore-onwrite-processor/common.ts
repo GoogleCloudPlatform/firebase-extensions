@@ -41,7 +41,7 @@ export interface ProcessConfig<
 > {
   inputField: string;
   processFn: (val: TInput, after: DocumentSnapshot) => Promise<TOutput>;
-  createErrorMessage: (e: unknown) => string;
+  errorFn: (e: unknown) => string;
   statusField?: string;
   orderField?: string;
 }

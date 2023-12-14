@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
+export enum GenerativeAIProvider {
+  GOOGLE_AI = 'google-ai',
+  VERTEX_AI = 'vertex-ai',
+}
+
 export interface Config {
-  palm: {
-    model?: string;
-    apiKey?: string;
-  };
   vertex: {
     model?: string;
   };
@@ -29,7 +30,6 @@ export interface Config {
   location: string;
   projectId: string;
   instanceId: string;
-  context?: string;
   promptField: string;
   responseField: string;
   orderField: string;
@@ -40,29 +40,22 @@ export interface Config {
   topK?: number;
   candidateCount?: number;
   candidatesField?: string;
-  provider: string;
+  provider: GenerativeAIProvider;
   apiKey?: string;
 }
 
 function getModel() {
   switch (process.env.GENERATIVE_AI_PROVIDER) {
-    case 'generative':
+    case 'vertex-ai':
       switch (process.env.MODEL) {
-        case 'chat-bison':
-          return 'models/chat-bison-001';
+        case 'gemini-pro':
+          return 'gemini-pro';
+        case 'gemini-ultra':
+          return 'gemini-ultra';
         default:
           throw new Error('Invalid model');
       }
-    case 'vertex':
-      switch (process.env.MODEL) {
-        case 'chat-bison':
-          return 'chat-bison@001';
-        case 'codechat-bison':
-          return 'codechat-bison@001';
-        default:
-          throw new Error('Invalid model');
-      }
-    case 'gemini':
+    case 'gemini-ai':
       switch (process.env.MODEL) {
         case 'gemini-pro':
           return 'gemini-pro';
@@ -77,11 +70,6 @@ function getModel() {
 }
 
 const config: Config = {
-  // system defined
-  palm: {
-    model: getModel(),
-    apiKey: process.env.API_KEY,
-  },
   vertex: {
     model: getModel(),
   },
@@ -96,7 +84,6 @@ const config: Config = {
   collectionName:
     process.env.COLLECTION_NAME ||
     'users/{uid}/discussions/{discussionId}/messages',
-  context: process.env.CONTEXT,
   promptField: process.env.PROMPT_FIELD || 'prompt',
   responseField: process.env.RESPONSE_FIELD || 'response',
   orderField: process.env.ORDER_FIELD || 'createTime',
@@ -111,7 +98,9 @@ const config: Config = {
     ? parseInt(process.env.CANDIDATE_COUNT)
     : 1,
   candidatesField: process.env.CANDIDATES_FIELD || 'candidates',
-  provider: process.env.GENERATIVE_AI_PROVIDER || 'vertex',
+  provider:
+    (process.env.GENERATIVE_AI_PROVIDER as GenerativeAIProvider) ||
+    GenerativeAIProvider.VERTEX_AI,
   apiKey: process.env.API_KEY,
 };
 

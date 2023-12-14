@@ -1,6 +1,6 @@
 module.exports = {
   rootDir: './',
-  testMatch: ['**/__tests__/*.test.ts'],
+  testMatch: ['**/__tests__/**/*.test.ts'],
   testEnvironment: 'node',
   transform: {
     '^.+\\.tsx?$': [

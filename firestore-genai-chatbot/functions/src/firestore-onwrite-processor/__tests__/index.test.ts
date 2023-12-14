@@ -35,7 +35,7 @@ const processor = new FirestoreOnWriteProcessor<string, {output: string}>({
   processFn: async (input: string) => {
     return {output: input};
   },
-  createErrorMessage: JSON.stringify,
+  errorFn: JSON.stringify,
 });
 
 describe('SingleFieldProcessor', () => {

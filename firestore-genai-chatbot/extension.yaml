@@ -6,7 +6,7 @@ version: 0.0.1 # Follow semver versioning
 specVersion: v1beta # Version of the Firebase Extensions specification
 
 # Friendly display name for your extension (~3-5 words)
-displayName: Chatbot with Gemini
+displayName: Chatbot with Google AI
 
 # Brief description of the task your extension performs (~1 sentence)
 description: >-
@@ -38,12 +38,6 @@ contributors:
   - authorName: Invertase
     email: oss@invertase.io
     url: https://github.com/invertase
-  - authorName: Jacob Cable
-    email: jacob@invertase.io
-    url: https://github.com/cabljac
-  - authorName: Mais Alheraki
-    email: mais@invertase.io
-    url: https://github.com/pr-Mais
 
 # Public URL for the source code of your extension
 sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-palm-chatbot
@@ -94,24 +88,33 @@ params:
   - param: GENERATIVE_AI_PROVIDER
     label: Generative AI Provider
     description: >-
-      Which provider of the Gemini Language models would you like to use? Google
-      AI requires a valid API key, whereas Vertex AI will use Application
-      Default Credentials.
+      Which large language model API do you want to power the extension? There
+      are two services which provide access to the PaLM API: Vertex and
+      Generative Language for Developers. If Vertex AI is selected, the service
+      will be automatically enabled. If Generative Language is selected, you can
+      provide an API key obtained through MakerSuite or your GCP console, or use
+      Application Default Credentials if the Generative Language AI has been
+      enabled in your google cloud project. The extension now provides support
+      for the latest Gemini models, which require an API key.
     type: select
     options:
-      - label: Google AI
+      - label: Gemini
         value: gemini
       - label: Vertex AI
         value: vertex
+      - label: Generative Language AI for Developers
+        value: generative
     required: true
     default: gemini
     immutable: false
 
   - param: API_KEY
-    label: API Key (required if you selected Google AI as your  provider)
+    label: API Key (required for Gemini, optional for PaLM)
     description: >-
-      If you have selected Google AI as your provider, please enter your API
-      key.
+      If you have selected Gemini as your provider, please enter your API key.
+      If you selected Generative Language AI for Developers, you can enter your
+      API key here if you do not want the extension to use Application Default
+      Credentials.
     type: secret
     required: false
     immutable: false
@@ -123,8 +126,12 @@ params:
       supported by your selected provider.
     type: select
     options:
-      - label: Gemini Pro
+      - label: (Gemini) Gemini Pro
         value: gemini-pro
+      - label: (Vertex or Generative AI for Developers) Chat Bison
+        value: chat-bison
+      - label: (Vertex) Codechat Bison
+        value: codechat-bison
     required: true
     default: gemini-pro
     immutable: false
