@@ -45,7 +45,7 @@ export interface Config {
 }
 
 function getModel() {
-  switch (process.env.GENERATIVE_AI_PROVIDER) {
+  switch (process.env.GENERATIVE_AI_PROVIDER as GenerativeAIProvider) {
     case 'vertex-ai':
       switch (process.env.MODEL) {
         case 'gemini-pro':
@@ -53,7 +53,7 @@ function getModel() {
         default:
           throw new Error('Invalid model');
       }
-    case 'gemini-ai':
+    case 'google-ai':
       switch (process.env.MODEL) {
         case 'gemini-pro':
           return 'gemini-pro';
@@ -96,7 +96,7 @@ const config: Config = {
   candidatesField: process.env.CANDIDATES_FIELD || 'candidates',
   provider:
     (process.env.GENERATIVE_AI_PROVIDER as GenerativeAIProvider) ||
-    GenerativeAIProvider.VERTEX_AI,
+    GenerativeAIProvider.GOOGLE_AI,
   apiKey: process.env.API_KEY,
 };
 
