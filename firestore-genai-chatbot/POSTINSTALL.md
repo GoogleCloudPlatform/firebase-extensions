@@ -33,16 +33,14 @@ ref.onSnapshot(snap => {
 
 The extension gives you a choice of what provider to use for the available models:
 
-- The Vertex AI PaLM API: For more details on the Vertex AI PaLM API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview)
-- The Generative Language For Developers PaLM API [PaLM API](https://developers.generativeai.google/guide/palm_api_overview).
-- The Gemini API: For more details on the Gemini API, see the [Gemini homepage](https://deepmind.google/technologies/gemini).
+- Google AI: For more details on this Gemini API, see the [Gemini homepage](TODO).
+- Vertex AI: For more details on this Gemini API, see the [Gemini homepage](TODO).
 
 ## About the models
 
 The extension gives you a choice of 2 models:
 
 - [Gemini Pro](https://ai.google.dev/models/gemini) chat model
-- [PaLM 2](https://ai.google.dev/models/palm)
 
 ## Handling errors
 

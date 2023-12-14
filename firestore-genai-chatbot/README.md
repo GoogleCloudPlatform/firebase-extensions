@@ -6,11 +6,11 @@
 
 
 
-**Details**: Use this extension to easily deploy a chatbot using the PaLM or Gemini API, stored and managed by Cloud Firestore.
+**Details**: Use this extension to easily deploy a chatbot using Gemini large language models, stored and managed by Cloud Firestore.
 
 On install you will be asked to provide:
 
-- **Generative AI Provider** This extension makes use of either the Vertex AI PaLM API, the Generative Language for Developers PaLM API, or the API for the new Gemini large language models. To make use of the Gemini option you need to provide a valid API key during installation of the extension.
+- **Generative AI Provider** This extension makes use of either the Vertex AI Gemini API, or the Google AI Gemini API. To use Google AI you will need to provide a valid API key, Vertex AI will attempt to use Application Default Credentials to authenticate with your Google Cloud Project.
 
 - **Language model**: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
 
@@ -46,28 +46,11 @@ You can also configure the model to return different results by tweaking model p
 
 This extension supports the following language models:
 
-- [Gemini Pro](https://ai.google.dev/docs) chat model
-- [PaLM 2](https://ai.google/discover/palm2/)
-
-### Choosing a Generative AI Provider for PaLM
-
-There are currently two different APIs providing access to PaLM large language models. The PaLM Developer (Generative Language) API, and Vertex AI. This extension will prompt you to pick an API on installation. For production use-cases we recommend Vertex AI, as the Generative Language API is still in public preview.
-
-- For more details on the Vertex AI PaLM API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/overview)
-
-- The PaLM developer (Generative Language) API is currently in public preview, and you will need to sign up [waitlist](https://makersuite.google.com/waitlist) if you want to use it. For details and limitations, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
+- [Gemini Pro](https://ai.google.dev/docs)
 
 ### Regenerating a response
 
 Changing the state field of a completed document's status from `COMPLETED` to anything else will retrigger the extension for that document.
-
-## Additional Setup
-
-If you have not already done so, you will first need to apply for access to the PaLM API via this [waitlist](https://makersuite.google.com/waitlist).
-
-Once you have access, please [enable the Generative Language API in your Google Cloud Project](https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com) before installing this extension.
-
-Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project, and enabled the Generative Language API in your Google Cloud Project before installing this extension.
 
 ## Safety Thresholds
 
