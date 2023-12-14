@@ -20,13 +20,13 @@ import * as functionsv2 from 'firebase-functions/v2';
 
 import config from './config';
 
-import {syncDataHandler} from './tasks/sync_data_handler';
-import {triggerRestorationJobHandler} from './tasks/trigger_restoration_job_handler';
-import {runInitialSetupHandler} from './tasks/run_initial_setup_handler';
+import {syncDataHandler} from './handlers/sync_data_handler';
+import {triggerRestorationJobHandler} from './handlers/trigger_restoration_job_handler';
+import {runInitialSetupHandler} from './handlers/run_initial_setup_handler';
 import {
   restoreDoneTriggerConfig,
   restoreDoneTriggerHandler,
-} from './tasks/restore_done_trigger_handler';
+} from './handlers/restore_done_trigger_handler';
 
 admin.initializeApp();
 
