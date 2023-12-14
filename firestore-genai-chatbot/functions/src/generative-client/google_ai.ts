@@ -1,5 +1,6 @@
 import {DiscussionClient, Message} from './base_class';
 import {GoogleGenerativeAI, InputContent} from '@google/generative-ai';
+import {logger} from 'firebase-functions/v1';
 
 interface GeminiChatOptions {
   history?: Message[];
@@ -75,9 +76,16 @@ export class GeminiDiscussionClient extends DiscussionClient<
       },
     });
 
-    const result = await chatSession.sendMessage(
-      latestApiMessage.parts[0].text
-    );
+    let result;
+    try {
+      result = await chatSession.sendMessage(latestApiMessage.parts[0].text);
+    } catch (e) {
+      logger.error(e);
+
+      throw new Error(
+        'Failed to generate response, see function logs for more details.'
+      );
+    }
 
     const text = result.response.text();
 

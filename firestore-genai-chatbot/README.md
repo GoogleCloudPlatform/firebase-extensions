@@ -46,7 +46,7 @@ You can also configure the model to return different results by tweaking model p
 
 This extension supports the following language models:
 
-- [Gemini Pro](https://ai.google.dev/docs)
+- [Gemini Pro](https://ai.google.dev/models/gemini)
 
 ### Regenerating a response
 
@@ -78,7 +78,7 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 **Configuration Parameters:**
 
-* Generative AI Provider: Which large language model API do you want to power the extension? There are two services which provide access to the PaLM API: Vertex and Generative Language for Developers. If Vertex AI is selected, the service will be automatically enabled. If Generative Language is selected, you can provide an API key obtained through MakerSuite or your GCP console, or use Application Default Credentials if the Generative Language AI has been enabled in your google cloud project. The extension now provides support for the latest Gemini models, which require an API key.
+* Gemini API Provider: Which provider of the Gemini Language models would you like to use? Google AI requires a valid API key, whereas Vertex AI will use Application Default Credentials.
 
 * API Key (required for Gemini, optional for PaLM): If you have selected Gemini as your provider, please enter your API key. If you selected Generative Language AI for Developers, you can enter your API key here if you do not want the extension to use Application Default Credentials.
 

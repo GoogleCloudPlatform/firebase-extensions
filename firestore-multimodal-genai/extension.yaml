@@ -77,7 +77,7 @@ resources:
 
 params:
   - param: GENERATIVE_AI_PROVIDER
-    label: Generative AI Provider
+    label: Gemini API Provider
     description: >-
       Which provider of the Gemini Language models would you like to use? Google
       AI requires a valid API key, whereas Vertex AI will use Application
@@ -85,11 +85,9 @@ params:
     type: select
     options:
       - label: Google AI
-        value: gemini
-      - label: Vertex AI
-        value: vertex
+        value: google-ai
     required: true
-    default: gemini
+    default: google-ai
     immutable: false
 
   - param: MODEL
@@ -99,9 +97,9 @@ params:
       supported by your selected provider.
     type: select
     options:
-      - label: (Gemini) Gemini Pro
+      - label: Gemini Pro
         value: gemini-pro
-      - label: (Gemini) Gemini Pro Vision
+      - label: Gemini Pro Vision
         value: gemini-pro-vision
     required: true
     default: gemini-pro

@@ -121,6 +121,7 @@ describe('SingleFieldProcessor', () => {
         state: 'COMPLETED',
         updateTime: expect.any(Timestamp),
         completeTime: expect.any(Timestamp),
+        startTime: expect.any(Timestamp),
       },
     });
     expect(firestoreCallData[2]).toHaveProperty('createTime', createTime);
@@ -173,6 +174,7 @@ describe('SingleFieldProcessor', () => {
         state: 'COMPLETED',
         updateTime: expect.any(Timestamp),
         completeTime: expect.any(Timestamp),
+        startTime: expect.any(Timestamp),
       },
     });
     expect(firestoreCallData[2].status.updateTime).toEqual(

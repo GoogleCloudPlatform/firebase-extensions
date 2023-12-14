@@ -23,7 +23,7 @@ export interface Config {
   vertex: {
     model?: string;
   };
-  gemini: {
+  googleAi: {
     model?: string;
     apiKey?: string;
   };
@@ -50,8 +50,6 @@ function getModel() {
       switch (process.env.MODEL) {
         case 'gemini-pro':
           return 'gemini-pro';
-        case 'gemini-ultra':
-          return 'gemini-ultra';
         default:
           throw new Error('Invalid model');
       }
@@ -59,8 +57,6 @@ function getModel() {
       switch (process.env.MODEL) {
         case 'gemini-pro':
           return 'gemini-pro';
-        case 'gemini-ultra':
-          return 'gemini-ultra';
         default:
           throw new Error('Invalid model');
       }
@@ -73,7 +69,7 @@ const config: Config = {
   vertex: {
     model: getModel(),
   },
-  gemini: {
+  googleAi: {
     model: getModel(),
     apiKey: process.env.API_KEY,
   },

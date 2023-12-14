@@ -20,7 +20,7 @@ export function createErrorMessage(e: unknown): string {
   if (isGoogleErrorWithReason(e)) {
     switch (e.reason) {
       case GoogleErrorReason.ACCESS_TOKEN_SCOPE_INSUFFICIENT:
-        return 'The project or service account likely does not have access to the PaLM API.';
+        return 'The project or service account likely does not have access to the Gemini API.';
       default:
         return `An error occurred while processing the provided message, ${e.message}`;
     }

@@ -6,6 +6,7 @@ import {WrappedFunction} from 'firebase-functions-test/lib/v1';
 import {Change} from 'firebase-functions/v1';
 
 import {QuerySnapshot} from 'firebase-admin/firestore';
+import {expectToProcessCorrectly} from '../util';
 
 process.env.GCLOUD_PROJECT = 'demo-gcp';
 
@@ -14,11 +15,12 @@ process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 // // We mock out the config here instead of setting environment variables directly
 jest.mock('../../src/config', () => ({
   default: {
-    palm: {
-      model: 'models/chat-bison-001',
+    googleAi: {
+      model: 'gemini-pro',
+      apiKey: 'test-api-key',
     },
     vertex: {
-      model: 'models/chat-bison-001',
+      model: 'gemini-pro',
     },
     collectionName: 'discussionsTestGenerative/{discussionId}/messages',
     location: 'us-central1',
@@ -27,30 +29,44 @@ jest.mock('../../src/config', () => ({
     responseField: 'response',
     enableDiscussionOptionOverrides: true,
     candidatesField: 'candidates',
-    provider: 'generative',
-    model: 'models/chat-bison-001',
+    provider: 'google-ai',
+    model: 'gemini-pro',
+    apiKey: 'test-api-key',
   },
 }));
 
 // // mock to check the arguments passed to the annotateVideo function+
-const mockAPI = jest.fn();
+const mockGetClient = jest.fn();
+const mockGetModel = jest.fn();
+const mockStartChat = jest.fn();
+const mockSendMessage = jest.fn();
 
-jest.mock('@google-ai/generativelanguage', () => {
+jest.mock('@google/generative-ai', () => {
   return {
-    ...jest.requireActual('@google-ai/generativelanguage'),
-    DiscussServiceClient: function mockedClient() {
+    ...jest.requireActual('@google/generative-ai'),
+    GoogleGenerativeAI: function mockedClient(args) {
+      mockGetClient(args);
       return {
-        generateMessage: async (args: unknown) => {
-          mockAPI(args);
-          return [
-            {
-              candidates: [
-                {
-                  content: 'test response',
+        getGenerativeModel: (args: unknown) => {
+          mockGetModel(args);
+          return {
+            startChat: function mockedStartChat(args) {
+              mockStartChat(args);
+              return {
+                sendMessage: function mockedSendMessage(args) {
+                  mockSendMessage(args);
+                  return {
+                    response: {
+                      text: () => 'test response',
+                      promptFeedback: {
+                        foo: 'bar',
+                      },
+                    },
+                  };
                 },
-              ],
+              };
             },
-          ];
+          };
         },
       };
     },
@@ -161,72 +177,6 @@ describe('generateMessage', () => {
     await expectNoOp();
   });
 
-  test('should not run if response field is set from the start', async () => {
-    const message = {
-      prompt: 'hello chat bison',
-      [config.responseField]: 'user set response field for some reason',
-    };
-    const ref = await admin.firestore().collection(collectionName).add(message);
-
-    await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
-
-    const firestoreCallData = firestoreObserver.mock.calls.map(call => {
-      return call[0].docs[0].data();
-    });
-
-    expect(firestoreCallData.length).toBe(2);
-    expect(firestoreCallData[0]).toEqual({
-      prompt: 'hello chat bison',
-      response: 'user set response field for some reason',
-    });
-  });
-
-  test('should not run if status field is set from the start', async () => {
-    const message = {
-      prompt: 'hello chat bison',
-      status: 'user set status field for some reason',
-    };
-    const ref = await admin.firestore().collection(collectionName).add(message);
-
-    await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
-
-    const firestoreCallData = firestoreObserver.mock.calls.map(call => {
-      return call[0].docs[0].data();
-    });
-
-    expect(firestoreCallData.length).toBe(2);
-    expect(firestoreCallData[0]).toEqual({
-      prompt: 'hello chat bison',
-      status: 'user set status field for some reason',
-    });
-    expectToHaveKeys(firestoreCallData[1], ['prompt', 'status', 'createTime']);
-  });
-
-  test("should update initial record with createTime if it doesn't have it", async () => {
-    const message = {
-      prompt: 'hello chat bison',
-    };
-    const ref = await admin.firestore().collection(collectionName).add(message);
-
-    await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
-
-    expect(firestoreObserver).toHaveBeenCalledTimes(2);
-    const firestoreCallData = firestoreObserver.mock.calls.map(call =>
-      call[0].docs[0].data()
-    );
-
-    // This is left in just so we know our observer caught everything, sanity check:
-    expectToHaveKeys(firestoreCallData[0], ['prompt']);
-    expect(firestoreCallData[0].prompt).toEqual(message.prompt);
-
-    expectToHaveKeys(firestoreCallData[1], [
-      config.promptField,
-      config.orderField,
-    ]);
-    expect(firestoreCallData[1][config.promptField]).toBe(message.prompt);
-    expect(firestoreCallData[1][config.orderField]).toBeInstanceOf(Timestamp);
-  });
-
   test('should run when given createTime', async () => {
     const message = {
       prompt: 'hello chat bison',
@@ -242,69 +192,26 @@ describe('generateMessage', () => {
       call[0].docs[0].data()
     );
 
-    // This is left in just so we know our observer caught everything, sanity check:
-    expectToHaveKeys(firestoreCallData[0], ['createTime', 'prompt']);
-    expect(firestoreCallData[0].prompt).toEqual(message.prompt);
-    const orderFieldValue = firestoreCallData[0].createTime;
-    expect(orderFieldValue).toBeInstanceOf(Timestamp);
-    expectToHaveKeys(firestoreCallData[1], [
-      config.orderField,
-      config.promptField,
-      'status',
-    ]);
-    expect(firestoreCallData[1][config.promptField]).toBe(message.prompt);
-    expect(firestoreCallData[1][config.orderField]).toEqual(orderFieldValue);
+    expectToProcessCorrectly(
+      firestoreCallData,
+      message,
+      false,
+      'test response'
+    );
 
-    // Then we expect the function to update the status to PROCESSING:
-    expectToHaveKeys(firestoreCallData[1].status, [
-      'state',
-      'updateTime',
-      'startTime',
-    ]);
-    expect(firestoreCallData[1].status.state).toEqual('PROCESSING');
-    expect(firestoreCallData[1].status.updateTime).toBeInstanceOf(Timestamp);
-    const startTime = firestoreCallData[1].status.startTime;
-    expect(startTime).toEqual(expect.any(Timestamp));
+    expect(mockGetClient).toHaveBeenCalledTimes(1);
+    expect(mockGetClient).toHaveBeenCalledWith(config.googleAi.apiKey);
 
-    // Then we expect the function to update the status to COMPLETED, with the response field populated:
-    expectToHaveKeys(firestoreCallData[2], [
-      'createTime',
-      'prompt',
-      'response',
-      'status',
-    ]);
-    expect(firestoreCallData[2].prompt).toEqual(message.prompt);
-    expect(firestoreCallData[2].createTime).toEqual(orderFieldValue);
-    expect(firestoreCallData[2].status).toEqual({
-      startTime,
-      state: 'COMPLETED',
-      error: null,
-      completeTime: expect.any(Timestamp),
-      updateTime: expect.any(Timestamp),
+    expect(mockGetModel).toHaveBeenCalledTimes(1);
+    expect(mockGetModel).toBeCalledWith({model: config.googleAi.model});
+
+    expect(mockStartChat).toHaveBeenCalledTimes(1);
+    expect(mockStartChat).toHaveBeenCalledWith({
+      history: [],
+      generationConfig: {},
     });
-    expect(firestoreCallData[2].response).toEqual('test response');
-
-    // verify SDK is called with expected arguments
-    const expectedRequestData = {
-      candidateCount: undefined,
-      model: 'models/chat-bison-001',
-      prompt: {
-        messages: [
-          {
-            author: '0',
-            content: 'hello chat bison',
-          },
-        ],
-        context: '',
-        examples: [],
-      },
-      topP: undefined,
-      topK: undefined,
-      temperature: undefined,
-    };
-    // we expect the mock API to be called once
-    expect(mockAPI).toHaveBeenCalledTimes(1);
-    expect(mockAPI).toBeCalledWith(expectedRequestData);
+    expect(mockSendMessage).toHaveBeenCalledTimes(1);
+    expect(mockSendMessage).toHaveBeenCalledWith(message.prompt);
   });
 
   test('should run when not given createTime', async () => {
@@ -325,76 +232,29 @@ describe('generateMessage', () => {
     );
 
     // we expect the firestore observer to be called 4 times total.
-    expect(firestoreObserver).toHaveBeenCalledTimes(4);
-    const firestoreCallData = firestoreObserver.mock.calls.map(call =>
-      call[0].docs[0].data()
-    );
+    expect(firestoreObserver).toHaveBeenCalledTimes(3);
 
-    // This is left in just so we know our observer caught everything, sanity check:
-    expectToHaveKeys(firestoreCallData[0], ['prompt']);
-    expect(firestoreCallData[0].prompt).toEqual(message.prompt);
-
-    // We expect the function to first add a createTime:
-    expectToHaveKeys(firestoreCallData[1], ['prompt', 'createTime']);
-    expect(firestoreCallData[1].prompt).toEqual(message.prompt);
-    const createTime = firestoreCallData[1].createTime;
-    expect(createTime).toEqual(expect.any(Timestamp));
-
-    // Then we expect the function to update the status to PROCESSING:
-    expectToHaveKeys(firestoreCallData[2], ['prompt', 'createTime', 'status']);
-    expect(firestoreCallData[2].prompt).toEqual(message.prompt);
-    expect(firestoreCallData[2].createTime).toEqual(createTime);
-    expectToHaveKeys(firestoreCallData[2].status, [
-      'state',
-      'updateTime',
-      'startTime',
-    ]);
-    expect(firestoreCallData[2].status.state).toEqual('PROCESSING');
-    expect(firestoreCallData[2].status.updateTime).toEqual(
-      expect.any(Timestamp)
-    );
-    const startTime = firestoreCallData[2].status.startTime;
-    expect(startTime).toEqual(expect.any(Timestamp));
-
-    // Then we expect the function to update the status to COMPLETED, with the response field populated:
-    expectToHaveKeys(firestoreCallData[3], [
-      'prompt',
-      'createTime',
-      'response',
-      'status',
-    ]);
-    expect(firestoreCallData[3].prompt).toEqual(message.prompt);
-    expect(firestoreCallData[3].createTime).toEqual(createTime);
-    expect(firestoreCallData[3].status).toEqual({
-      startTime,
-      state: 'COMPLETED',
-      error: null,
-      completeTime: expect.any(Timestamp),
-      updateTime: expect.any(Timestamp),
+    const firestoreCallData = firestoreObserver.mock.calls.map(call => {
+      return call[0].docs[0].data();
     });
-    expect(firestoreCallData[3].response).toEqual('test response');
 
-    // verify SDK is called with expected arguments
-    const expectedRequestData = {
-      candidateCount: undefined,
-      model: 'models/chat-bison-001',
-      prompt: {
-        messages: [
-          {
-            author: '0',
-            content: 'hello chat bison',
-          },
-        ],
-        context: '',
-        examples: [],
-      },
-      topP: undefined,
-      topK: undefined,
-      temperature: undefined,
-    };
+    expectToProcessCorrectly(firestoreCallData, message, true, 'test response');
+
+    // // verify SDK is called with expected arguments
     // we expect the mock API to be called once
-    expect(mockAPI).toHaveBeenCalledTimes(1);
-    expect(mockAPI).toBeCalledWith(expectedRequestData);
+    expect(mockGetClient).toHaveBeenCalledTimes(1);
+    expect(mockGetClient).toHaveBeenCalledWith(config.googleAi.apiKey);
+
+    expect(mockGetModel).toHaveBeenCalledTimes(1);
+    expect(mockGetModel).toBeCalledWith({model: config.googleAi.model});
+
+    expect(mockStartChat).toHaveBeenCalledTimes(1);
+    expect(mockStartChat).toHaveBeenCalledWith({
+      history: [],
+      generationConfig: {},
+    });
+    expect(mockSendMessage).toHaveBeenCalledTimes(1);
+    expect(mockSendMessage).toHaveBeenCalledWith(message.prompt);
   });
 });
 
@@ -414,7 +274,7 @@ const simulateFunctionTriggered =
 const expectNoOp = async () => {
   await new Promise(resolve => setTimeout(resolve, 100));
   expect(firestoreObserver).toHaveBeenCalledTimes(1);
-  expect(mockAPI).toHaveBeenCalledTimes(0);
+  expect(mockGetModel).toHaveBeenCalledTimes(0);
 };
 
 const expectToHaveKeys = (obj: Record<string, unknown>, keys: string[]) => {

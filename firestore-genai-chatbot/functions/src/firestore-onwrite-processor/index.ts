@@ -78,13 +78,14 @@ export class FirestoreOnWriteProcessor<
 
   private async writeCompletionEvent(change: Change, output: TOutput) {
     const updateTime = now();
+    const stateField = `${this.statusField}.state`;
+    const updateTimeField = `${this.statusField}.updateTime`;
+    const completeTimeField = `${this.statusField}.completeTime`;
     await change.after.ref.update({
       ...output,
-      [this.statusField]: {
-        state: State.COMPLETED,
-        updateTime,
-        completeTime: updateTime,
-      },
+      [stateField]: State.COMPLETED,
+      [updateTimeField]: updateTime,
+      [completeTimeField]: updateTime,
     });
   }
 

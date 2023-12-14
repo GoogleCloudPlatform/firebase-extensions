@@ -28,7 +28,7 @@ logs.init(config);
 const processorOptions = {
   inputField: config.promptField,
   processFn: generateChatResponse,
-  createErrorMessage: createErrorMessage,
+  errorFn: createErrorMessage,
 };
 
 const processor = new FirestoreOnWriteProcessor<

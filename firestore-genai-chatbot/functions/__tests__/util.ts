@@ -12,7 +12,7 @@ export const expectToProcessCorrectly = (
 
   expect(firestoreCallData[1]).toEqual({
     ...message,
-    createTime: addCreateTime ? expect.any(Timestamp) : undefined,
+    createTime: expect.any(Timestamp),
     status: {
       state: 'PROCESSING',
       startTime: expect.any(Timestamp),
@@ -24,14 +24,10 @@ export const expectToProcessCorrectly = (
     firestoreCallData[1].status.updateTime
   );
 
-  expect(firestoreCallData[1].status.startTime).toEqual(
-    firestoreCallData[1].createTime
-  );
-
   expect(firestoreCallData[2]).toEqual({
     ...message,
     response: mockResponse,
-    createTime: addCreateTime ? expect.any(Timestamp) : undefined,
+    createTime: expect.any(Timestamp),
     status: {
       state: 'COMPLETED',
       startTime: expect.any(Timestamp),
@@ -42,5 +38,9 @@ export const expectToProcessCorrectly = (
 
   expect(firestoreCallData[2].status.startTime).toEqual(
     firestoreCallData[1].status.startTime
+  );
+
+  expect(firestoreCallData[2].status.updateTime).toEqual(
+    firestoreCallData[2].status.completeTime
   );
 };

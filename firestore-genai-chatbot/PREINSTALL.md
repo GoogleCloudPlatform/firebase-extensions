@@ -38,7 +38,7 @@ You can also configure the model to return different results by tweaking model p
 
 This extension supports the following language models:
 
-- [Gemini Pro](https://ai.google.dev/docs)
+- [Gemini Pro](https://ai.google.dev/models/gemini)
 
 ### Regenerating a response
 

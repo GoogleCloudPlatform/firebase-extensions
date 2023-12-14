@@ -86,26 +86,17 @@ resources:
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#params-field
 params:
   - param: GENERATIVE_AI_PROVIDER
-    label: Generative AI Provider
+    label: Gemini API Provider
     description: >-
-      Which large language model API do you want to power the extension? There
-      are two services which provide access to the PaLM API: Vertex and
-      Generative Language for Developers. If Vertex AI is selected, the service
-      will be automatically enabled. If Generative Language is selected, you can
-      provide an API key obtained through MakerSuite or your GCP console, or use
-      Application Default Credentials if the Generative Language AI has been
-      enabled in your google cloud project. The extension now provides support
-      for the latest Gemini models, which require an API key.
+      Which provider of the Gemini Language models would you like to use? Google
+      AI requires a valid API key, whereas Vertex AI will use Application
+      Default Credentials.
     type: select
     options:
-      - label: Gemini
-        value: gemini
-      - label: Vertex AI
-        value: vertex
-      - label: Generative Language AI for Developers
-        value: generative
+      - label: Google AI
+        value: google-ai
     required: true
-    default: gemini
+    default: google-ai
     immutable: false
 
   - param: API_KEY
