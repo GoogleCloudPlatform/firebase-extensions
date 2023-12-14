@@ -1,4 +1,4 @@
-# Chatbot with Google AI
+# Chatbot with PaLM API
 
 **Author**: Google Cloud (**[https://cloud.google.com/](https://cloud.google.com/)**)
 
