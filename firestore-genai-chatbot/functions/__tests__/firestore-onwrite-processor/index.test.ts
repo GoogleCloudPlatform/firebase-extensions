@@ -1,7 +1,7 @@
 import * as admin from 'firebase-admin';
 import {Timestamp} from 'firebase-admin/firestore';
 import * as firebaseFunctionsTest from 'firebase-functions-test';
-import {FirestoreOnWriteProcessor} from '..';
+import {FirestoreOnWriteProcessor} from '../../src/firestore-onwrite-processor';
 import {WrappedFunction} from 'firebase-functions-test/lib/v1';
 import {Change, firestore} from 'firebase-functions/v1';
 
