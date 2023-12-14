@@ -17,8 +17,8 @@
 import * as google from 'googleapis';
 import {firestore} from 'firebase-admin';
 import {logger} from 'firebase-functions/v1';
-import {QueryDocumentSnapshot} from 'firebase-admin/firestore';
 import {GaxiosError} from 'googleapis-common';
+import {QueryDocumentSnapshot} from 'firebase-admin/firestore';
 
 import {
   ScheduledBackups,
@@ -104,6 +104,9 @@ export const triggerRestorationJobHandler = async (
       },
       operation: operation,
     });
+
+    // Finally enqueue a task to check the operation status in 4 mins
+    await scheduledBackups.enqueueCheckOperationStatus(ref.id);
   } catch (ex: any) {
     logger.error('Error restoring backup', (ex as GaxiosError).message);
     await scheduledBackups.updateRestoreJobDoc(ref, {
@@ -135,6 +138,13 @@ function isValidTimestamp(timestamp: firestore.Timestamp): boolean {
   return true;
 }
 
+/**
+ * Takes a list of backups and returns the closest backup to the timestamp.
+ *
+ * @param backups The list of backups to search.
+ * @param timestamp The timestamp to compare against.
+ * @returns The closest backup to the timestamp.
+ */
 function pickClosestBackup(
   backups: google.firestore_v1.Schema$GoogleFirestoreAdminV1Backup[],
   timestamp: firestore.Timestamp

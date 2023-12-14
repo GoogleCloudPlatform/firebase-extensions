@@ -100,26 +100,15 @@ resources:
         eventType: providers/cloud.firestore/eventTypes/document.create
         resource: projects/${param:PROJECT_ID}/databases/(default)/documents/_ext-${param:EXT_INSTANCE_ID}/restore/jobs/{docId}
 
-  # This eventarc trigger is currently disabled as it does not yet support done events.
-  # - name: restoreDoneTrigger
-  #   type: firebaseextensions.v1beta.v2function
-  #   description: >-
-  #     An event-triggered function that gets called when a scheduled backup is
-  #     done restoring.
-  #   properties:
-  #     location: ${LOCATION}
-  #     buildConfig:
-  #       runtime: nodejs18
-  #     serviceConfig:
-  #       availableMemory: 512M
-  #     eventTrigger:
-  #       eventType: google.cloud.audit.log.v1.written
-  #       triggerRegion: global
-  #       eventFilters:
-  #         - attribute: serviceName
-  #           value: firestore.googleapis.com
-  #         - attribute: methodName
-  #           value: google.firestore.admin.v1.FirestoreAdmin.RestoreDatabase
+  - name: checkScheduledBackupState
+    type: firebaseextensions.v1beta.function
+    description: >-
+      Checks if a scheduled backup is done to trigger the DataFlow job
+    properties:
+      availableMemoryMb: 512
+      runtime: nodejs18
+      location: ${LOCATION}
+      taskQueueTrigger: {}
 
 params:
   - param: LOCATION

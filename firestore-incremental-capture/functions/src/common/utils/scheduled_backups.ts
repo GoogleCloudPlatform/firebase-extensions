@@ -15,6 +15,8 @@
  */
 
 import {firestore} from 'firebase-admin';
+import {getFunctions} from 'firebase-admin/functions';
+
 import {logger} from 'firebase-functions/v1';
 
 import {google, firestore_v1} from 'googleapis';
@@ -204,6 +206,22 @@ export class ScheduledBackups {
       logger.warn(`Failed to restore backup: ${error}`);
       throw error;
     }
+  }
+
+  async enqueueCheckOperationStatus(jobId: string) {
+    logger.info('Scheduling task to check operation again in 4 mins');
+
+    await getFunctions()
+      .taskQueue(
+        `locations/${config.location}/functions/checkScheduledBackupState`,
+        config.instanceId
+      )
+      .enqueue(
+        {
+          jobId: jobId,
+        },
+        {scheduleDelaySeconds: 240}
+      );
   }
 
   getAuthClient() {

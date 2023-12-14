@@ -18,62 +18,82 @@ import * as google from 'googleapis';
 import * as admin from 'firebase-admin';
 import axios, {AxiosError} from 'axios';
 import {GoogleAuth} from 'google-auth-library';
-import * as functionsv2 from 'firebase-functions/v2';
+import * as functions from 'firebase-functions';
+import {getFunctions} from 'firebase-admin/functions';
 
 import config from '../config';
-import {RestoreStatus} from '../common/models/restore_job_status';
+import {launchJob, RestoreStatus} from '../common';
 
 const apiEndpoint = 'firestore.googleapis.com';
 
-export const restoreDoneTriggerConfig = {
-  retry: false,
-  eventType: 'google.cloud.audit.log.v1.written',
-  serviceAccount: `ext-${config.instanceId}@${config.projectId}.iam.gserviceaccount.com`,
-};
+export const checkScheduledBackupStateHandler = async (data: any) => {
+  const jobId = data?.jobId;
+  functions.logger.info('An event has been recieved', data);
 
-export const restoreDoneTriggerHandler = async (event: any) => {
-  const operation = event.data?.operation;
-  functionsv2.logger.info('An event has been recieved', event);
+  const restoreRef = admin.firestore().doc(`${config.restoreDoc}/${jobId}`);
+  const restoreData = await restoreRef.get();
 
+  if (!restoreData || !restoreData.data()) {
+    functions.logger.error('No restore data found');
+    return;
+  }
+
+  const operation = restoreData.data()?.operation;
   if (!operation) return;
 
   try {
-    if (operation && !operation.last) return;
-    await processOperation(operation);
+    const newOperation = await processOperation(operation);
 
     // Once the operation is complete, update the restore doc to trigger the next step
-
-    const snapshot = await admin
-      .firestore()
-      .collection(`_ext-${config.instanceId}/restore/jobs`)
-      .where('operation.metdata.name', '==', operation.metadata.name)
-      .limit(1)
-      .get();
-
-    if (snapshot.empty) throw new Error('No restore job found');
-
-    const restoreDoc = snapshot.docs[0].ref.parent.parent!;
-    await restoreDoc.set(
-      {status: {message: RestoreStatus.RUNNING_DATAFLOW}, operation: operation},
+    await restoreRef.set(
+      {
+        status: {message: RestoreStatus.RUNNING_DATAFLOW},
+        operation: newOperation,
+      },
       {merge: true}
     );
 
-    // await launchJob(snapshot.docs[0].data().timestamp);
-  } catch (error) {
-    functionsv2.logger.error('Error processing operation', error);
+    await launchJob(restoreData.data()!.timestamp);
+  } catch (error: any) {
+    functions.logger.error('Error processing operation', error);
+
+    if (error.message === 'OPERATION_NOT_COMPLETE') {
+      functions.logger.info(
+        'Scheduling task to check operation again in 4 mins'
+      );
+
+      await getFunctions()
+        .taskQueue(
+          `locations/${config.location}/functions/checkScheduledBackupState`,
+          config.instanceId
+        )
+        .enqueue(
+          {
+            jobId: jobId,
+          },
+          {scheduleDelaySeconds: 240}
+        );
+    }
   }
 };
 
-async function processOperation(operation: any) {
+async function processOperation(
+  operation: any
+): Promise<google.firestore_v1.Schema$GoogleLongrunningOperation> {
   const _operation = await getOperationByName(operation.id);
   if (_operation?.error) {
     throw new Error(_operation.error?.message ?? 'Unknown error.');
   }
 
-  functionsv2.logger.info('Operation found', {_operation});
+  functions.logger.info('Operation found', {_operation});
 
-  const backupId = (operation.id as string).split('/operations/')[0];
-  functionsv2.logger.info('Restoration done', {backupId});
+  if (_operation.done) {
+    functions.logger.info('Operation complete');
+    return _operation;
+  }
+
+  functions.logger.info('Operation not complete. Checking again in 4 mins');
+  throw new Error('OPERATION_NOT_COMPLETE');
 }
 
 async function getOperationByName(

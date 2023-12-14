@@ -16,19 +16,22 @@
 
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
-import * as functionsv2 from 'firebase-functions/v2';
 
 import config from './config';
 
 import {syncDataHandler} from './handlers/sync_data_handler';
 import {triggerRestorationJobHandler} from './handlers/trigger_restoration_job_handler';
 import {runInitialSetupHandler} from './handlers/run_initial_setup_handler';
-import {
-  restoreDoneTriggerConfig,
-  restoreDoneTriggerHandler,
-} from './handlers/restore_done_trigger_handler';
+import {checkScheduledBackupStateHandler} from './handlers/check_scheduled_backups_state_handler';
 
 admin.initializeApp();
+
+/**
+ * Backup the entire database on initial deployment
+ * */
+export const runInitialSetup = functions.tasks
+  .taskQueue()
+  .onDispatch(runInitialSetupHandler);
 
 /**
  * Sync data to BigQuery, triggered by any change to a Firestore document
@@ -36,11 +39,6 @@ admin.initializeApp();
 export const syncData = functions.firestore
   .document(config.syncCollectionPath)
   .onWrite(syncDataHandler);
-
-/**
- * Backup the entire database on initial deployment
- * */
-export const runInitialSetup = async () => await runInitialSetupHandler();
 
 /**
  * Run a backup restoration.
@@ -54,7 +52,6 @@ export const triggerRestorationJob = functions.firestore
  *
  * Uses the event log method `google.firestore.admin.v1.FirestoreAdmin.RestoreDatabase`.
  */
-export const restoreDoneTrigger = functionsv2.eventarc.onCustomEventPublished(
-  restoreDoneTriggerConfig,
-  restoreDoneTriggerHandler
-);
+export const checkScheduledBackupState = functions.tasks
+  .taskQueue({retryConfig: {maxAttempts: 2}})
+  .onDispatch(checkScheduledBackupStateHandler);
