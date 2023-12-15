@@ -16,26 +16,36 @@
 
 package com.pipeline;
 
+import java.util.Map;
+
+import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.runners.dataflow.options.DataflowPipelineOptions;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.PipelineResult;
+import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
+import org.apache.beam.sdk.io.gcp.bigquery.SchemaAndRecord;
 import org.apache.beam.sdk.io.gcp.firestore.FirestoreIO;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.transforms.Create;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.SerializableFunction;
+import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PCollection;
+import org.joda.time.DateTime;
 import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.cloud.firestore.FirestoreOptions;
 import com.google.firestore.v1.Document;
+import com.google.firestore.v1.Value;
 import com.google.firestore.v1.Write;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 public class RestorationPipeline {
-  private static final FirestoreOptions DEFAULT_FIRESTORE_OPTIONS = FirestoreOptions.getDefaultInstance();
   private static final Logger LOG = LoggerFactory.getLogger(Utils.class);
 
   public interface MyOptions extends DataflowPipelineOptions,
@@ -80,8 +90,6 @@ public class RestorationPipeline {
     Pipeline pipeline = Pipeline.create(options);
 
     String project = options.getProject();
-    String collectionId = options.getFirestoreCollectionId();
-    String primaryDatabase = options.getFirestorePrimaryDb();
     String secondaryDatabase = options.getFirestoreSecondaryDb();
     String datasetId = options.getBigQueryDataset();
     String tableId = options.getBigQueryTable();
@@ -89,34 +97,17 @@ public class RestorationPipeline {
 
     options.setFirestoreDb(secondaryDatabase);
 
-    // Write the documents to the secondary database
-    pipeline
-        .apply("Create the write request",
-            ParDo.of(new DoFn<Document, Write>() {
-              @ProcessElement
-              public void processElement(ProcessContext c) {
-                Document document = c.element();
-
-                // Replace the default database with the secondary database in the document id
-                String id = document.getName().replace(primaryDatabase, secondaryDatabase);
-
-                Document newDocument = Document.newBuilder()
-                    .setName(id)
-                    .putAllFields(document.getFieldsMap())
-                    .build();
-
-                c.output(Write.newBuilder()
-                    .setUpdate(newDocument)
-                    .build());
-              }
-            }))
-        .apply("Write to the Firestore database instance", FirestoreIO.v1().write().batchWrite().build());
+    String formattedTimestamp = new DateTime(Utils.adjustDate(readTime)).toString("yyyy-MM-dd HH:mm:ss");
 
     // BigQuery read and subsequent Firestore write
     pipeline
-        .apply(Create.of(""))
-        .apply("Read from BigQuery",
-            new IncrementalCaptureLog(project, readTime, secondaryDatabase, datasetId, tableId))
+        .apply("Read from BigQuery with Dynamic Query",
+            BigQueryIO.read(new SerializableFunction<SchemaAndRecord, KV<String, Document>>() {
+              public KV<String, Document> apply(SchemaAndRecord schemaAndRecord) {
+                return convertToFirestoreValue(schemaAndRecord, project, secondaryDatabase);
+              }
+            }).fromQuery(constructQuery(formattedTimestamp, project, datasetId, tableId)).usingStandardSql()
+                .withTemplateCompatibility())
         .apply("Prepare write operations",
             new FirestoreHelpers.DocumentToWrite())
         .apply("Write to the Firestore database instance (From BigQuery)",
@@ -131,5 +122,68 @@ public class RestorationPipeline {
       // until finish
       result.waitUntilFinish();
     }
+  }
+
+  private static String constructQuery(String timestamp, String projectId, String datasetId, String tableId) {
+    LOG.info("Querying BigQuery for changes before timestamp: " + timestamp);
+    String query = "WITH RankedChanges AS (" +
+        "    SELECT " +
+        "        documentId," +
+        "        documentPath," +
+        "        changeType," +
+        "        beforeData," +
+        "        afterData," +
+        "        timestamp," +
+        "        ROW_NUMBER() OVER(PARTITION BY documentId ORDER BY timestamp DESC) as rank" +
+        "    FROM `" + projectId + "." + datasetId + "." + tableId + "`" +
+        "    WHERE timestamp < TIMESTAMP('" + (timestamp) + "') " +
+        ") " +
+        "SELECT " +
+        "    documentId," +
+        "    documentPath," +
+        "    changeType," +
+        "    beforeData," +
+        "    afterData," +
+        "    timestamp " +
+        "FROM RankedChanges " +
+        "WHERE rank = 1 " +
+        "ORDER BY documentId, timestamp DESC";
+
+    return query;
+
+  }
+
+  private static KV<String, Document> convertToFirestoreValue(SchemaAndRecord schemaAndRecord, String projectId,
+      String databaseId) {
+
+    GenericRecord record = schemaAndRecord.getRecord();
+
+    String data = record.get("afterData").toString();
+    String documentPath = createDocumentName(record.get("documentPath").toString(), projectId, databaseId);
+    String changeType = record.get("changeType").toString();
+
+    // this JsonElement has serialized data, e.g a string would be represented on
+    // the json tree as {type: "STRING", value: "some string"}
+    JsonElement dataJson = JsonParser.parseString(data);
+
+    Map<String, Value> firestoreMap = FirestoreReconstructor.buildFirestoreMap(dataJson, projectId, databaseId);
+
+    // using static methods as beam seems to error when passing an instance version
+    // of FirestoreReconstructor to the transform
+    Document doc = Document.newBuilder().putAllFields((Map<String, Value>) firestoreMap).setName(createDocumentName(
+        documentPath, projectId, databaseId)).build();
+
+    KV<String, Document> kv = KV.of(changeType, doc);
+
+    return kv;
+  }
+
+  private static String createDocumentName(String path, String projectId, String databaseId) {
+    String documentPath = String.format(
+        "projects/%s/databases/%s/documents",
+        projectId,
+        databaseId);
+
+    return documentPath + "/" + path;
   }
 }
