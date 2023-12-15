@@ -90,7 +90,7 @@ public class RestorationPipeline {
     options.setFirestoreDb(secondaryDatabase);
 
     // Write the documents to the secondary database
-    documentsAtReadTime
+    pipeline
         .apply("Create the write request",
             ParDo.of(new DoFn<Document, Write>() {
               @ProcessElement
