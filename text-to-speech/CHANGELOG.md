@@ -1,5 +1,8 @@
-## Version 0.1.4
+## Version 0.1.5
 
+fixed - save file path back to firestore document
+
+## Version 0.1.4
 
 fixed - fix audio encoding
 

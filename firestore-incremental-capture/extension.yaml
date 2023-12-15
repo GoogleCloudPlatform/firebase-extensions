@@ -13,7 +13,7 @@
 # limitations under the License.
 
 name: firestore-incremental-capture
-version: 0.0.5
+version: 0.0.6
 specVersion: v1beta
 
 icon: icon.png
@@ -102,6 +102,17 @@ resources:
       location: ${LOCATION}
       runtime: nodejs18
       httpsTrigger: {}
+
+  # TODO change to a Firestore trigger
+  - name: onBackupRestore
+    type: firebaseextensions.v1beta.function
+    description: >-
+      Exports data from storage to a pre-defined Firestore instance.
+    properties:
+      location: ${LOCATION}
+      runtime: nodejs18
+      availableMemoryMb: 1024
+      taskQueueTrigger: {}
 
 params:
   - param: LOCATION

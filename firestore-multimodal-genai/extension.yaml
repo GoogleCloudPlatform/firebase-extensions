@@ -1,0 +1,278 @@
+name: firestore-multimodal-genai
+version: 0.0.1
+specVersion: v1beta
+
+icon: icon.png
+
+displayName: Multimodal Tasks with Gemini
+
+description: >-
+  Performs AI/ML tasks on text and images, customizable with prompt engineering,
+  using Gemini AI and Firestore.
+
+tags:
+  [
+    ai,
+    generative-ai,
+    text-ai,
+    language-ai,
+    large-language-models,
+    llm,
+    nlp,
+    google-ai,
+  ]
+
+license: Apache-2.0 # https://spdx.org/licenses/
+
+sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-multimodal-genai
+releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-multimodal-genai/CHANGELOG.md
+
+author:
+  authorName: Google Cloud
+  url: https://cloud.google.com
+
+contributors:
+  - authorName: Invertase
+    email: oss@invertase.io
+    url: https://github.com/invertase
+  - authorName: Jacob Cable
+    email: jacob@invertase.io
+    url: https://github.com/cabljac
+  - authorName: Mais Alheraki
+    email: mais@invertase.io
+    url: https://github.com/pr-Mais
+
+billingRequired: true
+
+roles:
+  - role: datastore.user
+    reason:
+      Allows this extension to access Cloud Firestore to read and process added
+      messages.
+
+  - role: storage.objectAdmin
+    reason: Allows the extension to write to your Cloud Storage.
+
+# - role: aiplatform.user
+#   reason:
+#     Allows this extension to access the PaLM API via Vertex AI if this
+#     provider is chosen.
+
+resources:
+  - name: generateText
+    type: firebaseextensions.v1beta.function
+    description: >-
+      Listens to Firestore data writes to generate conversations.
+    properties:
+      location: ${LOCATION}
+      eventTrigger:
+        eventType: providers/cloud.firestore/eventTypes/document.write
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION_NAME}/{summaryId}
+      runtime: 'nodejs18'
+
+params:
+  - param: GENERATIVE_AI_PROVIDER
+    label: Gemini API Provider
+    description: >-
+      Which provider of the Gemini Language models would you like to use? Google
+      AI requires a valid API key, whereas Vertex AI will use Application
+      Default Credentials.
+    type: select
+    options:
+      - label: Google AI
+        value: google-ai
+    required: true
+    default: google-ai
+    immutable: false
+
+  - param: MODEL
+    label: Language model
+    description: >-
+      Which language model do you want to use? Please ensure you pick a model
+      supported by your selected provider.
+    type: select
+    options:
+      - label: Gemini Pro
+        value: gemini-pro
+      - label: Gemini Pro Vision
+        value: gemini-pro-vision
+    required: true
+    default: gemini-pro
+    immutable: false
+
+  - param: API_KEY
+    label: API Key (Generative AI for Developers, or Gemini)
+    description: >-
+      Please enter your API key for the Google AI Gemini API.
+    type: secret
+    required: true
+    immutable: false
+
+  - param: COLLECTION_NAME
+    label: Collection Path
+    description: >-
+      Path to the Firestore collection where text will be generated.
+    type: string
+    validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
+    validationErrorMessage: Must be a valid Cloud Firestore Collection
+    default: generate
+    required: true
+    immutable: false
+
+  - param: PROMPT
+    label: Prompt
+    description: >-
+      Prompt. Use {{ handlebars }} for variable substitution from the created or
+      updated doc.
+    type: string
+    required: true
+    immutable: false
+
+  - param: VARIABLE_FIELDS
+    label: Variable fields
+    description: >-
+      A comma separated list of fields to substitute as variables in the prompt.
+    type: string
+    required: false
+    immutable: false
+    validationRegex: ^[a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*$
+    validationErrorMessage: >-
+      Field names may only use upper and lowercase letters from A to Z,
+      underscores, or numbers, and may only be separated by commas. Trailing
+      commas and empty variable names are not allowed.
+
+  - param: IMAGE_FIELD
+    label: Image field (Gemini Pro Vision)
+    description: >-
+      A document field containing a cloud storage URL of an image, or a base64
+      string of an image. Note that this field is only supported by Gemini, and
+      only with the Gemini Pro Vision model.
+    type: string
+    required: false
+    immutable: false
+    validationRegex: ^[a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*$
+    validationErrorMessage: >-
+      Field names may only use upper and lowercase letters from A to Z,
+      underscores, or numbers, and may only be separated by commas. Trailing
+      commas and empty variable names are not allowed.
+
+  - param: RESPONSE_FIELD
+    label: Response Field
+    description: >-
+      The field in the message document into which to put the response.
+    type: string
+    default: output
+    required: true
+    immutable: false
+
+  - param: LOCATION
+    label: Cloud Functions location
+    description: >-
+      Where do you want to deploy the functions created for this extension? For
+      help selecting a location, refer to the [location selection
+      guide](https://firebase.google.com/docs/functions/locations).
+    type: select
+    options:
+      - label: Iowa (us-central1)
+        value: us-central1
+      - label: South Carolina (us-east1)
+        value: us-east1
+      - label: Northern Virginia (us-east4)
+        value: us-east4
+      - label: Los Angeles (us-west2)
+        value: us-west2
+      - label: Salt Lake City (us-west3)
+        value: us-west3
+      - label: Las Vegas (us-west4)
+        value: us-west4
+      - label: Warsaw (europe-central2)
+        value: europe-central2
+      - label: Belgium (europe-west1)
+        value: europe-west1
+      - label: London (europe-west2)
+        value: europe-west2
+      - label: Frankfurt (europe-west3)
+        value: europe-west3
+      - label: Zurich (europe-west6)
+        value: europe-west6
+      - label: Hong Kong (asia-east2)
+        value: asia-east2
+      - label: Tokyo (asia-northeast1)
+        value: asia-northeast1
+      - label: Osaka (asia-northeast2)
+        value: asia-northeast2
+      - label: Seoul (asia-northeast3)
+        value: asia-northeast3
+      - label: Mumbai (asia-south1)
+        value: asia-south1
+      - label: Jakarta (asia-southeast2)
+        value: asia-southeast2
+      - label: Montreal (northamerica-northeast1)
+        value: northamerica-northeast1
+      - label: Sao Paulo (southamerica-east1)
+        value: southamerica-east1
+      - label: Sydney (australia-southeast1)
+        value: australia-southeast1
+    required: true
+    immutable: true
+
+  - param: TEMPERATURE
+    label: Temperature
+    description: >-
+      Controls the randomness of the output. Values can range over [0,1],
+      inclusive. A value closer to 1 will produce responses that are more
+      varied, while a value closer to 0 will typically result in less surprising
+      responses from the model.
+    type: string
+    validationRegex: ^(?:0*(?:\.\d+)?|1(\.0*)?)$
+    validationErrorMessage:
+      Please specify a decimal representation of a number between 0 and 1.
+    required: false
+    immutable: false
+
+  - param: TOP_P
+    label: Nucleus sampling probability
+    description: >-
+      If specified, nucleus sampling will be used as the decoding strategy.
+      Nucleus sampling considers the smallest set of tokens whose probability
+      sum is at least a fixed value. Enter a value between 0 and 1.
+    type: string
+    validationRegex: ^(?:0*(?:\.\d+)?|1(\.0*)?)$
+    validationErrorMessage:
+      Please specify a decimal representation of a number between 0 and 1.
+    required: false
+    immutable: false
+
+  - param: TOP_K
+    label: Sampling strategy parameter
+    description: >-
+      If specified, top-k sampling will be used as the decoding strategy. Top-k
+      sampling considers the set of topK most probable tokens.
+    type: string
+    validationRegex: ^[1-9][0-9]*
+    validationErrorMessage: Please specify a positive integer.
+    required: false
+    immutable: false
+
+  - param: CANDIDATE_COUNT
+    label: Candidate count
+    description: >-
+      When set to an integer higher than one, additional candidate responses, up
+      to the specified number, will be stored in Firestore under the
+      'candidates' field.
+    type: string
+    validationRegex: ^[1-9][0-9]*
+    validationErrorMessage: Please specify a positive integer.
+    default: 1
+    required: false
+    immutable: false
+
+  - param: CANDIDATES_FIELD
+    label: Candidates field
+    description: >-
+      The field in the message document into which to put the other candidate
+      responses if the candidate count parameter is greater than one.
+    type: string
+    default: candidates
+    required: false
+    immutable: false

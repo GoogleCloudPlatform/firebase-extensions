@@ -1,3 +1,7 @@
+## Version 0.1.7
+
+docs - updates to POSTINSTALL
+
 ## Version 0.1.6
 
 fixed - autopagination issue (#103)
