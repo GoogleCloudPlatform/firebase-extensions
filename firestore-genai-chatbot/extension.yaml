@@ -1,14 +1,11 @@
-# Learn detailed information about the fields of an extension.yaml file in the docs:
-# https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml
+name: firestore-genai-chatbot
+version: 0.0.1
+specVersion: v1beta
 
-name: firestore-genai-chatbot # Identifier for your extension
-version: 0.0.1 # Follow semver versioning
-specVersion: v1beta # Version of the Firebase Extensions specification
+icon: icon.png
 
-# Friendly display name for your extension (~3-5 words)
 displayName: Chatbot with Google AI
 
-# Brief description of the task your extension performs (~1 sentence)
 description: >-
   Deploys customizable chatbots using Google AI and Firestore.
 
@@ -36,23 +33,11 @@ contributors:
     email: oss@invertase.io
     url: https://github.com/invertase
 
-# Public URL for the source code of your extension
 sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-genai-chatbot
 releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-genai-chatbot/CHANGELOG.md
 
-# Specify whether a paid-tier billing plan is required to use your extension.
-# Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#billing-required-field
 billingRequired: true
 
-# In an `apis` field, list any Google APIs (like Cloud Translation, BigQuery, etc.)
-# required for your extension to operate.
-# Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#apis-field
-# apis:
-#   - apiName: aiplatform.googleapis.com
-#     reason: For access to the Vertex API if this provider is chosen.
-
-# In a `roles` field, list any IAM access roles required for your extension to operate.
-# Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#roles-field
 roles:
   - role: datastore.user
     reason:
@@ -63,24 +48,18 @@ roles:
   #     Allows this extension to access the PaLM API via Vertex AI if this
   #     provider is chosen.
 
-# In the `resources` field, list each of your extension's functions, including the trigger for each function.
-# Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#resources-field
 resources:
   - name: generateMessage
     type: firebaseextensions.v1beta.function
     description: >-
       Listens to Firestore data writes to generate conversations.
     properties:
-      # LOCATION is a user-configured parameter value specified by the user during installation.
       location: ${LOCATION}
-      # httpsTrigger is used for an HTTP triggered function.
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
         resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION_NAME}/{messageId}
       runtime: 'nodejs18'
 
-# In the `params` field, set up your extension's user-configured parameters.
-# Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#params-field
 params:
   - param: GENERATIVE_AI_PROVIDER
     label: Gemini API Provider
