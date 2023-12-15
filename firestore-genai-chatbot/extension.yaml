@@ -1,0 +1,279 @@
+name: firestore-genai-chatbot
+version: 0.0.1
+specVersion: v1beta
+
+icon: icon.png
+
+displayName: Chatbot with Google AI
+
+description: >-
+  Deploys customizable chatbots using Google AI and Firestore.
+
+license: Apache-2.0 # https://spdx.org/licenses/
+
+tags:
+  [
+    ai,
+    chatbot-api,
+    generative-ai,
+    text-ai,
+    language-ai,
+    large-language-models,
+    llm,
+    nlp,
+    google-ai,
+  ]
+
+author:
+  authorName: Google Cloud
+  url: https://cloud.google.com/
+
+contributors:
+  - authorName: Invertase
+    email: oss@invertase.io
+    url: https://github.com/invertase
+  - authorName: Jacob Cable
+    email: jacob@invertase.io
+    url: https://github.com/cabljac
+  - authorName: Mais Alheraki
+    email: mais@invertase.io
+    url: https://github.com/pr-Mais
+
+sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-genai-chatbot
+releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-genai-chatbot/CHANGELOG.md
+
+billingRequired: true
+
+roles:
+  - role: datastore.user
+    reason:
+      Allows this extension to access Cloud Firestore to read and process added
+      messages.
+  # - role: aiplatform.user
+  #   reason:
+  #     Allows this extension to access the PaLM API via Vertex AI if this
+  #     provider is chosen.
+
+resources:
+  - name: generateMessage
+    type: firebaseextensions.v1beta.function
+    description: >-
+      Listens to Firestore data writes to generate conversations.
+    properties:
+      location: ${LOCATION}
+      eventTrigger:
+        eventType: providers/cloud.firestore/eventTypes/document.write
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION_NAME}/{messageId}
+      runtime: 'nodejs18'
+
+params:
+  - param: GENERATIVE_AI_PROVIDER
+    label: Gemini API Provider
+    description: >-
+      Which provider of the Gemini Language models would you like to use?
+    type: select
+    options:
+      - label: Google AI
+        value: google-ai
+    required: true
+    default: google-ai
+    immutable: false
+
+  - param: API_KEY
+    label: API Key for Gemini
+    description: >-
+      Please enter your API key for the Google AI Gemini API.
+    type: secret
+    required: true
+    immutable: false
+
+  - param: MODEL
+    label: Language model
+    description: >-
+      Which language model do you want to use? Please ensure you pick a model
+      supported by your selected provider.
+    type: select
+    options:
+      - label: (Gemini) Gemini Pro
+        value: gemini-pro
+    required: true
+    default: gemini-pro
+    immutable: false
+
+  - param: COLLECTION_NAME
+    label: Collection Path
+    description: >-
+      Path to a Cloud Firestore collection which will represent a discussion
+      with a LLM on the Google AI Gemini API.
+    type: string
+    validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
+    validationErrorMessage: Must be a valid Cloud Firestore Collection
+    example: users/{uid}/discussions/{discussionId}/messages
+    required: true
+    immutable: false
+
+  - param: PROMPT_FIELD
+    label: Prompt Field
+    description: >-
+      The field in the message document that contains the prompt.
+    type: string
+    default: prompt
+    example: prompt
+    required: true
+    immutable: false
+
+  - param: RESPONSE_FIELD
+    label: Response Field
+    description: >-
+      The field in the message document into which to put the response.
+    type: string
+    default: response
+    example: response
+    required: true
+    immutable: false
+
+  - param: ORDER_FIELD
+    label: Order Field
+    description: >-
+      The field by which to order when fetching conversation history. If absent
+      when processing begins, the current timestamp will be written to this
+      field. Sorting will be in descending order.
+    type: string
+    example: createTime
+    required: false
+    immutable: false
+
+  - param: LOCATION
+    label: Cloud Functions location
+    description: >-
+      Where do you want to deploy the functions created for this extension? For
+      help selecting a location, refer to the [location selection
+      guide](https://firebase.google.com/docs/functions/locations).
+    type: select
+    options:
+      - label: Iowa (us-central1)
+        value: us-central1
+      - label: South Carolina (us-east1)
+        value: us-east1
+      - label: Northern Virginia (us-east4)
+        value: us-east4
+      - label: Los Angeles (us-west2)
+        value: us-west2
+      - label: Salt Lake City (us-west3)
+        value: us-west3
+      - label: Las Vegas (us-west4)
+        value: us-west4
+      - label: Warsaw (europe-central2)
+        value: europe-central2
+      - label: Belgium (europe-west1)
+        value: europe-west1
+      - label: London (europe-west2)
+        value: europe-west2
+      - label: Frankfurt (europe-west3)
+        value: europe-west3
+      - label: Zurich (europe-west6)
+        value: europe-west6
+      - label: Hong Kong (asia-east2)
+        value: asia-east2
+      - label: Tokyo (asia-northeast1)
+        value: asia-northeast1
+      - label: Osaka (asia-northeast2)
+        value: asia-northeast2
+      - label: Seoul (asia-northeast3)
+        value: asia-northeast3
+      - label: Mumbai (asia-south1)
+        value: asia-south1
+      - label: Jakarta (asia-southeast2)
+        value: asia-southeast2
+      - label: Montreal (northamerica-northeast1)
+        value: northamerica-northeast1
+      - label: Sao Paulo (southamerica-east1)
+        value: southamerica-east1
+      - label: Sydney (australia-southeast1)
+        value: australia-southeast1
+    required: true
+    immutable: true
+
+  - param: CONTEXT
+    label: Context
+    description: >-
+      Contextual preamble for the language model. A string giving context for
+      the discussion.
+    type: string
+    required: false
+    immutable: false
+
+  - param: TEMPERATURE
+    label: Temperature
+    description: >-
+      Controls the randomness of the output. Values can range over [0,1],
+      inclusive. A value closer to 1 will produce responses that are more
+      varied, while a value closer to 0 will typically result in less surprising
+      responses from the model.
+    type: string
+    validationRegex: ^(?:0*(?:\.\d+)?|1(\.0*)?)$
+    validationErrorMessage:
+      Please specify a decimal representation of a number between 0 and 1.
+    required: false
+    immutable: false
+
+  - param: TOP_P
+    label: Nucleus sampling probability
+    description: >-
+      If specified, nucleus sampling will be used as the decoding strategy.
+      Nucleus sampling considers the smallest set of tokens whose probability
+      sum is at least a fixed value. Enter a value between 0 and 1.
+    type: string
+    validationRegex: ^(?:0*(?:\.\d+)?|1(\.0*)?)$
+    validationErrorMessage:
+      Please specify a decimal representation of a number between 0 and 1.
+    required: false
+    immutable: false
+
+  - param: TOP_K
+    label: Sampling strategy parameter
+    description: >-
+      If specified, top-k sampling will be used as the decoding strategy. Top-k
+      sampling considers the set of topK most probable tokens.
+    type: string
+    validationRegex: ^[1-9][0-9]*
+    validationErrorMessage: Please specify a positive integer.
+    required: false
+    immutable: false
+
+  - param: CANDIDATE_COUNT
+    label: Candidate count
+    description: >-
+      The default value is one. When set to an integer higher than one,
+      additional candidate responses, up to the specified number, will be stored
+      in Firestore under the 'candidates' field.
+    type: string
+    validationRegex: ^[1-9][0-9]*
+    validationErrorMessage: Please specify a positive integer.
+    default: 1
+    required: false
+    immutable: false
+
+  - param: CANDIDATES_FIELD
+    label: Candidates field
+    description: >-
+      The field in the message document into which to put the other candidate
+      responses if the candidate count parameter is greater than one.
+    type: string
+    default: candidates
+    required: false
+    immutable: false
+
+  - param: ENABLE_DISCUSSION_OPTION_OVERRIDES
+    label: Enable per document overrides.
+    description: >-
+      If set to \"Yes\", discussion parameters may be overwritten by fields in
+      the discussion collection.
+    type: select
+    options:
+      - label: Yes
+        value: yes
+      - label: No
+        value: no
+    default: no
+    required: true
