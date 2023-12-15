@@ -32,6 +32,12 @@ contributors:
   - authorName: Invertase
     email: oss@invertase.io
     url: https://github.com/invertase
+  - authorName: Jacob Cable
+    email: jacob@invertase.io
+    url: https://github.com/cabljac
+  - authorName: Mais Alheraki
+    email: mais@invertase.io
+    url: https://github.com/pr-Mais
 
 sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-genai-chatbot
 releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-genai-chatbot/CHANGELOG.md
