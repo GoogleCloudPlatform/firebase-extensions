@@ -1,4 +1,4 @@
-# Chatbot with Google AI
+# Chatbot with Gemini
 
 **Author**: Google Cloud (**[https://cloud.google.com/](https://cloud.google.com/)**)
 
@@ -71,11 +71,11 @@ Additionally, this extension uses the Google AI Gemini API. For more details on 
 
 * Gemini API Provider: Which provider of the Gemini Language models would you like to use?
 
-* API Key (required for Gemini, optional for PaLM): Please enter your API key for the Google AI Gemini API.
+* API Key for Gemini: Please enter your API key for the Google AI Gemini API.
 
 * Language model: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
 
-* Collection Path: Path to a Cloud Firestore collection which will represent a discussion with a LLM on the PaLM API.
+* Collection Path: Path to a Cloud Firestore collection which will represent a discussion with a LLM on the Google AI Gemini API.
 
 * Prompt Field: The field in the message document that contains the prompt.
 
@@ -107,12 +107,6 @@ Additionally, this extension uses the Google AI Gemini API. For more details on 
 
 
 
-**APIs Used**:
-
-* aiplatform.googleapis.com (Reason: For access to the PaLM API if this provider is chosen.)
-
-
-
 **Access Required**:
 
 
@@ -120,5 +114,3 @@ Additionally, this extension uses the Google AI Gemini API. For more details on 
 This extension will operate with the following project IAM roles:
 
 * datastore.user (Reason: Allows this extension to access Cloud Firestore to read and process added messages.)
-
-* aiplatform.user (Reason: Allows this extension to access the PaLM API via Vertex AI if this provider is chosen.)
