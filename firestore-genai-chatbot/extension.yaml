@@ -4,7 +4,7 @@ specVersion: v1beta
 
 icon: icon.png
 
-displayName: Chatbot with Google AI
+displayName: Chatbot with Gemini
 
 description: >-
   Deploys customizable chatbots using Google AI and Firestore.
