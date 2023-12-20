@@ -18,7 +18,7 @@ enum ImageUrlSource {
 // import IPart
 type Part = generativeLanguage.protos.google.ai.generativelanguage.v1.IPart;
 
-export class GeminiGenerativeClient extends GenerativeClient<
+export class GenerativeLanguageClient extends GenerativeClient<
   any,
   v1.GenerativeServiceClient
 > {

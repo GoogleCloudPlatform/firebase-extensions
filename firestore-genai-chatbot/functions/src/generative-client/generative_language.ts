@@ -31,7 +31,7 @@ enum Role {
   GEMINI = 'model',
 }
 
-export class GeminiDiscussionClient extends DiscussionClient<
+export class GenerativeLanguageDiscussionClient extends DiscussionClient<
   v1.GenerativeServiceClient,
   GeminiChatOptions,
   ApiMessage

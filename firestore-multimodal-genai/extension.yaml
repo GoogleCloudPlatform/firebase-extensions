@@ -44,6 +44,10 @@ contributors:
 
 billingRequired: true
 
+apis:
+  - apiName: generativelanguage.googleapis.com
+    reason: Used to access Gemini models through the Generative Language API.
+
 roles:
   - role: datastore.user
     reason:
@@ -101,11 +105,12 @@ params:
     immutable: false
 
   - param: API_KEY
-    label: API Key (Generative AI for Developers, or Gemini)
+    label: API Key
     description: >-
-      Please enter your API key for the Google AI Gemini API.
+      If you would like the extension to use an API key to access Gemini, please
+      enter it here.
     type: secret
-    required: true
+    required: false
     immutable: false
 
   - param: COLLECTION_NAME
