@@ -102,3 +102,5 @@ This extension will operate with the following project IAM roles:
 * bigquery.dataEditor (Reason: Allows the creation of BQ jobs to import Firestore backups.)
 
 * dataflow.developer (Reason: Allows this extension to create and run dataflow jobs.)
+
+* storage.objectViewer (Reason: Allows this extension to read Dataflow templates.)
