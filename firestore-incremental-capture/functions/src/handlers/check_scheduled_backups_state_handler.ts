@@ -27,14 +27,15 @@ export const checkScheduledBackupStateHandler = async (data: any) => {
   functions.logger.info('An event has been recieved', data);
 
   const restoreRef = admin.firestore().doc(`${config.restoreDoc}/${jobId}`);
-  const restoreData = await restoreRef.get();
+  const restore = await restoreRef.get();
+  const restoreData = restore.data();
 
-  if (!restoreData || !restoreData.data()) {
+  if (!restoreData) {
     functions.logger.error('No restore data found');
     return;
   }
 
-  const operation = restoreData.data()?.operation;
+  const operation = restoreData?.operation;
   if (!operation) return;
 
   try {
@@ -58,9 +59,9 @@ export const checkScheduledBackupStateHandler = async (data: any) => {
       });
 
       await launchJob(
-        (restoreData.data()!.timestamp as admin.firestore.Timestamp).toMillis(),
+        (restoreData.timestamp as admin.firestore.Timestamp).seconds,
         restoreRef,
-        restoreData.data()?.destinationDb
+        restoreData?.destinationDb
       );
     } else {
       functions.logger.info('Operation still running');

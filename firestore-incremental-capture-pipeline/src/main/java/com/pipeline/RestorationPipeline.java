@@ -27,26 +27,19 @@ import org.apache.beam.sdk.io.gcp.bigquery.SchemaAndRecord;
 import org.apache.beam.sdk.io.gcp.firestore.FirestoreIO;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
-import org.apache.beam.sdk.transforms.Create;
-import org.apache.beam.sdk.transforms.DoFn;
-import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.SerializableFunction;
 import org.apache.beam.sdk.values.KV;
-import org.apache.beam.sdk.values.PCollection;
 import org.joda.time.DateTime;
 import org.joda.time.Instant;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.cloud.firestore.FirestoreOptions;
 import com.google.firestore.v1.Document;
 import com.google.firestore.v1.Value;
-import com.google.firestore.v1.Write;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 public class RestorationPipeline {
-  private static final Logger LOG = LoggerFactory.getLogger(Utils.class);
+  private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(RestorationPipeline.class);
 
   public interface MyOptions extends DataflowPipelineOptions,
       org.apache.beam.sdk.io.gcp.firestore.FirestoreOptions {
@@ -96,6 +89,8 @@ public class RestorationPipeline {
     Instant readTime = Utils.adjustDate(Instant.ofEpochSecond(options.getTimestamp()));
 
     options.setFirestoreDb(secondaryDatabase);
+
+    LOG.info("Restoring to Firestore database: " + secondaryDatabase);
 
     String formattedTimestamp = new DateTime(Utils.adjustDate(readTime)).toString("yyyy-MM-dd HH:mm:ss");
 
@@ -170,8 +165,7 @@ public class RestorationPipeline {
 
     // using static methods as beam seems to error when passing an instance version
     // of FirestoreReconstructor to the transform
-    Document doc = Document.newBuilder().putAllFields((Map<String, Value>) firestoreMap).setName(createDocumentName(
-        documentPath, projectId, databaseId)).build();
+    Document doc = Document.newBuilder().putAllFields((Map<String, Value>) firestoreMap).setName(documentPath).build();
 
     KV<String, Document> kv = KV.of(changeType, doc);
 

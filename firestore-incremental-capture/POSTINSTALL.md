@@ -42,23 +42,15 @@ We have detailed the steps below, or there is a single script you can run which 
 
    ```bash
     gcloud projects add-iam-policy-binding ${param:PROJECT_ID} \
-    --project ${param:PROJECT_ID} \
+    --project=${param:PROJECT_ID} \
     --member=serviceAccount:SA_EMAIL \
-    --role=roles/iam.serviceAccountUser
-   ```
-
-6. Add the required role for the extension service account to trigger Dataflow:
-
-   ```bash
-    gcloud projects add-iam-policy-binding ${param:PROJECT_ID} \
-    --project ${param:PROJECT_ID} \
-    --member=serviceAccount:SA_EMAIL \
+    --role=roles/iam.serviceAccountUser \
     --role=roles/artifactregistry.writer
    ```
 
-7. Download the JAR file for the Dataflow Flex Template [here](https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-incremental-capture-pipeline/target/restore-firestore.jar).
+6. Download the JAR file for the Dataflow Flex Template [here](https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-incremental-capture-pipeline/target/restore-firestore.jar).
   
-8. Run the following command to build the Dataflow Flex Template:
+7. Run the following command to build the Dataflow Flex Template:
 
   ```bash
     gcloud dataflow flex-template build gs://${param:PROJECT_ID}.appspot.com/${param:EXT_INSTANCE_ID}-dataflow-restore \
