@@ -103,4 +103,4 @@ This extension will operate with the following project IAM roles:
 
 * dataflow.developer (Reason: Allows this extension to create and run dataflow jobs.)
 
-* storage.objectViewer (Reason: Allows this extension to read Dataflow templates.)
+* storage.admin (Reason: Allows this extension to read Dataflow templates & write to GCS.)
