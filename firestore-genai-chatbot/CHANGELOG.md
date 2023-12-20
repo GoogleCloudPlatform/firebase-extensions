@@ -1,3 +1,7 @@
+## Version 0.0.3
+
+- Update docs to describe provider param correctly
+
 ## Version 0.0.2
 
 - Update the display name of the extension to `Chatbot with Gemini`.

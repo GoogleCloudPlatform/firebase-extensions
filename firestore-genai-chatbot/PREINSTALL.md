@@ -2,7 +2,7 @@ Use this extension to easily deploy a chatbot using Gemini large language models
 
 On install you will be asked to provide:
 
-- **Generative AI Provider** This extension makes use of either the Vertex AI Gemini API, or the Google AI Gemini API. To use Google AI you will need to provide a valid API key, Vertex AI will attempt to use Application Default Credentials to authenticate with your Google Cloud Project.
+- **Generative AI Provider** This extension makes use of the Gemini family of large language models. Currently the extension only supports the Google AI API (for developers) but in future will support the Vertex AI Gemini API.
 
 - **Language model**: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
 
@@ -39,6 +39,10 @@ You can also configure the model to return different results by tweaking model p
 This extension supports the following language models:
 
 - [Gemini Pro](https://ai.google.dev/models/gemini)
+
+## Additional Setup
+
+Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project, and have obtained an API key for Google AI's Gemini API.
 
 ### Regenerating a response
 
