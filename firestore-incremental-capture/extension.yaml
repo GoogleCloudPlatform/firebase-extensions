@@ -64,8 +64,8 @@ roles:
   - role: dataflow.developer
     reason: Allows this extension to create and run dataflow jobs.
 
-  - role: storage.objectViewer
-    reason: Allows this extension to read Dataflow templates.
+  - role: storage.admin
+    reason: Allows this extension to read Dataflow templates & write to GCS.
 
   # - role: artifactregistry.writer
   #   reason: Allows this extension to write to the artifact registry.
