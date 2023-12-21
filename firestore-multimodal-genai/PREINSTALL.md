@@ -63,7 +63,7 @@ Changing the state field of a completed document's status from `COMPLETED` to an
 
 ## Additional Setup
 
-Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project, and have obtained an API key for Google AI's Gemini API.
+Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project.
 
 ## Billing
 
