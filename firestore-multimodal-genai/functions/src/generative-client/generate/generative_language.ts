@@ -1,13 +1,10 @@
-// import {
-//   GoogleGenerativeAI,
-//   HarmCategory,
-//   HarmBlockThreshold,
-// } from '@google/generative-ai-web';
+import {v1} from '@google-ai/generativelanguage';
+import * as generativeLanguage from '@google-ai/generativelanguage';
 
-import {GoogleGenerativeAI, Part} from '@google/generative-ai';
 import {GenerativeClient} from './base_text_client';
 import * as admin from 'firebase-admin';
 import {logger} from 'firebase-functions/v1';
+import {GoogleAuth} from 'google-auth-library';
 enum Role {
   USER = 'user',
   GEMINI = 'model',
@@ -18,17 +15,26 @@ enum ImageUrlSource {
   STORAGE = 'storage',
 }
 
-export class GeminiGenerativeClient extends GenerativeClient<
+// import IPart
+type Part = generativeLanguage.protos.google.ai.generativelanguage.v1.IPart;
+
+export class GenerativeLanguageClient extends GenerativeClient<
   any,
-  GoogleGenerativeAI
+  v1.GenerativeServiceClient
 > {
-  apiKey: string;
+  apiKey?: string;
   modelName: string;
 
-  constructor({apiKey, modelName}: {apiKey: string; modelName: string}) {
+  constructor({apiKey, modelName}: {apiKey?: string; modelName: string}) {
     super();
-    this.apiKey = apiKey;
-    this.client = new GoogleGenerativeAI(this.apiKey);
+    if (apiKey) {
+      const authClient = new GoogleAuth().fromAPIKey(apiKey);
+      this.client = new v1.GenerativeServiceClient({
+        authClient,
+      });
+    } else {
+      this.client = new v1.GenerativeServiceClient();
+    }
     this.modelName = modelName;
   }
 
@@ -37,9 +43,6 @@ export class GeminiGenerativeClient extends GenerativeClient<
       throw new Error('Gemini Client not initialized.');
     }
 
-    const model = this.client.getGenerativeModel({
-      model: this.modelName,
-    });
     const textPart: Part = {
       text: promptText,
     };
@@ -63,7 +66,8 @@ export class GeminiGenerativeClient extends GenerativeClient<
     }
     let result;
     try {
-      result = await model.generateContent({
+      result = await this.client.generateContent({
+        model: this.modelName,
         contents: [
           {
             role: Role.USER,
@@ -86,18 +90,31 @@ export class GeminiGenerativeClient extends GenerativeClient<
       );
     }
 
-    const candidates =
-      result.response.candidates?.map(c => c.content.parts[0].text) || [];
+    const response = result[0];
 
-    if (!candidates || candidates.length === 0) {
+    if (
+      !response.candidates ||
+      !Array.isArray(response.candidates) ||
+      response.candidates.length === 0
+    ) {
       // TODO: handle blocked responses
       throw new Error('No candidates returned');
     }
-    const firstCandidate = candidates[0];
+
+    const candidates = response.candidates.filter(c => {
+      return (
+        c &&
+        c.content &&
+        c.content.parts &&
+        c.content.parts.length > 0 &&
+        c.content.parts[0].text &&
+        typeof c.content.parts[0].text === 'string'
+      );
+    });
 
     return {
-      response: firstCandidate!,
-      candidates: candidates,
+      response: candidates[0]!.content!.parts![0].text!,
+      candidates: candidates?.map(c => c.content!.parts![0].text!) ?? [],
       // TODO: add this as a feature:
       // safetyMetadata: promptFeedback,
     };

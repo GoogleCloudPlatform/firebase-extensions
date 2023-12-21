@@ -71,7 +71,7 @@ Changing the state field of a completed document's status from `COMPLETED` to an
 
 ## Additional Setup
 
-Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project, and have obtained an API key for Google AI's Gemini API.
+Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project.
 
 ## Billing
 
@@ -94,7 +94,7 @@ Additionally, this extension uses the Google AI Gemini API. For more details on 
 
 * Language model: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
 
-* API Key (Generative AI for Developers, or Gemini): Please enter your API key for the Google AI Gemini API.
+* API Key: If you would like the extension to use an API key to access Gemini, please enter it here.
 
 * Collection Path: Path to the Firestore collection where text will be generated.
 
@@ -123,6 +123,12 @@ Additionally, this extension uses the Google AI Gemini API. For more details on 
 **Cloud Functions:**
 
 * **generateText:** Listens to Firestore data writes to generate conversations.
+
+
+
+**APIs Used**:
+
+* generativelanguage.googleapis.com (Reason: Used to access Gemini models through the Generative Language API.)
 
 
 

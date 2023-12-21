@@ -1,3 +1,7 @@
+## Version 0.0.4
+
+- Allow Application Default Credentials Authorization
+
 ## Version 0.0.3
 
 - Update docs to describe provider param correctly

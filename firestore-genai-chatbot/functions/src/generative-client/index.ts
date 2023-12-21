@@ -1,19 +1,18 @@
 import config, {GenerativeAIProvider} from '../config';
-import {GeminiDiscussionClient} from './google_ai';
-import {GoogleGenerativeAI} from '@google/generative-ai';
 import {DiscussionClient} from './base_class';
+import {v1} from '@google-ai/generativelanguage';
+import {GenerativeLanguageDiscussionClient} from './generative_language';
 
-type Client = GoogleGenerativeAI;
+type Client = v1.GenerativeServiceClient;
 
 // TODO fix any
 export const getGenerativeClient = (): DiscussionClient<Client, any, any> => {
   switch (config.provider as GenerativeAIProvider) {
     case 'google-ai':
-      if (!config.googleAi.apiKey) throw new Error('Gemini API Key not set');
       if (!config.googleAi.model) throw new Error('Gemini model not set');
-      return new GeminiDiscussionClient({
+      return new GenerativeLanguageDiscussionClient({
         apiKey: config.googleAi.apiKey,
-        modelName: config.googleAi.model,
+        modelName: `models/${config.googleAi.model}`,
       });
     default:
       throw new Error('Invalid provider');

@@ -1,5 +1,5 @@
 name: firestore-genai-chatbot
-version: 0.0.3
+version: 0.0.4
 specVersion: v1beta
 
 icon: icon.png
@@ -44,6 +44,10 @@ releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree
 
 billingRequired: true
 
+apis:
+  - apiName: generativelanguage.googleapis.com
+    reason: Used to access Gemini models through the Generative Language API.
+
 roles:
   - role: datastore.user
     reason:
@@ -84,9 +88,10 @@ params:
   - param: API_KEY
     label: API Key for Gemini
     description: >-
-      Please enter your API key for the Google AI Gemini API.
+      If you would like the extension to use an API to access the Gemini API,
+      please enter it here.
     type: secret
-    required: true
+    required: false
     immutable: false
 
   - param: MODEL
@@ -96,7 +101,7 @@ params:
       supported by your selected provider.
     type: select
     options:
-      - label: (Gemini) Gemini Pro
+      - label: Gemini Pro
         value: gemini-pro
     required: true
     default: gemini-pro
