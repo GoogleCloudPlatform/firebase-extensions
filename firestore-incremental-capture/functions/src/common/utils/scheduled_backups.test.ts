@@ -1,6 +1,7 @@
 import {ScheduledBackups} from './scheduled_backups';
 import config from '../../config';
 
+// Required when using config to make sure the mock config is used
 jest.mock('../../config.ts');
 
 describe('ScheduledBackups', () => {
