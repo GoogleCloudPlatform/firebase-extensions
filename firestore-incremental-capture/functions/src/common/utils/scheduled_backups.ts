@@ -150,16 +150,20 @@ export class ScheduledBackups {
    * Setup scheduled backups for the Firestore database.
    * Could be the default database or any other database in the project.
    * */
-  async setupScheduledBackups(): Promise<firestore_v1.Schema$GoogleFirestoreAdminV1BackupSchedule> {
+  async setupScheduledBackups(
+    databaseId: string
+  ): Promise<firestore_v1.Schema$GoogleFirestoreAdminV1BackupSchedule> {
     try {
-      // Check if a backup schedule already exists
-      const bs = await this.checkIfBackupScheduleExists('(default)');
-
-      if (bs) {
+      try {
+        // Check if a backup schedule already exists
+        const bs = await this.checkIfBackupScheduleExists(databaseId);
         logger.info(
           `A backup schedule already exists for the Firestore database: ${bs.name}`
         );
-        return bs;
+      } catch (error) {
+        logger.info(
+          'No backup schedule found for the Firestore database, creating a new one'
+        );
       }
 
       const newBs =
@@ -168,7 +172,7 @@ export class ScheduledBackups {
             retention: '7d',
             dailyRecurrence: {},
           },
-          parent: `projects/${config.projectId}/databases/(default)`,
+          parent: `projects/${config.projectId}/databases/${databaseId}`,
           auth: await this.getAuthClient(),
         });
 

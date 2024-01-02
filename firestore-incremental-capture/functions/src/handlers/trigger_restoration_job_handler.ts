@@ -66,6 +66,28 @@ export const triggerRestorationJobHandler = async (
     return;
   }
 
+  try {
+    // Setup scheduled backups for the Firestore database
+    const metadata = await scheduledBackups.setupScheduledBackups(
+      data.destinationDatabaseId
+    );
+
+    logger.debug('Scheduled backups metadata', metadata);
+  } catch (error) {
+    logger.error(
+      `Failed to enable scheduled backups for the Firestore database. Error: ${error}`
+    );
+
+    await scheduledBackups.updateRestoreJobDoc(ref, {
+      status: {
+        message: RestoreStatus.FAILED,
+        error: `${RestoreError.EXCEPTION}: ${error}`,
+      },
+    });
+
+    return;
+  }
+
   let backups: google.firestore_v1.Schema$GoogleFirestoreAdminV1Backup[];
 
   // Check if there's a valid backup

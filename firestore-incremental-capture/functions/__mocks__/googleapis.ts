@@ -10,8 +10,9 @@ google.auth.getClient = mockGetClient;
 
 // Type for the mock backup data array using the actual type from googleapis
 let mockBackupData: firestore.Schema$GoogleFirestoreAdminV1Backup[] = [];
-let mockBackupScheduleData: firestore.Schema$GoogleFirestoreAdminV1BackupSchedule[] =
+let mockBackupSchedulesData: firestore.Schema$GoogleFirestoreAdminV1BackupSchedule[] =
   [];
+let mockBackupScheduleData: firestore.Schema$GoogleFirestoreAdminV1BackupSchedule;
 
 // Setter function to update mock data
 const __setMockBackupData = (
@@ -20,8 +21,14 @@ const __setMockBackupData = (
   mockBackupData = data;
 };
 
-const __setMockBackupScheduleData = (
+const __setMockBackupSchedulesData = (
   data: firestore.Schema$GoogleFirestoreAdminV1BackupSchedule[]
+) => {
+  mockBackupSchedulesData = data;
+};
+
+const __setMockBackupScheduleData = (
+  data: firestore.Schema$GoogleFirestoreAdminV1BackupSchedule
 ) => {
   mockBackupScheduleData = data;
 };
@@ -42,10 +49,15 @@ class MockFirestore {
     },
     databases: {
       backupSchedules: {
+        create: jest.fn().mockImplementation(() => {
+          return Promise.resolve({
+            data: mockBackupScheduleData,
+          });
+        }),
         list: jest.fn().mockImplementation(() => {
           return Promise.resolve({
             data: {
-              backupSchedules: mockBackupScheduleData,
+              backupSchedules: mockBackupSchedulesData,
             },
           });
         }),
@@ -61,4 +73,8 @@ export const firestore_v1 = {
 };
 
 export {google};
-export {__setMockBackupData, __setMockBackupScheduleData};
+export {
+  __setMockBackupData,
+  __setMockBackupSchedulesData,
+  __setMockBackupScheduleData,
+};

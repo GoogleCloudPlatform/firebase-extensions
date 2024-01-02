@@ -29,7 +29,7 @@ export async function runInitialSetupHandler() {
 
   await runtime.setProcessingState(
     'NONE',
-    `Creating/updating dataset and table ${config.bqDataset}.${config.bqtable}`
+    `Creating/updating table ${config.bqDataset}.${config.bqtable}`
   );
 
   // Setup sync dataset and tables
@@ -40,17 +40,9 @@ export async function runInitialSetupHandler() {
   );
 
   try {
-    await runtime.setProcessingState(
-      'NONE',
-      'Creating a scheduled backup for the Firestore database'
-    );
-
-    // Setup scheduled backups for the Firestore database
-    const metadata = await scheduledBackups.setupScheduledBackups();
-
     return runtime.setProcessingState(
       'PROCESSING_COMPLETE',
-      `Initialized dataset and table ${syncDataset.id}.${syncTable.id}, and enabled scheduled backups for the Firestore database ${metadata?.name}.`
+      `Initialized dataset and table ${syncDataset.id}.${syncTable.id}.`
     );
   } catch (error) {
     return runtime.setProcessingState(
