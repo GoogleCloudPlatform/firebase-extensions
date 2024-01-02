@@ -1,18 +1,34 @@
 import {ScheduledBackups} from './scheduled_backups';
+import config from '../../config';
+
+jest.mock('../../config.ts');
 
 describe('ScheduledBackups', () => {
   let scheduledBackups: ScheduledBackups;
+  const databaseId = 'test-database';
+  const fakeBackupData = {
+    database: `projects/${config.projectId}/databases/${databaseId}`,
+    state: 'READY',
+    snapshotTime: new Date().toISOString(),
+  };
 
   beforeEach(() => {
     jest.resetAllMocks();
     scheduledBackups = new ScheduledBackups();
+  });
 
-    require('googleapis').__setMockBackupData([]);
+  it("should throw when there're no backups", async () => {
+    // Use await with expect().rejects.toThrow
+    await expect(
+      scheduledBackups.checkIfBackupExists(databaseId)
+    ).rejects.toThrow('BACKUP_NOT_FOUND');
   });
 
   it('should list backups correctly', async () => {
-    expect(
-      scheduledBackups.checkIfBackupExists('test-database')
-    ).rejects.toThrow('BACKUP_NOT_FOUND');
+    require('googleapis').__setMockBackupData([fakeBackupData]);
+    const backup = await scheduledBackups.checkIfBackupExists(databaseId);
+
+    // Check if the returned backup matches the fakeBackupData
+    expect(backup).toContainEqual(fakeBackupData);
   });
 });
