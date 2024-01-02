@@ -1,31 +1,5 @@
-const packageJson = require('./package.json');
-
+/** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
-  displayName: packageJson.name,
-  rootDir: './',
   preset: 'ts-jest',
-  transform: {
-    '^.+\\.ts?$': [
-      'ts-jest',
-      {
-        isolatedModules: true,
-      },
-    ],
-  },
-  testMatch: ['**/__tests__/*.test.ts', '**/*.test.ts'],
   testEnvironment: 'node',
-  moduleNameMapper: {
-    'firebase-admin/app': '<rootDir>/node_modules/firebase-admin/lib/app',
-    'firebase-admin/eventarc':
-      '<rootDir>/node_modules/firebase-admin/lib/eventarc',
-    'firebase-admin/database':
-      '<rootDir>/node_modules/firebase-admin/lib/database',
-    'firebase-admin/auth': '<rootDir>/node_modules/firebase-admin/lib/auth',
-    'firebase-functions/encoder':
-      '<rootDir>/node_modules/firebase-functions/lib/encoder',
-    'firebase-functions/lib/encoder':
-      '<rootDir>/node_modules/firebase-functions-test/lib/providers/firestore.js',
-    'firebase-admin/firestore':
-      '<rootDir>/node_modules/firebase-functions/lib/v1/providers/firestore.js',
-  },
 };

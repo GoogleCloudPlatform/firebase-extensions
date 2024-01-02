@@ -1,5 +1,5 @@
 export default {
-  projectId: 'test-project',
+  projectId: 'demo-test',
   instanceId: 'test-database',
   bucketName: 'test-bucket',
   location: 'us-central1',
@@ -14,7 +14,7 @@ export default {
   syncCollectionPath: 'test-collection',
   bqDataset: 'test-dataset',
   bqtable: 'test-table',
-  backupInstanceName: 'projects/test-project/databases/test-backup-instance',
+  backupInstanceName: 'projects/demo-test/databases/test-backup-instance',
   stagingLocation: 'gs://test-bucket/test-database/staging',
   templateLocation: 'gs://test-bucket/test-database/templates/myTemplate',
   dataflowRegion: 'us-central1',

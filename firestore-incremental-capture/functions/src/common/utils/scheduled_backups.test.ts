@@ -1,8 +1,8 @@
-import {ScheduledBackups} from './scheduled_backups';
 import config from '../../config';
+import {ScheduledBackups} from './scheduled_backups';
 
 // Required when using config to make sure the mock config is used
-jest.mock('../../config.ts');
+jest.mock('../../config');
 
 describe('ScheduledBackups', () => {
   let scheduledBackups: ScheduledBackups;
@@ -11,6 +11,29 @@ describe('ScheduledBackups', () => {
     database: `projects/${config.projectId}/databases/${databaseId}`,
     state: 'READY',
     snapshotTime: new Date().toISOString(),
+  };
+  const fakeBsckupScheduleData = {
+    name: 'projects/test-project/locations/us-east1/backupSchedules/test-database-backup',
+    state: 'READY',
+    schedule: 'every 24 hours',
+    createTime: '2020-03-12T14:00:00Z',
+    updateTime: '2020-03-12T14:00:00Z',
+    versionTime: '2020-03-12T14:00:00Z',
+    retentionUnit: 'COUNT',
+    retentionValue: 1,
+    startTime: {
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      nanos: 0,
+    },
+    expireTime: {
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+      nanos: 0,
+    },
+    sourceDatabase: 'projects/test-project/databases/test-database',
   };
 
   beforeEach(() => {
@@ -31,5 +54,21 @@ describe('ScheduledBackups', () => {
 
     // Check if the returned backup matches the fakeBackupData
     expect(backup).toContainEqual(fakeBackupData);
+  });
+
+  it('should throw when there are no backup schedules', async () => {
+    require('googleapis').__setMockBackupScheduleData([]);
+    await expect(
+      scheduledBackups.checkIfBackupScheduleExists(databaseId)
+    ).rejects.toThrow('BACKUP_SCHEDULE_NOT_FOUND');
+  });
+
+  it('should list backup schedules correctly', async () => {
+    require('googleapis').__setMockBackupScheduleData([fakeBsckupScheduleData]);
+    const backupSchedule =
+      await scheduledBackups.checkIfBackupScheduleExists(databaseId);
+
+    // Check if the returned backup schedule matches the fakeBackupScheduleData
+    expect(backupSchedule).toEqual(fakeBsckupScheduleData);
   });
 });

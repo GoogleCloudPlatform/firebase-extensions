@@ -81,9 +81,7 @@ export class ScheduledBackups {
 
   async checkIfBackupScheduleExists(
     databaseId: string
-  ): Promise<
-    firestore_v1.Schema$GoogleFirestoreAdminV1BackupSchedule | undefined
-  > {
+  ): Promise<firestore_v1.Schema$GoogleFirestoreAdminV1BackupSchedule> {
     try {
       const bs =
         await this.firestore_api.projects.databases.backupSchedules.list({
@@ -105,7 +103,7 @@ export class ScheduledBackups {
       return filteredBackups[0];
     } catch (error) {
       logger.warn(`Failed to get backup schedule: ${error}`);
-      return;
+      throw error;
     }
   }
 
