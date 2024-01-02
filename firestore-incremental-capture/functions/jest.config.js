@@ -1,17 +1,18 @@
 const packageJson = require('./package.json');
 
 module.exports = {
-  name: packageJson.name,
   displayName: packageJson.name,
   rootDir: './',
   preset: 'ts-jest',
-  globals: {
-    'ts-jest': {
-      tsConfig: '<rootDir>/__tests__/tsconfig.json',
-    },
+  transform: {
+    '^.+\\.ts?$': [
+      'ts-jest',
+      {
+        isolatedModules: true,
+      },
+    ],
   },
-  setupFiles: ['<rootDir>/__tests__/jest.setup.ts'],
-  testMatch: ['**/__tests__/*.test.ts'],
+  testMatch: ['**/__tests__/*.test.ts', '**/*.test.ts'],
   testEnvironment: 'node',
   moduleNameMapper: {
     'firebase-admin/app': '<rootDir>/node_modules/firebase-admin/lib/app',
