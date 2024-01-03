@@ -8,30 +8,25 @@ const mockGetClient = jest.fn().mockResolvedValue({
 // Replace google.auth.getClient with mockGetClient
 google.auth.getClient = mockGetClient;
 
-// Type for the mock backup data array using the actual type from googleapis
-let mockBackupData: firestore.Schema$GoogleFirestoreAdminV1Backup[] = [];
-let mockBackupSchedulesData: firestore.Schema$GoogleFirestoreAdminV1BackupSchedule[] =
-  [];
-let mockBackupScheduleData: firestore.Schema$GoogleFirestoreAdminV1BackupSchedule;
+let backupData: Promise<any[]>;
+function mockBackups(data: Promise<any[]>) {
+  backupData = data;
+}
 
-// Setter function to update mock data
-const __setMockBackupData = (
-  data: firestore.Schema$GoogleFirestoreAdminV1Backup[]
-) => {
-  mockBackupData = data;
-};
+let backupSchedulesResult: Promise<any[]>;
+function mockBackupSchedules(data: Promise<any[]>) {
+  backupSchedulesResult = data;
+}
 
-const __setMockBackupSchedulesData = (
-  data: firestore.Schema$GoogleFirestoreAdminV1BackupSchedule[]
-) => {
-  mockBackupSchedulesData = data;
-};
+let createBackupScheduleResult: Promise<any>;
+function mockCreateBackupSchedule(data: Promise<any>) {
+  createBackupScheduleResult = data;
+}
 
-const __setMockBackupScheduleData = (
-  data: firestore.Schema$GoogleFirestoreAdminV1BackupSchedule
-) => {
-  mockBackupScheduleData = data;
-};
+let restoreResult: Promise<any>;
+function mockRestoreBackup(data: Promise<any>) {
+  restoreResult = data;
+}
 
 class MockFirestore {
   // Mock implementation for projects.locations.backups.list
@@ -39,42 +34,36 @@ class MockFirestore {
     locations: {
       backups: {
         list: jest.fn().mockImplementation(() => {
-          return Promise.resolve({
-            data: {
-              backups: mockBackupData,
-            },
-          });
+          return backupData;
         }),
       },
     },
     databases: {
+      restore: jest.fn().mockImplementation(() => {
+        return restoreResult;
+      }),
       backupSchedules: {
         create: jest.fn().mockImplementation(() => {
-          return Promise.resolve({
-            data: mockBackupScheduleData,
-          });
+          return createBackupScheduleResult;
         }),
         list: jest.fn().mockImplementation(() => {
-          return Promise.resolve({
-            data: {
-              backupSchedules: mockBackupSchedulesData,
-            },
-          });
+          return backupSchedulesResult;
         }),
       },
     },
   };
 }
 
-// Export the mocked modules
 export const firestore_v1 = {
   ...firestore,
   Firestore: MockFirestore,
 };
 
 export {google};
+
 export {
-  __setMockBackupData,
-  __setMockBackupSchedulesData,
-  __setMockBackupScheduleData,
+  mockBackups,
+  mockBackupSchedules,
+  mockCreateBackupSchedule,
+  mockRestoreBackup,
 };

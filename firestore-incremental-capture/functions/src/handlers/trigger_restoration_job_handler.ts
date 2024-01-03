@@ -68,9 +68,7 @@ export const triggerRestorationJobHandler = async (
 
   try {
     // Setup scheduled backups for the Firestore database
-    const metadata = await scheduledBackups.setupScheduledBackups(
-      data.destinationDatabaseId
-    );
+    const metadata = await scheduledBackups.setupScheduledBackups('(default)');
 
     logger.debug('Scheduled backups metadata', metadata);
   } catch (error) {
@@ -109,9 +107,9 @@ export const triggerRestorationJobHandler = async (
   const backup = pickClosestBackup(backups, timestamp);
 
   // The destination database already exists, delete it before restoring
-  await scheduledBackups.deleteExistingDestinationDatabase(
-    data?.destinationDatabaseId
-  );
+  // await scheduledBackups.deleteExistingDestinationDatabase(
+  //   data?.destinationDatabaseId
+  // );
 
   // Call restore function to build the baseline DB
   try {

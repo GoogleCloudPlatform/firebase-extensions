@@ -19,9 +19,6 @@ import {getExtensions} from 'firebase-admin/extensions';
 import config from '../config';
 
 import {initialize, bqBackupSchema} from '../common';
-import {ScheduledBackups} from '../common';
-
-const scheduledBackups = new ScheduledBackups();
 
 export async function runInitialSetupHandler() {
   // Setup runtime

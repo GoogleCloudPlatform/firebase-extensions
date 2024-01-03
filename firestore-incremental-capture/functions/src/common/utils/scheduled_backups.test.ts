@@ -1,8 +1,11 @@
-import config from '../../config';
-import {ScheduledBackups} from './scheduled_backups';
+jest.mock('firebase-functions/v1');
 
 // Required when using config to make sure the mock config is used
 jest.mock('../../config');
+
+const google = require('googleapis');
+import config from '../../config';
+import {ScheduledBackups} from './scheduled_backups';
 
 const databaseId = 'test-database';
 const fakeBackupData = {
@@ -18,20 +21,6 @@ const fakeBsckupScheduleData = {
   updateTime: '2020-03-12T14:00:00Z',
   versionTime: '2020-03-12T14:00:00Z',
   retentionUnit: 'COUNT',
-  retentionValue: 1,
-  startTime: {
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-    nanos: 0,
-  },
-  expireTime: {
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-    nanos: 0,
-  },
-  sourceDatabase: 'projects/test-project/databases/test-database',
 };
 
 describe('ScheduledBackups', () => {
@@ -43,6 +32,13 @@ describe('ScheduledBackups', () => {
   });
 
   it("should throw when there're no backups", async () => {
+    google.mockBackups(
+      Promise.resolve({
+        data: {
+          backups: [],
+        },
+      })
+    );
     // Use await with expect().rejects.toThrow
     await expect(
       scheduledBackups.checkIfBackupExists(databaseId)
@@ -50,42 +46,60 @@ describe('ScheduledBackups', () => {
   });
 
   it('should list backups correctly', async () => {
-    require('googleapis').__setMockBackupData([fakeBackupData]);
+    google.mockBackups(
+      Promise.resolve({
+        data: {
+          backups: [fakeBackupData],
+        },
+      })
+    );
     const backup = await scheduledBackups.checkIfBackupExists(databaseId);
-
     // Check if the returned backup matches the fakeBackupData
     expect(backup).toContainEqual(fakeBackupData);
   });
 
   it('should throw when there are no backup schedules', async () => {
-    require('googleapis').__setMockBackupScheduleData([]);
-    await expect(
-      scheduledBackups.checkIfBackupScheduleExists(databaseId)
-    ).rejects.toThrow('BACKUP_SCHEDULE_NOT_FOUND');
-  });
-
-  it('should throw when there are no backup schedules', async () => {
+    google.mockBackupSchedules(
+      Promise.resolve({
+        data: {
+          backupSchedules: [],
+        },
+      })
+    );
     await expect(
       scheduledBackups.checkIfBackupScheduleExists(databaseId)
     ).rejects.toThrow('BACKUP_SCHEDULE_NOT_FOUND');
   });
 
   it('should list backup schedules correctly', async () => {
-    require('googleapis').__setMockBackupSchedulesData([
-      fakeBsckupScheduleData,
-    ]);
-    const backupSchedule =
-      await scheduledBackups.checkIfBackupScheduleExists(databaseId);
-
+    google.mockBackupSchedules(
+      Promise.resolve({
+        data: {
+          backupSchedules: [fakeBsckupScheduleData],
+        },
+      })
+    );
+    const bs = await scheduledBackups.checkIfBackupScheduleExists(databaseId);
     // Check if the returned backup schedule matches the fakeBackupScheduleData
-    expect(backupSchedule).toEqual(fakeBsckupScheduleData);
+    expect(bs).toEqual(fakeBsckupScheduleData);
   });
 
   it('should create a backup schedule if none exists', async () => {
-    require('googleapis').__setMockBackupScheduleData(fakeBsckupScheduleData);
-    const op = await scheduledBackups.setupScheduledBackups(databaseId);
+    google.mockCreateBackupSchedule(
+      Promise.resolve({data: fakeBsckupScheduleData})
+    );
 
+    const op = await scheduledBackups.setupScheduledBackups(databaseId);
     // Check if the backup schedule was created
     expect(op).toEqual(fakeBsckupScheduleData);
+  });
+
+  it('should restore a backup', async () => {
+    const backupName = `projects/${config.projectId}/databases/${databaseId}/backups/test-backup`;
+    google.mockRestoreBackup(Promise.resolve({data: {name: backupName}}));
+
+    const op = await scheduledBackups.restoreBackup(databaseId, 'test-backup');
+    // Check if the backup was restored
+    expect(op.name).toEqual(backupName);
   });
 });

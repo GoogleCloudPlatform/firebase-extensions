@@ -102,48 +102,9 @@ export class ScheduledBackups {
 
       return filteredBackups[0];
     } catch (error) {
-      logger.warn(`Failed to get backup schedule: ${error}`);
+      logger.error(`Failed to get backup schedule: ${error}`);
       throw error;
     }
-  }
-
-  /**
-   * The destination database already exists, delete it before restoring.
-   * Scheduled backups can only be restored to a non-existing database.
-   *
-   * @param resourceName The resource name of the database to delete, must be in the format `projects/{project_id}/databases/{database_id}`.
-   * @returns A promise that resolves when the database has been deleted.
-   */
-  async deleteExistingDestinationDatabase(destination: string) {
-    let databaseMetadata;
-
-    try {
-      databaseMetadata = await this.firestore_api.projects.databases.get({
-        name: `projects/${config.projectId}/databases/${destination}`,
-        auth: await this.getAuthClient(),
-      });
-
-      if (databaseMetadata && databaseMetadata.data) {
-        // Delete the existing database
-        try {
-          await this.firestore_api.projects.databases.delete({
-            name: `projects/${config.projectId}/databases/${destination}`,
-            auth: await this.getAuthClient(),
-          });
-        } catch (ex: any) {
-          logger.warn('Error deleting database', ex.message);
-        }
-      } else {
-        logger.warn(`Database ${destination} does not exist`);
-      }
-    } catch (error: any) {
-      logger.warn(
-        `Database ${destination} does not exist, skipping`,
-        error.message
-      );
-    }
-
-    return;
   }
 
   /**
@@ -178,7 +139,7 @@ export class ScheduledBackups {
 
       return newBs.data;
     } catch (error) {
-      logger.warn(`Failed to setup scheduled backups: ${error}`);
+      logger.error(`Failed to setup scheduled backups: ${error}`);
       throw error;
     }
   }
