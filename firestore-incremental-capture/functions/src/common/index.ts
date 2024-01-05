@@ -15,8 +15,6 @@
  */
 
 import {initialize, exportToBQ, getTable} from './utils/big_query';
-import {firestoreSerializer} from './utils/firestore_serializer';
-import {updateBackup, updateStatus} from './utils/database';
 import {ScheduledBackups} from './utils/scheduled_backups';
 import {launchJob} from './utils/trigger_dataflow_job';
 
@@ -30,11 +28,8 @@ export {
   initialize,
   exportToBQ,
   getTable,
-  firestoreSerializer,
   ScheduledBackups,
   launchJob,
-  updateBackup,
-  updateStatus,
   RestoreJobData,
   RestoreJobInfo,
   RestoreError,

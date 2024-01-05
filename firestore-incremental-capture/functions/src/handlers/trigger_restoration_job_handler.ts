@@ -26,6 +26,7 @@ import {
   RestoreError,
   RestoreStatus,
 } from '../common';
+import {LogMessage} from '../logs';
 
 const scheduledBackups = new ScheduledBackups();
 
@@ -37,9 +38,7 @@ export const triggerRestorationJobHandler = async (
   const timestamp = data?.timestamp as firestore.Timestamp | undefined;
 
   if (!timestamp || !isValidTimestamp(timestamp)) {
-    logger.error(
-      '"timestamp" field is missing, please ensure that you are sending a valid timestamp in the request body, is in seconds since epoch and is not in the future.'
-    );
+    logger.error(LogMessage.INVALID_TIMESTAMP);
 
     await scheduledBackups.updateRestoreJobDoc(ref, {
       status: {
@@ -52,9 +51,7 @@ export const triggerRestorationJobHandler = async (
   }
 
   if (!data?.destinationDatabaseId) {
-    logger.error(
-      '"destinationDatabaseId" field is missing, please ensure that you are sending a valid database ID in the request body.'
-    );
+    logger.error(LogMessage.INVALID_DEST_ID);
 
     await scheduledBackups.updateRestoreJobDoc(ref, {
       status: {
@@ -165,7 +162,7 @@ function isValidTimestamp(timestamp: firestore.Timestamp): boolean {
  * @param timestamp The timestamp to compare against.
  * @returns The closest backup to the timestamp.
  */
-function pickClosestBackup(
+export function pickClosestBackup(
   backups: google.firestore_v1.Schema$GoogleFirestoreAdminV1Backup[],
   timestamp: firestore.Timestamp
 ) {
