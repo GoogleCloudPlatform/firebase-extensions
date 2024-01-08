@@ -17,7 +17,7 @@ const databaseId = 'test-database';
 const fakeBsckupScheduleData = {
   name: `projects/${config.projectId}/locations/us-east1/backupSchedules/${databaseId}`,
   state: 'READY',
-  schedule: 'every 24 hours',
+  snapshotTime: '2024-01-01T20:00:00Z',
 };
 
 // Valid Firestore document snapshot
