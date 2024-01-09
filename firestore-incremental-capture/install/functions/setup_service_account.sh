@@ -13,8 +13,6 @@ echo -e "${GREEN}Policy binding added successfully.${NC}"
 
 # Add roles for extension service account to trigger Dataflow
 echo -e "${YELLOW}Step 5:Adding roles for service account to trigger Dataflow...${NC}"
-gcloud projects add-iam-policy-binding $PROJECT_ID --project $PROJECT_ID --member=serviceAccount:$SA_EMAIL --role=roles/dataflow.developer
-gcloud projects add-iam-policy-binding $PROJECT_ID --project $PROJECT_ID --member=serviceAccount:$SA_EMAIL --role=roles/iam.serviceAccountUser
-gcloud projects add-iam-policy-binding $PROJECT_ID --project $PROJECT_ID --member=serviceAccount:$SA_EMAIL --role=roles/artifactregistry.writer
+gcloud projects add-iam-policy-binding $PROJECT_ID --project $PROJECT_ID --member=serviceAccount:$SA_EMAIL --role=roles/iam.serviceAccountUser --role=roles/artifactregistry.writer
 SUCCESS_TASKS+=("${GREEN}${TICK} Roles added successfully")
 echo -e "${GREEN}Roles added successfully.${NC}"

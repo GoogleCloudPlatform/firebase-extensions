@@ -121,6 +121,7 @@ export class ScheduledBackups {
         logger.info(
           `A backup schedule already exists for the Firestore database: ${bs.name}`
         );
+        return bs;
       } catch (error) {
         logger.info(
           'No backup schedule found for the Firestore database, creating a new one'
@@ -130,7 +131,7 @@ export class ScheduledBackups {
       const newBs =
         await this.firestore_api.projects.databases.backupSchedules.create({
           requestBody: {
-            retention: '7d',
+            retention: '604800s',
             dailyRecurrence: {},
           },
           parent: `projects/${config.projectId}/databases/${databaseId}`,
