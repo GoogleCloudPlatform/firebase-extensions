@@ -38,7 +38,7 @@ export default {
   syncCollectionPath: process.env.SYNC_COLLECTION_PATH!,
 
   bqDataset: process.env.SYNC_DATASET!,
-  bqtable: process.env.SYNC_TABLE!,
+  bqTable: process.env.SYNC_TABLE!,
 
   backupInstanceName: backupInstanceFullId,
 

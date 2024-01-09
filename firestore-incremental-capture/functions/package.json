@@ -1,7 +1,6 @@
 {
   "name": "firestore-incremental-capture",
   "scripts": {
-    "prepare": "npm run build",
     "lint": "eslint --ext .js,.ts .",
     "build": "tsc -p tsconfig.build.json",
     "build:watch": "tsc -p tsconfig.build.json --watch",

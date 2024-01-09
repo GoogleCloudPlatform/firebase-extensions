@@ -26,13 +26,13 @@ export async function runInitialSetupHandler() {
 
   await runtime.setProcessingState(
     'NONE',
-    `Creating/updating table ${config.bqDataset}.${config.bqtable}`
+    `Creating/updating table ${config.bqDataset}.${config.bqTable}`
   );
 
   // Setup sync dataset and tables
   const [syncDataset, syncTable] = await initialize(
     config.bqDataset,
-    config.bqtable,
+    config.bqTable,
     bqBackupSchema
   );
 
