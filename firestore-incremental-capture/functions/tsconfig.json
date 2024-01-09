@@ -11,6 +11,5 @@
     "types": ["node", "jest"]
   },
   "compileOnSave": true,
-  "include": ["src"],
-  "exclude": ["**/*.test.*", "**/__mocks__/*", "**/__tests__/*"]
+  "include": ["."]
 }

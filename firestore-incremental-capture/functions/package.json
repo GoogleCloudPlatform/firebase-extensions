@@ -4,8 +4,8 @@
   "scripts": {
     "lint": "eslint \"src/**/*\"",
     "lint:fix": "eslint \"src/**/*\" --fix",
-    "build": "tsc",
-    "build:watch": "tsc --watch",
+    "build": "tsc -p tsconfig.build.json",
+    "build:watch": "tsc -p tsconfig.build.json --watch",
     "generate-readme": "firebase ext:info .. --markdown > ../README.md",
     "test": "jest --runInBand"
   },
