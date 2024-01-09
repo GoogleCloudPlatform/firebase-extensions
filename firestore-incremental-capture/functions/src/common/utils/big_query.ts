@@ -118,7 +118,7 @@ export const exportToBQ = async (id: string) => {
    * writeDisposition to overwire the table, if exists
    */
 
-  return bq.dataset(config.bqDataset).table(config.bqtable).load(file, {
+  return bq.dataset(config.bqDataset).table(config.bqTable).load(file, {
     writeDisposition: 'WRITE_TRUNCATE',
   });
 };

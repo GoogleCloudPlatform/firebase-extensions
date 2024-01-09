@@ -60,7 +60,7 @@ export async function launchJob(
         firestorePrimaryDb,
         firestoreSecondaryDb: destinationDb,
         bigQueryDataset: config.bqDataset,
-        bigQueryTable: config.bqtable,
+        bigQueryTable: config.bqTable,
       },
       containerSpecGcsPath: `gs://${config.bucketName}/${config.instanceId}-dataflow-restore`,
     },

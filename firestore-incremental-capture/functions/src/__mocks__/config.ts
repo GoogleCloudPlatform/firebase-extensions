@@ -13,7 +13,7 @@ export default {
   cloudBuildDoc: '_ext-test-instance/cloudBuild',
   syncCollectionPath: 'test-collection',
   bqDataset: 'test-dataset',
-  bqtable: 'test-table',
+  bqTable: 'test-table',
   backupInstanceName: 'projects/demo-test/databases/test-backup-instance',
   stagingLocation: 'gs://test-bucket/test-database/staging',
   templateLocation: 'gs://test-bucket/test-database/templates/myTemplate',

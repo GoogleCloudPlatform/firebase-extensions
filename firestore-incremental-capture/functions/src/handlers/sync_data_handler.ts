@@ -47,7 +47,7 @@ export const syncDataHandler = async (
   const serializedBeforeData = await firestoreSerializer(beforeData);
   const serializedAfterData = await firestoreSerializer(afterData);
 
-  const table = await getTable(config.bqDataset, config.bqtable);
+  const table = await getTable(config.bqDataset, config.bqTable);
 
   const data = {
     beforeData: JSON.stringify(serializedBeforeData),
