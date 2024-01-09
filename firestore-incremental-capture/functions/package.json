@@ -1,21 +1,17 @@
 {
   "name": "firestore-incremental-capture",
-  "scripts": {
-    "lint": "eslint --ext .js,.ts .",
-    "build": "tsc -p tsconfig.build.json",
-    "build:watch": "tsc -p tsconfig.build.json --watch",
-    "serve": "npm run build && firebase emulators:start --only functions",
-    "shell": "npm run build && firebase functions:shell",
-    "start": "npm run shell",
-    "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log",
-    "test": "jest --runInBand",
-    "generate-readme": "firebase ext:info .. --markdown > ../README.md"
-  },
-  "engines": {
-    "node": "18"
-  },
   "main": "lib/index.js",
+  "scripts": {
+    "lint": "eslint \"src/**/*\"",
+    "lint:fix": "eslint \"src/**/*\" --fix",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "generate-readme": "firebase ext:info .. --markdown > ../README.md",
+    "test": "jest --runInBand"
+  },
+  "files": [
+    "lib"
+  ],
   "dependencies": {
     "@google-cloud/bigquery": "^7.3.0",
     "@google-cloud/dataflow": "^3.0.1",
