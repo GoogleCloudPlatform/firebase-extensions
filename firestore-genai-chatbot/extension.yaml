@@ -55,8 +55,8 @@ roles:
       messages.
   # - role: aiplatform.user
   #   reason:
-  #     Allows this extension to access the PaLM API via Vertex AI if this
-  #     provider is chosen.
+  #     Allows this extension to access the Vertex AI API if this provider is
+  #     chosen.
 
 resources:
   - name: generateMessage
