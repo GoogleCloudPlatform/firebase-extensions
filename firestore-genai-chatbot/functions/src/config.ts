@@ -27,6 +27,7 @@ export interface Config {
     model?: string;
     apiKey?: string;
   };
+  context?: string;
   location: string;
   projectId: string;
   instanceId: string;
@@ -73,6 +74,7 @@ const config: Config = {
     model: getModel(),
     apiKey: process.env.API_KEY,
   },
+  context: process.env.CONTEXT,
   location: process.env.LOCATION!,
   projectId: process.env.PROJECT_ID!,
   instanceId: process.env.EXT_INSTANCE_ID!,

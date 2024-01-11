@@ -16,6 +16,7 @@ export abstract class DiscussionClient<
   Client,
   ChatOptions extends {
     history?: Message[];
+    context?: string;
   },
   ApiMessage,
 > {
@@ -24,8 +25,16 @@ export abstract class DiscussionClient<
 
   private getHistory(options: ChatOptions) {
     let history: Message[] = [];
+
+    if (options.context) {
+      const contextMessage = {
+        prompt: `System prompt: ${options.context}.`,
+        response: 'Understood.',
+      };
+      history = [contextMessage];
+    }
     if (options.history) {
-      history = options.history;
+      history = [...history, ...options.history];
     }
     return history;
   }
@@ -38,11 +47,14 @@ export abstract class DiscussionClient<
       throw new Error('Client not initialized.');
     }
     const history = this.getHistory(options);
-    const latestApiMessage = this.createLatestApiMessage(messageContent);
+    const latestApiMessage = this.createApiMessage(messageContent);
     return await this.generateResponse(history, latestApiMessage, options);
   }
 
-  createLatestApiMessage(_messageContent: string): ApiMessage {
+  createApiMessage(
+    _messageContent: string,
+    _role: 'user' | 'model' = 'user'
+  ): ApiMessage {
     throw new Error('Method Not implemented');
   }
 
