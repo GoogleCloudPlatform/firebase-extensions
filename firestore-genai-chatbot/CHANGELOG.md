@@ -1,3 +1,7 @@
+## Version 0.0.5
+
+- Fix context parameter
+
 ## Version 0.0.4
 
 - Allow Application Default Credentials Authorization
