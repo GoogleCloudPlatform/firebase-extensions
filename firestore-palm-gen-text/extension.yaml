@@ -202,8 +202,8 @@ params:
       Which language model do you want to use?
     type: select
     options:
-      - label: text-bison-001
-        value: text-bison-001
+      - label: text-bison
+        value: text-bison
     required: true
     immutable: false
 
