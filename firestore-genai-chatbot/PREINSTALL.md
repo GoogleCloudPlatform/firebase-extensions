@@ -42,7 +42,7 @@ This extension supports the following language models:
 
 ## Additional Setup
 
-Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project.
+Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project, set up in your Firebase project, and have obtained an API key for Google AI's Gemini API.
 
 ### Regenerating a response
 

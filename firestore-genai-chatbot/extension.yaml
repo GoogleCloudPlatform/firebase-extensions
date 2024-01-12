@@ -1,5 +1,5 @@
 name: firestore-genai-chatbot
-version: 0.0.5
+version: 0.0.4
 specVersion: v1beta
 
 icon: icon.png
@@ -88,10 +88,9 @@ params:
   - param: API_KEY
     label: API Key for Gemini
     description: >-
-      If you would like the extension to use an API to access the Gemini API,
-      please enter it here.
+      Please enter your API key for the Google AI Gemini API.
     type: secret
-    required: false
+    required: true
     immutable: false
 
   - param: MODEL
