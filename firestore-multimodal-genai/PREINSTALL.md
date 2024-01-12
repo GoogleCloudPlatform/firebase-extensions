@@ -2,16 +2,16 @@ This extension allows you to perform language tasks using Google AI, a custom pr
 
 On installation, you will be asked to provide the following information:
 
-- **Generative AI Provider** This extension makes use of either the Vertex AI Model API, the Generative Language for Developers API, or the API for the new Gemini large language models. To make use of the Gemini option you provide a valid API key during installation of the extension.
+- **Generative AI Provider** This extension makes use of the Gemini family of large language models. Currently the extension only supports the Google AI API (for developers) but in future will support the Vertex AI Gemini API.
 - **Language model**: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
-- **Prompt:** This is the text that you want the Model API to generate a response for. It can be free-form text or it can use handlebars variables to substitute values from the Firestore document.
+- **Prompt:** This is the text that you want Gemini to generate a response for. It can be free-form text or it can use handlebars variables to substitute values from the Firestore document.
 - **Firestore collection path:** This is the path to the Firestore collection that contains the documents that you want to perform the language task on.
 - **Response field:** This is the name of the field in the Firestore document where you want the extension to store the response from the Model API.
 
 This extension will listen to the specified collection for new documents. When such a document is added, the extension will:
 
 1. Substitute any variables from the document into the prompt.
-2. Query the Model API to generate a response based on the prompt.
+2. Query Gemini to generate a response based on the prompt.
 3. Write the response from the Model API back to the triggering document in the response field.
 
 Each instance of the extension should be configured to perform one particular task. If you have multiple tasks, you can install multiple instances.
@@ -63,7 +63,7 @@ Changing the state field of a completed document's status from `COMPLETED` to an
 
 ## Additional Setup
 
-Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project, and enabled the Generative Language API in your Google Cloud Project before installing this extension.
+Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project.
 
 ## Billing
 

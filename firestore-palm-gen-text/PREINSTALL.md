@@ -5,7 +5,7 @@ On installation, you will be asked to provide the following information:
 - **PaLM API Provider** This extension makes use of the PaLM large language model. There is a choice of provider for this API. See the section below for more details.
 - **Prompt:** This is the text that you want the PaLM API to generate a response for. It can be free-form text or it can use handlebars variables to substitute values from the Firestore document.
 - **Firestore collection path:** This is the path to the Firestore collection that contains the documents that you want to perform the language task on.
-- **Response field:** This is the name of the field in the Firestore document where you want the extension to store the response from the PaLM API.
+- **Response field:** This is the name of the field in the Firestore document where you want the extension to store the response from the PaLM API. There is a token limit for the response field. This means responses may be truncated if they exceed a certain length. The standard limit is approximately 4096 characters, but this can vary depending on language and context. For more information, check [here](https://ai.google.dev/models/palm).
 
 This extension will listen to the specified collection for new documents. When such a document is added, the extension will:
 

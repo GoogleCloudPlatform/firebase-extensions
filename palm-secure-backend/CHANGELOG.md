@@ -1,5 +1,8 @@
-## Version 0.1.4
+## Version 0.1.5
 
+docs - updated POSTINSTALL to correct code snippet
+
+## Version 0.1.4
 
 fixed - pass whole auth object
 

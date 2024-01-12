@@ -45,9 +45,14 @@ export class GeminiDiscussionClient extends DiscussionClient<
     this.client = new GoogleGenerativeAI(apiKey);
   }
 
-  createLatestApiMessage(messageContent: string): ApiMessage {
+  createApiMessage(
+    messageContent: string,
+    role: 'user' | 'model' = 'user'
+  ): ApiMessage {
+    const apiRole = role === 'user' ? Role.USER : Role.GEMINI;
+
     return {
-      role: Role.USER,
+      role: apiRole,
       parts: [{text: messageContent}],
     };
   }

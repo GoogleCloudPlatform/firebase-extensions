@@ -1,4 +1,4 @@
-# Chatbot with Google AI
+# Chatbot with Gemini
 
 **Author**: Google Cloud (**[https://cloud.google.com/](https://cloud.google.com/)**)
 
@@ -10,7 +10,7 @@
 
 On install you will be asked to provide:
 
-- **Generative AI Provider** This extension makes use of either the Vertex AI Gemini API, or the Google AI Gemini API. To use Google AI you will need to provide a valid API key, Vertex AI will attempt to use Application Default Credentials to authenticate with your Google Cloud Project.
+- **Generative AI Provider** This extension makes use of the Gemini family of large language models. Currently the extension only supports the Google AI API (for developers) but in future will support the Vertex AI Gemini API.
 
 - **Language model**: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
 
@@ -48,6 +48,10 @@ This extension supports the following language models:
 
 - [Gemini Pro](https://ai.google.dev/models/gemini)
 
+## Additional Setup
+
+Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project, set up in your Firebase project, and have obtained an API key for Google AI's Gemini API.
+
 ### Regenerating a response
 
 Changing the state field of a completed document's status from `COMPLETED` to anything else will retrigger the extension for that document.
@@ -69,13 +73,13 @@ Additionally, this extension uses the Google AI Gemini API. For more details on 
 
 **Configuration Parameters:**
 
-* Gemini API Provider: Which provider of the Gemini Language models would you like to use?
+* Gemini API Provider: This extension makes use of the Gemini family of large language models. Currently the extension only supports the Google AI API (for developers) but in future will support the Vertex AI Gemini API.
 
-* API Key (required for Gemini, optional for PaLM): Please enter your API key for the Google AI Gemini API.
+* API Key for Gemini: Please enter your API key for the Google AI Gemini API.
 
 * Language model: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
 
-* Collection Path: Path to a Cloud Firestore collection which will represent a discussion with a LLM on the PaLM API.
+* Collection Path: Path to a Cloud Firestore collection which will represent a discussion with a LLM on the Google AI Gemini API.
 
 * Prompt Field: The field in the message document that contains the prompt.
 
@@ -109,7 +113,7 @@ Additionally, this extension uses the Google AI Gemini API. For more details on 
 
 **APIs Used**:
 
-* aiplatform.googleapis.com (Reason: For access to the PaLM API if this provider is chosen.)
+* generativelanguage.googleapis.com (Reason: Used to access Gemini models through the Generative Language API.)
 
 
 
@@ -120,5 +124,3 @@ Additionally, this extension uses the Google AI Gemini API. For more details on 
 This extension will operate with the following project IAM roles:
 
 * datastore.user (Reason: Allows this extension to access Cloud Firestore to read and process added messages.)
-
-* aiplatform.user (Reason: Allows this extension to access the PaLM API via Vertex AI if this provider is chosen.)

@@ -1,5 +1,5 @@
 name: firestore-palm-gen-text
-version: 0.1.9
+version: 0.1.10
 specVersion: v1beta
 
 displayName: Language Tasks with PaLM API
@@ -133,7 +133,13 @@ params:
   - param: RESPONSE_FIELD
     label: Response Field
     description: >-
-      The field in the message document into which to put the response.
+      The field in the message document into which to put the response.This is
+      the name of the field in the Firestore document where you want the
+      extension to store the response from the PaLM API. There is a token limit
+      for the response field. This means responses may be truncated if they
+      exceed a certain length.  The standard limit is approximately 4096
+      characters, but this can vary depending on language and context. For more
+      information, check [here](https://ai.google.dev/models/palm).
     type: string
     default: output
     required: true
@@ -283,8 +289,9 @@ params:
   - param: DEROGATORY_THRESHOLD
     label: Derogatory Content Threshold
     description: >-
-      Threshold for derogatory content. Specify what probability level of derogatory content is blocked by the PaLM provider.
-      This threshold is applicable only to the Generative Language PaLM API.
+      Threshold for derogatory content. Specify what probability level of
+      derogatory content is blocked by the PaLM provider. This threshold is
+      applicable only to the Generative Language PaLM API.
     type: select
     options:
       - label: Default
@@ -304,8 +311,9 @@ params:
   - param: TOXICITY_THRESHOLD
     label: Toxicity Threshold
     description: >-
-      Threshold for toxic content. Specify what probability level of toxic content is blocked by the PaLM provider.
-      This threshold is applicable only to the Generative Language PaLM API.
+      Threshold for toxic content. Specify what probability level of toxic
+      content is blocked by the PaLM provider. This threshold is applicable only
+      to the Generative Language PaLM API.
     type: select
     options:
       - label: Default
@@ -325,8 +333,9 @@ params:
   - param: SEXUAL_THRESHOLD
     label: Sexual Content Threshold
     description: >-
-      Threshold for sexual content. Specify what probability level of sexual content is blocked by the PaLM provider.
-      This threshold is currently applicable only to the Generative Language PaLM API.
+      Threshold for sexual content. Specify what probability level of sexual
+      content is blocked by the PaLM provider. This threshold is currently
+      applicable only to the Generative Language PaLM API.
     type: select
     options:
       - label: Default
@@ -346,8 +355,9 @@ params:
   - param: VIOLENCE_THRESHOLD
     label: Violent Content Threshold
     description: >-
-      Threshold for violent content. Specify what probability of violent content is blocked by the PaLM provider.
-      This threshold is currently applicable only to the Generative Language PaLM API.
+      Threshold for violent content. Specify what probability of violent content
+      is blocked by the PaLM provider. This threshold is currently applicable
+      only to the Generative Language PaLM API.
     type: select
     options:
       - label: Default
@@ -367,8 +377,9 @@ params:
   - param: MEDICAL_THRESHOLD
     label: Medical Content Threshold
     description: >-
-      Threshold for medical content. Specify what probability level of medical content is blocked by the PaLM provider.
-      This threshold is applicable only to the Generative Language PaLM API.
+      Threshold for medical content. Specify what probability level of medical
+      content is blocked by the PaLM provider. This threshold is applicable only
+      to the Generative Language PaLM API.
     type: select
     options:
       - label: Default
@@ -386,10 +397,11 @@ params:
     immutable: false
 
   - param: DANGEROUS_THRESHOLD
-    label: Dangerous Content Threshold 
+    label: Dangerous Content Threshold
     description: >-
-      Threshold for dangerous content. Specify what probability level of dangerous content is blocked by the PaLM provider.
-      This threshold is applicable only to the Generative Language PaLM API.
+      Threshold for dangerous content. Specify what probability level of
+      dangerous content is blocked by the PaLM provider. This threshold is
+      applicable only to the Generative Language PaLM API.
     type: select
     options:
       - label: Default
@@ -409,8 +421,9 @@ params:
   - param: UNSPECIFIED_THRESHOLD
     label: Unspecified Harm Threshold
     description: >-
-      Threshold for non-specific harmful content. Specify what probability level of non-specific harmful content is blocked by the PaLM provider.
-      This threshold is applicable only to the Generative Language PaLM API.
+      Threshold for non-specific harmful content. Specify what probability level
+      of non-specific harmful content is blocked by the PaLM provider. This
+      threshold is applicable only to the Generative Language PaLM API.
     type: select
     options:
       - label: Default
