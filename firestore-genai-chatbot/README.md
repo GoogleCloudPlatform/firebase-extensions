@@ -50,7 +50,7 @@ This extension supports the following language models:
 
 ## Additional Setup
 
-Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project.
+Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project, set up in your Firebase project, and have obtained an API key for Google AI's Gemini API.
 
 ### Regenerating a response
 
@@ -75,7 +75,7 @@ Additionally, this extension uses the Google AI Gemini API. For more details on 
 
 * Gemini API Provider: This extension makes use of the Gemini family of large language models. Currently the extension only supports the Google AI API (for developers) but in future will support the Vertex AI Gemini API.
 
-* API Key for Gemini: If you would like the extension to use an API to access the Gemini API, please enter it here.
+* API Key for Gemini: Please enter your API key for the Google AI Gemini API.
 
 * Language model: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
 
