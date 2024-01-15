@@ -23,10 +23,10 @@ export enum GenerativeAIProvider {
 
 export interface Config {
   vertex: {
-    model?: string;
+    model: string;
   };
   googleAi: {
-    model?: string;
+    model: string;
     apiKey?: string;
   };
   location: string;
@@ -56,8 +56,6 @@ function getModel() {
       switch (process.env.MODEL) {
         case 'gemini-pro':
           return 'gemini-pro';
-        case 'gemini-ultra':
-          return 'gemini-ultra';
         case 'gemini-pro-vision':
           return 'gemini-pro-vision';
         default:
@@ -67,8 +65,6 @@ function getModel() {
       switch (process.env.MODEL) {
         case 'gemini-pro':
           return 'gemini-pro';
-        case 'gemini-ultra':
-          return 'gemini-ultra';
         case 'gemini-pro-vision':
           return 'gemini-pro-vision';
         default:

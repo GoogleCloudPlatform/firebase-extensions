@@ -21,10 +21,10 @@ export enum GenerativeAIProvider {
 
 export interface Config {
   vertex: {
-    model?: string;
+    model: string;
   };
   googleAi: {
-    model?: string;
+    model: string;
     apiKey?: string;
   };
   context?: string;

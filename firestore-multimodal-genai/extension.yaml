@@ -79,12 +79,14 @@ params:
     label: Gemini API Provider
     description: >-
       This extension makes use of the Gemini family of large language models.
-      Currently the extension only supports the Google AI API (for developers)
-      but in future will support the Vertex AI Gemini API.
+      For Google AI you will require an API key, whereas Vertex AI will
+      authenticate using application default credentials.
     type: select
     options:
       - label: Google AI
         value: google-ai
+      - label: Vertex AI
+        value: vertex-ai
     required: true
     default: google-ai
     immutable: false

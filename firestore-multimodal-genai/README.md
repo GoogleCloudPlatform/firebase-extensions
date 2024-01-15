@@ -90,7 +90,7 @@ Additionally, this extension uses the Google AI Gemini API. For more details on 
 
 **Configuration Parameters:**
 
-* Gemini API Provider: This extension makes use of the Gemini family of large language models. Currently the extension only supports the Google AI API (for developers) but in future will support the Vertex AI Gemini API.
+* Gemini API Provider: This extension makes use of the Gemini family of large language models. For Google AI you will require an API key, whereas Vertex AI will authenticate using application default credentials.
 
 * Language model: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
 
