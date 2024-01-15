@@ -72,12 +72,12 @@ export class VertexLanguageClient extends GenerativeClient<any, VertexAI> {
 
     let result;
 
-    const generativeVisionModel = this.client.preview.getGenerativeModel({
+    const generativeModel = this.client.preview.getGenerativeModel({
       model: this.modelName,
     });
     try {
       const responseStream =
-        await generativeVisionModel.generateContentStream(request);
+        await generativeModel.generateContentStream(request);
 
       const aggregatedResponse = await responseStream.response;
 

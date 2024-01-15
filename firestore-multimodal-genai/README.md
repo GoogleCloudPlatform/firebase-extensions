@@ -61,9 +61,11 @@ This extension supports the following language models:
 
 #### Multimodal Prompts
 
-This extension now supports providing multimodal prompts. To use this feature, select the Gemini Pro Vision model on installation, and provide an Image Field parameter. The Image Field parameter should be the name of a document field in firestore.
+This extension supports providing multimodal prompts. To use this feature, select the Gemini Pro Vision model on installation, and provide an Image Field parameter. The Image Field parameter should be the name of a document field in firestore.
 
 When you select these options, any document handled by the extension must contain an image field. The image field must be a string, and can either be the Cloud Storage URL of an object (e.g `gs://my-bucket.appspot.com/filename.png`) or the base64-encoded string of an image. This image will then be provided as part of the prompt to Gemini Pro Vision.
+
+The Gemini Pro Vision API has a limit on image sizes. For Google AI this limit is currently 1MB, and for Vertex AI this limit is 4MB. This extension will compress and resize
 
 ### Regenerating a response
 
