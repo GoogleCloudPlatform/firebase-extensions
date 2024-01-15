@@ -12,6 +12,7 @@
   "dependencies": {
     "@google-ai/generativelanguage": "^2.0.0",
     "@google-cloud/aiplatform": "^3.0.0",
+    "@google-cloud/vertexai": "^0.2.1",
     "@google/generative-ai": "^0.1.3",
     "@types/mustache": "^4.2.2",
     "firebase-admin": "^11.5.0",

@@ -1,35 +1,29 @@
-import {v1} from '@google-ai/generativelanguage';
-import * as generativeLanguage from '@google-ai/generativelanguage';
-
 import {GenerativeClient} from './base_text_client';
 import {logger} from 'firebase-functions/v1';
-import {GoogleAuth} from 'google-auth-library';
-import {getImageBase64} from './storage_utils';
+import {
+  VertexAI,
+  GenerateContentRequest,
+  Part,
+  FileDataPart,
+} from '@google-cloud/vertexai';
+import config from '../../config';
+// import {getImageBase64} from './storage_utils';
+
 enum Role {
   USER = 'user',
   GEMINI = 'model',
 }
 
-// import IPart
-type Part = generativeLanguage.protos.google.ai.generativelanguage.v1.IPart;
-
-export class GenerativeLanguageClient extends GenerativeClient<
-  any,
-  v1.GenerativeServiceClient
-> {
-  apiKey?: string;
+export class VertexLanguageClient extends GenerativeClient<any, VertexAI> {
   modelName: string;
 
-  constructor({apiKey, modelName}: {apiKey?: string; modelName: string}) {
+  constructor({modelName}: {modelName: string}) {
     super();
-    if (apiKey) {
-      const authClient = new GoogleAuth().fromAPIKey(apiKey);
-      this.client = new v1.GenerativeServiceClient({
-        authClient,
-      });
-    } else {
-      this.client = new v1.GenerativeServiceClient();
-    }
+    this.client = new VertexAI({
+      project: config.projectId,
+      location: config.location,
+    });
+
     this.modelName = modelName;
   }
 
@@ -48,35 +42,46 @@ export class GenerativeLanguageClient extends GenerativeClient<
         throw new Error('Gemini Pro Vision selected, but missing Image Field');
       }
 
-      const base64String = await getImageBase64(options.image);
+      //   const base64String = await getImageBase64(options.image);
 
-      const imagePart = {
-        inlineData: {
-          mimeType: 'image/png',
-          data: base64String,
+      const imagePart: FileDataPart = {
+        file_data: {
+          mime_type: 'image/png',
+          file_uri: options.image,
         },
       };
 
       promptParts.push(imagePart);
     }
-    let result;
-    try {
-      result = await this.client.generateContent({
-        model: this.modelName,
-        contents: [
-          {
-            role: Role.USER,
-            parts: promptParts,
-          },
-        ],
-        generationConfig: {
-          topK: options.topK,
-          topP: options.topP,
-          temperature: options.temperature,
-          candidateCount: options.candidateCount,
-          maxOutputTokens: options.maxOutputTokens,
+
+    const request: GenerateContentRequest = {
+      contents: [
+        {
+          role: Role.USER,
+          parts: promptParts,
         },
-      });
+      ],
+      generation_config: {
+        top_k: options.topK,
+        top_p: options.topP,
+        temperature: options.temperature,
+        candidate_count: options.candidateCount,
+        max_output_tokens: options.maxOutputTokens,
+      },
+    };
+
+    let result;
+
+    const generativeVisionModel = this.client.preview.getGenerativeModel({
+      model: this.modelName,
+    });
+    try {
+      const responseStream =
+        await generativeVisionModel.generateContentStream(request);
+
+      const aggregatedResponse = await responseStream.response;
+
+      result = aggregatedResponse;
     } catch (e) {
       logger.error(e);
       // TODO: the error message provided exposes the API key, so we should handle this/ get the Gemini team to fix it their side.
@@ -84,19 +89,16 @@ export class GenerativeLanguageClient extends GenerativeClient<
         'failed to generate content, see function logs for details'
       );
     }
-
-    const response = result[0];
-
     if (
-      !response.candidates ||
-      !Array.isArray(response.candidates) ||
-      response.candidates.length === 0
+      !result.candidates ||
+      !Array.isArray(result.candidates) ||
+      result.candidates.length === 0
     ) {
       // TODO: handle blocked responses
       throw new Error('No candidates returned');
     }
 
-    const candidates = response.candidates.filter(c => {
+    const candidates = result.candidates.filter(c => {
       return (
         c &&
         c.content &&

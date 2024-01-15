@@ -2,8 +2,10 @@ import config, {GenerativeAIProvider} from '../config';
 import {DiscussionClient} from './base_class';
 import {v1} from '@google-ai/generativelanguage';
 import {GenerativeLanguageDiscussionClient} from './generative_language';
+import {VertexDiscussionClient} from './vertex_ai';
+import {VertexAI} from '@google-cloud/vertexai';
 
-type Client = v1.GenerativeServiceClient;
+type Client = v1.GenerativeServiceClient | VertexAI;
 
 // TODO fix any
 export const getGenerativeClient = (): DiscussionClient<Client, any, any> => {
@@ -13,6 +15,10 @@ export const getGenerativeClient = (): DiscussionClient<Client, any, any> => {
       return new GenerativeLanguageDiscussionClient({
         apiKey: config.googleAi.apiKey,
         modelName: `models/${config.googleAi.model}`,
+      });
+    case 'vertex-ai':
+      return new VertexDiscussionClient({
+        modelName: config.vertex.model,
       });
     default:
       throw new Error('Invalid provider');
