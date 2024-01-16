@@ -20,7 +20,7 @@ jest.mock('../../src/config', () => ({
     responseField: 'response',
     enableDiscussionOptionOverrides: true,
     provider: 'vertex',
-    model: 'chat-bison@001',
+    model: 'chat-bison',
     context: 'Speak like Shakespeare',
   },
 }));
@@ -196,7 +196,7 @@ describe('generateMessage', () => {
     // verify SDK is called with expected arguments
     const expectedRequestData = {
       endpoint:
-        'projects/test-project/locations/us-central1/publishers/google/models/chat-bison@001',
+        'projects/test-project/locations/us-central1/publishers/google/models/chat-bison',
       instances,
       parameters,
     };
@@ -293,7 +293,7 @@ describe('generateMessage', () => {
     // verify SDK is called with expected arguments
     const expectedRequestData = {
       endpoint:
-        'projects/test-project/locations/us-central1/publishers/google/models/chat-bison@001',
+        'projects/test-project/locations/us-central1/publishers/google/models/chat-bison',
       instances,
       parameters,
     };

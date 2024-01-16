@@ -39,14 +39,14 @@ function getModel() {
     case 'generative':
       switch (process.env.MODEL) {
         default:
-          return 'chat-bison-001';
+          return 'chat-bison';
       }
     default:
       switch (process.env.MODEL) {
         case 'codechat-bison':
-          return 'codechat-bison@001';
+          return 'codechat-bison';
         default:
-          return 'chat-bison@001';
+          return 'chat-bison';
       }
   }
 }
