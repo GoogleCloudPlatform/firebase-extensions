@@ -17,7 +17,7 @@ jest.mock('../src/config', () => ({
     projectId: 'test-project',
     instanceId: 'test-instance',
     collectionName: 'generateTest',
-    model: 'text-bison-001',
+    model: 'text-bison',
     textField: 'text',
     responseField: 'output',
     candidateCount: 1,
@@ -276,7 +276,7 @@ describe('generateText with GL', () => {
     // verify SDK is called with expected arguments
     const expectedRequestData = {
       candidateCount: 1,
-      model: 'models/text-bison-001',
+      model: 'models/text-bison',
       prompt: {
         text: 'Summarize this text: "test generate text"',
       },

@@ -42,12 +42,12 @@ function getModel() {
     case 'generative':
       switch (process.env.MODEL) {
         default:
-          return 'text-bison-001';
+          return 'text-bison';
       }
     default:
       switch (process.env.MODEL) {
         default:
-          return 'text-bison@001';
+          return 'text-bison';
       }
   }
 }
