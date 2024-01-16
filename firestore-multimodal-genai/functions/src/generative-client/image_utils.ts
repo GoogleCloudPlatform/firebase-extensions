@@ -1,77 +1,21 @@
 import * as admin from 'firebase-admin';
 import {logger} from 'firebase-functions/v1';
 import * as sharp from 'sharp';
-import config from '../../config';
-
-export const enum ImageUrlSource {
-  BASE64 = 'base64',
-  STORAGE = 'storage',
-}
-
-export function isBase64Image(image: string): boolean {
-  return Buffer.from(image, 'base64').toString('base64') === image;
-}
 
 export const isFromStorage = (image: string): boolean => {
   return image.startsWith('gs://');
 };
 
-export function getImageSource(image: string): ImageUrlSource {
-  if (isBase64Image(image)) {
-    return ImageUrlSource.BASE64;
-  }
-  if (isFromStorage(image)) {
-    return ImageUrlSource.STORAGE;
-  }
-  throw new Error(
-    `Invalid image source: ${image}, only gs:// and base64 supported.`
-  );
-}
-
-export async function getImageBase64(image: string): Promise<string> {
-  let buffer;
-  let imageExtension;
-
-  switch (getImageSource(image)) {
-    case ImageUrlSource.BASE64:
-      buffer = Buffer.from(image, 'base64');
-      imageExtension = image.split(';')[0].split('/')[1];
-      break;
-
-    case ImageUrlSource.STORAGE:
-      ({buffer, imageExtension} = await getImageFromStorage(image));
-      break;
-
-    default:
-      throw new Error(
-        'Image must be either a base64 string or a file in cloud storage.'
-      );
-  }
+export async function getImageBase64(
+  image: string,
+  provider: 'google-ai' | 'vertex-ai'
+): Promise<string> {
+  const {buffer, imageExtension} = await getImageFromStorage(image);
 
   const imageSize = buffer.byteLength / 1_000_000;
 
-  if (
-    (imageSize > 0.999 && config.provider === 'google-ai') ||
-    imageSize > 3.99
-  ) {
-    logger.info(`Image size: ${imageSize}MB`);
-    logger.warn(
-      `Image is too large (${imageSize}MB) for Google AI api, extension will attempt to compress image.`
-    );
-    logger.info(`Compressing image with extension ${imageExtension}`);
-    performance.mark('start-compress');
-    const compressedImage = await compressImageBuffer(buffer, imageExtension);
-    performance.mark('end-compress');
-    const measure = performance.measure(
-      'compress',
-      'start-compress',
-      'end-compress'
-    );
-    logger.info(`Compression took ${measure.duration}ms`);
-    logger.info(
-      `Compressed image size: ${compressedImage.byteLength / 1_000_000}MB`
-    );
-    return compressedImage.toString('base64');
+  if ((imageSize > 0.999 && provider === 'google-ai') || imageSize > 3.99) {
+    return await compressImage(buffer, imageExtension, imageSize);
   }
 
   return buffer.toString('base64');
@@ -85,6 +29,10 @@ export async function getImageFromStorage(image: string) {
   const fileName = image.split(bucketName + '/')[1];
 
   const imageExtension = fileName.split('.')[fileName.split('.').length - 1];
+
+  if (!['jpg', 'jpeg', 'png'].includes(imageExtension)) {
+    throw new Error('Unable to extract image extension.');
+  }
 
   return {
     buffer: (
@@ -134,4 +82,28 @@ export const compressImageBuffer = async (
     default:
       throw new Error(`Image extension ${imageExtension} not supported.`);
   }
+};
+
+const compressImage = async (
+  buffer: Buffer,
+  imageExtension: string,
+  imageSize: number
+) => {
+  logger.warn(
+    `Image is too large (${imageSize}MB) for the selected Gemini API, extension will attempt to compress image.`
+  );
+  logger.info(`Compressing image with extension ${imageExtension}`);
+  performance.mark('start-compress');
+  const compressedImage = await compressImageBuffer(buffer, imageExtension);
+  performance.mark('end-compress');
+  const measure = performance.measure(
+    'compress',
+    'start-compress',
+    'end-compress'
+  );
+  logger.info(`Compression took ${measure.duration}ms`);
+  logger.info(
+    `Compressed image size: ${compressedImage.byteLength / 1_000_000}MB`
+  );
+  return compressedImage.toString('base64');
 };

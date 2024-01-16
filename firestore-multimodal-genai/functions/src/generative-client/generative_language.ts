@@ -1,10 +1,10 @@
 import {v1} from '@google-ai/generativelanguage';
 import * as generativeLanguage from '@google-ai/generativelanguage';
 
-import {GenerativeClient} from './base_text_client';
+import {GenerativeClient} from './base_client';
 import {logger} from 'firebase-functions/v1';
 import {GoogleAuth} from 'google-auth-library';
-import {getImageBase64} from './storage_utils';
+import {getImageBase64} from './image_utils';
 enum Role {
   USER = 'user',
   GEMINI = 'model',
@@ -48,7 +48,7 @@ export class GenerativeLanguageClient extends GenerativeClient<
         throw new Error('Gemini Pro Vision selected, but missing Image Field');
       }
 
-      const base64String = await getImageBase64(options.image);
+      const base64String = await getImageBase64(options.image, 'google-ai');
 
       const imagePart = {
         inlineData: {

@@ -1,12 +1,8 @@
-import {GenerativeClient} from './base_text_client';
+import {GenerativeClient} from './base_client';
 import {logger} from 'firebase-functions/v1';
-import {
-  VertexAI,
-  GenerateContentRequest,
-  Part,
-  FileDataPart,
-} from '@google-cloud/vertexai';
-import config from '../../config';
+import {VertexAI, GenerateContentRequest, Part} from '@google-cloud/vertexai';
+import config from '../config';
+import {getImageBase64} from './image_utils';
 // import {getImageBase64} from './storage_utils';
 
 enum Role {
@@ -42,16 +38,12 @@ export class VertexLanguageClient extends GenerativeClient<any, VertexAI> {
         throw new Error('Gemini Pro Vision selected, but missing Image Field');
       }
 
-      //   const base64String = await getImageBase64(options.image);
-
-      const imagePart: FileDataPart = {
-        file_data: {
+      promptParts.push({
+        inline_data: {
           mime_type: 'image/png',
-          file_uri: options.image,
+          data: await getImageBase64(options.image, 'vertex-ai'),
         },
-      };
-
-      promptParts.push(imagePart);
+      });
     }
 
     const request: GenerateContentRequest = {

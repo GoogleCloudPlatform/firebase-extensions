@@ -38,7 +38,7 @@ const {
   variableFields,
 } = config;
 
-import {getGenerativeClient} from './generative-client/generate';
+import {getGenerativeClient} from './generative-client';
 
 // TODO: make sure we redact API KEY
 // logs.init(config);

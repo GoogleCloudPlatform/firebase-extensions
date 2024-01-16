@@ -1,6 +1,6 @@
-import config, {GenerativeAIProvider} from '../../config';
-import {GenerativeClient} from './base_text_client';
-import {GenerativeLanguageClient} from './generative_language';
+import config, {GenerativeAIProvider} from '../config';
+import {GenerativeClient} from './base_client';
+// import {GenerativeLanguageClient} from './generative_language';
 import {v1} from '@google-ai/generativelanguage';
 import {VertexLanguageClient} from './vertex_ai';
 import {VertexAI} from '@google-cloud/vertexai';
@@ -12,7 +12,6 @@ type Client = v1.GenerativeServiceClient | VertexAI | GoogleGenerativeAI;
 export const getGenerativeClient = (): GenerativeClient<any, Client> => {
   switch (config.provider as GenerativeAIProvider) {
     case 'google-ai':
-      console.log('using google ai');
       if (!config.googleAi.model) throw new Error('Gemini model not set');
 
       if (!config.googleAi.apiKey) throw new Error('Gemini api key not set');
@@ -22,11 +21,14 @@ export const getGenerativeClient = (): GenerativeClient<any, Client> => {
         modelName: config.googleAi.model,
       });
 
-      return new GenerativeLanguageClient({
-        apiKey: config.googleAi.apiKey,
-        modelName: `models/${config.googleAi.model}`,
-      });
+    // Note: experimented with this SDK, but not got it to work with ADC either.
+    // return new GenerativeLanguageClient({
+    //   apiKey: config.googleAi.apiKey,
+    //   modelName: `models/${config.googleAi.model}`,
+    // });
     case 'vertex-ai':
+      if (!config.vertex.model) throw new Error('Gemini model not set');
+
       return new VertexLanguageClient({
         modelName: config.vertex.model,
       });
