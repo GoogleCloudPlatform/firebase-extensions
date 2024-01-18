@@ -76,7 +76,8 @@ params:
     description: >-
       This extension makes use of the Gemini family of large language models.
       For Google AI you will require an API key, whereas Vertex AI will
-      authenticate using application default credentials.
+      authenticate using application default credentials. For more information
+      see the [docs]https://firebase.google.com/docs/admin/setup#initialize-sdk.
     type: select
     options:
       - label: Google AI

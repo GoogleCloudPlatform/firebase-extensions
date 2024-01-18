@@ -73,7 +73,7 @@ Additionally, this extension uses the Google AI Gemini API. For more details on 
 
 **Configuration Parameters:**
 
-* Gemini API Provider: This extension makes use of the Gemini family of large language models. For Google AI you will require an API key, whereas Vertex AI will authenticate using application default credentials.
+* Gemini API Provider: This extension makes use of the Gemini family of large language models. For Google AI you will require an API key, whereas Vertex AI will authenticate using application default credentials. For more information see the [docs]https://firebase.google.com/docs/admin/setup#initialize-sdk.
 
 * API Key for Gemini: Please enter your API key for the Google AI Gemini API.
 
