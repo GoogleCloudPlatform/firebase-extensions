@@ -57,10 +57,10 @@ roles:
   - role: storage.objectAdmin
     reason: Allows the extension to write to your Cloud Storage.
 
-# - role: aiplatform.user
-#   reason:
-#     Allows this extension to access the PaLM API via Vertex AI if this
-#     provider is chosen.
+  - role: aiplatform.user
+    reason:
+      Allows this extension to access the PaLM API via Vertex AI if this
+      provider is chosen.
 
 resources:
   - name: generateText
@@ -68,6 +68,8 @@ resources:
     description: >-
       Listens to Firestore data writes to generate conversations.
     properties:
+      availableMemoryMb: 2048
+      timeout: 540s
       location: ${LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
