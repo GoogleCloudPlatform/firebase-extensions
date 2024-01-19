@@ -1,5 +1,5 @@
 name: firestore-genai-chatbot
-version: 0.0.4
+version: 0.0.5
 specVersion: v1beta
 
 icon: icon.png
@@ -53,10 +53,10 @@ roles:
     reason:
       Allows this extension to access Cloud Firestore to read and process added
       messages.
-  # - role: aiplatform.user
-  #   reason:
-  #     Allows this extension to access the Vertex AI API if this provider is
-  #     chosen.
+  - role: aiplatform.user
+    reason:
+      Allows this extension to access the Vertex AI API if this provider is
+      chosen.
 
 resources:
   - name: generateMessage
@@ -77,7 +77,8 @@ params:
       This extension makes use of the Gemini family of large language models.
       For Google AI you will require an API key, whereas Vertex AI will
       authenticate using application default credentials. For more information
-      see the [docs](https://firebase.google.com/docs/admin/setup#initialize-sdk).
+      see the
+      [docs](https://firebase.google.com/docs/admin/setup#initialize-sdk).
     type: select
     options:
       - label: Google AI
