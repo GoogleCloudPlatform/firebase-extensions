@@ -43,12 +43,16 @@ export async function getImageFromStorage(image: string) {
 }
 
 export function extractBucketName(url: string) {
+  if (!url.startsWith('gs://')) {
+    throw new Error('Invalid URL format');
+  }
+
   // Split the URL by '://'
   const parts = url.split('gs://');
 
   // Check if the URL is correctly formatted
   if (parts.length !== 2) {
-    return 'Invalid URL format';
+    throw new Error('Invalid URL format');
   }
 
   // Further split the second part by '/' to isolate the bucket name
