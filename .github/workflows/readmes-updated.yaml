@@ -40,7 +40,7 @@ jobs:
         run: |
           mkdir -p ~/.npm-global
           npm config set prefix '~/.npm-global'
-          echo "::set-output name=dir::$(npm config get prefix)"
+          echo "dir=$(npm config get prefix)" >> "$GITHUB_OUTPUT"
 
       - name: Cache global dependencies
         uses: actions/cache@v2
