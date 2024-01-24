@@ -2,12 +2,13 @@
 
 docs - update to reflect current state of PaLM safety thresholds
 
+feat - support latest PaLM models
+
 ## Version 0.1.8
 
 fixed - bug where context could not be added
 
 ## Version 0.1.7
-
 
 fixed - truncate history if payload is close to limit
 
@@ -37,6 +38,7 @@ feature - update docs for publish
 
 - Truncate requests sent to API to fix bug for long conversations.
 - Bump dependencies for PaLM APIs
+
 ## Version 0.1.5
 
 - Removed unnecessary Storage bucket requirement from PREINSTALL.
