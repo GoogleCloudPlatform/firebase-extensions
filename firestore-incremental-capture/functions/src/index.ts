@@ -16,6 +16,7 @@
 
 import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
+import * as functionsv2 from 'firebase-functions/v2';
 
 import config from './config';
 
@@ -23,6 +24,7 @@ import {syncDataHandler} from './handlers/sync_data_handler';
 import {triggerRestorationJobHandler} from './handlers/trigger_restoration_job_handler';
 import {runInitialSetupHandler} from './handlers/run_initial_setup_handler';
 import {checkScheduledBackupStateHandler} from './handlers/check_scheduled_backups_state_handler';
+import {updateDataflowStatusHandler} from './handlers/update_dataflow_status_handler';
 
 admin.initializeApp();
 
@@ -55,3 +57,11 @@ export const triggerRestorationJob = functions.firestore
 export const checkScheduledBackupState = functions.tasks
   .taskQueue({retryConfig: {maxAttempts: 2}})
   .onDispatch(checkScheduledBackupStateHandler);
+
+export const updateDataflowStatus = functionsv2.eventarc.onCustomEventPublished(
+  {
+    retry: false,
+    eventType: 'google.cloud.dataflow.job.v1beta3.statusChanged',
+  },
+  updateDataflowStatusHandler
+);

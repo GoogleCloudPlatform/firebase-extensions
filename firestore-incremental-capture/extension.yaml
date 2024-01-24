@@ -113,6 +113,20 @@ resources:
       location: ${LOCATION}
       taskQueueTrigger: {}
 
+  - name: updateDataflowStatus
+    type: firebaseextensions.v1beta.v2function
+    description: >-
+      Updates the status of the DataFlow job in Firestore.
+    properties:
+      location: ${LOCATION}
+      buildConfig:
+        runtime: nodejs18
+      eventTrigger:
+        eventType: google.cloud.dataflow.job.v1beta3.statusChanged
+        # eventFilters:
+        #   - attribute: job
+        #     value: projects/${param:PROJECT_ID}/locations/${LOCATION}/jobs/${param:EXT_INSTANCE_ID}-*
+
 params:
   - param: LOCATION
     label: Cloud Functions location
