@@ -1,3 +1,7 @@
+## Version 0.0.5
+
+- Add Vertex AI provider
+
 ## Version 0.0.4
 
 - Fix context parameter

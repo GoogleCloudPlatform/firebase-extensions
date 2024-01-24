@@ -61,9 +61,15 @@ This extension supports the following language models:
 
 #### Multimodal Prompts
 
-This extension now supports providing multimodal prompts. To use this feature, select the Gemini Pro Vision model on installation, and provide an Image Field parameter. The Image Field parameter should be the name of a document field in firestore.
+This extension supports providing multimodal prompts. To use this feature, select the Gemini Pro Vision model on installation, and provide an Image Field parameter. The Image Field parameter should be the name of a document field in firestore.
 
-When you select these options, any document handled by the extension must contain an image field. The image field must be a string, and can either be the Cloud Storage URL of an object (e.g `gs://my-bucket.appspot.com/filename.png`) or the base64-encoded string of an image. This image will then be provided as part of the prompt to Gemini Pro Vision.
+When you select these options, any document handled by the extension must contain an image field. The image field must be a string, and can either be the Cloud Storage URL of an object (e.g `gs://my-bucket.appspot.com/filename.png`). This image will then be provided as part of the prompt to Gemini Pro Vision.
+
+The Gemini Pro Vision API has a limit on image sizes. For Google AI this limit is currently 1MB, and for Vertex AI this limit is 4MB. This extension will compress and resize images that fall above this limit.
+
+### Troubleshooting timeout/PROCESSING errors
+
+This extension will update the state of a document that is being processed within that status field of that document. When using Gemini Pro Vision with large images, there is a possibility that the process of compressing and resizing the image will exceed the extension's cloud function memory. By default this extension deploys a cloud function with 2GiB of memory, which should handle most use cases. If for some reason this is too much memory, you may reconfigure the function in the GCP console.
 
 ### Regenerating a response
 
@@ -90,7 +96,7 @@ Additionally, this extension uses the Google AI Gemini API. For more details on 
 
 **Configuration Parameters:**
 
-* Gemini API Provider: This extension makes use of the Gemini family of large language models. Currently the extension only supports the Google AI API (for developers) but in future will support the Vertex AI Gemini API.
+* Gemini API Provider: This extension makes use of the Gemini family of large language models. For Google AI you will require an API key, whereas Vertex AI will authenticate using application default credentials. For more information see the [docs](https://firebase.google.com/docs/admin/setup#initialize-sdk).
 
 * Language model: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
 
@@ -141,3 +147,5 @@ This extension will operate with the following project IAM roles:
 * datastore.user (Reason: Allows this extension to access Cloud Firestore to read and process added messages.)
 
 * storage.objectAdmin (Reason: Allows the extension to write to your Cloud Storage.)
+
+* aiplatform.user (Reason: Allows this extension to access the PaLM API via Vertex AI if this provider is chosen.)

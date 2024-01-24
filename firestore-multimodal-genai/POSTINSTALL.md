@@ -37,6 +37,12 @@ The extension gives you a choice of 3 models:
 - [Gemini Pro](https://ai.google.dev/models/gemini) text model
 - [Gemini Pro Vision](https://ai.google.dev/models/gemini)
 
+#### Multimodal Prompts
+
+If you have selected to use the Gemini Pro Vision model, any document handled by the extension must contain an image field. The image field must be a string, and can either be the Cloud Storage URL of an object (e.g `gs://my-bucket.appspot.com/filename.png`). This image will then be provided as part of the prompt to Gemini Pro Vision.
+
+The Gemini Pro Vision API has a limit on image sizes. For Google AI this limit is currently 1MB, and for Vertex AI this limit is 4MB. This extension will compress and resize images that fall above this limit.
+
 ## Handling errors
 
 If the extension encounters an error, it will write an error message to the document in `status` field. You can use this field to monitor for errors in your documents. Currently some errors will instruct you to visit the Cloud Function logs for the extension, to avoid exposing sensitive information.
