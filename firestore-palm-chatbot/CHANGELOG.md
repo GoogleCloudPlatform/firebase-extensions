@@ -1,8 +1,10 @@
+## Version 0.1.10
+
+feat - support latest PaLM models
+
 ## Version 0.1.9
 
 docs - update to reflect current state of PaLM safety thresholds
-
-feat - support latest PaLM models
 
 ## Version 0.1.8
 
