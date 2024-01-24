@@ -57,10 +57,10 @@ roles:
   - role: storage.objectAdmin
     reason: Allows the extension to write to your Cloud Storage.
 
-# - role: aiplatform.user
-#   reason:
-#     Allows this extension to access the PaLM API via Vertex AI if this
-#     provider is chosen.
+  - role: aiplatform.user
+    reason:
+      Allows this extension to access the PaLM API via Vertex AI if this
+      provider is chosen.
 
 resources:
   - name: generateText
@@ -68,6 +68,8 @@ resources:
     description: >-
       Listens to Firestore data writes to generate conversations.
     properties:
+      availableMemoryMb: 2048
+      timeout: 540s
       location: ${LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
@@ -79,12 +81,15 @@ params:
     label: Gemini API Provider
     description: >-
       This extension makes use of the Gemini family of large language models.
-      Currently the extension only supports the Google AI API (for developers)
-      but in future will support the Vertex AI Gemini API.
+      For Google AI you will require an API key, whereas Vertex AI will
+      authenticate using application default credentials. For more information
+      see the [docs](https://firebase.google.com/docs/admin/setup#initialize-sdk).
     type: select
     options:
       - label: Google AI
         value: google-ai
+      - label: Vertex AI
+        value: vertex-ai
     required: true
     default: google-ai
     immutable: false

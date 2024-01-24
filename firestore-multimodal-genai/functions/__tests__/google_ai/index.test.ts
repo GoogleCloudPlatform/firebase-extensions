@@ -1,6 +1,6 @@
 import * as firebaseFunctionsTest from 'firebase-functions-test';
 import * as admin from 'firebase-admin';
-import config, {Config} from '../../src/config';
+import config from '../../src/config';
 import {generateText} from '../../src/index';
 import {WrappedFunction} from 'firebase-functions-test/lib/v1';
 import {Change} from 'firebase-functions/v1';

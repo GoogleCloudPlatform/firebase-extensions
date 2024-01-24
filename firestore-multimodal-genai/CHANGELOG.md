@@ -1,6 +1,8 @@
 ## Version 0.0.3
 
-- Allow Application Default Credentials Authorization
+- Add Vertex AI provider
+
+- Add image compression for large image files
 
 ## Version 0.0.2
 

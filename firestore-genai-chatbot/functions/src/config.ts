@@ -21,10 +21,10 @@ export enum GenerativeAIProvider {
 
 export interface Config {
   vertex: {
-    model?: string;
+    model: string;
   };
   googleAi: {
-    model?: string;
+    model: string;
     apiKey?: string;
   };
   context?: string;
@@ -42,7 +42,6 @@ export interface Config {
   candidateCount?: number;
   candidatesField?: string;
   provider: GenerativeAIProvider;
-  apiKey?: string;
 }
 
 function getModel() {
@@ -99,7 +98,6 @@ const config: Config = {
   provider:
     (process.env.GENERATIVE_AI_PROVIDER as GenerativeAIProvider) ||
     GenerativeAIProvider.GOOGLE_AI,
-  apiKey: process.env.API_KEY,
 };
 
 export default config;
