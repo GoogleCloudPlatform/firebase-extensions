@@ -2,6 +2,8 @@
 
 docs - update response field to mention response length limitation
 
+feat - support latest PaLM models
+
 ## Version 0.1.9
 
 fixed - fixed issue with "Block none" in safety threshold configs
