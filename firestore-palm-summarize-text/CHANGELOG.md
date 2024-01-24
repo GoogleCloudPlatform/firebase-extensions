@@ -1,10 +1,12 @@
+## Version 0.1.11
+
+feat - support latest PaLM models
+
 ## Version 0.1.10
 
 fixed - fixed issue with "Block none" in safety threshold configs
 
 docs - update to reflect current state of PaLM safety thresholds
-
-feat - support latest PaLM models
 
 ## Version 0.1.9
 
