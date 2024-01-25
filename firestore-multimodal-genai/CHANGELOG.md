@@ -1,3 +1,7 @@
+## Version 0.0.4
+
+- Allow text only in Vertex Provider
+
 ## Version 0.0.3
 
 - Add Vertex AI provider

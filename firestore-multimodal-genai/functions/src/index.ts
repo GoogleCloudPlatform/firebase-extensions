@@ -100,12 +100,10 @@ export const generateText = functions.firestore
 
       const t0 = performance.now();
       let requestOptions = {};
-      if (config.googleAi.model === 'gemini-pro-vision') {
-        if (!data[config.imageField]) {
-          throw new Error(
-            `Gemini Pro Vision requires you to provide an image but you are missing any ${config.imageField} value!`
-          );
-        }
+      if (
+        config.googleAi.model === 'gemini-pro-vision' &&
+        data[config.imageField]
+      ) {
         requestOptions = {
           ...requestOptions,
           image: data[config.imageField],
