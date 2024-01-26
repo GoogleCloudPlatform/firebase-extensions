@@ -1,5 +1,8 @@
-## Version 0.1.7
+## Version 0.1.8
 
+docs - updates to POSTINSTALL
+
+## Version 0.1.7
 
 fixed - correct apiEndpoint
 

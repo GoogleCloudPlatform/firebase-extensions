@@ -1,3 +1,9 @@
+## Version 0.1.10
+
+docs - update response field to mention response length limitation
+
+feat - support latest PaLM models
+
 ## Version 0.1.9
 
 fixed - fixed issue with "Block none" in safety threshold configs
@@ -8,6 +14,7 @@ docs - update to reflect current state of PaLM safety thresholds
 
 - Added parameters for configuring filter thresholds on developers PaLM API
 - Increased Max content length default
+
 ## Version 0.1.7
 
 - Fixed location bug where apiEndpoint was incorrectly entered

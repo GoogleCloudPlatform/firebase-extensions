@@ -1,5 +1,12 @@
-## Version 0.1.5
+## Version 0.1.7
 
+docs - updates to POSTINSTALL
+
+## Version 0.1.6
+
+fixed - autopagination issue (#103)
+
+## Version 0.1.5
 
 fixed - metadata & enqueues collection merge (#140)
 
@@ -11,6 +18,7 @@ fixed - backfill failing to create metdata doc thus index (#28)
 
 - Feature: shard and machine configurations.
 - Fix: use `set` to create enqueues in Firestore to avoid errors from past installs.
+
 ## Version 0.1.3
 
 Updated PREINSTALL to include link Google Cloud docs on undeploying indexes.

@@ -21,7 +21,9 @@ const getModel = httpsCallable(functions, 'ext-${param:EXT_INSTANCE_ID}-getModel
 const chatBison = await getModel({name: "chat-bison-001"});
 
 const post = httpsCallable(functions, 'ext-${param:EXT_INSTANCE_ID}-post');
-const {response} = await post({
+
+/** Data does not need to be restructured or could be { data } **/
+const response = await post({
     model: "text-bison-001",
     method: "generateText",
     prompt: {

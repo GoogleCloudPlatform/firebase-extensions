@@ -1,7 +1,8 @@
+import * as dotenv from 'dotenv';
 const path = require('path');
 
 (async function () {
-  require('dotenv').config({
+  dotenv.config({
     path: path.resolve(
       __dirname,
       '../../../_emulator/extensions/firestore-text-to-speech.env.local'

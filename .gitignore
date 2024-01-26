@@ -57,3 +57,7 @@ firebase-debug.*.log*
 # Firebase cache
 .firebase/
 */service-account.json
+
+# Extension assets
+/firestore-incremental-capture/install/restore-firestore.jar
+.DS_Store

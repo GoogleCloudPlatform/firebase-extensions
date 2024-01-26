@@ -1,5 +1,5 @@
 name: firestore-semantic-search
-version: 0.1.7
+version: 0.1.8
 specVersion: v1beta
 
 icon: icon.png
@@ -130,7 +130,7 @@ resources:
     properties:
       location: ${LOCATION}
       buildConfig:
-        runtime: nodejs18   
+        runtime: nodejs18
       serviceConfig:
         availableMemory: 512M
       eventTrigger:
@@ -150,7 +150,7 @@ resources:
     properties:
       location: ${LOCATION}
       buildConfig:
-        runtime: nodejs18    
+        runtime: nodejs18
       serviceConfig:
         availableMemory: 512M
       eventTrigger:
@@ -530,7 +530,7 @@ params:
         value: g2-standard-16
 
   - param: ACCELERATOR_TYPE
-    label: Acceletaor type
+    label: Accelerator type
     description: >-
       The accelerator type for the deployed index endpoint. [Read more about
       accelerator types config
@@ -589,7 +589,7 @@ params:
   - param: MAX_REPLICA_COUNT
     label: Max replica count
     description: >-
-      The maxiumum number of machine replicas for the deployed index endpoint
+      The maximum number of machine replicas for the deployed index endpoint
       when the traffic against it increases. [Read more about max replica config
       here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/DedicatedResources).
     default: 1

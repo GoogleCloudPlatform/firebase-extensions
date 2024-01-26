@@ -1,5 +1,5 @@
 name: storage-reverse-image-search
-version: 0.1.5
+version: 0.1.7
 specVersion: v1beta
 
 icon: icon.png
@@ -208,8 +208,8 @@ params:
   - param: IMG_PATH
     label: The path to images in the bucket
     description: >
-      If images is located inside a folder in the bucket, what's the path? If
-      empty the root of the bucket will be used.
+      If images are located inside a folder in the bucket, what's the path? If
+      empty, the root of the bucket will be used.
     type: string
     example: root/images
     validationRegex: ^[\w-]+(\/[\w-]+)*$
@@ -239,6 +239,7 @@ params:
     type: string
     required: true
     immutable: true
+    default: https://tfhub.dev/google/tfjs-model/imagenet/inception_resnet_v2/feature_vector/1/default/1
     validationRegex: ^https:\/\/.*$
     validationErrorMessage: Invalid URL
 
@@ -251,6 +252,7 @@ params:
     required: true
     immutable: true
     example: 224,224
+    default: 299,299
     validationRegex: ^\d+,\d+$
     validationErrorMessage: Invalid input shape
 
@@ -518,7 +520,7 @@ params:
         value: g2-standard-16
 
   - param: ACCELERATOR_TYPE
-    label: Acceletaor type
+    label: Accelerator type
     description: >-
       The accelerator type for the deployed index endpoint. [Read more about
       accelerator types config
@@ -555,7 +557,7 @@ params:
   - param: ACCELERATOR_COUNT
     label: Accelerator Count
     description: >-
-      The number of accelerators to attach to the the deployed index endpoint
+      The number of accelerators to attach to the deployed index endpoint
       machine. [Read more about accelerator counts config
       here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/MachineSpec).
     default: 1
@@ -577,7 +579,7 @@ params:
   - param: MAX_REPLICA_COUNT
     label: Max replica count
     description: >-
-      The maxiumum number of machine replicas for the deployed index endpoint
+      The maximum number of machine replicas for the deployed index endpoint
       when the traffic against it increases. [Read more about max replica config
       here](https://cloud.google.com/vertex-ai/docs/reference/rest/v1/DedicatedResources).
     default: 1

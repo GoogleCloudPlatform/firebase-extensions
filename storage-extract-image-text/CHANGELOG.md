@@ -1,5 +1,8 @@
-## Version 0.1.4
+## Version 0.1.5
 
+docs - correct documentation to match extension behaviour
+
+## Version 0.1.4
 
 fixed - updated regex validation for collection paths (#133)
 
