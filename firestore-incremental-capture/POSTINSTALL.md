@@ -64,7 +64,7 @@ We have detailed the steps below, or there is a single script you can run which 
 
 ## Triggering a restoration job
 
-You can trigger a restoration job by adding a new document to `${param:EXT_INSTANCE_ID}/restore/jobs` in your Firestore database. The document should have the following structure:
+You can trigger a restoration job by adding a new document to `_ext-${param:EXT_INSTANCE_ID}/restore/jobs` in your Firestore database. The document should have the following structure:
 
 ```json
 {
