@@ -149,6 +149,7 @@ params:
       when processing begins, the current timestamp will be written to this
       field. Sorting will be in descending order.
     type: string
+    default: createTime
     example: createTime
     required: false
     immutable: false

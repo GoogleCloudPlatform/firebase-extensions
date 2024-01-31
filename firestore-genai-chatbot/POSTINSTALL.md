@@ -10,8 +10,8 @@ You can test out the extension right away by following these steps:
 ${param:PROMPT_FIELD}: "How are you today?"
 ```
 
-4. In a few seconds, you'll see a ${param:ORDER_FIELD} field and then a status field should appear in the document. The status field will update as the extension processes the message.
-5. When processing is finished, the ${param:RESPONSE_FIELD} field of the document should be populated with the response from the Google AI Gemini API.
+4. In a few seconds, you'll see a **${param:ORDER_FIELD}** field and then a status field should appear in the document. The status field will update as the extension processes the message.
+5. When processing is finished, the **${param:RESPONSE_FIELD}** field of the document should be populated with the response from the Google AI Gemini API.
 
 ```javascript
 const ref = await admin
@@ -35,15 +35,19 @@ The extension gives you a choice of what provider to use for the available model
 
 - Google AI: For more details on this Gemini API, see the [Gemini homepage](https://ai.google.dev/docs).
 
+- Vertex AI: For more details on the Vertex AI Gemini API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/gemini).
+
 ## About the models
 
 The extension gives you a choice of 2 models:
 
-- [Gemini Pro](https://ai.google.dev/models/gemini) chat model
+- Gemini Pro chat model
+
+- Gemini Pro Vision multimodal chat model.
 
 ## Handling errors
 
-If the extension encounters an error, it will write an error message to the document in `status` field. You can use this field to monitor for errors in your documents. Currently some errors will instruct you to visit the Cloud Function logs for the extension, to avoid exposing sensitive information.
+If the extension encounters an error, it will write an error message to the document in the `status` field. You can use this field to monitor for errors in your documents. Currently some errors will instruct you to visit the Cloud Function logs for the extension, to avoid exposing sensitive information.
 
 ## Monitoring
 
