@@ -2,7 +2,7 @@ Use this extension to easily deploy a chatbot using Gemini large language models
 
 On install you will be asked to provide:
 
-- **Generative AI Provider** This extension makes use of the Gemini family of large language models. Currently the extension only supports the Google AI API (for developers) but in future will support the Vertex AI Gemini API.
+- **Generative AI Provider** This extension makes use of the Gemini family of large language models. Currently the extension supports the Google AI Gemini API (for developers) and the Vertex AI Gemini API.
 
 - **Language model**: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
 
@@ -24,7 +24,7 @@ When a message document is added, the extension will:
 - Query the language model you selected during configuration.
 - Write the message back to the triggering document in a configurable response field.
 
-A createTime field will be automatically created for you on document creation, and will be used to order the conversation history. Gemini, like any other LLM, will have a limited context window, so only the most recent messages will be used as history to generate the next response. Alternatively, If documents in the specified collection already contain a field representing timestamps, you can use that as the order field instead.
+A createTime field (or a field by another name if provided during installation) will be automatically created for you on document creation, and will be used to order the conversation history. Gemini, like any other LLM, will have a limited context window, so only the most recent messages will be used as history to generate the next response. Alternatively, If documents in the specified collection already contain a field representing timestamps, you can use that as the order field instead.
 
 You can configure the chatbot to return different responses by providing context during installation. For example, if you want the chatbot to act as a travel guide, you might use this as the context:
 
@@ -34,11 +34,13 @@ I want you to act as a travel guide. I will ask you questions about various trav
 
 You can also configure the model to return different results by tweaking model parameters (temperature, candidate count, etc.), which are exposed as configuration during install as well.
 
-### Choosing a language model
+## About the models
 
-This extension supports the following language models:
+The extension gives you a choice of 2 models:
 
-- [Gemini Pro](https://ai.google.dev/models/gemini)
+- Gemini Pro chat model
+
+- Gemini Pro Vision multimodal chat model.
 
 ## Additional Setup
 

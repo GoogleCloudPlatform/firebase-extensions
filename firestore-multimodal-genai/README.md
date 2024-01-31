@@ -57,7 +57,7 @@ In this case, `review_text`` is a field of the Firestore document and will be su
 This extension supports the following language models:
 
 - [Gemini Pro](https://ai.google.dev/models/gemini) text model
-- [Gemini Pro Vision](https://ai.google.dev/models/gemini)
+- [Gemini Pro Vision](https://ai.google.dev/models/gemini) multimodal prompt model
 
 #### Multimodal Prompts
 
