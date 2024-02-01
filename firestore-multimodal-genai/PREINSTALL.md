@@ -67,6 +67,12 @@ This extension will update the state of a document that is being processed withi
 
 Changing the state field of a completed document's status from `COMPLETED` to anything else will retrigger the extension for that document.
 
+### Custom RAG Hook
+
+If you specify a a RAG (Retrieval Augmentation Generation) hook URL during installation, the extension will call this endpoint to obtain additional data for the prompt. You may specify an API key for your hook, which will be passed in the `x-api-key` header. You should also specify input and output fields for the RAG hook, as comma separated lists.
+
+The input fields will be extracted from the document and passed in the body of the request to the RAG endpoint, whereas the response body will be filtered for the output fields, and these will be made available as handlebars variables when the extension creates the prompt for Gemini.
+
 ## Additional Setup
 
 Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project.

@@ -75,6 +75,12 @@ This extension will update the state of a document that is being processed withi
 
 Changing the state field of a completed document's status from `COMPLETED` to anything else will retrigger the extension for that document.
 
+### Custom RAG Hook
+
+If you specify a a RAG (Retrieval Augmentation Generation) hook URL during installation, the extension will call this endpoint to obtain additional data for the prompt. You may specify an API key for your hook, which will be passed in the `x-api-key` header. You should also specify input and output fields for the RAG hook, as comma separated lists.
+
+The input fields will be extracted from the document and passed in the body of the request to the RAG endpoint, whereas the response body will be filtered for the output fields, and these will be made available as handlebars variables when the extension creates the prompt for Gemini.
+
 ## Additional Setup
 
 Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project.
@@ -123,6 +129,14 @@ Additionally, this extension uses the Google AI Gemini API. For more details on 
 * Candidate count: When set to an integer higher than one, additional candidate responses, up to the specified number, will be stored in Firestore under the 'candidates' field.
 
 * Candidates field: The field in the message document into which to put the other candidate responses if the candidate count parameter is greater than one.
+
+* Custom RAG Hook URL: If provided, this extension will attempt to fetch data from this URL. The endpoint provided must return a json body. The extension will extract any string properties from this body and attempt to substitute them as handlebar variables into the extension prompt. The extension will pass in the Custom Hook API Key parameter into the headers object as x-api-key.
+
+* RAG Hook Input Variable Fields: A comma separated list of fields to pass in the body of the RAG request, if the RAG Hook URL is specified.
+
+* RAG hook output variable fields: A comma separated list of fields to be extracted from the RAG response body, if the RAG Hook URL is specified.
+
+* Custom RAG Hook API Key: If you have provided a Custom Hook URL which needs authentication, provide an API key secret here. It will be passed into custom hook request headers under x-api-key.
 
 
 
