@@ -39,6 +39,7 @@ const {
 } = config;
 
 import {getGenerativeClient} from './generative-client';
+import {fetchCustomHookData} from './custom_hook';
 
 // TODO: make sure we redact API KEY
 // logs.init(config);
@@ -52,7 +53,7 @@ export const generateText = functions.firestore
 
     const ref: DocumentReference = change.after.ref;
 
-    const data = change.after.data();
+    let data = change.after.data();
 
     if (!data) {
       // TODO add logging
@@ -84,6 +85,18 @@ export const generateText = functions.firestore
 
     try {
       const view: Record<string, string> = {};
+
+      if (config.ragConfig?.customRagHookUrl) {
+        // TODO: extract the variable field values before passing to hook
+        const customHookData = await fetchCustomHookData(
+          data,
+          config.ragConfig
+        );
+        data = {
+          ...data,
+          ...customHookData,
+        };
+      }
 
       for (const field of variableFields || []) {
         if (!data[field]) {
