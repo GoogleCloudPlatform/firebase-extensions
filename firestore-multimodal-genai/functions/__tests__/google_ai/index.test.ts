@@ -42,13 +42,13 @@ const mockGenerateContent = jest.fn();
 jest.mock('@google/generative-ai', () => {
   return {
     ...jest.requireActual('@google/generative-ai'),
-    GoogleGenerativeAI: function mockedClient(args) {
+    GoogleGenerativeAI: function mockedClient(args: any) {
       mockGetClient(args);
       return {
         getGenerativeModel: (args: unknown) => {
           mockGetModel(args);
           return {
-            generateContent: function mockedStartChat(args) {
+            generateContent: function mockedStartChat(args: any) {
               mockGenerateContent(args);
               return {
                 response: {

@@ -265,7 +265,3 @@ const simulateFunctionTriggered =
     await wrappedFunction(change);
     return beforeFunctionExecution;
   };
-
-const expectNoOp = () => {
-  expect(firestoreObserver).toHaveBeenCalledTimes(1);
-};

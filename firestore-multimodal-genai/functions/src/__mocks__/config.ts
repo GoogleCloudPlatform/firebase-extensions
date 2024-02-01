@@ -17,4 +17,7 @@ export default {
   apiKey: process.env.API_KEY,
   bucketName: 'demo-gcp.appspot.com',
   imageField: 'image',
+  customRagHookUrl: 'https://www.test.com',
+  ragHookInputFields: ['test'],
+  ragHookOutputFields: ['foo'],
 };
