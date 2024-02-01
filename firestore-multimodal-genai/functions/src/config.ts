@@ -48,6 +48,12 @@ export interface Config {
   generativeSafetySettings?: GLSafetySetting[];
   bucketName?: string;
   imageField: string;
+  ragConfig: {
+    customRagHookUrl?: string;
+    customRagHookApiKey?: string;
+    ragHookInputFields?: string[];
+    ragHookOutputFields?: string[];
+  };
 }
 
 function getModel() {
@@ -121,7 +127,7 @@ function getGenerativeSafetySettings() {
 
 const defaultBucketName = `${process.env.PROJECT_ID}.appspot.com`;
 
-const config: Config = {
+export default {
   vertex: {
     model: getModel(),
   },
@@ -157,6 +163,14 @@ const config: Config = {
   generativeSafetySettings: getGenerativeSafetySettings(),
   bucketName: process.env.BUCKET_NAME || defaultBucketName,
   imageField: process.env.IMAGE_FIELD || 'image',
+  ragConfig: {
+    customRagHookUrl: process.env.CUSTOM_RAG_HOOK_URL,
+    ragHookInputFields: process.env.RAG_HOOK_INPUT_FIELDS
+      ? process.env.RAG_HOOK_INPUT_FIELDS.split(',')
+      : undefined,
+    ragHookOutputFields: process.env.RAG_HOOK_OUTPUT_FIELDS
+      ? process.env.RAG_HOOK_OUTPUT_FIELDS.split(',')
+      : undefined,
+    customRagHookApiKey: process.env.CUSTOM_HOOK_API_KEY,
+  },
 };
-
-export default config;
