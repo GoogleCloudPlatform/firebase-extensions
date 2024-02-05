@@ -99,6 +99,8 @@ Additionally, this extension uses the Google AI Gemini API. For more details on 
 
 * Candidate count: The default value is one. When set to an integer higher than one, additional candidate responses, up to the specified number, will be stored in Firestore under the 'candidates' field.
 
+* Max Output Tokens: If specified, this parameter is passed to the Gemini API to control the length of the response.
+
 * Candidates field: The field in the message document into which to put the other candidate responses if the candidate count parameter is greater than one.
 
 * Enable per document overrides.: If set to \"Yes\", discussion parameters may be overwritten by fields in the discussion collection.
@@ -124,3 +126,5 @@ Additionally, this extension uses the Google AI Gemini API. For more details on 
 This extension will operate with the following project IAM roles:
 
 * datastore.user (Reason: Allows this extension to access Cloud Firestore to read and process added messages.)
+
+* aiplatform.user (Reason: Allows this extension to access the Vertex AI API if this provider is chosen.)
