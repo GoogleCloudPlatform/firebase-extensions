@@ -60,7 +60,7 @@ export class GeminiDiscussionClient extends DiscussionClient<
   async generateResponse(
     history: Message[],
     latestApiMessage: ApiMessage,
-    _options: GeminiChatOptions
+    options: GeminiChatOptions
   ) {
     if (!this.client) {
       throw new Error('Client not initialized.');
@@ -73,11 +73,11 @@ export class GeminiDiscussionClient extends DiscussionClient<
     const chatSession = model.startChat({
       history: this.messagesToApi(history),
       generationConfig: {
-        topP: _options.topP,
-        topK: _options.topK,
-        temperature: _options.temperature,
-        maxOutputTokens: _options.maxOutputTokens,
-        candidateCount: _options.candidateCount,
+        topP: options.topP,
+        topK: options.topK,
+        temperature: options.temperature,
+        maxOutputTokens: options.maxOutputTokens,
+        candidateCount: options.candidateCount,
       },
     });
 
