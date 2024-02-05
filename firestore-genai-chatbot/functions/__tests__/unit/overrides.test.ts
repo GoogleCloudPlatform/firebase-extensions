@@ -7,6 +7,7 @@ describe('extractOverrides function', () => {
     mockDocSnap = {
       get: jest.fn(field => mockDocSnap[field]),
       exists: jest.fn().mockReturnValue(true),
+      data: () => mockDocSnap,
       // Mock other necessary DocumentSnapshot methods here
     };
   });
