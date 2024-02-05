@@ -42,6 +42,7 @@ export interface Config {
   candidateCount?: number;
   candidatesField?: string;
   provider: GenerativeAIProvider;
+  maxOutputTokens?: number;
 }
 
 function getModel() {
@@ -98,6 +99,9 @@ const config: Config = {
   provider:
     (process.env.GENERATIVE_AI_PROVIDER as GenerativeAIProvider) ||
     GenerativeAIProvider.GOOGLE_AI,
+  maxOutputTokens: process.env.MAX_OUTPUT_TOKENS
+    ? parseInt(process.env.MAX_OUTPUT_TOKENS)
+    : undefined,
 };
 
 export default config;
