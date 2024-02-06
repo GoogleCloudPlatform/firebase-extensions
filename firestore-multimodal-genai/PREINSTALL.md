@@ -77,7 +77,7 @@ The input fields will be extracted from the document and passed in the body of t
 
 Suppose we configure the extension with `RAG_HOOK_URL=https://movieAPI.com/search`, `RAG_HOOK_INPUT_FIELDS=query` and `RAG_HOOK_OUTPUT_FIELDS=searchResult`, and our prompt is `PROMPT=Tell about the following actors in this movie {{searchResult}}`.
 
-The extension will call the RAG hook, extract the string `searchResult` from the JSON body of the respons, and substitute it into the prompt it later calls Gemini with.
+The extension will call the RAG hook, extract the string `searchResult` from the JSON body of the response, and substitute it into the prompt it later calls Gemini with.
 
 This can be combined with the existing substitution directly from firestore document fields.
 
