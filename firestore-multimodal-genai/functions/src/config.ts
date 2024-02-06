@@ -56,6 +56,8 @@ function getModel() {
       switch (process.env.MODEL) {
         case 'gemini-pro':
           return 'gemini-pro';
+        case 'gemini-ultra':
+          return 'gemini-ultra';
         case 'gemini-pro-vision':
           return 'gemini-pro-vision';
         default:
@@ -65,6 +67,8 @@ function getModel() {
       switch (process.env.MODEL) {
         case 'gemini-pro':
           return 'gemini-pro';
+        case 'gemini-ultra':
+          return 'gemini-ultra';
         case 'gemini-pro-vision':
           return 'gemini-pro-vision';
         default:

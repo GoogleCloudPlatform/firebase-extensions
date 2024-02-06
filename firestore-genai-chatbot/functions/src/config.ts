@@ -51,6 +51,8 @@ function getModel() {
       switch (process.env.MODEL) {
         case 'gemini-pro':
           return 'gemini-pro';
+        case 'gemini-ultra':
+          return 'gemini-ultra';
         default:
           throw new Error('Invalid model');
       }
@@ -58,6 +60,8 @@ function getModel() {
       switch (process.env.MODEL) {
         case 'gemini-pro':
           return 'gemini-pro';
+        case 'gemini-ultra':
+          return 'gemini-ultra';
         default:
           throw new Error('Invalid model');
       }

@@ -106,6 +106,8 @@ params:
     options:
       - label: Gemini Pro
         value: gemini-pro
+      - label: Gemini Ultra
+        value: gemini-ultra
     required: true
     default: gemini-pro
     immutable: false
