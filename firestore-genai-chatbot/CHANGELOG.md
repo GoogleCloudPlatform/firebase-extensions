@@ -1,3 +1,9 @@
+## Version 0.0.6
+
+- Add maxOutputTokens parameter
+
+- Update documentation
+
 ## Version 0.0.5
 
 - Add Vertex AI provider

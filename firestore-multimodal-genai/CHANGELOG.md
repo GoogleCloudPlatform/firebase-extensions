@@ -1,3 +1,9 @@
+## Version 0.0.4
+
+- Update documentation
+
+- Add custom hook parameters
+
 ## Version 0.0.3
 
 - Add Vertex AI provider
