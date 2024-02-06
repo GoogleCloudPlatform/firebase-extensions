@@ -18,6 +18,7 @@ export const generateChatResponse = async (
   let requestOptions: GenerateMessageOptions = {
     history,
     context: config.context,
+    maxOutputTokens: config.maxOutputTokens,
   };
 
   if (config.enableDiscussionOptionOverrides) {

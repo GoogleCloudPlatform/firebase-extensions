@@ -117,6 +117,10 @@ export interface GenerateMessageOptions {
    * Pass a previously returned response to continue a conversation.
    */
   continue?: GenerateMessageResponse;
+  /**
+   * Controls the length of the response, if possible.
+   */
+  maxOutputTokens?: number;
 }
 
 export interface GenerateMessageResponse {

@@ -264,6 +264,17 @@ params:
     required: false
     immutable: false
 
+  - param: MAX_OUTPUT_TOKENS
+    label: Max Output Tokens
+    description: >-
+      If specified, this parameter is passed to the Gemini API to control the
+      length of the response.
+    type: string
+    validationRegex: ^[1-9][0-9]*
+    validationErrorMessage: Please specify a positive integer.
+    required: false
+    immutable: false
+
   - param: CANDIDATES_FIELD
     label: Candidates field
     description: >-
