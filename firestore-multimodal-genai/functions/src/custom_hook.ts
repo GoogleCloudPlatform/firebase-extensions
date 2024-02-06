@@ -8,10 +8,10 @@ export const fetchCustomHookData = async (
     ragHookInputFields,
     ragHookOutputFields,
   }: {
-    customRagHookUrl: string;
-    customRagHookApiKey: string;
-    ragHookInputFields: string[];
-    ragHookOutputFields: string[];
+    customRagHookUrl?: string;
+    customRagHookApiKey?: string;
+    ragHookInputFields?: string[];
+    ragHookOutputFields?: string[];
   }
 ): Promise<Record<string, string>> => {
   if (!customRagHookUrl) {

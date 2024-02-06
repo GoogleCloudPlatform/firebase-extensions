@@ -81,6 +81,14 @@ If you specify a a RAG (Retrieval Augmentation Generation) hook URL during insta
 
 The input fields will be extracted from the document and passed in the body of the request to the RAG endpoint, whereas the response body will be filtered for the output fields, and these will be made available as handlebars variables when the extension creates the prompt for Gemini.
 
+#### Example
+
+Suppose we configure the extension with `RAG_HOOK_URL=https://movieAPI.com/search`, `RAG_HOOK_INPUT_FIELDS=query` and `RAG_HOOK_OUTPUT_FIELDS=searchResult`, and our prompt is `PROMPT=Tell about the following actors in this movie {{searchResult}}`.
+
+The extension will call the RAG hook, extract the string `searchResult` from the JSON body of the respons, and substitute it into the prompt it later calls Gemini with.
+
+This can be combined with the existing substitution directly from firestore document fields.
+
 ## Additional Setup
 
 Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project.

@@ -86,9 +86,12 @@ export const generateText = functions.firestore
     try {
       const view: Record<string, string> = {};
 
-      if (config.customRagHookUrl) {
+      if (config.ragConfig?.customRagHookUrl) {
         // TODO: extract the variable field values before passing to hook
-        const customHookData = await fetchCustomHookData(data);
+        const customHookData = await fetchCustomHookData(
+          data,
+          config.ragConfig
+        );
         data = {
           ...data,
           ...customHookData,
