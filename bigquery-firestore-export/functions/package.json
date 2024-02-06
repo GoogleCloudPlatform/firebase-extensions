@@ -30,7 +30,7 @@
     "handlebars": "^4.5.3",
     "install": "^0.13.0",
     "lodash.mapvalues": "^4.6.0",
-    "nodemailer": "^6.3.0",
+    "nodemailer": "^6.9.9",
     "npm": "^9.6.2",
     "rimraf": "^2.6.3",
     "smtp-server": "^3.10.0",
