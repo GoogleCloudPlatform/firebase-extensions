@@ -7,6 +7,7 @@ import {
   Part,
 } from '@google-cloud/vertexai';
 import config from '../config';
+import {SafetySetting as VertexSafetySetting} from '@google-cloud/vertexai';
 
 interface GeminiChatOptions {
   history?: Message[];
@@ -19,6 +20,7 @@ interface GeminiChatOptions {
   projectId: string;
   location: string;
   context?: string;
+  safetySettings?: VertexSafetySetting[];
 }
 
 type ApiMessage = {
@@ -85,6 +87,7 @@ export class VertexDiscussionClient extends DiscussionClient<
         candidate_count: options.candidateCount,
         max_output_tokens: options.maxOutputTokens,
       },
+      safety_settings: options.safetySettings,
     };
     try {
       const responseStream =

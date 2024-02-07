@@ -299,3 +299,87 @@ params:
         value: no
     default: no
     required: true
+
+  - param: HARM_CATEGORY_HATE_SPEECH
+    label: Hate Speech Threshold
+    description: >-
+      Threshold for hate speech content. Specify what probability level of hate
+      speech content is blocked by the Gemini provider.
+    type: select
+    options:
+      - label: Default
+        value: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+      - label: Block low and above
+        value: BLOCK_LOW_AND_ABOVE
+      - label: Block medium and above
+        value: BLOCK_MEDIUM_AND_ABOVE
+      - label: Block only high
+        value: BLOCK_ONLY_HIGH
+      - label: Block none
+        value: BLOCK_NONE
+    required: false
+    default: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+    immutable: false
+
+  - param: HARM_CATEGORY_DANGEROUS_CONTENT
+    label: Dangerous Content Threshold
+    description: >-
+      Threshold for dangerous content. Specify what probability level of
+      dangerous content is blocked by the Gemini provider.
+    type: select
+    options:
+      - label: Default
+        value: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+      - label: Block low and above
+        value: BLOCK_LOW_AND_ABOVE
+      - label: Block medium and above
+        value: BLOCK_MEDIUM_AND_ABOVE
+      - label: Block only high
+        value: BLOCK_ONLY_HIGH
+      - label: Block none
+        value: BLOCK_NONE
+    required: false
+    default: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+    immutable: false
+
+  - param: HARM_CATEGORY_HARASSMENT
+    label: harassment Content Threshold
+    description: >-
+      Threshold for harassment content. Specify what probability level of
+      harassment content is blocked by the Gemini provider.
+    type: select
+    options:
+      - label: Default
+        value: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+      - label: Block low and above
+        value: BLOCK_LOW_AND_ABOVE
+      - label: Block medium and above
+        value: BLOCK_MEDIUM_AND_ABOVE
+      - label: Block only high
+        value: BLOCK_ONLY_HIGH
+      - label: Block none
+        value: BLOCK_NONE
+    required: false
+    default: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+    immutable: false
+
+  - param: HARM_CATEGORY_SEXUALLY_EXPLICIT
+    label: Sexual Content Threshold
+    description: >-
+      Threshold for sexually explicit content. Specify what probability level of
+      sexual content is blocked by the Gemini provider.
+    type: select
+    options:
+      - label: Default
+        value: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+      - label: Block low and above
+        value: BLOCK_LOW_AND_ABOVE
+      - label: Block medium and above
+        value: BLOCK_MEDIUM_AND_ABOVE
+      - label: Block only high
+        value: BLOCK_ONLY_HIGH
+      - label: Block none
+        value: BLOCK_NONE
+    required: false
+    default: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+    immutable: false

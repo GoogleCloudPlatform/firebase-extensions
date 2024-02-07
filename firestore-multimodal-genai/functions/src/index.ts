@@ -122,6 +122,7 @@ export const generateText = functions.firestore
         requestOptions = {
           ...requestOptions,
           image: data[config.imageField],
+          safetySettings: config.safetySettings,
         };
       }
 
