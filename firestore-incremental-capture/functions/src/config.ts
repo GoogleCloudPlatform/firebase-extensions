@@ -31,10 +31,7 @@ export default {
   runInitialBackup: true,
 
   instanceCollection: `_ext-${process.env.EXT_INSTANCE_ID!}`,
-  statusDoc: `_ext-${process.env.EXT_INSTANCE_ID!}/status`,
-  backupDoc: `_ext-${process.env.EXT_INSTANCE_ID!}/backups`,
   restoreDoc: `_ext-${process.env.EXT_INSTANCE_ID!}/restore/jobs`,
-  cloudBuildDoc: `_ext-${process.env.EXT_INSTANCE_ID!}/cloudBuild`,
   syncCollectionPath: process.env.SYNC_COLLECTION_PATH!,
 
   bqDataset: process.env.SYNC_DATASET!,
