@@ -288,53 +288,53 @@ params:
     required: false
     immutable: false
 
-  - param: RAG_HOOK_URL
-    label: Custom RAG Hook URL
-    description: >-
-      If provided, this extension will attempt to fetch data from this URL. The
-      endpoint provided must return a json body. The extension will extract any
-      string properties from this body and attempt to substitute them as
-      handlebar variables into the extension prompt. The extension will pass in
-      the Custom Hook API Key parameter into the headers object as x-api-key.
-    type: string
-    validationErrorMessage: Must be a valid Cloud Firestore Collection
-    required: false
-    immutable: false
+  # - param: RAG_HOOK_URL
+  #   label: Custom RAG Hook URL
+  #   description: >-
+  #     If provided, this extension will attempt to fetch data from this URL. The
+  #     endpoint provided must return a json body. The extension will extract any
+  #     string properties from this body and attempt to substitute them as
+  #     handlebar variables into the extension prompt. The extension will pass in
+  #     the Custom Hook API Key parameter into the headers object as x-api-key.
+  #   type: string
+  #   validationErrorMessage: Must be a valid Cloud Firestore Collection
+  #   required: false
+  #   immutable: false
 
-  - param: RAG_HOOK_INPUT_FIELDS
-    label: RAG Hook Input Variable Fields
-    description: >-
-      A comma separated list of fields to pass in the body of the RAG request,
-      if the RAG Hook URL is specified.
-    type: string
-    required: false
-    immutable: false
-    validationRegex: ^[a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*$
-    validationErrorMessage: >-
-      Field names may only use upper and lowercase letters from A to Z,
-      underscores, or numbers, and may only be separated by commas. Trailing
-      commas and empty variable names are not allowed.
+  # - param: RAG_HOOK_INPUT_FIELDS
+  #   label: RAG Hook Input Variable Fields
+  #   description: >-
+  #     A comma separated list of fields to pass in the body of the RAG request,
+  #     if the RAG Hook URL is specified.
+  #   type: string
+  #   required: false
+  #   immutable: false
+  #   validationRegex: ^[a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*$
+  #   validationErrorMessage: >-
+  #     Field names may only use upper and lowercase letters from A to Z,
+  #     underscores, or numbers, and may only be separated by commas. Trailing
+  #     commas and empty variable names are not allowed.
 
-  - param: RAG_HOOK_OUTPUT_FIELDS
-    label: RAG hook output variable fields
-    description: >-
-      A comma separated list of fields to be extracted from the RAG response
-      body, if the RAG Hook URL is specified.
-    type: string
-    required: false
-    immutable: false
-    validationRegex: ^[a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*$
-    validationErrorMessage: >-
-      Field names may only use upper and lowercase letters from A to Z,
-      underscores, or numbers, and may only be separated by commas. Trailing
-      commas and empty variable names are not allowed.
+  # - param: RAG_HOOK_OUTPUT_FIELDS
+  #   label: RAG hook output variable fields
+  #   description: >-
+  #     A comma separated list of fields to be extracted from the RAG response
+  #     body, if the RAG Hook URL is specified.
+  #   type: string
+  #   required: false
+  #   immutable: false
+  #   validationRegex: ^[a-zA-Z0-9_]+(,[a-zA-Z0-9_]+)*$
+  #   validationErrorMessage: >-
+  #     Field names may only use upper and lowercase letters from A to Z,
+  #     underscores, or numbers, and may only be separated by commas. Trailing
+  #     commas and empty variable names are not allowed.
 
-  - param: RAG_HOOK_API_KEY
-    label: Custom RAG Hook API Key
-    description: >-
-      If you have provided a Custom Hook URL which needs authentication, provide
-      an API key secret here. It will be passed into custom hook request headers
-      under x-api-key.
-    type: secret
-    required: false
-    immutable: false
+  # - param: RAG_HOOK_API_KEY
+  #   label: Custom RAG Hook API Key
+  #   description: >-
+  #     If you have provided a Custom Hook URL which needs authentication, provide
+  #     an API key secret here. It will be passed into custom hook request headers
+  #     under x-api-key.
+  #   type: secret
+  #   required: false
+  #   immutable: false
