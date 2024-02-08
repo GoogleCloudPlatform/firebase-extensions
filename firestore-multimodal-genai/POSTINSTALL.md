@@ -28,22 +28,22 @@ ref.onSnapshot(snap => {
 
 The extension gives you a choice of what provider to use for the available models:
 
-- Google AI: For more details on this Gemini API, see the [Gemini homepage](https://ai.google.dev/docs).
+- Google AI: For more details on this Gemini API, see the [Google AI documentation](https://ai.google.dev/docs).
 
 - Vertex AI: For more details on the Vertex AI Gemini API, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/gemini).
 
 ## About the models
 
-The extension gives you a choice of 3 models:
+The extension gives you a choice of 2 models:
 
 - Gemini Pro
 - Gemini Pro Vision
 
 #### Multimodal Prompts
 
-If you have selected to use the Gemini Pro Vision model, any document handled by the extension must contain an image field. The image field must be a string, and can either be the Cloud Storage URL of an object (e.g `gs://my-bucket.appspot.com/filename.png`). This image will then be provided as part of the prompt to Gemini Pro Vision.
+If you have selected to use the Gemini Pro Vision model, any document handled by the extension must contain an image field. The image field must be the Cloud Storage URL of an object (e.g `gs://my-bucket.appspot.com/filename.png`). This image will then be provided as part of the prompt to Gemini Pro Vision.
 
-The Gemini Pro Vision API has a limit on image sizes. For Google AI this limit is currently 1MB, and for Vertex AI this limit is 4MB. This extension will compress and resize images that fall above this limit.
+The Gemini Pro Vision API has a limit on image sizes. For Google AI this limit is currently 1MB, and for Vertex AI this limit is 4MB. This extension will attempt to compress and resize images that fall above this limit.
 
 ## Handling errors
 

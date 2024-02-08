@@ -6,14 +6,14 @@
 
 
 
-**Details**: This extension allows you to perform language tasks using Google AI, a custom prompt, and Firestore.
+**Details**: This extension allows you to perform generative tasks using Google AI, a custom prompt, and Firestore.
 
 On installation, you will be asked to provide the following information:
 
-- **Generative AI Provider** This extension makes use of the Gemini family of large language models. Currently the extension only supports the Google AI API (for developers) but in future will support the Vertex AI Gemini API.
-- **Language model**: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
+- **Generative AI Provider** This extension makes use of the Gemini family of generative models. The extension supports both the Google AI and Vertex AI Gemini APIs
+- **Generative model**: Which genai model do you want to use?
 - **Prompt:** This is the text that you want Gemini to generate a response for. It can be free-form text or it can use handlebars variables to substitute values from the Firestore document.
-- **Firestore collection path:** This is the path to the Firestore collection that contains the documents that you want to perform the language task on.
+- **Firestore collection path:** This is the path to the Firestore collection that contains the documents that you want to perform the generative task on.
 - **Response field:** This is the name of the field in the Firestore document where you want the extension to store the response from the Model API.
 
 This extension will listen to the specified collection for new documents. When such a document is added, the extension will:
@@ -52,9 +52,11 @@ Provide a star rating from 1-5 of the following review text: \“{{review_text}}
 
 In this case, `review_text`` is a field of the Firestore document and will be substituted into the prompt when querying.
 
-### Choosing a language model
+### Choosing a generative model
 
-This extension supports the following language models:
+<!-- TODO: more info on models -->
+
+This extension supports the following genai models:
 
 - [Gemini Pro](https://ai.google.dev/models/gemini) text model
 - [Gemini Pro Vision](https://ai.google.dev/models/gemini) multimodal prompt model
@@ -104,15 +106,15 @@ Additionally, this extension uses the Google AI Gemini API. For more details on 
 
 **Configuration Parameters:**
 
-* Gemini API Provider: This extension makes use of the Gemini family of large language models. For Google AI you will require an API key, whereas Vertex AI will authenticate using application default credentials. For more information see the [docs](https://firebase.google.com/docs/admin/setup#initialize-sdk).
+* Gemini API Provider: This extension makes use of the Gemini family of generative models. For Google AI you will require an API key, whereas Vertex AI will authenticate using application default credentials. For more information see the [docs](https://firebase.google.com/docs/admin/setup#initialize-sdk).
 
-* Language model: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
+* Generative model: Which genai model do you want to use?
 
-* API Key: If you would like the extension to use an API key to access Gemini, please enter it here.
+* API Key: If you have selected Google AI as your provider, then this parameteris required. If you have instead selected Vertex AI, then this parameter is not required, and application default credentials will be used.
 
 * Collection Path: Path to the Firestore collection where text will be generated.
 
-* Prompt: Prompt. Use {{ handlebars }} for variable substitution from the created or updated doc.
+* Prompt: Prompt. Use {{ handlebars }} for variable substitution from the created or updated doc. For example if you set this parameter as "What is the capital of {{ country }}?"
 
 * Variable fields: A comma separated list of fields to substitute as variables in the prompt.
 
@@ -140,12 +142,6 @@ Additionally, this extension uses the Google AI Gemini API. For more details on 
 
 
 
-**APIs Used**:
-
-* generativelanguage.googleapis.com (Reason: Used to access Gemini models through the Generative Language API.)
-
-
-
 **Access Required**:
 
 
@@ -154,6 +150,6 @@ This extension will operate with the following project IAM roles:
 
 * datastore.user (Reason: Allows this extension to access Cloud Firestore to read and process added messages.)
 
-* storage.objectAdmin (Reason: Allows the extension to write to your Cloud Storage.)
+* storage.objectAdmin (Reason: Allows the extension to read from your Cloud Storage.)
 
-* aiplatform.user (Reason: Allows this extension to access the PaLM API via Vertex AI if this provider is chosen.)
+* aiplatform.user (Reason: Allows this extension to access the Gemini family of genai models via Vertex AI if this provider is chosen.)
