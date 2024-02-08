@@ -62,7 +62,7 @@ Google Cloud Console [here](https://console.cloud.google.com/dataflow/pipelines)
 * Bigquery table Id: The id of the Bigquery table to sync data to.
 
 
-* Backup instance Id: The name of the Firestore instance to backup the database to.
+* Backup instance Id: The name of the Firestore instance to capture changes from. This is your Firestore instance which you want to backup.
 
 
 
