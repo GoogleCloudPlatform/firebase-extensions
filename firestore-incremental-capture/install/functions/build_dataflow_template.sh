@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Build Dataflow Flex Template (Download the JAR file first)
 echo -e "${YELLOW}Step 6:Building Dataflow Flex Template...${NC}"
 gcloud dataflow flex-template build gs://$PROJECT_ID.appspot.com/$EXT_INSTANCE_ID-dataflow-restore \

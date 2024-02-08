@@ -1,5 +1,14 @@
 {
   "projects": {
-    "default": "demo-extensions-testing"
+    "default": "extensions-testing"
+  },
+  "targets": {},
+  "etags": {
+    "extensions-testing": {
+      "extensionInstances": {
+        "text-to-speech": "985dd568abef0f356b0fd09ace3ee9c4f99d1043c406d425546753db27ec1e8a",
+        "firestore-incremental-capture": "1b99fdb5dd1a2014cb1f25bed77562906b0f5ddf4e99900443de4f46415b15aa"
+      }
+    }
   }
 }

@@ -27,4 +27,5 @@ export enum RestoreError {
   MISSING_DESTINATION_DATABASE_ID = 'The destination database ID is missing',
   EXCEPTION = 'An exception occurred',
   BACKUP_NOT_FOUND = 'Backup not found',
+  BACKUP_SCHEDULE_NOT_FOUND = 'Scheduled backup not found, one has been created just now, please try again once the first backup is ready',
 }

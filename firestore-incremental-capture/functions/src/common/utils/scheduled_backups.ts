@@ -45,8 +45,10 @@ export class ScheduledBackups {
   async checkIfBackupExists(
     databaseId: string
   ): Promise<firestore_v1.Schema$GoogleFirestoreAdminV1Backup[]> {
+    // Using `-` as location to list backups across all locations.
+    // Ref: https://cloud.google.com/firestore/docs/reference/rest/v1/projects.locations.backups/list#path-parameters
     const backups = await this.firestore_api.projects.locations.backups.list({
-      parent: `projects/${config.projectId}/locations/${config.location}`,
+      parent: `projects/${config.projectId}/locations/-`,
       auth: await this.getAuthClient(),
     });
 
@@ -115,19 +117,6 @@ export class ScheduledBackups {
     databaseId: string
   ): Promise<firestore_v1.Schema$GoogleFirestoreAdminV1BackupSchedule> {
     try {
-      try {
-        // Check if a backup schedule already exists
-        const bs = await this.checkIfBackupScheduleExists(databaseId);
-        logger.info(
-          `A backup schedule already exists for the Firestore database: ${bs.name}`
-        );
-        return bs;
-      } catch (error) {
-        logger.info(
-          'No backup schedule found for the Firestore database, creating a new one'
-        );
-      }
-
       const newBs =
         await this.firestore_api.projects.databases.backupSchedules.create({
           requestBody: {

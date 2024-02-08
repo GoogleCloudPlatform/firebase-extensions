@@ -27,6 +27,7 @@ import {
   RestoreStatus,
 } from '../common';
 import {LogMessage} from '../logs';
+import config from '../config';
 
 const scheduledBackups = new ScheduledBackups();
 
@@ -63,50 +64,42 @@ export const triggerRestorationJobHandler = async (
     return;
   }
 
-  try {
-    // Setup scheduled backups for the Firestore database
-    const metadata = await scheduledBackups.setupScheduledBackups('(default)');
-
-    logger.debug('Scheduled backups metadata', metadata);
-  } catch (error) {
-    logger.error(
-      `Failed to enable scheduled backups for the Firestore database. Error: ${error}`
-    );
-
-    await scheduledBackups.updateRestoreJobDoc(ref, {
-      status: {
-        message: RestoreStatus.FAILED,
-        error: `${RestoreError.EXCEPTION}: ${error}`,
-      },
-    });
-
-    return;
-  }
-
   let backups: google.firestore_v1.Schema$GoogleFirestoreAdminV1Backup[];
 
   // Check if there's a valid backup
   try {
-    backups = await scheduledBackups.checkIfBackupExists('(default)');
+    backups = await scheduledBackups.checkIfBackupExists(
+      config.firstoreInstanceId
+    );
   } catch (ex: any) {
-    logger.error('Error getting backup', ex);
-    await scheduledBackups.updateRestoreJobDoc(ref, {
+    if (ex.message === RestoreError.BACKUP_SCHEDULE_NOT_FOUND) {
+      logger.info(
+        'No backup schedule found for the Firestore database, creating a new one'
+      );
+
+      // Setup scheduled backups for the Firestore database
+      await scheduledBackups.setupScheduledBackups(config.firstoreInstanceId);
+
+      // Terminate the function and wait for the next trigger
+      return scheduledBackups.updateRestoreJobDoc(ref, {
+        status: {
+          message: RestoreStatus.FAILED,
+          error: `${RestoreError.BACKUP_SCHEDULE_NOT_FOUND}`,
+        },
+      });
+    }
+
+    logger.error(ex);
+    return scheduledBackups.updateRestoreJobDoc(ref, {
       status: {
         message: RestoreStatus.FAILED,
-        error: `${RestoreError.BACKUP_NOT_FOUND}`,
+        error: `${ex.message}`,
       },
     });
-
-    return;
   }
 
   // Pick the closest backup to the requested timestamp
-  const backup = pickClosestBackup(backups, timestamp);
-
-  // The destination database already exists, delete it before restoring
-  // await scheduledBackups.deleteExistingDestinationDatabase(
-  //   data?.destinationDatabaseId
-  // );
+  const backup = pickClosestBackup(backups, timestamp!);
 
   // Call restore function to build the baseline DB
   try {
@@ -123,17 +116,15 @@ export const triggerRestorationJobHandler = async (
     });
 
     // Finally enqueue a task to check the operation status in 4 mins
-    await scheduledBackups.enqueueCheckOperationStatus(ref.id);
+    return scheduledBackups.enqueueCheckOperationStatus(ref.id);
   } catch (ex: any) {
     logger.error('Error restoring backup', (ex as GaxiosError).message);
-    await scheduledBackups.updateRestoreJobDoc(ref, {
+    return scheduledBackups.updateRestoreJobDoc(ref, {
       status: {
         message: RestoreStatus.FAILED,
         error: `${RestoreError.EXCEPTION}: ${(ex as GaxiosError).message}`,
       },
     });
-
-    return;
   }
 };
 

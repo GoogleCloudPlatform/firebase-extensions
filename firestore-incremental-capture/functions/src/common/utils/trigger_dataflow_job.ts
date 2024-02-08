@@ -42,10 +42,9 @@ export async function launchJob(
   });
 
   // Extract the database name from the backup instance name
-  const values = config.backupInstanceName.split('/');
-  const firestorePrimaryDb = values[values.length - 1];
+  const firestorePrimaryDb = config.firstoreInstanceId;
 
-  /** Select the correct collection Id for apache beam */
+  // Select the correct collection Id for apache beam
   const firestoreCollectionId =
     syncCollectionPath === '{document=**}' ? '*' : syncCollectionPath;
 

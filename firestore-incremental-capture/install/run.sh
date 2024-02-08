@@ -11,16 +11,14 @@ export TICK="✓"
 export SUCCESS_TASKS=()
 
 # Define variables at the top
-export PROJECT_ID=""
-export DATABASE_ID=""
-export DATABASE_LOCATION="nam5"
+export PROJECT_ID="extensions-testing"
+export DATABASE_ID="(default)"
+export DATABASE_LOCATION="us"
 export LOCATION="us-central1"
 export EXT_INSTANCE_ID="firestore-incremental-capture"
 export JAR_PATH="restore-firestore.jar"
 
 source ./functions/download_restore_firestore.sh
-source ./functions/enable_pitr.sh
-source ./functions/setup_firestore.sh
 source ./functions/setup_artifact_registry.sh
 source ./functions/setup_service_account.sh
 source ./functions/build_dataflow_template.sh

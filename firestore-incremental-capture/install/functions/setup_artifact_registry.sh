@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Configure Artifact Registry
 echo -e "${YELLOW}Step 3: Configuring Artifact Registry...${NC}"
 
