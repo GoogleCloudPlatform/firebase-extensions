@@ -54,12 +54,13 @@ In this case, `review_text`` is a field of the Firestore document and will be su
 
 ### Choosing a generative model
 
-<!-- TODO: more info on models -->
+When installing this extension you will be prompted to pick a genai model.
 
-This extension supports the following genai models:
+For Google AI the list of supported models is [here](https://ai.google.dev/models/gemini), and this parameter should be set to the model name, the second segment of the model code (for
+example models/gemini-pro should be chosen as gemini-pro).
 
-- [Gemini Pro](https://ai.google.dev/models/gemini) text model
-- [Gemini Pro Vision](https://ai.google.dev/models/gemini) multimodal prompt model
+For Vertex AI,
+there is a list of models [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models).
 
 #### Multimodal Prompts
 
@@ -77,18 +78,6 @@ This extension will update the state of a document that is being processed withi
 
 Changing the state field of a completed document's status from `COMPLETED` to anything else will retrigger the extension for that document.
 
-#### Example
-
-Suppose we configure the extension with `RAG_HOOK_URL=https://movieAPI.com/search`, `RAG_HOOK_INPUT_FIELDS=query` and `RAG_HOOK_OUTPUT_FIELDS=searchResult`, and our prompt is `PROMPT=Tell about the following actors in this movie {{searchResult}}`.
-
-The extension will call the RAG hook, extract the string `searchResult` from the JSON body of the response, and substitute it into the prompt it later calls Gemini with.
-
-This can be combined with the existing substitution directly from firestore document fields.
-
-## Additional Setup
-
-Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project.
-
 ## Billing
 
 To install an extension, your project must be on the Blaze (pay as you go) plan. You will be charged a small amount (typically around $0.01/month) for the Firebase resources required by this extension (even if it is not used).
@@ -96,10 +85,10 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 - Cloud Firestore
 - Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
+- Associated costs for using Vertex AI ([see their pricing](https://cloud.google.com/vertex-ai/pricing#generative_ai_models)) if you use this provider.
+- Associated costs for using Google AI ([see their pricing](https://ai.google.dev/pricing)) if you use this provider.
 
 [Learn more about Firebase billing.](https://firebase.google.com/pricing)
-
-Additionally, this extension uses the Google AI Gemini API. For more details on this Gemini API, see the [Gemini homepage](https://ai.google.dev/docs).
 
 
 

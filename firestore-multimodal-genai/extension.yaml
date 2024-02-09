@@ -103,6 +103,7 @@ params:
       there is a list of models
       [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models).
     type: string
+    required: true
     default: gemini-pro
     immutable: false
 

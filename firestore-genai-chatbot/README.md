@@ -65,23 +65,23 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 - Cloud Firestore
 - Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
+- Associated costs for using Vertex AI ([see their pricing](https://cloud.google.com/vertex-ai/pricing#generative_ai_models)) if you use this provider.
+- Associated costs for using Google AI ([see their pricing](https://ai.google.dev/pricing)) if you use this provider.
 
 [Learn more about Firebase billing.](https://firebase.google.com/pricing)
-
-Additionally, this extension uses the Google AI Gemini API. For more details on this Gemini API, see the [Gemini homepage](https://ai.google.dev/docs).
 
 
 
 
 **Configuration Parameters:**
 
-* Gemini API Provider: This extension makes use of the Gemini family of large language models. For Google AI you will require an API key, whereas Vertex AI will authenticate using application default credentials. For more information see the [docs](https://firebase.google.com/docs/admin/setup#initialize-sdk).
+* Gemini API Provider: This extension makes use of the Gemini family of generative models. For Google AI you will require an API key, whereas Vertex AI will authenticate using application default credentials. For more information see the [docs](https://firebase.google.com/docs/admin/setup#initialize-sdk).
 
-* API Key for Gemini: Please enter your API key for the Google AI Gemini API.
+* Google AI API Key: If you have selected Google AI as your provider, then this parameteris required. If you have instead selected Vertex AI, then this parameter is not required, and application default credentials will be used.
 
-* Language model: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
+* Generative model: Which genai model do you want to use? For Google AI the list of supported models is [here](https://ai.google.dev/models/gemini), and this parameter should be set to the model name, the second segment of the model code (for example models/gemini-pro should be chosen as gemini-pro). For Vertex AI, there is a list of models [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models).
 
-* Collection Path: Path to a Cloud Firestore collection which will represent a discussion with a LLM on the Google AI Gemini API.
+* Collection Path: Path to the Firestore collection which will represent a chat with the generative model.
 
 * Prompt Field: The field in the message document that contains the prompt.
 
@@ -91,7 +91,7 @@ Additionally, this extension uses the Google AI Gemini API. For more details on 
 
 * Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
 
-* Context: Contextual preamble for the language model. A string giving context for the discussion.
+* Context: Contextual preamble for the generative AI model. A string giving context for the discussion.
 
 * Temperature: Controls the randomness of the output. Values can range over [0,1], inclusive. A value closer to 1 will produce responses that are more varied, while a value closer to 0 will typically result in less surprising responses from the model.
 
@@ -120,12 +120,6 @@ Additionally, this extension uses the Google AI Gemini API. For more details on 
 **Cloud Functions:**
 
 * **generateMessage:** Listens to Firestore data writes to generate conversations.
-
-
-
-**APIs Used**:
-
-* generativelanguage.googleapis.com (Reason: Used to access Gemini models through the Generative Language API.)
 
 
 
