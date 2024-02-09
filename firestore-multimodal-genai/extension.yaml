@@ -107,7 +107,7 @@ params:
     immutable: false
 
   - param: API_KEY
-    label: API Key
+    label: Google AI API Key
     description: >-
       If you have selected Google AI as your provider, then this parameteris
       required. If you have instead selected Vertex AI, then this parameter is

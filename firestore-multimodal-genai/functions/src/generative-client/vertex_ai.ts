@@ -33,16 +33,14 @@ export class VertexLanguageClient extends GenerativeClient<any, VertexAI> {
     const promptParts: Part[] = [textPart];
 
     if (this.modelName === 'gemini-pro-vision') {
-      if (!options.image) {
-        throw new Error('Gemini Pro Vision selected, but missing Image Field');
+      if (options.image) {
+        promptParts.push({
+          inline_data: {
+            mime_type: 'image/png',
+            data: await getImageBase64(options.image, 'vertex-ai'),
+          },
+        });
       }
-
-      promptParts.push({
-        inline_data: {
-          mime_type: 'image/png',
-          data: await getImageBase64(options.image, 'vertex-ai'),
-        },
-      });
     }
 
     const request: GenerateContentRequest = {

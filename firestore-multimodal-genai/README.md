@@ -110,7 +110,7 @@ Additionally, this extension uses the Google AI Gemini API. For more details on 
 
 * Generative model: Which genai model do you want to use? For Google AI the list of supported models is [here](https://ai.google.dev/models/gemini), and this parameter should be set to the model name, the second segment of the model code (for example models/gemini-pro should be chosen as gemini-pro). For Vertex AI, there is a list of models [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models).
 
-* API Key: If you have selected Google AI as your provider, then this parameteris required. If you have instead selected Vertex AI, then this parameter is not required, and application default credentials will be used.
+* Google AI API Key: If you have selected Google AI as your provider, then this parameteris required. If you have instead selected Vertex AI, then this parameter is not required, and application default credentials will be used.
 
 * Collection Path: Path to the Firestore collection where text will be generated.
 
