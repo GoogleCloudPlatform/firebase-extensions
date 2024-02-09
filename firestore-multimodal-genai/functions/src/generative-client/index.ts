@@ -20,12 +20,6 @@ export const getGenerativeClient = (): GenerativeClient<any, Client> => {
         apiKey: config.googleAi.apiKey,
         modelName: config.googleAi.model,
       });
-
-    // Note: experimented with this SDK, but not got it to work with ADC either.
-    // return new GenerativeLanguageClient({
-    //   apiKey: config.googleAi.apiKey,
-    //   modelName: `models/${config.googleAi.model}`,
-    // });
     case 'vertex-ai':
       if (!config.vertex.model) throw new Error('Gemini model not set');
 

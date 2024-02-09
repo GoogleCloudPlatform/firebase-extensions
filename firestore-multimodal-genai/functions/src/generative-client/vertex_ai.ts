@@ -3,7 +3,6 @@ import {logger} from 'firebase-functions/v1';
 import {VertexAI, GenerateContentRequest, Part} from '@google-cloud/vertexai';
 import config from '../config';
 import {getImageBase64} from './image_utils';
-// import {getImageBase64} from './storage_utils';
 
 enum Role {
   USER = 'user',
@@ -60,6 +59,7 @@ export class VertexLanguageClient extends GenerativeClient<any, VertexAI> {
         candidate_count: options.candidateCount,
         max_output_tokens: options.maxOutputTokens,
       },
+      safety_settings: options.safetySettings,
     };
 
     let result;

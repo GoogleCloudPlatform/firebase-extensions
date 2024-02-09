@@ -1,6 +1,7 @@
 import {DiscussionClient, Message} from './base_class';
 import {GoogleGenerativeAI, InputContent} from '@google/generative-ai';
 import {logger} from 'firebase-functions/v1';
+import {SafetySetting} from '@google/generative-ai';
 
 interface GeminiChatOptions {
   history?: Message[];
@@ -13,6 +14,7 @@ interface GeminiChatOptions {
   projectId: string;
   location: string;
   context?: string;
+  safetySettings: SafetySetting[];
 }
 
 type ApiMessage = {
@@ -79,6 +81,7 @@ export class GeminiDiscussionClient extends DiscussionClient<
         maxOutputTokens: options.maxOutputTokens,
         candidateCount: options.candidateCount,
       },
+      safetySettings: options.safetySettings,
     });
 
     let result;
