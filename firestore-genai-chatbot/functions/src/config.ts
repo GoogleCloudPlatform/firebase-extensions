@@ -50,27 +50,6 @@ export interface Config {
   maxOutputTokens?: number;
 }
 
-function getModel() {
-  switch (process.env.GENERATIVE_AI_PROVIDER as GenerativeAIProvider) {
-    case 'vertex-ai':
-      switch (process.env.MODEL) {
-        case 'gemini-pro':
-          return 'gemini-pro';
-        default:
-          throw new Error('Invalid model');
-      }
-    case 'google-ai':
-      switch (process.env.MODEL) {
-        case 'gemini-pro':
-          return 'gemini-pro';
-        default:
-          throw new Error('Invalid model');
-      }
-    default:
-      throw new Error('Invalid Provider');
-  }
-}
-
 function getSafetySettings(): GoogleAISafetySetting[] | VertexSafetySetting[] {
   const categories = [
     'HARM_CATEGORY_HATE_SPEECH',
@@ -102,10 +81,10 @@ function getSafetySettings(): GoogleAISafetySetting[] | VertexSafetySetting[] {
 
 const config: Config = {
   vertex: {
-    model: getModel(),
+    model: process.env.MODEL!,
   },
   googleAi: {
-    model: getModel(),
+    model: process.env.MODEL!,
     apiKey: process.env.API_KEY,
   },
   context: process.env.CONTEXT,

@@ -46,6 +46,8 @@ contributors:
 billingRequired: true
 
 apis:
+  - apiName: aiplatform.googleapis.com
+    reason: For access to the Vertex AI Gemini API if this provider is chosen.
 
 roles:
   - role: datastore.user
@@ -96,19 +98,19 @@ params:
   - param: MODEL
     label: Generative model
     description: >-
-      Which genai model do you want to use?
-    type: select
-    options:
-      - label: Gemini Pro
-        value: gemini-pro
-      - label: Gemini Pro Vision
-        value: gemini-pro-vision
+      Which genai model do you want to use? For Google AI the list of supported
+      models is [here](https://ai.google.dev/models/gemini), and this parameter
+      should be set to the model name, the second segment of the model code (for
+      example models/gemini-pro should be chosen as gemini-pro). For Vertex AI,
+      there is a list of models
+      [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models).
+    type: string
     required: true
     default: gemini-pro
     immutable: false
 
   - param: API_KEY
-    label: API Key
+    label: Google AI API Key
     description: >-
       If you have selected Google AI as your provider, then this parameteris
       required. If you have instead selected Vertex AI, then this parameter is

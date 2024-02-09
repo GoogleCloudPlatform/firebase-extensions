@@ -14,7 +14,7 @@ export const getGenerativeClient = (): GenerativeClient<any, Client> => {
     case 'google-ai':
       if (!config.googleAi.model) throw new Error('Gemini model not set');
 
-      if (!config.googleAi.apiKey) throw new Error('Gemini api key not set');
+      if (!config.googleAi.apiKey) throw new Error('Gemini API key not set');
 
       return new GeminiGenerativeClient({
         apiKey: config.googleAi.apiKey,
