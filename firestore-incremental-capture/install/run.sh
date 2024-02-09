@@ -12,9 +12,9 @@ export SUCCESS_TASKS=()
 
 # Define variables at the top
 export PROJECT_ID=$1
-export DATABASE_ID="(default)"
-export LOCATION="us-central1"
-export EXT_INSTANCE_ID="firestore-incremental-capture"
+export DATABASE_ID=$2
+export LOCATION=$3
+export EXT_INSTANCE_ID=$4
 export JAR_PATH="restore-firestore.jar"
 
 source ./functions/download_restore_firestore.sh
