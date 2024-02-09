@@ -41,8 +41,6 @@ export class GeminiGenerativeClient extends GenerativeClient<
 
       const base64String = await getImageBase64(options.image, 'google-ai');
 
-      console.log('base64String', base64String.length);
-
       const imagePart = {
         inlineData: {
           mimeType: 'image/png',

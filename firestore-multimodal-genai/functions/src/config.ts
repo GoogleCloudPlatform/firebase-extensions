@@ -57,31 +57,6 @@ export interface Config {
   // };
 }
 
-function getModel() {
-  switch (process.env.GENERATIVE_AI_PROVIDER) {
-    case 'vertex-ai':
-      switch (process.env.MODEL) {
-        case 'gemini-pro':
-          return 'gemini-pro';
-        case 'gemini-pro-vision':
-          return 'gemini-pro-vision';
-        default:
-          throw new Error('Invalid model');
-      }
-    case 'google-ai':
-      switch (process.env.MODEL) {
-        case 'gemini-pro':
-          return 'gemini-pro';
-        case 'gemini-pro-vision':
-          return 'gemini-pro-vision';
-        default:
-          throw new Error('Invalid model');
-      }
-    default:
-      throw new Error('Invalid provider');
-  }
-}
-
 function getSafetySettings(): GoogleAISafetySetting[] | VertexSafetySetting[] {
   const categories = [
     'HARM_CATEGORY_HATE_SPEECH',
@@ -115,10 +90,10 @@ const defaultBucketName = `${process.env.PROJECT_ID}.appspot.com`;
 
 export default {
   vertex: {
-    model: getModel(),
+    model: process.env.MODEL!,
   },
   googleAi: {
-    model: getModel(),
+    model: process.env.MODEL!,
     apiKey: process.env.API_KEY,
   },
   location: process.env.LOCATION!,

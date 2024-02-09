@@ -57,7 +57,7 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 - Cloud Firestore
 - Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
+- Associated costs for using Vertex AI ([see their pricing](https://cloud.google.com/vertex-ai/pricing#generative_ai_models)) if you use this provider.
+- Associated costs for using Google AI ([see their pricing](https://ai.google.dev/pricing)) if you use this provider.
 
 [Learn more about Firebase billing.](https://firebase.google.com/pricing)
-
-Additionally, this extension uses the Google AI Gemini API. For more details on this Gemini API, see the [Gemini homepage](https://ai.google.dev/docs).
