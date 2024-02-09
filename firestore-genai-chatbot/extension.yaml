@@ -25,6 +25,10 @@ tags:
     google-ai,
   ]
 
+apis:
+  - apiName: aiplatform.googleapis.com
+    reason: For access to the Vertex AI Gemini API if this provider is chosen.
+
 author:
   authorName: Google Cloud
   url: https://cloud.google.com/

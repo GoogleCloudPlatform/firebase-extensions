@@ -139,6 +139,12 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 
 
+**APIs Used**:
+
+* aiplatform.googleapis.com (Reason: For access to the Vertex AI Gemini API if this provider is chosen.)
+
+
+
 **Access Required**:
 
 
