@@ -96,14 +96,13 @@ params:
   - param: MODEL
     label: Generative model
     description: >-
-      Which genai model do you want to use?
-    type: select
-    options:
-      - label: Gemini Pro
-        value: gemini-pro
-      - label: Gemini Pro Vision
-        value: gemini-pro-vision
-    required: true
+      Which genai model do you want to use? For Google AI the list of supported
+      models is [here](https://ai.google.dev/models/gemini), and this parameter
+      should be set to the model name, the second segment of the model code (for
+      example models/gemini-pro should be chosen as gemini-pro). For Vertex AI,
+      there is a list of models
+      [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models).
+    type: string
     default: gemini-pro
     immutable: false
 
