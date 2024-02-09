@@ -15,8 +15,9 @@ tags:
     ai,
     generative-ai,
     text-ai,
-    language-ai,
-    large-language-models,
+    generative-ai,
+    vertex-ai,
+    generative-models,
     llm,
     nlp,
     google-ai,
@@ -45,8 +46,6 @@ contributors:
 billingRequired: true
 
 apis:
-  - apiName: generativelanguage.googleapis.com
-    reason: Used to access Gemini models through the Generative Language API.
 
 roles:
   - role: datastore.user
@@ -55,12 +54,12 @@ roles:
       messages.
 
   - role: storage.objectAdmin
-    reason: Allows the extension to write to your Cloud Storage.
+    reason: Allows the extension to read from your Cloud Storage.
 
   - role: aiplatform.user
     reason:
-      Allows this extension to access the PaLM API via Vertex AI if this
-      provider is chosen.
+      Allows this extension to access the Gemini family of genai models via
+      Vertex AI if this provider is chosen.
 
 resources:
   - name: generateText
@@ -80,10 +79,9 @@ params:
   - param: GENERATIVE_AI_PROVIDER
     label: Gemini API Provider
     description: >-
-      This extension makes use of the Gemini family of large language models.
-      For Google AI you will require an API key, whereas Vertex AI will
-      authenticate using application default credentials. For more information
-      see the
+      This extension makes use of the Gemini family of generative models. For
+      Google AI you will require an API key, whereas Vertex AI will authenticate
+      using application default credentials. For more information see the
       [docs](https://firebase.google.com/docs/admin/setup#initialize-sdk).
     type: select
     options:
@@ -96,10 +94,9 @@ params:
     immutable: false
 
   - param: MODEL
-    label: Language model
+    label: Generative model
     description: >-
-      Which language model do you want to use? Please ensure you pick a model
-      supported by your selected provider.
+      Which genai model do you want to use?
     type: select
     options:
       - label: Gemini Pro
@@ -113,8 +110,9 @@ params:
   - param: API_KEY
     label: API Key
     description: >-
-      If you would like the extension to use an API key to access Gemini, please
-      enter it here.
+      If you have selected Google AI as your provider, then this parameteris
+      required. If you have instead selected Vertex AI, then this parameter is
+      not required, and application default credentials will be used.
     type: secret
     required: false
     immutable: false
@@ -134,7 +132,8 @@ params:
     label: Prompt
     description: >-
       Prompt. Use {{ handlebars }} for variable substitution from the created or
-      updated doc.
+      updated doc. For example if you set this parameter as "What is the capital
+      of {{ country }}?"
     type: string
     required: true
     immutable: false
