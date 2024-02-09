@@ -276,7 +276,3 @@ const expectNoOp = async () => {
   expect(firestoreObserver).toHaveBeenCalledTimes(1);
   expect(mockGetModel).toHaveBeenCalledTimes(0);
 };
-
-const expectToHaveKeys = (obj: Record<string, unknown>, keys: string[]) => {
-  expect(Object.keys(obj).sort()).toEqual(keys.sort());
-};

@@ -68,6 +68,7 @@ export class GeminiGenerativeClient extends GenerativeClient<
           candidateCount: options.candidateCount,
           maxOutputTokens: options.maxOutputTokens,
         },
+        safetySettings: options.safetySettings,
       });
     } catch (e) {
       logger.error(e);

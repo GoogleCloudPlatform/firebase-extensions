@@ -134,6 +134,14 @@ Additionally, this extension uses the Google AI Gemini API. For more details on 
 
 * Candidates field: The field in the message document into which to put the other candidate responses if the candidate count parameter is greater than one.
 
+* Hate Speech Threshold: Threshold for hate speech content. Specify what probability level of hate speech content is blocked by the Gemini provider.
+
+* Dangerous Content Threshold: Threshold for dangerous content. Specify what probability level of dangerous content is blocked by the Gemini provider.
+
+* Harassment Content Threshold: Threshold for harassment content. Specify what probability level of harassment content is blocked by the Gemini provider.
+
+* Sexual Content Threshold: Threshold for sexually explicit content. Specify what probability level of sexual content is blocked by the Gemini provider.
+
 
 
 **Cloud Functions:**
