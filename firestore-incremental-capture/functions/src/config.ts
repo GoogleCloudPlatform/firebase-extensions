@@ -15,8 +15,8 @@
  */
 
 const projectId = process.env.PROJECT_ID!;
-const bucketName = process.env.BUCKET_NAME || `${projectId}.appspot.com`;
 const instanceId = process.env.EXT_INSTANCE_ID!;
+const bucketName = process.env.BUCKET_NAME || `${projectId}.appspot.com`;
 const location = process.env.LOCATION!;
 const firestoreInstance = process.env.BACKUP_INSTANCE_ID!;
 
@@ -24,14 +24,19 @@ export default {
   projectId,
   instanceId,
   bucketName,
-  location,
   bucketPath: 'backups',
-  datasetLocation: 'us',
+
+  location,
+  // The location to be used to create the BigQuery dataset
+  // will match the location of the extension
+  bigQueryDatabaseLocation: location,
+  dataflowRegion: process.env.DATAFLOW_REGION || location,
+
   runInitialBackup: true,
 
-  instanceCollection: `_ext-${process.env.EXT_INSTANCE_ID!}`,
-  restoreDoc: `_ext-${process.env.EXT_INSTANCE_ID!}/restore/jobs`,
   syncCollectionPath: process.env.SYNC_COLLECTION_PATH!,
+  instanceCollection: `_ext-${process.env.EXT_INSTANCE_ID!}`,
+  jobsCollection: `_ext-${process.env.EXT_INSTANCE_ID!}/restore/jobs`,
 
   bqDataset: process.env.SYNC_DATASET!,
   bqTable: process.env.SYNC_TABLE!,
@@ -41,6 +46,4 @@ export default {
 
   stagingLocation: `gs://${bucketName}/${instanceId}/staging`,
   templateLocation: `gs://${bucketName}/${instanceId}/templates/myTemplate`,
-  dataflowRegion:
-    process.env.DATAFLOW_REGION || process.env.LOCATION || 'us-central1',
 };

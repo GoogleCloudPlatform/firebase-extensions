@@ -34,8 +34,9 @@ import com.google.firestore.v1.StructuredQuery.CollectionSelector;
 import com.google.firestore.v1.Write;
 
 public class FirestoreHelpers {
+  private static final Logger LOG = LoggerFactory.getLogger(FirestoreHelpers.class);
+
   public static final class RunQuery extends BasePTransform<String, RunQueryRequest> {
-    private static final Logger LOG = LoggerFactory.getLogger(Utils.class);
 
     final String projectId;
 
@@ -120,11 +121,11 @@ public class FirestoreHelpers {
                   String changeType = c.element().getKey();
                   Document document = c.element().getValue();
 
-                  // LOG.info("STEP ONE >>>>>>> changeType: {}, documentName: {}", changeType,
-                  // document.getName());
+                  LOG.info("STEP ONE >>>>>>> changeType: {}, documentName: {}", changeType,
+                      document.getName(), document.getFieldsMap());
 
                   switch (changeType) {
-                    case "DELETE":
+                    case "CREATE":
                       c.output(Write.newBuilder()
                           .setDelete(document.getName())
                           .build());

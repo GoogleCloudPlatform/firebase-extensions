@@ -86,13 +86,10 @@ public class RestorationPipeline {
     String secondaryDatabase = options.getFirestoreSecondaryDb();
     String datasetId = options.getBigQueryDataset();
     String tableId = options.getBigQueryTable();
-    Instant readTime = Utils.adjustDate(Instant.ofEpochSecond(options.getTimestamp()));
 
     options.setFirestoreDb(secondaryDatabase);
 
     LOG.info("Restoring to Firestore database: " + secondaryDatabase);
-
-    String formattedTimestamp = new DateTime(Utils.adjustDate(readTime)).toString("yyyy-MM-dd HH:mm:ss");
 
     // BigQuery read and subsequent Firestore write
     pipeline
@@ -101,7 +98,7 @@ public class RestorationPipeline {
               public KV<String, Document> apply(SchemaAndRecord schemaAndRecord) {
                 return convertToFirestoreValue(schemaAndRecord, project, secondaryDatabase);
               }
-            }).fromQuery(constructQuery(formattedTimestamp, project, datasetId, tableId)).usingStandardSql()
+            }).fromQuery(constructQuery(options.getTimestamp(), project, datasetId, tableId)).usingStandardSql()
                 .withTemplateCompatibility())
         .apply("Prepare write operations",
             new FirestoreHelpers.DocumentToWrite())
@@ -119,8 +116,8 @@ public class RestorationPipeline {
     }
   }
 
-  private static String constructQuery(String timestamp, String projectId, String datasetId, String tableId) {
-    LOG.info("Querying BigQuery for changes before timestamp: " + timestamp);
+  private static String constructQuery(Long timestamp, String projectId, String datasetId, String tableId) {
+    LOG.info("Querying BigQuery for changes " + timestamp);
     String query = "WITH RankedChanges AS (" +
         "    SELECT " +
         "        documentId," +
@@ -131,7 +128,7 @@ public class RestorationPipeline {
         "        timestamp," +
         "        ROW_NUMBER() OVER(PARTITION BY documentId ORDER BY timestamp DESC) as rank" +
         "    FROM `" + projectId + "." + datasetId + "." + tableId + "`" +
-        "    WHERE timestamp < TIMESTAMP('" + (timestamp) + "') " +
+        "    WHERE timestamp < TIMESTAMP_SECONDS(" + (timestamp) + ") " +
         ") " +
         "SELECT " +
         "    documentId," +
@@ -153,7 +150,7 @@ public class RestorationPipeline {
 
     GenericRecord record = schemaAndRecord.getRecord();
 
-    String data = record.get("afterData").toString();
+    String data = record.get("beforeData").toString();
     String documentPath = createDocumentName(record.get("documentPath").toString(), projectId, databaseId);
     String changeType = record.get("changeType").toString();
 

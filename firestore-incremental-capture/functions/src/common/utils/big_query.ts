@@ -24,7 +24,7 @@ const bq = new BigQuery({projectId: config.projectId});
 
 function bigqueryDataset(databaseId: string) {
   return bq.dataset(databaseId, {
-    location: config.datasetLocation,
+    location: config.bigQueryDatabaseLocation,
   });
 }
 
@@ -41,7 +41,7 @@ async function initializeDataset(databaseId: string) {
   try {
     logs.bigQueryDatasetCreating(databaseId);
     [dataset] = await bq.createDataset(databaseId, {
-      location: config.datasetLocation,
+      location: config.bigQueryDatabaseLocation,
     });
     logs.bigQueryDatasetCreated(databaseId);
     return dataset;
@@ -78,7 +78,7 @@ async function initializeTable(
      */
     [table] = await bq.dataset(dataset.id).createTable(tableId, {
       schema,
-      location: config.datasetLocation,
+      location: config.bigQueryDatabaseLocation,
     });
 
     logs.bigQueryTableCreated(tableId);

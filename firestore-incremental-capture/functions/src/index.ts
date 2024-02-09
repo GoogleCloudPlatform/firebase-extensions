@@ -46,7 +46,7 @@ export const syncData = functions.firestore
  * Run a backup restoration.
  * */
 export const triggerRestorationJob = functions.firestore
-  .document(config.restoreDoc)
+  .document(config.jobsCollection)
   .onCreate(triggerRestorationJobHandler);
 
 /**

@@ -11,9 +11,8 @@ export TICK="✓"
 export SUCCESS_TASKS=()
 
 # Define variables at the top
-export PROJECT_ID="extensions-testing"
+export PROJECT_ID=$1
 export DATABASE_ID="(default)"
-export DATABASE_LOCATION="us"
 export LOCATION="us-central1"
 export EXT_INSTANCE_ID="firestore-incremental-capture"
 export JAR_PATH="restore-firestore.jar"

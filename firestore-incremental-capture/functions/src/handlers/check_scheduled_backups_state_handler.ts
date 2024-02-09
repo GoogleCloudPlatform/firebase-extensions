@@ -26,7 +26,7 @@ export const checkScheduledBackupStateHandler = async (data: any) => {
   const jobId = data?.jobId;
   functions.logger.info('An event has been recieved', data);
 
-  const restoreRef = admin.firestore().doc(`${config.restoreDoc}/${jobId}`);
+  const restoreRef = admin.firestore().doc(`${config.jobsCollection}/${jobId}`);
   const restore = await restoreRef.get();
   const restoreData = restore.data();
 

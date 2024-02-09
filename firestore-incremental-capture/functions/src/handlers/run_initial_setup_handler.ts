@@ -30,16 +30,12 @@ export async function runInitialSetupHandler() {
   );
 
   // Setup sync dataset and tables
-  const [syncDataset, syncTable] = await initialize(
-    config.bqDataset,
-    config.bqTable,
-    bqBackupSchema
-  );
+  await initialize(config.bqDataset, config.bqTable, bqBackupSchema);
 
   try {
     return runtime.setProcessingState(
       'PROCESSING_COMPLETE',
-      `Initialized dataset and table ${syncDataset.id}.${syncTable.id}.`
+      `Initialized dataset and table ${config.bqDataset}.${config.bqTable}`
     );
   } catch (error) {
     return runtime.setProcessingState(
