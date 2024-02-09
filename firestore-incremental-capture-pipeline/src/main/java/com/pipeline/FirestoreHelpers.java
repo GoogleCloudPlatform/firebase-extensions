@@ -125,7 +125,7 @@ public class FirestoreHelpers {
                       document.getName(), document.getFieldsMap());
 
                   switch (changeType) {
-                    case "CREATE":
+                    case "DELETE":
                       c.output(Write.newBuilder()
                           .setDelete(document.getName())
                           .build());
