@@ -1,11 +1,11 @@
-This extension allows you to perform language tasks using Google AI, a custom prompt, and Firestore.
+This extension allows you to perform generative tasks using Google AI, a custom prompt, and Firestore.
 
 On installation, you will be asked to provide the following information:
 
-- **Generative AI Provider** This extension makes use of the Gemini family of large language models. Currently the extension only supports the Google AI API (for developers) but in future will support the Vertex AI Gemini API.
-- **Language model**: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
+- **Generative AI Provider** This extension makes use of the Gemini family of generative models. The extension supports both the Google AI and Vertex AI Gemini APIs
+- **Generative model**: Which genai model do you want to use?
 - **Prompt:** This is the text that you want Gemini to generate a response for. It can be free-form text or it can use handlebars variables to substitute values from the Firestore document.
-- **Firestore collection path:** This is the path to the Firestore collection that contains the documents that you want to perform the language task on.
+- **Firestore collection path:** This is the path to the Firestore collection that contains the documents that you want to perform the generative task on.
 - **Response field:** This is the name of the field in the Firestore document where you want the extension to store the response from the Model API.
 
 This extension will listen to the specified collection for new documents. When such a document is added, the extension will:
@@ -44,9 +44,11 @@ Provide a star rating from 1-5 of the following review text: \“{{review_text}}
 
 In this case, `review_text`` is a field of the Firestore document and will be substituted into the prompt when querying.
 
-### Choosing a language model
+### Choosing a generative model
 
-This extension supports the following language models:
+<!-- TODO: more info on models -->
+
+This extension supports the following genai models:
 
 - [Gemini Pro](https://ai.google.dev/models/gemini) text model
 - [Gemini Pro Vision](https://ai.google.dev/models/gemini) multimodal prompt model
