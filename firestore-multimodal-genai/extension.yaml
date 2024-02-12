@@ -103,7 +103,8 @@ params:
       should be set to the model name, the second segment of the model code (for
       example models/gemini-pro should be chosen as gemini-pro). For Vertex AI,
       there is a list of models
-      [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models).
+      [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models),
+      currently only the Gemini family of models listed there is supported.
     type: string
     required: true
     default: gemini-pro
