@@ -6,7 +6,8 @@
     "build": "tsc -p tsconfig.build.json",
     "build:watch": "tsc -p tsconfig.build.json --watch",
     "generate-readme": "firebase ext:info .. --markdown > ../README.md",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "publish-from-main": "firebase ext:dev:upload googlecloud/firestore-genai-chatbot --repo=https://github.com/googlecloudplatform/firebase-extensions --root=firestore-genai-chatbot --ref=main --project pub-ext-gcloud"
   },
   "main": "lib/index.js",
   "dependencies": {

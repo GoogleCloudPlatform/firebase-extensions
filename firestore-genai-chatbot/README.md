@@ -79,7 +79,7 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Google AI API Key: If you have selected Google AI as your provider, then this parameteris required. If you have instead selected Vertex AI, then this parameter is not required, and application default credentials will be used.
 
-* Generative model: Which genai model do you want to use? For Google AI the list of supported models is [here](https://ai.google.dev/models/gemini), and this parameter should be set to the model name, the second segment of the model code (for example models/gemini-pro should be chosen as gemini-pro). For Vertex AI, there is a list of models [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models).
+* Generative model: Which genai model do you want to use? For Google AI the list of supported models is [here](https://ai.google.dev/models/gemini), and this parameter should be set to the model name, the second segment of the model code (for example models/gemini-pro should be chosen as gemini-pro). For Vertex AI, there is a list of models [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models), currently only the Gemini family of models listed there is supported.
 
 * Collection Path: Path to the Firestore collection which will represent a chat with the generative model.
 
