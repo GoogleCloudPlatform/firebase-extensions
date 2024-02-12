@@ -1,6 +1,10 @@
 ## Version 0.0.4
 
+- Make model a string param, to allow for future changes to model names.
+
 - Update documentation
+
+- Add safety threshold params
 
 ## Version 0.0.3
 

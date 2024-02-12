@@ -1,8 +1,12 @@
 ## Version 0.0.6
 
+- Make model a string param, to allow for future changes to model names.
+
 - Add maxOutputTokens parameter
 
 - Update documentation
+
+- Add safety threshold params
 
 ## Version 0.0.5
 
