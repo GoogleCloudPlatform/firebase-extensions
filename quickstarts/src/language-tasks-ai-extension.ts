@@ -1,9 +1,9 @@
-import { firestoreRef } from "./helpers/firebase";
-import { addDoc, collection, doc } from "firebase/firestore";
-import { getDoc } from "firebase/firestore";
+import {firestoreRef} from './helpers/firebase';
+import {addDoc, collection, doc} from 'firebase/firestore';
+import {getDoc} from 'firebase/firestore';
 
-const inputText = document.getElementById("input-text") as HTMLInputElement;
-const submitText = document.getElementById("submit-text") as HTMLElement;
+const inputText = document.getElementById('input-text') as HTMLInputElement;
+const submitText = document.getElementById('submit-text') as HTMLElement;
 type Review = {
   text: string;
   rating: number; // from 1 to 5
@@ -17,18 +17,18 @@ const reviews: Review[] = [
   // },
 ];
 
-inputText.addEventListener("input", (e: any) => {
+inputText.addEventListener('input', (e: any) => {
   const value = e.target?.value.trim();
-  if (value) submitText.removeAttribute("disabled");
+  if (value) submitText.removeAttribute('disabled');
 });
 
-submitText.addEventListener("click", handleSubmitText);
+submitText.addEventListener('click', handleSubmitText);
 
 function handleSubmitText() {
   /** Check if valid input */
   if (inputText?.value?.trim()) {
     /** Disable the sumbit button */
-    submitText.setAttribute("disabled", "true");
+    submitText.setAttribute('disabled', 'true');
 
     /** Submit for review */
     submitTextToFirestore(inputText.value.trim());
@@ -36,34 +36,34 @@ function handleSubmitText() {
 }
 
 function submitTextToFirestore(text: string) {
-  const textCollectionRef = collection(firestoreRef, "generate");
+  const textCollectionRef = collection(firestoreRef, 'generate');
 
-  addDoc(textCollectionRef, { comment: text })
-    .then((docRef) => {
+  addDoc(textCollectionRef, {comment: text})
+    .then(docRef => {
       setTimeout(() => {
         // listenForConvertedAudio(docRef.id);
         getCommentAndOutput(docRef.id);
       }, 5000);
 
-      console.log("Text submitted for conversion:", docRef.id);
+      console.log('Text submitted for conversion:', docRef.id);
     })
-    .catch((error) => {
-      submitText.removeAttribute("disabled");
-      console.log("Error submitting text:", error);
+    .catch(error => {
+      submitText.removeAttribute('disabled');
+      console.log('Error submitting text:', error);
     });
 }
 
 function getCommentAndOutput(docId: string) {
-  const docRef = doc(firestoreRef, "generate", docId);
+  const docRef = doc(firestoreRef, 'generate', docId);
 
   getDoc(docRef)
-    .then((doc) => {
+    .then(doc => {
       if (doc.exists()) {
         const comment = doc.data().comment;
         const output = doc.data().output;
 
-        console.log("Comment:", comment);
-        console.log("Output:", output);
+        console.log('Comment:', comment);
+        console.log('Output:', output);
 
         // Create a new review entry with the comment and output as values
         const newReview: Review = {
@@ -75,14 +75,14 @@ function getCommentAndOutput(docId: string) {
         reviews.push(newReview);
 
         // Render the updated reviews
-        document.getElementById("reviews-container")!.innerHTML =
+        document.getElementById('reviews-container')!.innerHTML =
           renderReviews(reviews);
       } else {
-        console.log("Document not found");
+        console.log('Document not found');
       }
     })
-    .catch((error) => {
-      console.log("Error getting document:", error);
+    .catch(error => {
+      console.log('Error getting document:', error);
     });
 }
 
@@ -92,10 +92,10 @@ function createStar(
   isChecked: boolean,
   isHovered: boolean
 ): string {
-  const checkedClass = isChecked ? "text-yellow-500" : "";
+  const checkedClass = isChecked ? 'text-yellow-500' : '';
   const hoverClass = isHovered
-    ? "hover:text-yellow-500"
-    : "hover:text-gray-400";
+    ? 'hover:text-yellow-500'
+    : 'hover:text-gray-400';
   return `<label for="${id}" class="cursor-pointer ${checkedClass} ${hoverClass}">★</label>`;
 }
 
@@ -105,7 +105,7 @@ function renderStars(
   currentRating: number,
   hoverRating: number
 ): string {
-  let starsHtml = "";
+  let starsHtml = '';
   for (let i = 1; i <= 5; i++) {
     const starId = `star-${reviewIndex}-${i}`;
     const isChecked = i <= currentRating;
@@ -128,5 +128,5 @@ function renderReviews(reviews: Review[]): string {
     </div>
   `
     )
-    .join("");
+    .join('');
 }

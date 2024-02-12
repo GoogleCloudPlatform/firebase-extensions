@@ -15,38 +15,41 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Firebase Extensions Example</title>
-		<link rel="stylesheet" href="./assets/index.css" />
-	</head>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Firebase Extensions Example</title>
+    <link rel="stylesheet" href="./assets/index.css" />
+  </head>
 
-	<body class="flex justify-center items-center h-screen bg-gray-100">
-		<div class="text-center">
-			<h1 class="text-3xl font-bold mb-9">Label Images with Cloud Vision AI</h1>
+  <body class="flex justify-center items-center h-screen bg-gray-100">
+    <div class="text-center">
+      <h1 class="text-3xl font-bold mb-9">Label Images with Cloud Vision AI</h1>
 
-			<div class="flex flex-col">
-				<label
-					for="video-upload"
-					class="block mb-2 text-lg font-medium text-gray-700">
-					Upload an Image (Open the console to see the results)
-				</label>
-				<input
-					id="image-upload"
-					type="file"
-					accept="image/*"
-					class="block mx-auto mb-5 p-2 text-sm text-gray-700 bg-white rounded-lg border border-gray-300 cursor-pointer focus:outline-none focus:border-blue-500" />
+      <div class="flex flex-col">
+        <label
+          for="video-upload"
+          class="block mb-2 text-lg font-medium text-gray-700"
+        >
+          Upload an Image (Open the console to see the results)
+        </label>
+        <input
+          id="image-upload"
+          type="file"
+          accept="image/*"
+          class="block mx-auto mb-5 p-2 text-sm text-gray-700 bg-white rounded-lg border border-gray-300 cursor-pointer focus:outline-none focus:border-blue-500"
+        />
 
-				<button
-					id="upload-button"
-					disabled
-					class="bg-blue-500 disabled:bg-blue-200 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out">
-					Upload
-				</button>
-			</div>
-		</div>
+        <button
+          id="upload-button"
+          disabled
+          class="bg-blue-500 disabled:bg-blue-200 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-300 ease-in-out"
+        >
+          Upload
+        </button>
+      </div>
+    </div>
 
-		<script type="module" src="./label-images-with-cloud-vision-ai.ts"></script>
-	</body>
+    <script type="module" src="./label-images-with-cloud-vision-ai.ts"></script>
+  </body>
 </html>
