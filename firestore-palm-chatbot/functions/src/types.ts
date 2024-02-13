@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import * as generativeLanguage from '@google-ai/generativelanguage';
 import * as vertex from '@google-cloud/aiplatform';
+
+export type APIGenerateMessageRequest =
+  generativeLanguage.protos.google.ai.generativelanguage.v1beta2.IGenerateMessageRequest;
+export type APIMessage =
+  generativeLanguage.protos.google.ai.generativelanguage.v1beta2.IMessage;
+export type APIExample =
+  generativeLanguage.protos.google.ai.generativelanguage.v1beta2.IExample;
 
 export type VertexPredictRequest =
   vertex.protos.google.cloud.aiplatform.v1beta1.IPredictRequest;
 
 export type VertexPredictResponse =
   vertex.protos.google.cloud.aiplatform.v1beta1.IPredictResponse;
-
-export type Example = vertex.protos.google.cloud.aiplatform.v1beta1.IExamples;
 
 // our own types
 
@@ -116,4 +122,10 @@ export interface GenerateMessageResponse {
   response: string;
   history: Message[];
   candidates: string[];
+}
+
+export interface PaLMPrompt {
+  messages: APIMessage[];
+  context?: string;
+  examples?: APIExample[];
 }
