@@ -1,7 +1,7 @@
 import {extractOverrides} from '../../src/overrides'; // Adjust the import as per your file structure
 
 describe('extractOverrides function', () => {
-  let mockDocSnap;
+  let mockDocSnap: any;
 
   beforeEach(() => {
     mockDocSnap = {

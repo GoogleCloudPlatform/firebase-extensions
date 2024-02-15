@@ -43,14 +43,14 @@ const mockGenerateContentStream = jest.fn();
 jest.mock('@google-cloud/vertexai', () => {
   return {
     ...jest.requireActual('@google-cloud/vertexai'),
-    VertexAI: function mockedClient(args) {
+    VertexAI: function mockedClient(args: any) {
       mockGetClient(args);
       return {
         preview: {
           getGenerativeModel: (args: unknown) => {
             mockGetModel(args);
             return {
-              generateContentStream: async function mockedStartChat(args) {
+              generateContentStream: async function mockedStartChat(args: any) {
                 mockGenerateContentStream(args);
                 return {
                   response: {
