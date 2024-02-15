@@ -4,11 +4,11 @@ specVersion: v1beta
 
 icon: icon.png
 
-displayName: Multimodal Tasks with Gemini
+displayName: Multimodal Tasks with the Gemini API
 
 description: >-
-  Performs AI/ML tasks on text and images, customizable with prompt engineering,
-  using Gemini AI and Firestore.
+  Performs multimodel generative tasks on text and images, customizable with
+  prompt engineering, using Gemini models and Firestore.
 
 tags:
   [
@@ -81,10 +81,10 @@ params:
   - param: GENERATIVE_AI_PROVIDER
     label: Gemini API Provider
     description: >-
-      This extension makes use of the Gemini family of generative models. For
-      Google AI you will require an API key, whereas Vertex AI will authenticate
-      using application default credentials. For more information see the
-      [docs](https://firebase.google.com/docs/admin/setup#initialize-sdk).
+      This extension makes use of the Gemini family of large language models.
+      Currently the extension supports the Google AI Gemini API (for developers)
+      and the Vertex AI Gemini API. Learn more about the differences between the
+      Google AI and Vertex AI Gemini APIs here.
     type: select
     options:
       - label: Google AI
@@ -96,15 +96,12 @@ params:
     immutable: false
 
   - param: MODEL
-    label: Generative model
+    label: Gemini model
     description: >-
-      Which genai model do you want to use? For Google AI the list of supported
-      models is [here](https://ai.google.dev/models/gemini), and this parameter
-      should be set to the model name, the second segment of the model code (for
-      example models/gemini-pro should be chosen as gemini-pro). For Vertex AI,
-      there is a list of models
-      [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models),
-      currently only the Gemini family of models listed there is supported.
+      Input the name of theWhich Gemini model you would like to use. To view
+      available models for each provider, see: [Vertex AI Gemini
+      models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models),
+      [Google AI Gemini models](https://ai.google.dev/models/gemini)
     type: string
     required: true
     default: gemini-pro
@@ -121,9 +118,11 @@ params:
     immutable: false
 
   - param: COLLECTION_NAME
-    label: Collection Path
+    label: Firestore Collection Path
     description: >-
-      Path to the Firestore collection where text will be generated.
+      Used to store conversation history represented as documents. This
+      extension will listen to the specified collection(s) for new message
+      documents.
     type: string
     validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
     validationErrorMessage: Must be a valid Cloud Firestore Collection
@@ -134,9 +133,10 @@ params:
   - param: PROMPT
     label: Prompt
     description: >-
-      Prompt. Use {{ handlebars }} for variable substitution from the created or
-      updated doc. For example if you set this parameter as "What is the capital
-      of {{ country }}?"
+      This is the text that you want the Gemini API to generate a response for.
+      It can be free-form text or it can use handlebars variables to substitute
+      values from the Firestore document. For example if you set this parameter
+      as "What is the capital of {{ country }}?"
     type: string
     required: true
     immutable: false
