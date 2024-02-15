@@ -1,3 +1,7 @@
+## Version 0.0.6
+
+- Fixing a build issue
+
 ## Version 0.0.5
 
 - Update documentation
