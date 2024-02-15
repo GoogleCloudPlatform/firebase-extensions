@@ -56,9 +56,6 @@ describe('extractOverrides function', () => {
     mockDocSnap['context'] = 123; // Invalid context
     mockDocSnap['topK'] = 'not-a-number'; // Invalid topK
 
-    const overrides = extractOverrides(mockDocSnap);
-
-    // Expect the function to skip invalid fields or handle them as per your error handling logic
-    expect(overrides).toEqual({});
+    expect(() => extractOverrides(mockDocSnap)).toThrow();
   });
 });
