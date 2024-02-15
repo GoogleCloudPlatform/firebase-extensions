@@ -1,25 +1,26 @@
-# Multimodal Tasks with Gemini
+# Multimodal Tasks with the Gemini API
 
 **Author**: Google Cloud (**[https://cloud.google.com](https://cloud.google.com)**)
 
-**Description**: Performs AI/ML tasks on text and images, customizable with prompt engineering, using Gemini AI and Firestore.
+**Description**: Performs multimodel generative tasks on text and images, customizable with prompt engineering, using Gemini models and Firestore.
 
 
 
-**Details**: This extension allows you to perform generative tasks using Google AI, a custom prompt, and Firestore.
+**Details**: This extension allows you to perform generative tasks using the Gemini API, a custom prompt, and Firestore.
 
 On installation, you will be asked to provide the following information:
 
-- **Generative AI Provider** This extension makes use of the Gemini family of generative models. The extension supports both the Google AI and Vertex AI Gemini APIs
-- **Generative model**: Which genai model do you want to use?
-- **Prompt:** This is the text that you want Gemini to generate a response for. It can be free-form text or it can use handlebars variables to substitute values from the Firestore document.
-- **Firestore collection path:** This is the path to the Firestore collection that contains the documents that you want to perform the generative task on.
-- **Response field:** This is the name of the field in the Firestore document where you want the extension to store the response from the Model API.
+**Gemini API Provider**: This extension makes use of the Gemini family of large language models. Currently the extension supports the Google AI Gemini API (for developers) and the Vertex AI Gemini API. Learn more about the differences between the Google AI and Vertex AI Gemini APIs here.
+**Gemini Model**: Input the name of theWhich Gemini model you would like to use. To view available models for each provider, see:
+- [Vertex AI Gemini models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models)
+- [Google AI Gemini models](https://ai.google.dev/models/gemini)
+**Firestore Collection Path**: Used to store conversation history represented as documents. This extension will listen to the specified collection(s) for new message documents.
+**Prompt**: This is the text that you want the Gemini API to generate a response for. It can be free-form text or it can use handlebars variables to substitute values from the Firestore document.
 
 This extension will listen to the specified collection for new documents. When such a document is added, the extension will:
 
 1. Substitute any variables from the document into the prompt.
-2. Query Gemini to generate a response based on the prompt.
+2. Query the Gemini API to generate a response based on the prompt.
 3. Write the response from the Model API back to the triggering document in the response field.
 
 Each instance of the extension should be configured to perform one particular task. If you have multiple tasks, you can install multiple instances.
@@ -54,13 +55,12 @@ In this case, `review_text`` is a field of the Firestore document and will be su
 
 ### Choosing a generative model
 
-When installing this extension you will be prompted to pick a genai model.
+When installing this extension you will be prompted to pick a Gemini model.
 
 For Google AI the list of supported models is [here](https://ai.google.dev/models/gemini), and this parameter should be set to the model name, the second segment of the model code (for
 example models/gemini-pro should be chosen as gemini-pro).
 
-For Vertex AI,
-there is a list of models [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models).
+For Vertex AI, the list of models is [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models).
 
 #### Multimodal Prompts
 
@@ -95,15 +95,15 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 **Configuration Parameters:**
 
-* Gemini API Provider: This extension makes use of the Gemini family of generative models. For Google AI you will require an API key, whereas Vertex AI will authenticate using application default credentials. For more information see the [docs](https://firebase.google.com/docs/admin/setup#initialize-sdk).
+* Gemini API Provider: This extension makes use of the Gemini family of large language models. Currently the extension supports the Google AI Gemini API (for developers) and the Vertex AI Gemini API. Learn more about the differences between the Google AI and Vertex AI Gemini APIs here.
 
-* Generative model: Which genai model do you want to use? For Google AI the list of supported models is [here](https://ai.google.dev/models/gemini), and this parameter should be set to the model name, the second segment of the model code (for example models/gemini-pro should be chosen as gemini-pro). For Vertex AI, there is a list of models [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models), currently only the Gemini family of models listed there is supported.
+* Gemini model: Input the name of theWhich Gemini model you would like to use. To view available models for each provider, see: [Vertex AI Gemini models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models), [Google AI Gemini models](https://ai.google.dev/models/gemini)
 
 * Google AI API Key: If you have selected Google AI as your provider, then this parameteris required. If you have instead selected Vertex AI, then this parameter is not required, and application default credentials will be used.
 
-* Collection Path: Path to the Firestore collection where text will be generated.
+* Firestore Collection Path: Used to store conversation history represented as documents. This extension will listen to the specified collection(s) for new message documents.
 
-* Prompt: Prompt. Use {{ handlebars }} for variable substitution from the created or updated doc. For example if you set this parameter as "What is the capital of {{ country }}?"
+* Prompt: This is the text that you want the Gemini API to generate a response for. It can be free-form text or it can use handlebars variables to substitute values from the Firestore document. For example if you set this parameter as "What is the capital of {{ country }}?"
 
 * Variable fields: A comma separated list of fields to substitute as variables in the prompt.
 

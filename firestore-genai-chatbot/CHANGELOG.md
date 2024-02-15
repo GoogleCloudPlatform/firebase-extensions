@@ -1,3 +1,9 @@
+## Version 0.0.7
+
+- Update documentation
+  
+- Update extensions display name
+
 ## Version 0.0.6
 
 - Make model a string param, to allow for future changes to model names.

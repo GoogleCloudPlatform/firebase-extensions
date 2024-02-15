@@ -1,20 +1,22 @@
-# Chatbot with Gemini
+# Build Chatbot with the Gemini API
 
 **Author**: Google Cloud (**[https://cloud.google.com/](https://cloud.google.com/)**)
 
-**Description**: Deploys customizable chatbots using Google AI and Firestore.
+**Description**: Deploys customizable chatbots using Gemini models and Firestore.
 
 
 
-**Details**: Use this extension to easily deploy a chatbot using Gemini large language models, stored and managed by Cloud Firestore.
+**Details**: Use this extension to easily deploy a chatbot using Gemini models, stored and managed by Cloud Firestore.
 
 On install you will be asked to provide:
 
-- **Generative AI Provider** This extension makes use of the Gemini family of large language models. Currently the extension supports the Google AI Gemini API (for developers) and the Vertex AI Gemini API.
+- **Gemini API Provider** This extension makes use of the Gemini family of models. Currently the extension supports the Google AI Gemini API and the Vertex AI Gemini API. Learn more about the differences between the Google AI and Vertex AI Gemini APIs here.
 
-- **Language model**: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
+- **Gemini Model**: Input the name of the Gemini model you would like to use. To view available models for each provider, see:
+- [Vertex AI Gemini models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models)
+- [Google AI Gemini models](https://ai.google.dev/models/gemini)
 
-- **Firestore collection path**: Used to store conversation history represented as documents. This extension will listen to the specified collection(s) for new message documents.
+- **Firestore Collection Path**: Used to store conversation history represented as documents. This extension will listen to the specified collection(s) for new message documents.
 
 The collection path also supports wildcards, so you can trigger the extension on multiple collections, each with their own private conversation history. This is useful if you want to create separate conversations for different users, or support multiple chat sessions.
 
@@ -42,17 +44,9 @@ I want you to act as a travel guide. I will ask you questions about various trav
 
 You can also configure the model to return different results by tweaking model parameters (temperature, candidate count, etc.), which are exposed as configuration during install as well.
 
-## About the models
-
-The extension gives you a choice of 2 models:
-
-- Gemini Pro chat model
-
-- Gemini Pro Vision multimodal chat model.
-
 ## Additional Setup
 
-Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project, set up in your Firebase project, and have obtained an API key for Google AI's Gemini API.
+Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project, set up in your Firebase project, and have obtained an API key for the Gemini API.
 
 ### Regenerating a response
 
@@ -79,9 +73,9 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Google AI API Key: If you have selected Google AI as your provider, then this parameteris required. If you have instead selected Vertex AI, then this parameter is not required, and application default credentials will be used.
 
-* Generative model: Which genai model do you want to use? For Google AI the list of supported models is [here](https://ai.google.dev/models/gemini), and this parameter should be set to the model name, the second segment of the model code (for example models/gemini-pro should be chosen as gemini-pro). For Vertex AI, there is a list of models [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models), currently only the Gemini family of models listed there is supported.
+* Gemini model: Input the name of theWhich Gemini model you would like to use. To view available models for each provider, see: [Vertex AI Gemini models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models), [Google AI Gemini models](https://ai.google.dev/models/gemini)
 
-* Collection Path: Path to the Firestore collection which will represent a chat with the generative model.
+* Firestore Collection Path: Used to store conversation history represented as documents. This extension will listen to the specified collection(s) for new message documents.
 
 * Prompt Field: The field in the message document that contains the prompt.
 

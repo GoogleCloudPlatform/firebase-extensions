@@ -306,6 +306,7 @@ describe('generateMessage', () => {
         candidate_count: undefined,
         max_output_tokens: undefined,
       },
+      safety_settings: undefined,
     });
   });
 });
