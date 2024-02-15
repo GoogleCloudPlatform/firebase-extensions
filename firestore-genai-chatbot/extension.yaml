@@ -4,10 +4,10 @@ specVersion: v1beta
 
 icon: icon.png
 
-displayName: Chatbot with Gemini
+displayName: Build Chatbot with the Gemini API
 
 description: >-
-  Deploys customizable chatbots using Google AI and Firestore.
+  Deploys customizable chatbots using Gemini models and Firestore.
 
 license: Apache-2.0 # https://spdx.org/licenses/
 
@@ -100,25 +100,23 @@ params:
     immutable: false
 
   - param: MODEL
-    label: Generative model
+    label: Gemini model
     description: >-
-      Which genai model do you want to use? For Google AI the list of supported
-      models is [here](https://ai.google.dev/models/gemini), and this parameter
-      should be set to the model name, the second segment of the model code (for
-      example models/gemini-pro should be chosen as gemini-pro). For Vertex AI,
-      there is a list of models
-      [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models),
-      currently only the Gemini family of models listed there is supported.
+      Input the name of theWhich Gemini model you would like to use. To view
+      available models for each provider, see: [Vertex AI Gemini
+      models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models),
+      [Google AI Gemini models](https://ai.google.dev/models/gemini)
     type: string
     required: true
     default: gemini-pro
     immutable: false
 
   - param: COLLECTION_NAME
-    label: Collection Path
+    label: Firestore Collection Path
     description: >-
-      Path to the Firestore collection which will represent a chat with the
-      generative model.
+      Used to store conversation history represented as documents. This
+      extension will listen to the specified collection(s) for new message
+      documents.
     type: string
     validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
     validationErrorMessage: Must be a valid Cloud Firestore Collection
