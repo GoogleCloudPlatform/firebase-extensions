@@ -203,12 +203,19 @@ describe('generateMessage', () => {
     expect(mockGetClient).toHaveBeenCalledWith(config.googleAi.apiKey);
 
     expect(mockGetModel).toHaveBeenCalledTimes(1);
-    expect(mockGetModel).toBeCalledWith({model: config.googleAi.model});
+    expect(mockGetModel).toHaveBeenCalledWith({model: config.googleAi.model});
 
     expect(mockStartChat).toHaveBeenCalledTimes(1);
     expect(mockStartChat).toHaveBeenCalledWith({
       history: [],
-      generationConfig: {},
+      generationConfig: {
+        candidate_count: undefined,
+        max_output_tokens: undefined,
+        temperature: undefined,
+        top_k: undefined,
+        top_p: undefined,
+      },
+      safetySettings: [],
     });
     expect(mockSendMessage).toHaveBeenCalledTimes(1);
     expect(mockSendMessage).toHaveBeenCalledWith(message.prompt);
@@ -246,12 +253,19 @@ describe('generateMessage', () => {
     expect(mockGetClient).toHaveBeenCalledWith(config.googleAi.apiKey);
 
     expect(mockGetModel).toHaveBeenCalledTimes(1);
-    expect(mockGetModel).toBeCalledWith({model: config.googleAi.model});
+    expect(mockGetModel).toHaveBeenCalledWith({model: config.googleAi.model});
 
     expect(mockStartChat).toHaveBeenCalledTimes(1);
     expect(mockStartChat).toHaveBeenCalledWith({
       history: [],
-      generationConfig: {},
+      generationConfig: {
+        candidateCount: undefined,
+        maxOutputTokens: undefined,
+        temperature: undefined,
+        topK: undefined,
+        topP: undefined,
+      },
+      safetySettings: [],
     });
     expect(mockSendMessage).toHaveBeenCalledTimes(1);
     expect(mockSendMessage).toHaveBeenCalledWith(message.prompt);

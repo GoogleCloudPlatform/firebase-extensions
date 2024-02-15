@@ -205,7 +205,7 @@ describe('generateMessage', () => {
     expect(mockGetClient).toHaveBeenCalledTimes(1);
 
     expect(mockGetModel).toHaveBeenCalledTimes(1);
-    expect(mockGetModel).toBeCalledWith({model: config.googleAi.model});
+    expect(mockGetModel).toHaveBeenCalledWith({model: config.googleAi.model});
     expect(mockGenerateContentStream).toHaveBeenCalledTimes(1);
     expect(mockGenerateContentStream).toHaveBeenCalledWith({
       contents: [{parts: [{text: 'hello chat bison'}], role: 'user'}],
@@ -216,6 +216,7 @@ describe('generateMessage', () => {
         top_k: undefined,
         top_p: undefined,
       },
+      safety_settings: [],
     });
   });
 
@@ -261,6 +262,7 @@ describe('generateMessage', () => {
         top_k: undefined,
         top_p: undefined,
       },
+      safety_settings: [],
     });
   });
 });
