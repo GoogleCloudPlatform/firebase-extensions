@@ -34,10 +34,10 @@ The extension gives you a choice of what provider to use for the available model
 
 ## About the models
 
-The extension gives you a choice of 2 models:
+For Google AI the list of supported models is [here](https://ai.google.dev/models/gemini), and this parameter should be set to the model name, the second segment of the model code (for
+example models/gemini-pro should be chosen as gemini-pro).
 
-- Gemini Pro
-- Gemini Pro Vision
+For Vertex AI, the list of models is [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models).
 
 #### Multimodal Prompts
 
@@ -47,7 +47,7 @@ On installation you may pick an `image` field. The image field must be the Cloud
 
 Note that Google AI requires prompts to have both an image and text part, whereas Vertex AI allows gemini-pro-vision to be prompted with text only as well. If you have selected to use the Gemini Pro Vision model and have Google AI as a provider then any document handled by the extension must contain an image field.
 
-The Gemini Pro Vision API has a limit on image sizes. For Google AI this limit is currently 1MB, and for Vertex AI this limit is 4MB. This extension will attempt to compress and resize images that fall above this limit.
+The Gemini Pro Vision API has a limit on image sizes. For Google AI this limit is currently 1MB, and for Vertex AI this limit is 4MB. This extension compress and resize images that fall above this limit.
 
 ## Handling errors
 

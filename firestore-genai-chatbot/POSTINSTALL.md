@@ -11,7 +11,7 @@ ${param:PROMPT_FIELD}: "How are you today?"
 ```
 
 4. In a few seconds, you'll see a **${param:ORDER_FIELD}** field and then a status field should appear in the document. The status field will update as the extension processes the message.
-5. When processing is finished, the **${param:RESPONSE_FIELD}** field of the document should be populated with the response from the Google AI Gemini API.
+5. When processing is finished, the **${param:RESPONSE_FIELD}** field of the document should be populated with the response from the selected generative AI model.
 
 ```javascript
 const ref = await admin
@@ -39,11 +39,10 @@ The extension gives you a choice of what provider to use for the available model
 
 ## About the models
 
-The extension gives you a choice of 2 models:
+For Google AI the list of supported models is [here](https://ai.google.dev/models/gemini), and this parameter should be set to the model name, the second segment of the model code (for
+example models/gemini-pro should be chosen as gemini-pro).
 
-- Gemini Pro chat model
-
-- Gemini Pro Vision multimodal chat model.
+For Vertex AI, the list of models is [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models).
 
 ## Handling errors
 

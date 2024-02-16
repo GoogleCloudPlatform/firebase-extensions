@@ -3,11 +3,12 @@ This extension allows you to perform generative tasks using the Gemini API, a cu
 On installation, you will be asked to provide the following information:
 
 **Gemini API Provider**: This extension makes use of the Gemini family of large language models. Currently the extension supports the Google AI Gemini API (for developers) and the Vertex AI Gemini API. Learn more about the differences between the Google AI and Vertex AI Gemini APIs here.
-**Gemini Model**: Input the name of theWhich Gemini model you would like to use. To view available models for each provider, see:
+**Gemini Model**: Input the name of which Gemini model you would like to use. To view available models for each provider, see:
+
 - [Vertex AI Gemini models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models)
 - [Google AI Gemini models](https://ai.google.dev/models/gemini)
-**Firestore Collection Path**: Used to store conversation history represented as documents. This extension will listen to the specified collection(s) for new message documents.
-**Prompt**: This is the text that you want the Gemini API to generate a response for. It can be free-form text or it can use handlebars variables to substitute values from the Firestore document.
+  **Firestore Collection Path**: This extension will listen to the specified collection(s) for new task documents.
+  **Prompt**: This is the text that you want the Gemini API to generate a response for. It can be free-form text or it can use handlebars variables to substitute values from the Firestore document.
 
 This extension will listen to the specified collection for new documents. When such a document is added, the extension will:
 
