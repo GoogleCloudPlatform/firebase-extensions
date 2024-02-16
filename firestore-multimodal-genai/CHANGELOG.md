@@ -1,3 +1,9 @@
+## Version 0.0.7
+
+- Update documentation
+
+- remove VARIABLE_FIELDS as a parameter
+
 ## Version 0.0.6
 
 - Fixing a build issue
@@ -5,7 +11,6 @@
 ## Version 0.0.5
 
 - Update documentation
-  
 - Update extensions display name
 
 ## Version 0.0.4
