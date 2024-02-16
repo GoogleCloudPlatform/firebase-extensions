@@ -17,7 +17,29 @@ export function extractFields(
 }
 
 export function extractHandlebarsVariables(prompt: string) {
-  return Mustache.parse(prompt)
-    .filter(token => token[0] === 'name')
-    .map(token => token[1] as string);
+  let tokens;
+  try {
+    tokens = Mustache.parse(prompt);
+  } catch (e) {
+    throw new Error(`Error parsing handlebars template: ${e}`);
+  }
+
+  const variables: string[] = [];
+
+  for (const token of tokens) {
+    if (token[0] === '#') {
+      throw new Error(
+        `Complex handlebars features like ${token[1]} blocks are not supported.`
+      );
+    } else if (token[0] === 'name') {
+      const variable = token[1] as string;
+      if (!variable.includes('.')) {
+        variables.push(variable);
+      } else {
+        throw new Error(`Nested variables like ${variable} are not supported.`);
+      }
+    }
+  }
+
+  return variables;
 }
