@@ -1,7 +1,10 @@
+## Version 0.0.8
+
+- Update documentation
+
 ## Version 0.0.7
 
 - Update documentation
-  
 - Update extensions display name
 
 ## Version 0.0.6
