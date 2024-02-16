@@ -1,3 +1,5 @@
+import * as Mustache from 'mustache';
+
 export function extractFields(
   obj: any,
   fields?: string[]
@@ -12,4 +14,10 @@ export function extractFields(
     }
   }
   return parsedFields;
+}
+
+export function extractHandlebarsVariables(prompt: string) {
+  return Mustache.parse(prompt)
+    .filter(token => token[0] === 'name')
+    .map(token => token[1] as string);
 }

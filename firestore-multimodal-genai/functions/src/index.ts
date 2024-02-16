@@ -29,16 +29,11 @@ import {
   variableTypeError,
 } from './errors';
 
-const {
-  prompt,
-  responseField,
-  collectionName,
-  candidateCount,
-  candidatesField,
-  variableFields,
-} = config;
+const {prompt, responseField, collectionName, candidateCount, candidatesField} =
+  config;
 
 import {getGenerativeClient} from './generative-client';
+import {extractHandlebarsVariables} from './utils';
 // import {fetchCustomHookData} from './custom_hook';
 
 // TODO: make sure we redact API KEY
@@ -97,6 +92,8 @@ export const generateText = functions.firestore
       //     ...customHookData,
       //   };
       // }
+
+      const variableFields = extractHandlebarsVariables(prompt);
 
       for (const field of variableFields || []) {
         if (!data[field]) {
