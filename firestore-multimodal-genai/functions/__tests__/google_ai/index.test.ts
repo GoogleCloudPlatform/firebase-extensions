@@ -4,7 +4,7 @@ import config from '../../src/config';
 import {generateText} from '../../src/index';
 import {WrappedFunction} from 'firebase-functions-test/lib/v1';
 import {Change} from 'firebase-functions/v1';
-
+import waitForExpect from 'wait-for-expect';
 import {QuerySnapshot} from 'firebase-admin/firestore';
 import {expectToProcessCorrectly} from '../util';
 
@@ -176,6 +176,10 @@ describe('generateMessage', () => {
 
     await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
 
+    await waitForExpect(() => {
+      expect(firestoreObserver).toHaveBeenCalledTimes(3);
+    });
+
     const firestoreCallData = firestoreObserver.mock.calls.map(call => {
       return call[0].docs[0].data();
     });
@@ -218,7 +222,9 @@ describe('generateMessage', () => {
 
     await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
 
-    expect(firestoreObserver).toHaveBeenCalledTimes(3);
+    await waitForExpect(() => {
+      expect(firestoreObserver).toHaveBeenCalledTimes(3);
+    });
 
     const firestoreCallData = firestoreObserver.mock.calls.map(call =>
       call[0].docs[0].data()
@@ -271,8 +277,9 @@ describe('generateMessage', () => {
       beforeOrderField
     );
 
-    // we expect the firestore observer to be called 4 times total.
-    expect(firestoreObserver).toHaveBeenCalledTimes(3);
+    await waitForExpect(() => {
+      expect(firestoreObserver).toHaveBeenCalledTimes(3);
+    });
 
     const firestoreCallData = firestoreObserver.mock.calls.map(call => {
       return call[0].docs[0].data();

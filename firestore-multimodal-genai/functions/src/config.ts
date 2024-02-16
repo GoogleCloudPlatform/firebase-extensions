@@ -42,7 +42,6 @@ export interface Config {
   candidateCount?: number;
   candidatesField?: string;
   maxOutputTokens?: number;
-  variableFields?: string[];
   maxOutputTokensVertex?: number;
   provider?: string;
   apiKey?: string;
@@ -113,9 +112,6 @@ export default {
     ? parseInt(process.env.CANDIDATE_COUNT)
     : 1,
   candidatesField: process.env.CANDIDATES_FIELD || 'candidates',
-  variableFields: process.env.VARIABLE_FIELDS
-    ? process.env.VARIABLE_FIELDS.split(',')
-    : undefined,
   provider: process.env.GENERATIVE_AI_PROVIDER,
   maxOutputTokensVertex: process.env.MAX_OUTPUT_TOKENS
     ? parseInt(process.env.MAX_OUTPUT_TOKENS)

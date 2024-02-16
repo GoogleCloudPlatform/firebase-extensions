@@ -24,6 +24,8 @@ This extension will listen to the specified collection for new documents. When s
 2. Query the Gemini API to generate a response based on the prompt.
 3. Write the response from the Model API back to the triggering document in the response field.
 
+Note that the extension only supports top-level handlebars variables, substitution into nested handlebar templates is not supported.
+
 Each instance of the extension should be configured to perform one particular task. If you have multiple tasks, you can install multiple instances.
 
 For example, you could use this extension to:
@@ -105,8 +107,6 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 * Firestore Collection Path: Used to store conversation history represented as documents. This extension will listen to the specified collection(s) for new message documents.
 
 * Prompt: This is the text that you want the Gemini API to generate a response for. It can be free-form text or it can use handlebars variables to substitute values from the Firestore document. For example if you set this parameter as "What is the capital of {{ country }}?"
-
-* Variable fields: A comma separated list of fields to substitute as variables in the prompt.
 
 * Image field (Gemini Pro Vision): A document field containing a cloud storage URL of an image, or a base64 string of an image. Note that this field is only supported by Gemini, and only with the Gemini Pro Vision model.
 
