@@ -1,3 +1,7 @@
+## Version 0.0.9
+
+- fix typo in documentation
+
 ## Version 0.0.8
 
 - Update documentation
