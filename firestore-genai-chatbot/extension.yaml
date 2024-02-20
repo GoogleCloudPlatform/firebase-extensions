@@ -1,5 +1,5 @@
 name: firestore-genai-chatbot
-version: 0.0.8
+version: 0.0.9
 specVersion: v1beta
 
 icon: icon.png
