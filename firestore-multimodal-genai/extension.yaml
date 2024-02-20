@@ -98,7 +98,7 @@ params:
   - param: MODEL
     label: Gemini model
     description: >-
-      Input the name of theWhich Gemini model you would like to use. To view
+      Input the name of the Gemini model you would like to use. To view
       available models for each provider, see: [Vertex AI Gemini
       models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models),
       [Google AI Gemini models](https://ai.google.dev/models/gemini)
