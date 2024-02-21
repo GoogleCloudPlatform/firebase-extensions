@@ -10,7 +10,11 @@
 
 On install you will be asked to provide:
 
-- **Gemini API Provider** This extension makes use of the Gemini family of models. Currently the extension supports the Google AI Gemini API and the Vertex AI Gemini API. Learn more about the differences between the Google AI and Vertex AI Gemini APIs here.
+- **Gemini API Provider** This extension makes use of the Gemini family of models. Currently the extension supports the Google AI Gemini API and the Vertex AI Gemini API. Learn more about the differences between the Google AI and Vertex AI Gemini APIs [here](https://cloud.google.com/vertex-ai/docs/generative-ai/migrate/migrate-google-ai).
+
+Note that Generative AI on Vertex AI is only available in the regions listed [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/locations-genai).
+
+A list of languages and regions supported by the Gemini API on Google AI is [here](https://ai.google.dev/available_regions).
 
 - **Gemini Model**: Input the name of the Gemini model you would like to use. To view available models for each provider, see:
 - [Vertex AI Gemini models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models)
@@ -83,7 +87,7 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Order Field: The field by which to order when fetching conversation history. If absent when processing begins, the current timestamp will be written to this field. Sorting will be in descending order.
 
-* Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
+* Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations). Note that Generative AI on Vertex AI is only available in the regions listed [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/locations-genai). A list of languages and regions supported by the Gemini API on Google AI is [here](https://ai.google.dev/available_regions).
 
 * Context: Contextual preamble for the generative AI model. A string giving context for the discussion.
 
