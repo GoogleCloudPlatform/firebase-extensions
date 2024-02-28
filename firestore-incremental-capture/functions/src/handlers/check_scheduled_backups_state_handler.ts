@@ -63,6 +63,7 @@ export const checkScheduledBackupStateHandler = async (data: any) => {
         restoreRef,
         restoreData?.destinationDatabaseId
       );
+      await scheduledBackups.enqueueCheckDataflowStatus(jobId);
     } else {
       functions.logger.info('Operation still running');
       await scheduledBackups.enqueueCheckOperationStatus(jobId);
