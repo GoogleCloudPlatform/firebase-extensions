@@ -72,7 +72,7 @@ export async function launchJob(
     dataflowJob: response.job,
   });
 
-  await scheduledBackups.enqueueCheckDataflowStatus(runId);
+  await scheduledBackups.enqueueCheckDataflowStatus(response.job!.id!);
 
   logger.info(`Launched job named ${response.job?.name} successfully`, {
     job_response: response,
