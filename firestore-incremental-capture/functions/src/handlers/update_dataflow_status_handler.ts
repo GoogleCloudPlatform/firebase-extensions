@@ -38,26 +38,31 @@ export const checkDataflowJobStateHandler = async (data: any) => {
             jobId: jobId,
         });
 
-        // Get the state of the last dataflow stage
-        const jobState = jobStatusResult[0][jobStatusResult[0].length - 1].state;
+        // Check if all stages have succeeded
+        const allStagesSucceeded = jobStatusResult[0].every(stage => stage.state === 'EXECUTION_STATE_SUCCEEDED');
 
-        // Update the job doc based on the job state
-        switch (jobState) {
-            case 'EXECUTION_STATE_SUCCEEDED':
-                await scheduledBackups.updateRestoreJobDoc(restoreRef, {
-                    status: { message: RestoreStatus.COMPLETED },
-                });
-                break;
-            case 'EXECUTION_STATE_FAILED':
-            case 'EXECUTION_STATE_CANCELLED':
-                await scheduledBackups.updateRestoreJobDoc(restoreRef, {
-                    status: { message: RestoreStatus.FAILED },
-                });
-                break;
-            default:
-                functions.logger.info('Dataflow job still running');
-                await scheduledBackups.enqueueCheckDataflowStatus(jobId);
+        // Update the job doc
+        if (allStagesSucceeded) {
+            await scheduledBackups.updateRestoreJobDoc(restoreRef, {
+                status: { message: RestoreStatus.COMPLETED },
+            });
+            return;
         }
+
+        // Check if any stage is failed/cancelled
+        const anyStageFailedOrCancelled = jobStatusResult[0].some(stage => stage.state === 'EXECUTION_STATE_FAILED' || stage.state === 'EXECUTION_STATE_CANCELLED');
+
+        if (anyStageFailedOrCancelled) {
+            await scheduledBackups.updateRestoreJobDoc(restoreRef, {
+                status: { message: RestoreStatus.FAILED },
+            });
+            return;
+        }
+
+        functions.logger.info('Dataflow job still running');
+
+        // Update the job doc
+        await scheduledBackups.enqueueCheckDataflowStatus(jobId);
     } catch (error: any) {
         functions.logger.error('Error processing dataflow job', error);
         await scheduledBackups.updateRestoreJobDoc(restoreRef, {
