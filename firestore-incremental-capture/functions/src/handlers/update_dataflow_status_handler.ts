@@ -18,51 +18,50 @@ import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 
 import config from '../config';
-import {RestoreStatus, ScheduledBackups} from '../common';
-import {MetricsV1Beta3Client, protos} from '@google-cloud/dataflow';
-
-const ExecutionState = protos.google.dataflow.v1beta3.ExecutionState;
+import { RestoreStatus, ScheduledBackups } from '../common';
+import { MetricsV1Beta3Client } from '@google-cloud/dataflow';
 
 const scheduledBackups = new ScheduledBackups();
 const metrics = new MetricsV1Beta3Client();
 
 export const checkDataflowJobStateHandler = async (data: any) => {
-  const jobId = data?.jobId;
+    const jobId = data?.jobId;
 
-  functions.logger.info('A dataflow event has been recieved', data);
-  const restoreRef = admin.firestore().doc(`${config.jobsCollection}/${jobId}`);
+    functions.logger.info('A dataflow event has been recieved', data);
+    const restoreRef = admin.firestore().doc(`${config.jobsCollection}/${jobId}`);
 
-  try {
-    // Get the dataflow job details
-    const jobStatusResult = await metrics.getJobExecutionDetails({
-      projectId: config.projectId,
-      location: config.location,
-      jobId: jobId,
-    });
-
-    // Get the state of the last dataflow stage
-    const jobState = jobStatusResult[0][jobStatusResult[0].length - 1].state;
-
-    // Update the job doc based on the job state
-    switch (jobState) {
-      case ExecutionState.EXECUTION_STATE_SUCCEEDED:
-        await scheduledBackups.updateRestoreJobDoc(restoreRef, {
-          status: {message: RestoreStatus.COMPLETED},
+    try {
+        // Get the dataflow job details
+        const jobStatusResult = await metrics.getJobExecutionDetails({
+            projectId: config.projectId,
+            location: config.location,
+            jobId: jobId,
         });
-        break;
-      case ExecutionState.EXECUTION_STATE_FAILED:
-      case ExecutionState.EXECUTION_STATE_CANCELLED:
+
+        // Get the state of the last dataflow stage
+        const jobState = jobStatusResult[0][jobStatusResult[0].length - 1].state;
+
+        // Update the job doc based on the job state
+        switch (jobState) {
+            case 'EXECUTION_STATE_SUCCEEDED':
+                await scheduledBackups.updateRestoreJobDoc(restoreRef, {
+                    status: { message: RestoreStatus.COMPLETED },
+                });
+                break;
+            case 'EXECUTION_STATE_FAILED':
+            case 'EXECUTION_STATE_CANCELLED':
+                await scheduledBackups.updateRestoreJobDoc(restoreRef, {
+                    status: { message: RestoreStatus.FAILED },
+                });
+                break;
+            default:
+                functions.logger.info('Dataflow job still running');
+                await scheduledBackups.enqueueCheckDataflowStatus(jobId);
+        }
+    } catch (error: any) {
+        functions.logger.error('Error processing dataflow job', error);
         await scheduledBackups.updateRestoreJobDoc(restoreRef, {
-          status: {message: RestoreStatus.FAILED},
+            status: { message: RestoreStatus.FAILED, error: error.message },
         });
-      default:
-        functions.logger.info('Dataflow job still running');
-        await scheduledBackups.enqueueCheckDataflowStatus(data.jobId);
     }
-  } catch (error: any) {
-    functions.logger.error('Error processing dataflow job', error);
-    await scheduledBackups.updateRestoreJobDoc(restoreRef, {
-      status: {message: RestoreStatus.FAILED, error: error.message},
-    });
-  }
 };

@@ -18,7 +18,7 @@ import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 
 import config from '../config';
-import {launchJob, RestoreStatus, ScheduledBackups} from '../common';
+import { launchJob, RestoreStatus, ScheduledBackups } from '../common';
 
 const scheduledBackups = new ScheduledBackups();
 
@@ -55,15 +55,16 @@ export const checkScheduledBackupStateHandler = async (data: any) => {
     if (newOperation.done) {
       // Once the operation is complete, update the restore doc to trigger the next step
       await scheduledBackups.updateRestoreJobDoc(restoreRef, {
-        status: {message: RestoreStatus.RUNNING_DATAFLOW},
+        status: { message: RestoreStatus.RUNNING_DATAFLOW },
       });
 
-      await launchJob(
+      const response = await launchJob(
         (restoreData.timestamp as admin.firestore.Timestamp).seconds,
         restoreRef,
         restoreData?.destinationDatabaseId
       );
-      await scheduledBackups.enqueueCheckDataflowStatus(jobId);
+
+      await scheduledBackups.enqueueCheckDataflowStatus(response.job!.id!);
     } else {
       functions.logger.info('Operation still running');
       await scheduledBackups.enqueueCheckOperationStatus(jobId);
@@ -71,7 +72,7 @@ export const checkScheduledBackupStateHandler = async (data: any) => {
   } catch (error: any) {
     functions.logger.error('Error processing operation', error);
     await scheduledBackups.updateRestoreJobDoc(restoreRef, {
-      status: {message: RestoreStatus.FAILED, error: error.message},
+      status: { message: RestoreStatus.FAILED, error: error.message },
     });
   }
 };
