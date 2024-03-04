@@ -12,7 +12,7 @@ import {
 } from '../../src/common/vertex';
 import * as admin from 'firebase-admin';
 import config from '../../src/config';
-import {Query} from '../../src/types/query';
+import { Query } from '../../src/types/query';
 
 jest.mock('../../src/config', () => ({
   default: {
@@ -71,7 +71,7 @@ describe('createIndex', () => {
 
   test('should error out if operation from client has error property', async () => {
     mockCreateIndex.mockImplementation(() =>
-      Promise.resolve([{error: new Error('test error')}])
+      Promise.resolve([{ error: new Error('test error') }])
     );
     try {
       await createIndex();
@@ -87,7 +87,7 @@ describe('createIndexEndpoint', () => {
 
   test('should error out if operation from client has error property', async () => {
     mockCreateIndexEndpoint.mockImplementation(() =>
-      Promise.resolve([{error: new Error('test error')}])
+      Promise.resolve([{ error: new Error('test error') }])
     );
 
     try {
@@ -105,7 +105,7 @@ describe('deployIndex', () => {
 
   test('should error out if operation from client has error property', async () => {
     mockDeployIndex.mockImplementationOnce(() =>
-      Promise.resolve([{error: new Error('test error')}])
+      Promise.resolve([{ error: new Error('test error') }])
     );
 
     try {
@@ -124,7 +124,7 @@ describe('deployIndex', () => {
     config.machineType = 'test-machine-type';
 
     mockDeployIndex.mockImplementationOnce(() =>
-      Promise.resolve([{name: 'test-name'}])
+      Promise.resolve([{ name: 'test-name' }])
     );
 
     await deployIndex('test-endpoint', 'test-index');
@@ -156,7 +156,7 @@ describe('deployIndex', () => {
     config.machineType = 'test-machine-type';
 
     mockDeployIndex.mockImplementationOnce(() =>
-      Promise.resolve([{name: 'test-name'}])
+      Promise.resolve([{ name: 'test-name' }])
     );
 
     await deployIndex('test-endpoint', 'test-index');
@@ -206,7 +206,7 @@ describe('upsertDatapoint', () => {
 
   test('should post with correct data', async () => {
     await upsertDatapoint('test-index-resource-name', [
-      {datapoint_id: 'test-id', feature_vector: [1, 2, 3]},
+      { datapoint_id: 'test-id', feature_vector: [1, 2, 3] },
     ]);
 
     const expectedUrl =
@@ -274,7 +274,7 @@ describe('queryIndex', () => {
 
     const indexEndpoint = 'test-index-endpoint';
 
-    mockPost.mockImplementationOnce(() => Promise.resolve({data: 'test-data'}));
+    mockPost.mockImplementationOnce(() => Promise.resolve({ data: 'test-data' }));
 
     const result = await queryIndex(
       queries,
@@ -290,9 +290,9 @@ describe('queryIndex', () => {
       expectedUrl,
       {
         deployed_index_id: 'ext_test_instance_index',
-        neighbor_count: 1,
         queries: [
           {
+            neighbor_count: 1,
             datapoint: {
               datapoint_id: 'test-id',
               feature_vector: [1, 2, 3],
@@ -318,7 +318,7 @@ describe('getOperationByName', () => {
   });
 
   test('should get with correct request', async () => {
-    mockGet.mockImplementationOnce(() => Promise.resolve({data: 'test-data'}));
+    mockGet.mockImplementationOnce(() => Promise.resolve({ data: 'test-data' }));
     await getOperationByName('test-operation-name');
 
     expect(mockGet).toHaveBeenCalled();
@@ -340,7 +340,7 @@ describe('cancelOperationByName', () => {
   });
 
   test('should get with correct request', async () => {
-    mockPost.mockImplementationOnce(() => Promise.resolve({data: 'test-data'}));
+    mockPost.mockImplementationOnce(() => Promise.resolve({ data: 'test-data' }));
     await cancelOperationByName('test-operation-name');
 
     expect(mockPost).toHaveBeenCalled();
@@ -365,7 +365,7 @@ describe('deleteOperationByName', () => {
 
   test('should delete with correct request', async () => {
     mockDelete.mockImplementationOnce(() =>
-      Promise.resolve({data: 'test-data'})
+      Promise.resolve({ data: 'test-data' })
     );
     await deleteOperationByName('test-operation-name');
 
@@ -390,7 +390,7 @@ describe('checkIndexStatus', () => {
     jest.clearAllMocks();
     await fetch(
       `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
-      {method: 'DELETE'}
+      { method: 'DELETE' }
     );
   });
 
