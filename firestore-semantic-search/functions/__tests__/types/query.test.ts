@@ -1,4 +1,4 @@
-import { Query } from '../../src/types/query';
+import {Query} from '../../src/types/query';
 
 describe('Query class tests', () => {
   test('should initialize the Query object with given id and featureVector', () => {
