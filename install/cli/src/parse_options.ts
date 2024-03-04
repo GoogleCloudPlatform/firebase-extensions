@@ -7,7 +7,7 @@ program
   )
   .option('-p, --projectId <projectId>', 'Project ID')
   .option('-l, --location <location>', 'Location')
-  .option('-e, --extInstanceId <extInstanceId>', 'External Instance ID')
+  .option('-e, --extInstanceId <extInstanceId>', 'Extension Instance ID')
   .option(
     '-j --jarLocalDir <jarLocalDir>',
     'Path to local directory to save the JAR file'
@@ -35,7 +35,7 @@ export async function getMissingOptions() {
     questions.push({
       type: 'input',
       name: 'extInstanceId',
-      message: 'What is your External Instance ID?',
+      message: 'What is your Extension Instance ID?',
     });
   }
   if (!options.jarLocalPath) {

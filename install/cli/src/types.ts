@@ -1,6 +1,6 @@
 export interface Options {
   projectId: string;
   location: string;
-  extensionInstanceId: string;
+  extInstanceId: string;
   jarLocalDir: string;
 }

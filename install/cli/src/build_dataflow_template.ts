@@ -8,14 +8,14 @@ import path from 'path';
 const execP = util.promisify(exec);
 
 export async function buildDataflowFlexTemplate(options: Options) {
-  const { projectId, location, extensionInstanceId } = options;
+  const { projectId, location, extInstanceId } = options;
 
   const jarPath = path.join(options.jarLocalDir, 'restore-firestore.jar');
 
   console.log(chalk.yellow('Step 6: Building Dataflow Flex Template...'));
   try {
-    await execP(`gcloud dataflow flex-template build gs://${projectId}.appspot.com/${extensionInstanceId}-dataflow-restore \
-    --image-gcr-path ${location}-docker.pkg.dev/${projectId}/${extensionInstanceId}/dataflow/restore:latest \
+    await execP(`gcloud dataflow flex-template build gs://${projectId}.appspot.com/${extInstanceId}-dataflow-restore \
+    --image-gcr-path ${location}-docker.pkg.dev/${projectId}/${extInstanceId}/dataflow/restore:latest \
     --sdk-language JAVA \
     --flex-template-base-image JAVA11 \
     --jar ${jarPath} \
