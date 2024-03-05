@@ -38,6 +38,6 @@ const processor = new FirestoreOnWriteProcessor<
 
 export const generateMessage = functions.firestore
   .document(config.collectionName)
-  .onWrite(async change => {
+  .onCreate(async change => {
     return processor.run(change);
   });
