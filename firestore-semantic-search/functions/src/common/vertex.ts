@@ -259,9 +259,8 @@ export async function queryIndex(
     const response = await axios.post(
       `https://${endpoint}/v1beta1/projects/${config.projectId}/locations/${config.location}/indexEndpoints/${indexEndpoint}:findNeighbors`,
       {
-        queries: queries.map(query => query.toVertexQuery()),
+        queries: queries.map(query => query.toVertexQuery(searchResults)),
         deployed_index_id: `ext_${config.instanceId.replace(/-/g, '_')}_index`,
-        neighbor_count: searchResults,
       },
       {
         headers: {
