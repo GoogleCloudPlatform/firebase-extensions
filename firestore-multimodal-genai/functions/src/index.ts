@@ -29,16 +29,12 @@ import {
   variableTypeError,
 } from './errors';
 
-const {
-  prompt,
-  responseField,
-  collectionName,
-  candidateCount,
-  candidatesField,
-  variableFields,
-} = config;
+const {prompt, responseField, collectionName, candidateCount, candidatesField} =
+  config;
 
-import {getGenerativeClient} from './generative-client/generate';
+import {getGenerativeClient} from './generative-client';
+import {extractHandlebarsVariables} from './utils';
+// import {fetchCustomHookData} from './custom_hook';
 
 // TODO: make sure we redact API KEY
 // logs.init(config);
@@ -85,6 +81,20 @@ export const generateText = functions.firestore
     try {
       const view: Record<string, string> = {};
 
+      // if (config.ragConfig?.customRagHookUrl) {
+      //   // TODO: extract the variable field values before passing to hook
+      //   const customHookData = await fetchCustomHookData(
+      //     data,
+      //     config.ragConfig
+      //   );
+      //   data = {
+      //     ...data,
+      //     ...customHookData,
+      //   };
+      // }
+
+      const variableFields = extractHandlebarsVariables(prompt);
+
       for (const field of variableFields || []) {
         if (!data[field]) {
           throw missingVariableError(field);
@@ -101,14 +111,10 @@ export const generateText = functions.firestore
       const t0 = performance.now();
       let requestOptions = {};
       if (config.googleAi.model === 'gemini-pro-vision') {
-        if (!data[config.imageField]) {
-          throw new Error(
-            `Gemini Pro Vision requires you to provide an image but you are missing any ${config.imageField} value!`
-          );
-        }
         requestOptions = {
           ...requestOptions,
           image: data[config.imageField],
+          safetySettings: config.safetySettings,
         };
       }
 

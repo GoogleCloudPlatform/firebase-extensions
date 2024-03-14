@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {SafetySetting as VertexSafetySetting} from '@google-cloud/vertexai';
 
-import {GLSafetySetting, GLHarmCategory, GLHarmBlockThreshold} from './types';
+import {SafetySetting as GoogleAISafetySetting} from '@google/generative-ai';
 
 export enum GenerativeAIProvider {
   GOOGLE_AI = 'google-ai',
@@ -23,10 +24,10 @@ export enum GenerativeAIProvider {
 
 export interface Config {
   vertex: {
-    model?: string;
+    model: string;
   };
   googleAi: {
-    model?: string;
+    model: string;
     apiKey?: string;
   };
   location: string;
@@ -41,96 +42,57 @@ export interface Config {
   candidateCount?: number;
   candidatesField?: string;
   maxOutputTokens?: number;
-  variableFields?: string[];
   maxOutputTokensVertex?: number;
   provider?: string;
   apiKey?: string;
-  generativeSafetySettings?: GLSafetySetting[];
+  safetySettings?: GoogleAISafetySetting[] | VertexSafetySetting[];
   bucketName?: string;
   imageField: string;
+  // ragConfig: {
+  //   customRagHookUrl?: string;
+  //   customRagHookApiKey?: string;
+  //   ragHookInputFields?: string[];
+  //   ragHookOutputFields?: string[];
+  // };
 }
 
-function getModel() {
+function getSafetySettings(): GoogleAISafetySetting[] | VertexSafetySetting[] {
+  const categories = [
+    'HARM_CATEGORY_HATE_SPEECH',
+    'HARM_CATEGORY_DANGEROUS_CONTENT',
+    'HARM_CATEGORY_HARASSMENT',
+    'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+  ];
+
+  const settings = [];
+
+  for (const category of categories) {
+    if (process.env[category]) {
+      settings.push({
+        category,
+        threshold: process.env[category],
+      });
+    }
+  }
+
   switch (process.env.GENERATIVE_AI_PROVIDER) {
     case 'vertex-ai':
-      switch (process.env.MODEL) {
-        case 'gemini-pro':
-          return 'gemini-pro';
-        case 'gemini-ultra':
-          return 'gemini-ultra';
-        case 'gemini-pro-vision':
-          return 'gemini-pro-vision';
-        default:
-          throw new Error('Invalid model');
-      }
+      return settings as VertexSafetySetting[];
     case 'google-ai':
-      switch (process.env.MODEL) {
-        case 'gemini-pro':
-          return 'gemini-pro';
-        case 'gemini-ultra':
-          return 'gemini-ultra';
-        case 'gemini-pro-vision':
-          return 'gemini-pro-vision';
-        default:
-          throw new Error('Invalid model');
-      }
+      return settings as GoogleAISafetySetting[];
     default:
-      throw new Error('Invalid provider');
+      throw new Error('Invalid Provider');
   }
-}
-
-function getGenerativeSafetySettings() {
-  const {
-    UNSPECIFIED_THRESHOLD,
-    DEROGATORY_THRESHOLD,
-    TOXICITY_THRESHOLD,
-    VIOLENCE_THRESHOLD,
-    SEXUAL_THRESHOLD,
-    MEDICAL_THRESHOLD,
-    DANGEROUS_THRESHOLD,
-  } = process.env as Record<string, keyof typeof GLHarmBlockThreshold>;
-
-  // Array to map categories to their environmental variables
-  return [
-    {
-      category: GLHarmCategory.HARM_CATEGORY_UNSPECIFIED,
-      threshold: UNSPECIFIED_THRESHOLD!,
-    },
-    {
-      category: GLHarmCategory.HARM_CATEGORY_DEROGATORY,
-      threshold: DEROGATORY_THRESHOLD!,
-    },
-    {
-      category: GLHarmCategory.HARM_CATEGORY_TOXICITY,
-      threshold: TOXICITY_THRESHOLD!,
-    },
-    {
-      category: GLHarmCategory.HARM_CATEGORY_VIOLENCE,
-      threshold: VIOLENCE_THRESHOLD!,
-    },
-    {
-      category: GLHarmCategory.HARM_CATEGORY_SEXUAL,
-      threshold: SEXUAL_THRESHOLD!,
-    },
-    {
-      category: GLHarmCategory.HARM_CATEGORY_MEDICAL,
-      threshold: MEDICAL_THRESHOLD!,
-    },
-    {
-      category: GLHarmCategory.HARM_CATEGORY_DANGEROUS,
-      threshold: DANGEROUS_THRESHOLD!,
-    },
-  ];
 }
 
 const defaultBucketName = `${process.env.PROJECT_ID}.appspot.com`;
 
-const config: Config = {
+export default {
   vertex: {
-    model: getModel(),
+    model: process.env.MODEL!,
   },
   googleAi: {
-    model: getModel(),
+    model: process.env.MODEL!,
     apiKey: process.env.API_KEY,
   },
   location: process.env.LOCATION!,
@@ -150,17 +112,22 @@ const config: Config = {
     ? parseInt(process.env.CANDIDATE_COUNT)
     : 1,
   candidatesField: process.env.CANDIDATES_FIELD || 'candidates',
-  variableFields: process.env.VARIABLE_FIELDS
-    ? process.env.VARIABLE_FIELDS.split(',')
-    : undefined,
   provider: process.env.GENERATIVE_AI_PROVIDER,
   maxOutputTokensVertex: process.env.MAX_OUTPUT_TOKENS
     ? parseInt(process.env.MAX_OUTPUT_TOKENS)
     : 1024,
   apiKey: process.env.API_KEY,
-  generativeSafetySettings: getGenerativeSafetySettings(),
+  safetySettings: getSafetySettings(),
   bucketName: process.env.BUCKET_NAME || defaultBucketName,
   imageField: process.env.IMAGE_FIELD || 'image',
+  // ragConfig: {
+  //   customRagHookUrl: process.env.CUSTOM_RAG_HOOK_URL,
+  //   ragHookInputFields: process.env.RAG_HOOK_INPUT_FIELDS
+  //     ? process.env.RAG_HOOK_INPUT_FIELDS.split(',')
+  //     : undefined,
+  //   ragHookOutputFields: process.env.RAG_HOOK_OUTPUT_FIELDS
+  //     ? process.env.RAG_HOOK_OUTPUT_FIELDS.split(',')
+  //     : undefined,
+  //   // customRagHookApiKey: process.env.RAG_HOOK_API_KEY,
+  // },
 };
-
-export default config;

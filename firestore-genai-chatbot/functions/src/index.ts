@@ -15,7 +15,6 @@
  */
 
 import * as functions from 'firebase-functions';
-import * as logs from './logs';
 import config from './config';
 import {FirestoreOnWriteProcessor} from './firestore-onwrite-processor';
 import {generateChatResponse} from './generate_chat_response';

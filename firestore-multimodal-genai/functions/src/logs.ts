@@ -17,7 +17,7 @@
 import {logger} from 'firebase-functions';
 import {Config} from './config';
 
-const extensionName = 'firestore-palm-gen-text';
+const EXTENSION_NAME = 'firestore-multimodal-genai';
 
 export const init = (config: Config) => {
   const obfuscatedConfig = {
@@ -34,27 +34,26 @@ export const init = (config: Config) => {
 
 export const missingField = (field: string, path: string) => {
   logger.info(
-    `[${extensionName}] Missing ordering field '${field}' on document '${path}', setting to current timestamp.`
+    `[${EXTENSION_NAME}] Missing ordering field '${field}' on document '${path}', setting to current timestamp.`
   );
 };
 
 export const receivedAPIResponse = (path: string, duration: number) => {
   logger.info(
-    `[${extensionName}] Received API response for document '${path}' in ${duration}ms.`,
-    {duration}
+    `[${EXTENSION_NAME}] Received API response for document '${path}' in ${duration}ms.`
   );
 };
 
 export const errorCallingGLMAPI = (path: string, error: any) => {
   logger.error(
-    `[${extensionName}] Error calling Gemini API for document '${path}': ${
+    `[${EXTENSION_NAME}] Error calling Gemini API for document '${path}': ${
       error.message || 'UNKNOWN ERROR'
     }`
   );
 };
 export const usingADC = () => {
   logger.log(
-    `[${extensionName}] no API key provided, using application default credentials.`
+    `[${EXTENSION_NAME}] no API key provided, using application default credentials.`
   );
 };
 

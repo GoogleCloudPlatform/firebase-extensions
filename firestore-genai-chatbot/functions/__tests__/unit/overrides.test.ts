@@ -1,12 +1,13 @@
 import {extractOverrides} from '../../src/overrides'; // Adjust the import as per your file structure
 
 describe('extractOverrides function', () => {
-  let mockDocSnap;
+  let mockDocSnap: any;
 
   beforeEach(() => {
     mockDocSnap = {
       get: jest.fn(field => mockDocSnap[field]),
       exists: jest.fn().mockReturnValue(true),
+      data: () => mockDocSnap,
       // Mock other necessary DocumentSnapshot methods here
     };
   });
@@ -55,9 +56,6 @@ describe('extractOverrides function', () => {
     mockDocSnap['context'] = 123; // Invalid context
     mockDocSnap['topK'] = 'not-a-number'; // Invalid topK
 
-    const overrides = extractOverrides(mockDocSnap);
-
-    // Expect the function to skip invalid fields or handle them as per your error handling logic
-    expect(overrides).toEqual({});
+    expect(() => extractOverrides(mockDocSnap)).toThrow();
   });
 });

@@ -13,7 +13,9 @@ describe('Query class tests', () => {
   test('toVertexQuery() should return the proper vertex query format', () => {
     const id = 'testId';
     const featureVector = [0.5, 0.6, 0.7];
+    const neighborCount = 10;
     const expectedVertexQuery = {
+      neighbor_count: neighborCount,
       datapoint: {
         datapoint_id: id,
         feature_vector: featureVector,
@@ -21,7 +23,7 @@ describe('Query class tests', () => {
     };
     const query = new Query(id, featureVector);
 
-    const result = query.toVertexQuery();
+    const result = query.toVertexQuery(neighborCount);
     expect(result).toEqual(expectedVertexQuery);
   });
 });
