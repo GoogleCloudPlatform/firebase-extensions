@@ -290,9 +290,9 @@ describe('queryIndex', () => {
       expectedUrl,
       {
         deployed_index_id: 'ext_test_instance_index',
-        neighbor_count: 1,
         queries: [
           {
+            neighbor_count: 1,
             datapoint: {
               datapoint_id: 'test-id',
               feature_vector: [1, 2, 3],

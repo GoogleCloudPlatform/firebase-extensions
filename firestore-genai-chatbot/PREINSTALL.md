@@ -1,12 +1,18 @@
-Use this extension to easily deploy a chatbot using Gemini large language models, stored and managed by Cloud Firestore.
+Use this extension to easily deploy a chatbot using Gemini models, stored and managed by Cloud Firestore.
 
 On install you will be asked to provide:
 
-- **Generative AI Provider** This extension makes use of the Gemini family of large language models. Currently the extension only supports the Google AI API (for developers) but in future will support the Vertex AI Gemini API.
+- **Gemini API Provider** This extension makes use of the Gemini family of models. Currently the extension supports the Google AI Gemini API and the Vertex AI Gemini API. Learn more about the differences between the Google AI and Vertex AI Gemini APIs [here](https://cloud.google.com/vertex-ai/docs/generative-ai/migrate/migrate-google-ai).
 
-- **Language model**: Which language model do you want to use? Please ensure you pick a model supported by your selected provider.
+Note that Generative AI on Vertex AI is only available in the regions listed [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/locations-genai).
 
-- **Firestore collection path**: Used to store conversation history represented as documents. This extension will listen to the specified collection(s) for new message documents.
+A list of languages and regions supported by the Gemini API on Google AI is [here](https://ai.google.dev/available_regions).
+
+- **Gemini Model**: Input the name of the Gemini model you would like to use. To view available models for each provider, see:
+- [Vertex AI Gemini models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models)
+- [Google AI Gemini models](https://ai.google.dev/models/gemini)
+
+- **Firestore Collection Path**: Used to store conversation history represented as documents. This extension will listen to the specified collection(s) for new message documents.
 
 The collection path also supports wildcards, so you can trigger the extension on multiple collections, each with their own private conversation history. This is useful if you want to create separate conversations for different users, or support multiple chat sessions.
 
@@ -24,7 +30,7 @@ When a message document is added, the extension will:
 - Query the language model you selected during configuration.
 - Write the message back to the triggering document in a configurable response field.
 
-A createTime field will be automatically created for you on document creation, and will be used to order the conversation history. Gemini, like any other LLM, will have a limited context window, so only the most recent messages will be used as history to generate the next response. Alternatively, If documents in the specified collection already contain a field representing timestamps, you can use that as the order field instead.
+A createTime field (or a field by another name if provided during installation) will be automatically created for you on document creation, and will be used to order the conversation history. The chosen generative model will have a limited context window, so only the most recent messages will be used as history to generate the next response. Alternatively, If documents in the specified collection already contain a field representing timestamps, you can use that as the order field instead.
 
 You can configure the chatbot to return different responses by providing context during installation. For example, if you want the chatbot to act as a travel guide, you might use this as the context:
 
@@ -34,15 +40,9 @@ I want you to act as a travel guide. I will ask you questions about various trav
 
 You can also configure the model to return different results by tweaking model parameters (temperature, candidate count, etc.), which are exposed as configuration during install as well.
 
-### Choosing a language model
-
-This extension supports the following language models:
-
-- [Gemini Pro](https://ai.google.dev/models/gemini)
-
 ## Additional Setup
 
-Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project.
+Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) set up in your Firebase project, set up in your Firebase project, and have obtained an API key for the Gemini API.
 
 ### Regenerating a response
 
@@ -55,7 +55,7 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 - Cloud Firestore
 - Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
+- Associated costs for using Vertex AI ([see their pricing](https://cloud.google.com/vertex-ai/pricing#generative_ai_models)) if you use this provider.
+- Associated costs for using Google AI ([see their pricing](https://ai.google.dev/pricing)) if you use this provider.
 
 [Learn more about Firebase billing.](https://firebase.google.com/pricing)
-
-Additionally, this extension uses the Google AI Gemini API. For more details on this Gemini API, see the [Gemini homepage](https://ai.google.dev/docs).

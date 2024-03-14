@@ -14,21 +14,8 @@
  * limitations under the License.
  */
 
-import * as generativeLanguage from '@google-ai/generativelanguage';
-import * as vertex from '@google-cloud/aiplatform';
-
-export type APIGenerateMessageRequest =
-  generativeLanguage.protos.google.ai.generativelanguage.v1beta2.IGenerateMessageRequest;
-export type APIMessage =
-  generativeLanguage.protos.google.ai.generativelanguage.v1beta2.IMessage;
-export type APIExample =
-  generativeLanguage.protos.google.ai.generativelanguage.v1beta2.IExample;
-
-export type VertexPredictRequest =
-  vertex.protos.google.cloud.aiplatform.v1beta1.IPredictRequest;
-
-export type VertexPredictResponse =
-  vertex.protos.google.cloud.aiplatform.v1beta1.IPredictResponse;
+import {SafetySetting as VertexSafetySetting} from '@google-cloud/vertexai';
+import {SafetySetting as GoogleAISafetySetting} from '@google/generative-ai';
 
 // our own types
 
@@ -113,20 +100,20 @@ export interface GenerateMessageOptions {
    * Set candidateCount for this discussion.
    **/
   candidateCount?: number;
+
+  safetySettings?: VertexSafetySetting[] | GoogleAISafetySetting[];
   /**
    * Pass a previously returned response to continue a conversation.
    */
   continue?: GenerateMessageResponse;
+  /**
+   * Controls the length of the response, if possible.
+   */
+  maxOutputTokens?: number;
 }
 
 export interface GenerateMessageResponse {
   response: string;
   history: Message[];
   candidates: string[];
-}
-
-export interface PaLMPrompt {
-  messages: APIMessage[];
-  context?: string;
-  examples?: APIExample[];
 }

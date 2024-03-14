@@ -16,7 +16,7 @@ jest.mock('../src/config', () => ({
     projectId: 'test-project',
     instanceId: 'test-instance',
     collectionName: 'summariesTest/{summaryId}/messages',
-    model: 'text-bison@001',
+    model: 'text-bison',
     textField: 'text',
     responseField: 'output',
     provider: 'vertex',
@@ -283,7 +283,7 @@ describe('generateText with vertex', () => {
     // verify SDK is called with expected arguments
     const expectedRequestData = {
       endpoint:
-        'projects/test-project/locations/us-central1/publishers/google/models/text-bison@001',
+        'projects/test-project/locations/us-central1/publishers/google/models/text-bison',
       instances: instances,
       parameters,
     };

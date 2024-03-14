@@ -3,7 +3,7 @@ import {Timestamp} from 'firebase-admin/firestore';
 export const expectToProcessCorrectly = (
   firestoreCallData: any[],
   message: any,
-  addCreateTime = true,
+  _addCreateTime = true,
   mockResponse = 'test response'
 ) => {
   expect(firestoreCallData[0]).toEqual({

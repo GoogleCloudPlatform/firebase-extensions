@@ -1,3 +1,7 @@
+## Version 0.1.11
+
+feat - support latest PaLM models
+
 ## Version 0.1.10
 
 fixed - fixed issue with "Block none" in safety threshold configs
@@ -28,11 +32,11 @@ fixed - fix regen functionality for PaLM (#86)
 
 - Added a content filter threshold parameter
 - bumped dependencies
+
 ## Version 0.1.7
 
 - Improved summarization prompt to reduce hallucinations
 - Added parameter for max output tokens on response
-
 
 ## Version 0.1.6
 

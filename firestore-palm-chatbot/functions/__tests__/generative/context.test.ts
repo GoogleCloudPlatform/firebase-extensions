@@ -22,7 +22,7 @@ jest.mock('../../src/config', () => ({
     enableDiscussionOptionOverrides: true,
     candidatesField: 'candidates',
     provider: 'generative',
-    model: 'chat-bison-001',
+    model: 'chat-bison',
     context: 'Speak like Shakespeare',
   },
 }));
@@ -170,7 +170,7 @@ describe('generateMessage', () => {
     // verify SDK is called with expected arguments
     const expectedRequestData = {
       candidateCount: undefined,
-      model: 'models/chat-bison-001',
+      model: 'models/chat-bison',
       prompt: {
         messages: [
           {
@@ -258,7 +258,7 @@ describe('generateMessage', () => {
     // verify SDK is called with expected arguments
     const expectedRequestData = {
       candidateCount: undefined,
-      model: 'models/chat-bison-001',
+      model: 'models/chat-bison',
       prompt: {
         messages: [
           {
