@@ -23,8 +23,9 @@ export class Query {
     this.featureVector = featureVector;
   }
 
-  toVertexQuery() {
+  toVertexQuery(neighborCount: number) {
     return {
+      neighbor_count: neighborCount,
       datapoint: {
         datapoint_id: this.id,
         feature_vector: this.featureVector,
