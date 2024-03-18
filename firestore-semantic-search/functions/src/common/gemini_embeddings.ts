@@ -49,7 +49,7 @@ async function getEmbeddingsGemini(
 
   const model = client.getGenerativeModel({model: 'embedding-001'});
 
-  var embeddings: number[][] = [];
+  let embeddings: number[][] = [];
 
   const t0 = performance.now();
 
