@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { AlgorithmConfig } from './types/algorithm_config';
+import {AlgorithmConfig} from './types/algorithm_config';
 
 export default {
   // System vars
