@@ -220,7 +220,7 @@ params:
     description: >-
       The Firestore collection to include in the search index.
     type: string
-    validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
+    validationRegex: "^[^/]+(/[^/]+/[^/]+)*$"
     validationErrorMessage: Must be a valid Cloud Firestore Collection
     required: true
     immutable: true
@@ -262,6 +262,8 @@ params:
       Encoder](https://tfhub.dev/google/universal-sentence-encoder/4)?
     type: select
     options:
+      - label: Gemini
+        value: gemini
       - label: PaLM (Pathways Language Model)
         value: palm
       - label: Universal Sentence Encoder
@@ -279,6 +281,15 @@ params:
       - label: embedding-gecko
         value: textembedding-gecko@001
     immutable: true
+
+  - param: GOOGLE_AI_KEY
+    label: Google AI API Key
+    description: >-
+      If you have selected Gemini as your provider, then this parameter is
+      required.
+    type: secret
+    required: false
+    immutable: false
 
   - param: DISTANCE_MEASURE
     label: Distance measure type

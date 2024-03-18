@@ -15,13 +15,14 @@
  */
 
 import * as admin from 'firebase-admin';
-import {FormattedDatapoint} from '../types/formatted_datapoint';
+import { FormattedDatapoint } from '../types/formatted_datapoint';
 import config from '../config';
 import getEmbeddingsPaLM from './palm_embeddings';
 import getEmbeddingsUSE from './use_embeddings';
+import getEmbeddingsGemini from './gemini_embeddings';
 
 export const getEmbeddings =
-  config.embeddingMethod === 'palm' ? getEmbeddingsPaLM : getEmbeddingsUSE;
+  config.embeddingMethod === 'gemini' ? getEmbeddingsGemini : config.embeddingMethod === 'palm' ? getEmbeddingsPaLM : getEmbeddingsUSE;
 
 export async function getDatapoint(
   reference: admin.firestore.DocumentReference,
@@ -43,11 +44,11 @@ export async function getDatapoint(
 }
 
 export async function getDatapointsList(
-  dataList: {id: string; data: any}[]
+  dataList: { id: string; data: any }[]
 ): Promise<FormattedDatapoint[]> {
   const mappedData: string[] = [];
 
-  for (const {data} of dataList) {
+  for (const { data } of dataList) {
     if (Object.keys(data).length === 0) continue;
 
     const mapped = mapAndFilterData(data);
