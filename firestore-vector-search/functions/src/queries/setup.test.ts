@@ -1,14 +1,14 @@
-import { createIndex } from "./setup";
+import {createIndex} from './setup';
 
-describe("createIndex", () => {
+describe('createIndex', () => {
   const testOptions = {
-    collectionName: "testCollection",
+    collectionName: 'testCollection',
     dimension: 10,
-    projectId: "pfr-cloudnext-demo-ihlt100",
-    fieldPath: "testField",
+    projectId: 'pfr-cloudnext-demo-ihlt100',
+    fieldPath: 'testField',
   }; // Ensure this is your test project ID
 
-  test("should successfully create an index", async () => {
+  test('should successfully create an index', async () => {
     // Note: This test will actually attempt to create an index.
     // Ensure that your Firestore test project is configured to handle this.
     await expect(createIndex(testOptions)).resolves.toBeDefined();

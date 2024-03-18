@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-import { config } from "./config";
-import * as functions from "firebase-functions";
+import {config} from './config';
+import * as functions from 'firebase-functions';
 import {
   FirestoreBackfillOptions,
   firestoreProcessBackfillTask,
   firestoreProcessBackfillTrigger,
-} from "@invertase/firebase-extension-utilities";
-import { handleQueryCall } from "./queries/query_on_call";
+} from '@invertase/firebase-extension-utilities';
+import {handleQueryCall} from './queries/query_on_call';
 import {
   embedProcess,
   handleEmbedOnWrite,
   updateEmbedProcess,
-} from "./embeddings";
-import { handleQueryOnWrite } from "./queries";
-import { DocumentData } from "@google-cloud/firestore";
-import { getExtensions } from "firebase-admin/extensions";
-import * as logs from "./logs";
-import { createIndex } from "./queries/setup";
+} from './embeddings';
+import {handleQueryOnWrite} from './queries';
+import {DocumentData} from '@google-cloud/firestore';
+import {getExtensions} from 'firebase-admin/extensions';
+import * as logs from './logs';
+import {createIndex} from './queries/setup';
 
 logs.init();
 
@@ -46,10 +46,8 @@ export const embedOnWrite = functions.firestore
 const shouldDoBackfill = async (metadata?: DocumentData) => {
   if (!config.doBackfill) {
     await runtime.setProcessingState(
-      "PROCESSING_WARNING",
-      `Backfill is disabled, index setup will start with the first write operation to the collection ${
-        config.collectionName
-      }.`
+      'PROCESSING_WARNING',
+      `Backfill is disabled, index setup will start with the first write operation to the collection ${config.collectionName}.`
     );
     return false;
   }
@@ -62,7 +60,7 @@ const shouldDoBackfill = async (metadata?: DocumentData) => {
     metadata.outputField !== config.outputField
   ) {
     await runtime.setProcessingState(
-      "NONE",
+      'NONE',
       `Updating Embeddings for collection ${config.collectionName}.`
     );
     return true;
@@ -103,7 +101,7 @@ export const backfillTrigger = functions.tasks
       });
     } catch (e) {
       console.error(e);
-      throw new Error("Error creating firestore Vector index");
+      throw new Error('Error creating firestore Vector index');
     }
 
     return onInstallTrigger();
@@ -144,7 +142,7 @@ export const updateTrigger = functions.tasks
     } catch (e) {
       console.error(e);
       throw new Error(
-        "Error creating new firestore Vector index during update"
+        'Error creating new firestore Vector index during update'
       );
     }
 

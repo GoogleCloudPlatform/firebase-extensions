@@ -14,32 +14,31 @@
  * limitations under the License.
  */
 
-import { z } from "zod";
-import { config } from "../../../config";
-import { EmbedClient } from "../base_class";
+import {z} from 'zod';
+import {config} from '../../../config';
+import {EmbedClient} from '../base_class';
 
 const {endpoint, batchSize, dimension} = config.customEmbeddingConfig;
 
 export class CustomEndpointClient extends EmbedClient {
   constructor() {
     if (!endpoint || !batchSize || !dimension) {
-    throw new Error(
-        "One or more of the custom endpoint parameters are not defined! These parameters are required for this embedding client."
+      throw new Error(
+        'One or more of the custom endpoint parameters are not defined! These parameters are required for this embedding client.'
       );
     }
-    super({ batchSize, dimension });
+    super({batchSize, dimension});
   }
 
   async initialize() {}
 
   async getEmbeddings(batch: string[]): Promise<number[][]> {
-
     const res = await fetch(endpoint!, {
-      method: "POST",
-      body: JSON.stringify({ batch }),
+      method: 'POST',
+      body: JSON.stringify({batch}),
       headers: {
-        "Content-Type": "application/json",
-      }
+        'Content-Type': 'application/json',
+      },
     });
 
     if (!res.ok) {
@@ -47,9 +46,9 @@ export class CustomEndpointClient extends EmbedClient {
         `Error getting embeddings from custom endpoint: ${res.statusText}`
       );
     }
-    if (!res.headers.get("content-type")?.includes("application/json")) {
+    if (!res.headers.get('content-type')?.includes('application/json')) {
       throw new Error(
-        `Error getting embeddings from custom endpoint: response is not JSON`
+        'Error getting embeddings from custom endpoint: response is not JSON'
       );
     }
     const data = await res.json();
@@ -64,13 +63,17 @@ export class CustomEndpointClient extends EmbedClient {
       embeddings = dataSchema.parse(data).embeddings;
     } catch (e) {
       throw new Error(
-        `Error getting embeddings from custom endpoint: response does not match expected schema`
+        'Error getting embeddings from custom endpoint: response does not match expected schema'
       );
     }
 
-    if (!embeddings || !Array.isArray(embeddings) || embeddings.length !== batch.length) {
+    if (
+      !embeddings ||
+      !Array.isArray(embeddings) ||
+      embeddings.length !== batch.length
+    ) {
       throw new Error(
-        `Error getting embeddings from custom endpoint: response does not contain embeddings`
+        'Error getting embeddings from custom endpoint: response does not contain embeddings'
       );
     }
     return embeddings;

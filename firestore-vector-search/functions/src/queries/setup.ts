@@ -1,4 +1,4 @@
-import { firestoreAdminClient } from "../config";
+import {firestoreAdminClient} from '../config';
 
 interface CreateIndexOptions {
   collectionName: string;
@@ -8,12 +8,10 @@ interface CreateIndexOptions {
 }
 
 const getParent = (options: CreateIndexOptions) =>
-  `projects/${options.projectId}/databases/(default)/collectionGroups/${
-    options.collectionName
-  }`;
+  `projects/${options.projectId}/databases/(default)/collectionGroups/${options.collectionName}`;
 
 const getIndex = (options: CreateIndexOptions) => ({
-  queryScope: "COLLECTION" as const,
+  queryScope: 'COLLECTION' as const,
   fields: [
     {
       fieldPath: options.fieldPath,
@@ -35,7 +33,7 @@ export async function createIndex(options: CreateIndexOptions) {
 }
 
 export async function checkCreateIndexProgress(indexName: string) {
-  const result = await firestoreAdminClient.getIndex({ name: indexName });
+  const result = await firestoreAdminClient.getIndex({name: indexName});
   console.log(`Index status: ${JSON.stringify(result)}`);
   return result;
 }

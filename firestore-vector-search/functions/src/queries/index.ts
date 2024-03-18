@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { config } from "../config";
+import {config} from '../config';
 import {
   FirestoreOnWriteProcess,
   FirestoreOnWriteProcessor,
-} from "@invertase/firebase-extension-utilities";
-import { embeddingClient } from "../embeddings/client";
-import { textVectorStoreClient } from "../vector-store";
-import * as functions from "firebase-functions";
-import { Prefilter, prefilterSchema } from "./util";
-import { z } from "zod";
+} from '@invertase/firebase-extension-utilities';
+import {embeddingClient} from '../embeddings/client';
+import {textVectorStoreClient} from '../vector-store';
+import * as functions from 'firebase-functions';
+import {Prefilter, prefilterSchema} from './util';
+import {z} from 'zod';
 
 const performTextQuery = async ({
   query,
@@ -47,12 +47,12 @@ const performTextQuery = async ({
     limit,
     config.outputField
   );
-  return { [config.inputField + "Result"]: result };
+  return {[config.inputField + 'Result']: result};
 };
 
 export const textQueryProcess = new FirestoreOnWriteProcess(performTextQuery, {
-  id: "textQuery",
-  fieldDependencyArray: ["query", "limit"],
+  id: 'textQuery',
+  fieldDependencyArray: ['query', 'limit'],
   shouldBackfill: () => false,
   errorFn: (e: any) => console.error(e),
 });

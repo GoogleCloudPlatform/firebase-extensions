@@ -1,14 +1,14 @@
-import { Query, VectorQuery } from "@google-cloud/firestore";
-import * as admin from "firebase-admin";
-import { Prefilter } from "../queries/util";
-import { VectorStoreClient } from "./base_class";
+import {Query, VectorQuery} from '@google-cloud/firestore';
+import * as admin from 'firebase-admin';
+import {Prefilter} from '../queries/util';
+import {VectorStoreClient} from './base_class';
 
 export class FirestoreVectorStoreClient extends VectorStoreClient {
   firestore: admin.firestore.Firestore;
-  distanceMeasure: "COSINE" | "EUCLIDEAN" | "DOT_PRODUCT";
+  distanceMeasure: 'COSINE' | 'EUCLIDEAN' | 'DOT_PRODUCT';
   constructor(
     firestore: admin.firestore.Firestore,
-    distanceMeasure: "COSINE" | "EUCLIDEAN" | "DOT_PRODUCT" = "COSINE"
+    distanceMeasure: 'COSINE' | 'EUCLIDEAN' | 'DOT_PRODUCT' = 'COSINE'
   ) {
     super(firestore);
     this.firestore = firestore;
@@ -26,7 +26,7 @@ export class FirestoreVectorStoreClient extends VectorStoreClient {
     let q: Query | VectorQuery = col;
 
     if (prefilters.length > 0) {
-      for (let p of prefilters) {
+      for (const p of prefilters) {
         q = q.where(p.field, p.operator, p.value);
       }
     }
@@ -38,6 +38,6 @@ export class FirestoreVectorStoreClient extends VectorStoreClient {
 
     const result = await q.get();
 
-    return result.docs.map((doc) => doc.ref.id);
+    return result.docs.map(doc => doc.ref.id);
   }
 }

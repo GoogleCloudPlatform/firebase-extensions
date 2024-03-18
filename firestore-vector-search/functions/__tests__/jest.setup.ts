@@ -3,16 +3,16 @@ import {
   mockDocumentSnapshotFactory,
   mockFirestoreUpdate,
   mockFirestoreTransaction,
-} from "./mocks/firestore";
+} from './mocks/firestore';
 import {
   testTranslations,
   mockTranslate,
   mockTranslateClassMethod,
   mockTranslateClass,
   mockTranslateModuleFactory,
-} from "./mocks/translate";
+} from './mocks/translate';
 
-global.config = () => require("../src/config").default;
+global.config = () => require('../src/config').default;
 
 global.snapshot = snapshot;
 
@@ -27,7 +27,7 @@ global.mockTranslateClassMethod = mockTranslateClassMethod;
 global.mockTranslateClass = mockTranslateClass;
 
 global.mockTranslateModule = () =>
-  jest.mock("@google-cloud/translate", mockTranslateModuleFactory);
+  jest.mock('@google-cloud/translate', mockTranslateModuleFactory);
 
 global.mockFirestoreUpdate = mockFirestoreUpdate;
 
