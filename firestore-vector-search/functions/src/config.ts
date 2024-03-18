@@ -1,19 +1,19 @@
-import * as admin from "firebase-admin";
-import * as Firestore from "@google-cloud/firestore";
+import * as admin from 'firebase-admin';
+import * as Firestore from '@google-cloud/firestore';
 admin.initializeApp();
 
 export const enum EmbeddingProvider {
-  Gemini = "gemini",
-  Multimodal = "multimodal",
-  OpenAI = "openai",
-  Custom = "custom",
+  Gemini = 'gemini',
+  Multimodal = 'multimodal',
+  OpenAI = 'openai',
+  Custom = 'custom',
 }
 
 const embeddingProvider: EmbeddingProvider = process.env
   .EMBEDDING_PROVIDER as EmbeddingProvider;
 
 export const enum VectorStoreProvider {
-  Firestore = "firestore",
+  Firestore = 'firestore',
 }
 
 const LOCATION = process.env.LOCATION;
@@ -33,25 +33,26 @@ const getDimension = () => {
     case EmbeddingProvider.Custom:
       if (!process.env.CUSTOM_EMBEDDINGS_DIMENSION) {
         throw new Error(
-          "Custom embeddings require CUSTOM_EMBEDDINGS_DIMENSION to be set"
+          'Custom embeddings require CUSTOM_EMBEDDINGS_DIMENSION to be set'
         );
       }
       return parseInt(process.env.CUSTOM_EMBEDDINGS_DIMENSION);
   }
 };
 
-type DistanceMeasure = "COSINE" | "EUCLIDEAN" | "DOT_PRODUCT";
+type DistanceMeasure = 'COSINE' | 'EUCLIDEAN' | 'DOT_PRODUCT';
 
 export const config = {
   inputField: process.env.INPUT_FIELD_NAME!,
   outputField: process.env.OUTPUT_FIELD_NAME!,
-  collectionName: process.env.COLLECTION_NAME || "embeddings",
+  statusField: process.env.STATUS_FIELD_NAME!,
+  collectionName: process.env.COLLECTION_NAME || 'embeddings',
   backfillQueueName: `locations/${LOCATION}/functions/backfillTask`,
   updateQueueName: `locations/${LOCATION}/functions/updateTask`,
   instanceId: process.env.EXT_INSTANCE_ID!,
   projectId: process.env.PROJECT_ID!,
   location: process.env.LOCATION!,
-  doBackfill: process.env.DO_BACKFILL === "true",
+  doBackfill: process.env.DO_BACKFILL === 'true',
   customEmbeddingConfig: {
     batchSize: process.env.CUSTOM_EMBEDDINGS_BATCH_SIZE
       ? parseInt(process.env.CUSTOM_EMBEDDINGS_BATCH_SIZE)
@@ -63,7 +64,7 @@ export const config = {
   },
   embeddingProvider: embeddingProvider,
   multimodal: embeddingProvider === EmbeddingProvider.Multimodal,
-  vectorStoreProvider: "firestore",
+  vectorStoreProvider: 'firestore',
   geminiApiKey: process.env.GEMINI_API_KEY,
   openAIApiKey: process.env.OPENAI_API_KEY,
   bucketName: process.env.BUCKET_NAME || defaultBucketName,
@@ -76,8 +77,8 @@ export const config = {
 
 export const obfuscatedConfig = {
   ...config,
-  geminiApiKey: "<omitted>",
-  openAIApiKey: "<omitted>",
+  geminiApiKey: '<omitted>',
+  openAIApiKey: '<omitted>',
 };
 
-export { admin };
+export {admin};

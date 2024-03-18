@@ -1,32 +1,32 @@
-const packageJson = require("./package.json");
+const packageJson = require('./package.json');
 
 module.exports = {
   name: packageJson.name,
-  testEnvironment: "node",
+  testEnvironment: 'node',
   displayName: packageJson.name,
-  rootDir: "./",
+  rootDir: './',
   globals: {
-    "ts-jest": {
-      tsConfig: "<rootDir>/__tests__/tsconfig.json",
+    'ts-jest': {
+      tsConfig: '<rootDir>/__tests__/tsconfig.json',
     },
     fetch: global.fetch,
   },
-  preset: "ts-jest",
-  setupFiles: ["<rootDir>/__tests__/jest.setup.ts"],
-  testMatch: ["**/*.test.ts"],
+  preset: 'ts-jest',
+  setupFiles: ['<rootDir>/__tests__/jest.setup.ts'],
+  testMatch: ['**/*.test.ts'],
   moduleNameMapper: {
-    "firebase-admin/eventarc":
-      "<rootDir>/node_modules/firebase-admin/lib/eventarc",
-    "firebase-admin/auth": "<rootDir>/node_modules/firebase-admin/lib/auth",
-    "firebase-admin/app": "<rootDir>/node_modules/firebase-admin/lib/app",
-    "firebase-admin/database":
-      "<rootDir>/node_modules/firebase-admin/lib/database",
-    "firebase-admin/firestore":
-      "<rootDir>/node_modules/firebase-admin/lib/firestore",
-    "firebase-admin/functions":
-      "<rootDir>/node_modules/firebase-admin/lib/functions",
-    "firebase-functions/v2": "<rootDir>/node_modules/firebase-functions/lib/v2",
-    "firebase-admin/extensions":
-      "<rootDir>/node_modules/firebase-admin/lib/extensions",
+    'firebase-admin/eventarc':
+      '<rootDir>/node_modules/firebase-admin/lib/eventarc',
+    'firebase-admin/auth': '<rootDir>/node_modules/firebase-admin/lib/auth',
+    'firebase-admin/app': '<rootDir>/node_modules/firebase-admin/lib/app',
+    'firebase-admin/database':
+      '<rootDir>/node_modules/firebase-admin/lib/database',
+    'firebase-admin/firestore':
+      '<rootDir>/node_modules/firebase-admin/lib/firestore',
+    'firebase-admin/functions':
+      '<rootDir>/node_modules/firebase-admin/lib/functions',
+    'firebase-functions/v2': '<rootDir>/node_modules/firebase-functions/lib/v2',
+    'firebase-admin/extensions':
+      '<rootDir>/node_modules/firebase-admin/lib/extensions',
   },
 };

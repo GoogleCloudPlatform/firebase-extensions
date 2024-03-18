@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-import { EmbedClient } from "../base_class";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { config } from "../../../config";
+import {EmbedClient} from '../base_class';
+import {GoogleGenerativeAI} from '@google/generative-ai';
+import {config} from '../../../config';
 
 export class GeminiAITextEmbedClient extends EmbedClient {
   client: GoogleGenerativeAI;
   private apiKey: string;
 
   constructor() {
-    super({ batchSize: 100, dimension: 768 });
+    super({batchSize: 100, dimension: 768});
 
     if (!config.geminiApiKey) {
       throw new Error(
-        "Gemini API Key is not defined! This parameter is required for this embedding client."
+        'Gemini API Key is not defined! This parameter is required for this embedding client.'
       );
     }
     this.apiKey = config.geminiApiKey;
@@ -41,16 +41,16 @@ export class GeminiAITextEmbedClient extends EmbedClient {
   }
 
   async getEmbeddings(batch: string[]) {
-    const model = this.client.getGenerativeModel({ model: "embedding-001" });
+    const model = this.client.getGenerativeModel({model: 'embedding-001'});
 
-    const requests = batch.map((text) => ({
+    const requests = batch.map(text => ({
       content: {
         parts: [
           {
             text,
           },
         ],
-        role: "user",
+        role: 'user',
       },
     }));
 
@@ -59,12 +59,12 @@ export class GeminiAITextEmbedClient extends EmbedClient {
         requests,
       });
 
-      const values = result.embeddings.map((r) => r.values);
+      const values = result.embeddings.map(r => r.values);
 
       return values;
     } catch (e) {
-      console.error("Error fetching embeddings:", e);
-      throw new Error("Error with embedding");
+      console.error('Error fetching embeddings:', e);
+      throw new Error('Error with embedding');
     }
   }
 }

@@ -42,7 +42,9 @@ billingRequired: true
 
 apis:
   - apiName: aiplatform.googleapis.com
-    reason: This extension uses the Vertex AI multimodal model for embedding images, if configured to do so.
+    reason:
+      This extension uses the Vertex AI multimodal model for embedding images,
+      if configured to do so.
 
 roles:
   - role: datastore.user
@@ -55,8 +57,8 @@ roles:
 
   - role: storage.objectAdmin
     reason: >-
-      This extension requires access to Cloud Storage to read image data
-      from your Cloud Storage.
+      This extension requires access to Cloud Storage to read image data from
+      your Cloud Storage.
 
   - role: datastore.indexAdmin
     reason: >-
@@ -64,7 +66,6 @@ roles:
       query a Firestore index.
 
 resources:
-
   - name: updateTrigger
     type: firebaseextensions.v1beta.function
     description: >-
@@ -117,7 +118,8 @@ resources:
     type: firebaseextensions.v1beta.function
     description: >-
       An event-triggered function that gets called when a document is created or
-      updated. It generates embeddings for the document and writes those embeddings back to firestore
+      updated. It generates embeddings for the document and writes those
+      embeddings back to firestore
     properties:
       location: ${LOCATION}
       runtime: nodejs18
@@ -131,7 +133,8 @@ resources:
     type: firebaseextensions.v1beta.function
     description: >-
       An event-triggered function that gets called when a document is created or
-      updated. It generates embeddings for the document and writes those embeddings back to firestore
+      updated. It generates embeddings for the document and writes those
+      embeddings back to firestore
     properties:
       location: ${LOCATION}
       runtime: nodejs18
@@ -150,7 +153,6 @@ resources:
       httpsTrigger: {}
       runtime: nodejs18
 params:
-
   - param: EMBEDDING_PROVIDER
     label: LLM
     description: >
@@ -171,30 +173,34 @@ params:
   - param: GEMINI_API_KEY
     label: Gemini API key
     description: >
-      If you selected Gemini to calculate embeddings, please provide your Gemini API key
+      If you selected Gemini to calculate embeddings, please provide your Gemini
+      API key
     type: secret
     required: false
 
   - param: OPENAI_API_KEY
     label: OpenAI API key
     description: >
-      If you selected OpenAI to calculate embeddings, please provide your OpenAI API key
+      If you selected OpenAI to calculate embeddings, please provide your OpenAI
+      API key
     type: secret
     required: false
 
   - param: CUSTOM_EMBEDDINGS_ENDPOINT
     label: LLM Function
     description: >
-      If you selected \"Other\" as your embedding provider, please provide the URL of your function that will calculate the embeddings.
+      If you selected \"Other\" as your embedding provider, please provide the
+      URL of your function that will calculate the embeddings.
     type: string
     required: false
 
   - param: COLLECTION_NAME
     label: Collection path
     description: >
-      What is the path to the collection that contains the strings that you want to embed?
+      What is the path to the collection that contains the strings that you want
+      to embed?
     example: products
-    validationRegex: "^[^/]+(/[^/]+/[^/]+)*$"
+    validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
     validationErrorMessage: Must be a valid Cloud Firestore Collection
     default: products
     required: true
@@ -202,17 +208,18 @@ params:
   - param: DEFAULT_QUERY_LIMIT
     label: Default query limit
     description: >
-      What is the default number of results to return when making avector search query?
-    validationRegex: "^[1-9][0-9]*"
+      What is the default number of results to return when making avector search
+      query?
+    validationRegex: '^[1-9][0-9]*'
     validationErrorMessage: Must be a valid Cloud Firestore Collection
     default: 3
     required: false
 
-  
   - param: DISTANCE_MEASURE
     label: Distance measure
     description: >-
-      What distance measure do you want to be used to rank the results of your vector search?
+      What distance measure do you want to be used to rank the results of your
+      vector search?
     type: select
     options:
       - label: Cosine
@@ -227,7 +234,8 @@ params:
   - param: INPUT_FIELD_NAME
     label: Input field name
     description: >
-      What is the name of the field that contains the string that you want to embed?
+      What is the name of the field that contains the string that you want to
+      embed?
     example: input
     default: input
     required: true
@@ -240,10 +248,20 @@ params:
     default: embedding
     required: true
 
+  - param: STATUS_FIELD_NAME
+    label: Status field name
+    description: >
+      What is the name of the field where you want to track the state of a
+      document being embedded?
+    example: status
+    default: status
+    required: true
+
   - param: DO_BACKFILL
     label: Embed existing documents?
     description: >
-      Should existing documents in the Firestore collection be embedded as well? 
+      Should existing documents in the Firestore collection be embedded as well?
+
     type: select
     required: true
     options:
@@ -255,7 +273,8 @@ params:
   - param: UPDATE_ON_CONFIGURE
     label: Update existing embeddings?
     description: >
-      Should existing documents in the Firestore collection be updated with new embeddings on reconfiguring the extensions?
+      Should existing documents in the Firestore collection be updated with new
+      embeddings on reconfiguring the extensions?
     type: select
     required: true
     options:
@@ -269,9 +288,9 @@ params:
     description: >-
       Where do you want to deploy the functions created for this extension? For
       help selecting a location, refer to the [location selection
-      guide](https://firebase.google.com/docs/functions/locations).
-      Make sure to pick a location supported by the Gemini API, if
-      you have chosen this as your embedding provider.
+      guide](https://firebase.google.com/docs/functions/locations). Make sure to
+      pick a location supported by the Gemini API, if you have chosen this as
+      your embedding provider.
     type: select
     options:
       - label: Iowa (us-central1)
@@ -319,16 +338,24 @@ params:
 
 events:
   - type: firebase.extensions.firestore-vector-search.v1.onStart
-    description: Occurs when a trigger has been called within the Extension, and will include data such as the context of the trigger request.
+    description:
+      Occurs when a trigger has been called within the Extension, and will
+      include data such as the context of the trigger request.
 
   - type: firebase.extensions.firestore-vector-search.v1.onSuccess
-    description: Occurs when image resizing completes successfully. The event will contain further details about specific formats and sizes.
+    description:
+      Occurs when image resizing completes successfully. The event will contain
+      further details about specific formats and sizes.
 
   - type: firebase.extensions.firestore-vector-search.v1.onError
-    description: Occurs when an issue has been experienced in the Extension. This will include any error data that has been included within the Error Exception.
+    description:
+      Occurs when an issue has been experienced in the Extension. This will
+      include any error data that has been included within the Error Exception.
 
   - type: firebase.extensions.firestore-vector-search.v1.onCompletion
-    description: Occurs when the function is settled. Provides no customized data other than the context.
+    description:
+      Occurs when the function is settled. Provides no customized data other
+      than the context.
 
 lifecycleEvents:
   onInstall:

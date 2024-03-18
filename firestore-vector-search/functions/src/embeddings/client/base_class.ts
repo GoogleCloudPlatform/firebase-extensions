@@ -1,13 +1,7 @@
 export class EmbedClient {
   batchSize: number;
   dimension: number;
-  constructor({
-    batchSize,
-    dimension,
-  }: {
-    batchSize: number;
-    dimension: number;
-  }) {
+  constructor({batchSize, dimension}: {batchSize: number; dimension: number}) {
     this.batchSize = batchSize;
     this.dimension = dimension;
   }
@@ -17,7 +11,7 @@ export class EmbedClient {
   }
 
   async getEmbeddings(_inputs: string[]): Promise<number[][]> {
-    throw new Error("Not implemented");
+    throw new Error('Not implemented');
   }
 
   async getSingleEmbedding(input: string): Promise<number[]> {

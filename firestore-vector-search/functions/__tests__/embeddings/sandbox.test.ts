@@ -1,14 +1,11 @@
-import * as admin from "firebase-admin";
+import * as admin from 'firebase-admin';
 admin.initializeApp({
-  projectId: "karas-coffee-fvs-01",
+  projectId: 'karas-coffee-fvs-01',
 });
 
 const firestore = admin.firestore();
-const docId = Math.random()
-  .toString(36)
-  .substring(7);
-describe.skip("sandbox", () => {
-  test("sandbox", async () => {
+describe.skip('sandbox', () => {
+  test('sandbox', async () => {
     // const phrases = [
     //   "tree river",
     //   "leaf ocean",
@@ -37,21 +34,21 @@ describe.skip("sandbox", () => {
     // }
 
     await firestore
-      .collection("index_test_123")
+      .collection('index_test_123')
       .get()
-      .then((snapshot) => {
-        snapshot.forEach((doc) => {
-          console.log(doc.id, "=>", doc.data());
+      .then(snapshot => {
+        snapshot.forEach(doc => {
+          console.log(doc.id, '=>', doc.data());
         });
       });
 
     await firestore
-      .collection("backfill_test")
+      .collection('backfill_test')
       .get()
-      .then((snapshot) => {
+      .then(snapshot => {
         const docs = snapshot.docs;
 
-        console.log(docs.map((doc) => doc.data()));
+        console.log(docs.map(doc => doc.data()));
       });
   }, 10000);
 });
