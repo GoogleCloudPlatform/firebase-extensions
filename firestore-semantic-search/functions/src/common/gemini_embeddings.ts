@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-import { EmbedContentRequest, TaskType, GoogleGenerativeAI } from "@google/generative-ai";
+import {
+  EmbedContentRequest,
+  TaskType,
+  GoogleGenerativeAI,
+} from '@google/generative-ai';
 import config from '../config';
 
 let client: GoogleGenerativeAI;
@@ -36,20 +40,22 @@ const initializeGeminiClient = async () => {
  * @param key the key of the text in the document.
  * @returns an array of arrays containing 768 numbers representing the embedding of the text.
  */
-async function getEmbeddingsGemini(text: string | string[]): Promise<number[][]> {
+async function getEmbeddingsGemini(
+  text: string | string[]
+): Promise<number[][]> {
   if (!client && (typeof text !== 'string' || text.length !== 0)) {
     await initializeGeminiClient();
   }
 
-  const model = client.getGenerativeModel({ model: "embedding-001" });
+  const model = client.getGenerativeModel({model: 'embedding-001'});
 
   var embeddings: number[][] = [];
 
   const t0 = performance.now();
 
   if (Array.isArray(text)) {
-    const batches: EmbedContentRequest[] = text.map((doc) => ({
-      content: { role: "user", parts: [{ text: doc }] },
+    const batches: EmbedContentRequest[] = text.map(doc => ({
+      content: {role: 'user', parts: [{text: doc}]},
       taskType: TaskType.RETRIEVAL_QUERY,
     }));
 
@@ -57,7 +63,7 @@ async function getEmbeddingsGemini(text: string | string[]): Promise<number[][]>
       requests: batches,
     });
 
-    embeddings = result.embeddings.map((embedding) => embedding.values);
+    embeddings = result.embeddings.map(embedding => embedding.values);
   } else {
     const result = await model.embedContent(text);
     embeddings = [result.embedding.values];

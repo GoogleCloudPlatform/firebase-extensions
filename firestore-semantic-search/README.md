@@ -91,6 +91,8 @@ Additionally, this extension uses the PaLM API, which is currently in public pre
 
 * PaLM embeddings model: In case you chose PaLM embeddings, which model do you want to use? Note that this will be ignored if you chose Universal Sentence Encoder.
 
+* Google AI API Key: If you have selected Gemini as your provider, then this parameter is required.
+
 * Distance measure type: The distance measure used in nearest neighbor search. The default is dot product.  [Read more about distance measures here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#distance-measure-type).
 
 * Algorithm config: The configuration with regard to the algorithms used for efficient search. [Read more about algorithm config here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#tree-ah-config).
