@@ -141,7 +141,9 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 **Cloud Functions:**
 
-* **generateText:** Listens to Firestore data writes to generate conversations.
+* **generateOnCall:** A callable function to perform generative AI tasks.
+
+* **generateText:** Listens to Firestore data writes to perform generative AI tasks.
 
 
 

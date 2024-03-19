@@ -173,3 +173,95 @@ export const generateText = functions.firestore
       });
     }
   });
+
+export const generateOnCall = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'User is not authenticated'
+    );
+  }
+  if (typeof data !== 'object') {
+    throw new functions.https.HttpsError(
+      'invalid-argument',
+      'Data must be an object'
+    );
+  }
+  const {prompt, image, safetySettings} = data;
+  if (!prompt) {
+    throw new functions.https.HttpsError(
+      'invalid-argument',
+      'Prompt is required'
+    );
+  }
+
+  const substitutedPrompt = getSubstitutedPrompt(data, prompt);
+
+  let requestOptions = {};
+  if (config.googleAi.model === 'gemini-pro-vision') {
+    requestOptions = {
+      ...requestOptions,
+      image,
+      safetySettings: safetySettings || config.safetySettings,
+    };
+  }
+
+  const generativeClient = getGenerativeClient();
+  const result = await generativeClient.generate(
+    substitutedPrompt,
+    requestOptions
+  );
+
+  // TODO: remove any
+  const metadata: Record<string, any> = {};
+  if (result.safetyMetadata) {
+    metadata.safetyMetadata = {};
+
+    /** Ensure only defined data is added to the metadata */
+    for (const key of Object.keys(result.safetyMetadata)) {
+      if (result.safetyMetadata[key] !== undefined) {
+        metadata.safetyMetadata[key] = result.safetyMetadata[key];
+      }
+    }
+  }
+
+  const addCandidatesField =
+    config.provider === 'generative' &&
+    candidatesField &&
+    candidateCount &&
+    candidateCount > 1;
+
+  if (addCandidatesField) {
+    return {
+      ...metadata,
+      [responseField]: result.candidates[0],
+      [candidatesField]: result.candidates,
+    };
+  } else {
+    return {
+      ...metadata,
+      [responseField]: result.candidates[0],
+    };
+  }
+});
+
+function getSubstitutedPrompt(data: Record<string, string>, prompt: string) {
+  const view: Record<string, string> = {};
+
+  const variableFields = extractHandlebarsVariables(prompt);
+
+  for (const field of variableFields || []) {
+    if (!data[field]) {
+      throw missingVariableError(field);
+    }
+    if (typeof data[field] !== 'string') {
+      throw variableTypeError(field);
+    }
+    view[field] = data[field];
+  }
+
+  // if prompt contains handlebars for variable substitution, do it:
+  const substitutedPrompt = Mustache.render(prompt, view);
+
+  return substitutedPrompt;
+}
