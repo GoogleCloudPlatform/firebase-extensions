@@ -1,4 +1,4 @@
-interface GenerativeResponse {
+export interface GenerativeResponse {
   candidates: string[];
   safetyMetadata?: {
     blocked: boolean;

@@ -30,6 +30,11 @@ jest.mock('../../src/config', () => ({
     projectId: 'demo-test',
     instanceId: 'demo-test',
     provider: 'vertex-ai',
+    candidates: {
+      field: 'candidates',
+      count: 1,
+      shouldIncludeCandidatesField: false,
+    },
   },
 }));
 
