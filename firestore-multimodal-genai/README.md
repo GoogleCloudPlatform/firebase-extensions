@@ -29,6 +29,8 @@ This extension will listen to the specified collection for new documents. When s
 2. Query the Gemini API to generate a response based on the prompt.
 3. Write the response from the Model API back to the triggering document in the response field.
 
+Additionally the extension deploys a callable function, which may be called with data containing the values for handlebar substitution.
+
 Note that the extension only supports top-level handlebars variables, substitution into nested handlebar templates is not supported.
 
 Each instance of the extension should be configured to perform one particular task. If you have multiple tasks, you can install multiple instances.

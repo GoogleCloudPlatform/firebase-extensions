@@ -29,15 +29,11 @@ import {
   variableTypeError,
 } from './errors';
 
-const {prompt, responseField, collectionName, candidateCount, candidatesField} =
-  config;
+const {prompt, responseField, collectionName} = config;
 
-import {getGenerativeClient} from './generative-client';
+import {getGenerativeClient, GenerativeResponse} from './generative-client';
 import {extractHandlebarsVariables} from './utils';
-// import {fetchCustomHookData} from './custom_hook';
-
-// TODO: make sure we redact API KEY
-// logs.init(config);
+import {throwInvalidArgumentError, throwUnauthenticatedError} from './errors';
 
 export const generateText = functions.firestore
   .document(collectionName)
@@ -79,34 +75,8 @@ export const generateText = functions.firestore
     });
 
     try {
-      const view: Record<string, string> = {};
-
-      // if (config.ragConfig?.customRagHookUrl) {
-      //   // TODO: extract the variable field values before passing to hook
-      //   const customHookData = await fetchCustomHookData(
-      //     data,
-      //     config.ragConfig
-      //   );
-      //   data = {
-      //     ...data,
-      //     ...customHookData,
-      //   };
-      // }
-
-      const variableFields = extractHandlebarsVariables(prompt);
-
-      for (const field of variableFields || []) {
-        if (!data[field]) {
-          throw missingVariableError(field);
-        }
-        if (typeof data[field] !== 'string') {
-          throw variableTypeError(field);
-        }
-        view[field] = data[field];
-      }
-
       // if prompt contains handlebars for variable substitution, do it:
-      const substitutedPrompt = Mustache.render(prompt, view);
+      const substitutedPrompt = getSubstitutedPrompt(data, prompt);
 
       const t0 = performance.now();
       let requestOptions = {};
@@ -143,17 +113,11 @@ export const generateText = functions.firestore
         }
       }
 
-      const addCandidatesField =
-        config.provider === 'generative' &&
-        candidatesField &&
-        candidateCount &&
-        candidateCount > 1;
-
-      if (addCandidatesField) {
+      if (config.candidates.shouldIncludeCandidatesField) {
         return ref.update({
           ...metadata,
           [responseField]: result.candidates[0],
-          [candidatesField]: result.candidates,
+          [config.candidates.field]: result.candidates,
           'status.error': null,
         });
       }
@@ -175,25 +139,10 @@ export const generateText = functions.firestore
   });
 
 export const generateOnCall = functions.https.onCall(async (data, context) => {
-  if (!context.auth) {
-    throw new functions.https.HttpsError(
-      'unauthenticated',
-      'User is not authenticated'
-    );
-  }
-  if (typeof data !== 'object') {
-    throw new functions.https.HttpsError(
-      'invalid-argument',
-      'Data must be an object'
-    );
-  }
-  const {prompt, image, safetySettings} = data;
-  if (!prompt) {
-    throw new functions.https.HttpsError(
-      'invalid-argument',
-      'Prompt is required'
-    );
-  }
+  if (!context.auth) throwUnauthenticatedError();
+  if (typeof data !== 'object') throwInvalidArgumentError();
+
+  const {image, safetySettings} = data;
 
   const substitutedPrompt = getSubstitutedPrompt(data, prompt);
 
@@ -207,35 +156,19 @@ export const generateOnCall = functions.https.onCall(async (data, context) => {
   }
 
   const generativeClient = getGenerativeClient();
+
   const result = await generativeClient.generate(
     substitutedPrompt,
     requestOptions
   );
 
-  // TODO: remove any
-  const metadata: Record<string, any> = {};
-  if (result.safetyMetadata) {
-    metadata.safetyMetadata = {};
+  const metadata = extractMetadata(result);
 
-    /** Ensure only defined data is added to the metadata */
-    for (const key of Object.keys(result.safetyMetadata)) {
-      if (result.safetyMetadata[key] !== undefined) {
-        metadata.safetyMetadata[key] = result.safetyMetadata[key];
-      }
-    }
-  }
-
-  const addCandidatesField =
-    config.provider === 'generative' &&
-    candidatesField &&
-    candidateCount &&
-    candidateCount > 1;
-
-  if (addCandidatesField) {
+  if (config.candidates.shouldIncludeCandidatesField) {
     return {
       ...metadata,
       [responseField]: result.candidates[0],
-      [candidatesField]: result.candidates,
+      [config.candidates.field]: result.candidates,
     };
   } else {
     return {
@@ -245,7 +178,7 @@ export const generateOnCall = functions.https.onCall(async (data, context) => {
   }
 });
 
-function getSubstitutedPrompt(data: Record<string, string>, prompt: string) {
+function getSubstitutedPrompt(data: any, prompt: string) {
   const view: Record<string, string> = {};
 
   const variableFields = extractHandlebarsVariables(prompt);
@@ -264,4 +197,23 @@ function getSubstitutedPrompt(data: Record<string, string>, prompt: string) {
   const substitutedPrompt = Mustache.render(prompt, view);
 
   return substitutedPrompt;
+}
+
+interface Metadata {
+  safetyMetadata?: Record<string, any>;
+}
+
+// Extract metadata from the result
+function extractMetadata(result: GenerativeResponse): Metadata {
+  const metadata: Metadata = {};
+  if (result.safetyMetadata) {
+    metadata.safetyMetadata = {};
+
+    for (const key of Object.keys(result.safetyMetadata)) {
+      if (result.safetyMetadata[key] !== undefined) {
+        metadata.safetyMetadata[key] = result.safetyMetadata[key];
+      }
+    }
+  }
+  return metadata;
 }
