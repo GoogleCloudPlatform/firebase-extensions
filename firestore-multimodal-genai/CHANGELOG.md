@@ -1,5 +1,7 @@
 ## Version 0.0.9
 
+- feature: Add callable function
+
 - Add docs on regional support for Gemini APIs
 
 ## Version 0.0.8
