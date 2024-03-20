@@ -30,3 +30,5 @@ export const getGenerativeClient = (): GenerativeClient<any, Client> => {
       throw new Error('Invalid provider');
   }
 };
+
+export {GenerativeResponse} from './base_client';
