@@ -1,5 +1,5 @@
 name: firestore-genai-chatbot
-version: 0.0.9
+version: 0.0.10
 specVersion: v1beta
 
 icon: icon.png
@@ -161,7 +161,11 @@ params:
     description: >-
       Where do you want to deploy the functions created for this extension? For
       help selecting a location, refer to the [location selection
-      guide](https://firebase.google.com/docs/functions/locations).
+      guide](https://firebase.google.com/docs/functions/locations). Note that
+      Generative AI on Vertex AI is only available in the regions listed
+      [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/locations-genai).
+      A list of languages and regions supported by the Gemini API on Google AI
+      is [here](https://ai.google.dev/available_regions).
     type: select
     options:
       - label: Iowa (us-central1)

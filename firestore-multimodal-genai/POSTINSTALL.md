@@ -13,7 +13,7 @@ Note: You can also use the Firebase Admin SDK to add a document:
 const ref = await admin
     .firestore()
     .collection("${param:COLLECTION_NAME}")
-    .add({ ... }) // Include values for ${param:VARIABLE_FIELDS} fields
+    .add({ ... })
 
 ref.onSnapshot(snap => {
     if (snap.get('${param:RESPONSE_FIELD}')) console.log(
