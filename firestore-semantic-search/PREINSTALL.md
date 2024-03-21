@@ -1,9 +1,3 @@
-> ⚠️ The Vertex Matching Engine Public Endpoints feature and PaLM API are currently in public preview.
->
-> For details and limitations, see the [Vertex AI documentation](https://cloud.google.com/vertex-ai/docs/matching-engine/deploy-index-public) and [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
->
-> PaLM API is an optional feature of this extension. This extension uses the Vertex AI PaLM endpoint for embeddings.
-
 This extension adds text similarity search to your Firestore application using Vertex AI’s [Matching Engine](https://cloud.google.com/vertex-ai/docs/matching-engine/overview). Text similarity search relies on first generating embeddings (vector representations of your original text) which are stored in a Matching Engine index. Once these embeddings are indexed, the Matching Engine can be used to calculate semantically similar documents to an original document from a large corpus of candidate documents, based on vector distance measures.
 
 On installation, you will need to specify a Firestore collection path to index and the document fields to index.
@@ -18,13 +12,13 @@ The query API endpoint is deployed as a Firebase Callable Function, and requires
 
 ### Embeddings models
 
-The extension currently provides three options for generating text embeddings: [Universal Sentence Encoder](https://tfhub.dev/google/universal-sentence-encoder/4) (USE) from TensorFlow Hub, the [PaLM Text Embeddings API](https://developers.generativeai.google/tutorials/embed_node_quickstart) (models/embedding-gecko-001), or any [GraphDev-based TF JS model](https://www.tensorflow.org/js/tutorials/conversion/import_saved_model) in a GCS bucket.
+The extension currently provides three options for generating text embeddings: [Gemini Embeddings](https://ai.google.dev/docs/embeddings_guide), [Universal Sentence Encoder](https://tfhub.dev/google/universal-sentence-encoder/4) (USE) from TensorFlow Hub, the [PaLM Text Embeddings API (deprecated)](https://developers.generativeai.google/tutorials/embed_node_quickstart) (models/embedding-gecko-001), or any [GraphDev-based TF JS model](https://www.tensorflow.org/js/tutorials/conversion/import_saved_model) in a GCS bucket.
 
 There are several important differences, so make sure you pick an option which suits your use-case:
 
 - Speed: currently the PaLM endpoint does not allow batch processing, so the backfill process will take longer. Choose the USE model if you would like the extension to run on a pre-existing collection with many documents (>10K) already.
-- Dimensions: the PaLM model embeds to a space of dimension 768, whereas the USE model embeds to a space of 512. Larger dimension indexes will cost more on Vertex AI but also can capture more features.
-- Memory: models from TensorFlow Hub will be loaded into Function memory, whereas PaLM provides an API. Large models may require you to increase the memory from the default (512MB), which can incur additional Functions costs.
+- Dimensions: Gemini and PaLM models embed to a space of dimension 768, whereas the USE model embeds to a space of 512. Larger dimension indexes will cost more on Vertex AI but also can capture more features.
+- Memory: models from TensorFlow Hub will be loaded into Function memory, whereas Gemini and Pa:M provide an API. Large models may require you to increase the memory from the default (512MB), which can incur additional Functions costs.
 
 ## Additional Setup
 
@@ -56,11 +50,12 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 - Cloud Run
 - Cloud EventArc
 - [Vertex AI](https://cloud.google.com/vertex-ai/pricing#matchingengine)
+- [Gemini API](https://ai.google.dev/pricing)
 - Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
 
 [Learn more about Firebase billing](https://firebase.google.com/pricing).
 
-Additionally, this extension uses the PaLM API, which is currently in public preview. During the preview period, developers can try the PaLM API at no cost. Pricing will be announced closer to general availability. For more information on the PaLM API public preview, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq).
+<!-- Additionally, this extension uses the PaLM API, which is currently in public preview. During the preview period, developers can try the PaLM API at no cost. Pricing will be announced closer to general availability. For more information on the PaLM API public preview, see the [PaLM API documentation](https://developers.generativeai.google/guide/preview_faq). -->
 
 > :warning: Note: The extension does not delete the Matching Engine Index automatically when you uninstall the extension.
 >

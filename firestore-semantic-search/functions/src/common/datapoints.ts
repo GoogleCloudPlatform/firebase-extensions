@@ -19,9 +19,14 @@ import {FormattedDatapoint} from '../types/formatted_datapoint';
 import config from '../config';
 import getEmbeddingsPaLM from './palm_embeddings';
 import getEmbeddingsUSE from './use_embeddings';
+import getEmbeddingsGemini from './gemini_embeddings';
 
 export const getEmbeddings =
-  config.embeddingMethod === 'palm' ? getEmbeddingsPaLM : getEmbeddingsUSE;
+  config.embeddingMethod === 'gemini'
+    ? getEmbeddingsGemini
+    : config.embeddingMethod === 'palm'
+    ? getEmbeddingsPaLM
+    : getEmbeddingsUSE;
 
 export async function getDatapoint(
   reference: admin.firestore.DocumentReference,
