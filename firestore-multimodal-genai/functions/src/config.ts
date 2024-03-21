@@ -39,8 +39,11 @@ export interface Config {
   temperature?: number;
   topP?: number;
   topK?: number;
-  candidateCount?: number;
-  candidatesField?: string;
+  candidates: {
+    field: string;
+    count: number;
+    shouldIncludeCandidatesField: boolean;
+  };
   maxOutputTokens?: number;
   maxOutputTokensVertex?: number;
   provider?: string;
@@ -48,12 +51,6 @@ export interface Config {
   safetySettings?: GoogleAISafetySetting[] | VertexSafetySetting[];
   bucketName?: string;
   imageField: string;
-  // ragConfig: {
-  //   customRagHookUrl?: string;
-  //   customRagHookApiKey?: string;
-  //   ragHookInputFields?: string[];
-  //   ragHookOutputFields?: string[];
-  // };
 }
 
 function getSafetySettings(): GoogleAISafetySetting[] | VertexSafetySetting[] {
@@ -87,6 +84,18 @@ function getSafetySettings(): GoogleAISafetySetting[] | VertexSafetySetting[] {
 
 const defaultBucketName = `${process.env.PROJECT_ID}.appspot.com`;
 
+const candidates = {
+  field: process.env.CANDIDATES_FIELD || 'candidates',
+  count: process.env.CANDIDATE_COUNT
+    ? parseInt(process.env.CANDIDATE_COUNT)
+    : 1,
+  shouldIncludeCandidatesField:
+    process.env.GENERATIVE_AI_PROVIDER === 'generative' &&
+    process.env.CANDIDATES_FIELD &&
+    process.env.CANDIDATE_COUNT &&
+    parseInt(process.env.CANDIDATE_COUNT) > 1,
+};
+
 export default {
   vertex: {
     model: process.env.MODEL!,
@@ -108,10 +117,7 @@ export default {
     : undefined,
   topP: process.env.TOP_P ? parseFloat(process.env.TOP_P) : undefined,
   topK: process.env.TOP_K ? parseInt(process.env.TOP_K) : undefined,
-  candidateCount: process.env.CANDIDATE_COUNT
-    ? parseInt(process.env.CANDIDATE_COUNT)
-    : 1,
-  candidatesField: process.env.CANDIDATES_FIELD || 'candidates',
+  candidates,
   provider: process.env.GENERATIVE_AI_PROVIDER,
   maxOutputTokensVertex: process.env.MAX_OUTPUT_TOKENS
     ? parseInt(process.env.MAX_OUTPUT_TOKENS)
@@ -120,14 +126,4 @@ export default {
   safetySettings: getSafetySettings(),
   bucketName: process.env.BUCKET_NAME || defaultBucketName,
   imageField: process.env.IMAGE_FIELD || 'image',
-  // ragConfig: {
-  //   customRagHookUrl: process.env.CUSTOM_RAG_HOOK_URL,
-  //   ragHookInputFields: process.env.RAG_HOOK_INPUT_FIELDS
-  //     ? process.env.RAG_HOOK_INPUT_FIELDS.split(',')
-  //     : undefined,
-  //   ragHookOutputFields: process.env.RAG_HOOK_OUTPUT_FIELDS
-  //     ? process.env.RAG_HOOK_OUTPUT_FIELDS.split(',')
-  //     : undefined,
-  //   // customRagHookApiKey: process.env.RAG_HOOK_API_KEY,
-  // },
 };

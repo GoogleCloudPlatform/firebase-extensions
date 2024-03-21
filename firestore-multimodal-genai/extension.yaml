@@ -1,5 +1,5 @@
 name: firestore-multimodal-genai
-version: 0.0.9
+version: 0.0.10
 specVersion: v1beta
 
 icon: icon.png
@@ -64,10 +64,19 @@ roles:
       Vertex AI if this provider is chosen.
 
 resources:
+  - name: generateOnCall
+    type: firebaseextensions.v1beta.function
+    description: >-
+      A callable function to perform generative AI tasks.
+    properties:
+      location: ${LOCATION}
+      httpsTrigger: {}
+      runtime: nodejs18
+
   - name: generateText
     type: firebaseextensions.v1beta.function
     description: >-
-      Listens to Firestore data writes to generate conversations.
+      Listens to Firestore data writes to perform generative AI tasks.
     properties:
       availableMemoryMb: 2048
       timeout: 540s
