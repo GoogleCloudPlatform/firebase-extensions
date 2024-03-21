@@ -4,6 +4,8 @@
 
 **Description**: Offers a cost-effective, flexible disaster recovery mechanism for Firestore.
 
+
+
 **Details**: This extension provides an automated, incremental backup solution that extends native Firestore capabilities. Generally, you should consider [Firestore’s native Point in Time Recovery](https://firebase.google.com/docs/firestore/use-pitr) and [Scheduled Backups](https://cloud.google.com/firestore/docs/backups) solutions as a first option. However, if those features don’t meet your needs, this extension can be a more flexible alternative.
 
 With this extension, you can capture and retain incremental changes in Firestore for up to 30 days or more, allowing for point-in-time recovery well beyond the default 7-day window.
@@ -44,48 +46,63 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 After you have uninstalled this extension, you will be required to remove the dataflow pipeline which was set up. You can do this through the
 Google Cloud Console [here](https://console.cloud.google.com/dataflow/pipelines). This extension will also create artifacts stored in the Artifact Registry, which you can also manage from the console [here](https://console.cloud.google.com/artifacts).
 
+
+
+
 **Configuration Parameters:**
 
-- Cloud Functions location: Where do you want to deploy the functions created for this extension? You usually want a location close to your database. For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
+* Cloud Functions location: Where do you want to deploy the functions created for this extension? You usually want a location close to your database. For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
 
-- Collection path: What is the path to the collection that contains the strings that you want to capture all changes of? Use `{document=**}` to capture all collections.
+* Collection path: What is the path to the collection that contains the strings that you want to capture all changes of? Use `{document=**}` to capture all collections.
 
-- Bigquery dataset Id: The id of the Bigquery dataset to sync data to.
 
-- Bigquery table Id: The id of the Bigquery table to sync data to.
+* Bigquery dataset Id: The id of the Bigquery dataset to sync data to.
 
-- Backup instance Id: The name of the Firestore instance to capture changes from. This is your Firestore instance which you want to backup.
+
+* Bigquery table Id: The id of the Bigquery table to sync data to.
+
+
+* Backup instance Id: The name of the Firestore instance to capture changes from. This is your Firestore instance which you want to backup.
+
+
+
 
 **Cloud Functions:**
 
-- **runInitialSetup:** Creates the backup BigQuery database if it does not exist
+* **runInitialSetup:** Creates the backup BigQuery database if it does not exist
 
-- **syncData:** Syncs data changelog to BigQuery
+* **syncData:** Syncs data changelog to BigQuery
 
-- **triggerRestorationJob:** Starts a new restoration task
+* **triggerRestorationJob:** Starts a new restoration task
 
-- **checkScheduledBackupState:** Checks if a scheduled backup is done to trigger the DataFlow job
+* **checkScheduledBackupState:** Checks if a scheduled backup is done to trigger the DataFlow job
 
-- **checkDataflowJobState:** Checks if the DataFlow job is done to update the status
+* **checkDataflowJobState:** Checks if the DataFlow job is done to update the status
+
+
 
 **APIs Used**:
 
-- eventarc.googleapis.com (Reason: Powers all events and triggers)
+* eventarc.googleapis.com (Reason: Powers all events and triggers)
 
-- bigquery.googleapis.com (Reason: Running queries)
+* bigquery.googleapis.com (Reason: Running queries)
 
-- dataflow.googleapis.com (Reason: Running dataflow jobs)
+* dataflow.googleapis.com (Reason: Running dataflow jobs)
 
-- run.googleapis.com (Reason: Powers v2 Cloud Functions)
+* run.googleapis.com (Reason: Powers v2 Cloud Functions)
+
+
 
 **Access Required**:
 
+
+
 This extension will operate with the following project IAM roles:
 
-- datastore.owner (Reason: Allows the extension to write updates to the database, and manage scheduled backups.)
+* datastore.owner (Reason: Allows the extension to write updates to the database, and manage scheduled backups.)
 
-- bigquery.dataEditor (Reason: Allows the creation of BQ jobs to import Firestore backups.)
+* bigquery.dataEditor (Reason: Allows the creation of BQ jobs to import Firestore backups.)
 
-- dataflow.developer (Reason: Allows this extension to create and run dataflow jobs.)
+* dataflow.developer (Reason: Allows this extension to create and run dataflow jobs.)
 
-- storage.admin (Reason: Allows this extension to read Dataflow templates & write to GCS.)
+* storage.admin (Reason: Allows this extension to read Dataflow templates & write to GCS.)
