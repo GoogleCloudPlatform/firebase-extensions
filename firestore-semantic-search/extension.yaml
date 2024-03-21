@@ -22,8 +22,8 @@ tags:
 displayName: Semantic Search with Vertex AI
 
 description: >-
-  Search for semantically similar text documents in Firestore with PaLM API and
-  Vertex AI Matching Engine.
+  Search for semantically similar text documents in Firestore with Gemini API
+  and Vertex AI Matching Engine.
 
 license: Apache-2.0 # https://spdx.org/licenses/
 
@@ -256,20 +256,30 @@ params:
   - param: EMBEDDING_METHOD
     label: Embeddings method
     description: >-
-      Do you want to use
-      [PaLM](https://developers.generativeai.google/guide/palm_api_overview) for
-      embeddings  or [Universal Sentence
-      Encoder](https://tfhub.dev/google/universal-sentence-encoder/4)?
+      Do you want to use [Gemini](https://ai.google.dev/docs/embeddings_guide),
+      [Universal Sentence
+      Encoder](https://tfhub.dev/google/universal-sentence-encoder/4), or [PaLM
+      (Deprecated)](https://developers.generativeai.google/guide/palm_api_overview)
+      for embeddings?
     type: select
     options:
       - label: Gemini
         value: gemini
-      - label: PaLM (Pathways Language Model)
-        value: palm
       - label: Universal Sentence Encoder
         value: use
+      - label: PaLM (Deprecated)
+        value: palm
     required: true
     immutable: true
+
+  - param: GOOGLE_AI_KEY
+    label: Google AI API Key (Gemini only)
+    description: >-
+      If you have selected Gemini as your embeddings provider, then this
+      parameter is **required**.
+    type: secret
+    required: false
+    immutable: false
 
   - param: PALM_EMBEDDING_MODEL
     label: PaLM embeddings model
@@ -281,15 +291,6 @@ params:
       - label: embedding-gecko
         value: textembedding-gecko@001
     immutable: true
-
-  - param: GOOGLE_AI_KEY
-    label: Google AI API Key
-    description: >-
-      If you have selected Gemini as your provider, then this parameter is
-      required.
-    type: secret
-    required: false
-    immutable: false
 
   - param: DISTANCE_MEASURE
     label: Distance measure type
