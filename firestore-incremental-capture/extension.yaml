@@ -113,7 +113,6 @@ resources:
       location: ${LOCATION}
       taskQueueTrigger: {}
 
-
   - name: checkDataflowJobState
     type: firebaseextensions.v1beta.function
     description: >-

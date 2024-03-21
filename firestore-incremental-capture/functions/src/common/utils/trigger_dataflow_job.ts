@@ -15,9 +15,9 @@
  */
 
 import * as admin from 'firebase-admin';
-import { logger } from 'firebase-functions/v1';
-import { FlexTemplatesServiceClient } from '@google-cloud/dataflow';
-import { Timestamp } from 'firebase-admin/firestore';
+import {logger} from 'firebase-functions/v1';
+import {FlexTemplatesServiceClient} from '@google-cloud/dataflow';
+import {Timestamp} from 'firebase-admin/firestore';
 
 import config from '../../config';
 
@@ -30,12 +30,12 @@ export async function launchJob(
 ) {
   const projectId = config.projectId;
   const serverTimestamp = Timestamp.now().toMillis();
-  const { syncCollectionPath } = config;
+  const {syncCollectionPath} = config;
 
   const runId = `${config.instanceId}-dataflow-run-${serverTimestamp}`;
 
   logger.info(`Launching job ${runId}`, {
-    labels: { run_id: runId },
+    labels: {run_id: runId},
   });
 
   // Extract the database name from the backup instance name
