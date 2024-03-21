@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+import {SafetySetting as VertexSafetySetting} from '@google-cloud/vertexai';
+
+import {SafetySetting as GoogleAISafetySetting} from '@google/generative-ai';
+
 export enum GenerativeAIProvider {
   GOOGLE_AI = 'google-ai',
   VERTEX_AI = 'vertex-ai',
@@ -21,12 +25,13 @@ export enum GenerativeAIProvider {
 
 export interface Config {
   vertex: {
-    model?: string;
+    model: string;
   };
   googleAi: {
-    model?: string;
+    model: string;
     apiKey?: string;
   };
+  context?: string;
   location: string;
   projectId: string;
   instanceId: string;
@@ -40,39 +45,49 @@ export interface Config {
   topK?: number;
   candidateCount?: number;
   candidatesField?: string;
+  safetySettings?: GoogleAISafetySetting[] | VertexSafetySetting[];
   provider: GenerativeAIProvider;
-  apiKey?: string;
+  maxOutputTokens?: number;
 }
 
-function getModel() {
-  switch (process.env.GENERATIVE_AI_PROVIDER as GenerativeAIProvider) {
+function getSafetySettings(): GoogleAISafetySetting[] | VertexSafetySetting[] {
+  const categories = [
+    'HARM_CATEGORY_HATE_SPEECH',
+    'HARM_CATEGORY_DANGEROUS_CONTENT',
+    'HARM_CATEGORY_HARASSMENT',
+    'HARM_CATEGORY_SEXUALLY_EXPLICIT',
+  ];
+
+  const settings = [];
+
+  for (const category of categories) {
+    if (process.env[category]) {
+      settings.push({
+        category,
+        threshold: process.env[category],
+      });
+    }
+  }
+
+  switch (process.env.GENERATIVE_AI_PROVIDER) {
     case 'vertex-ai':
-      switch (process.env.MODEL) {
-        case 'gemini-pro':
-          return 'gemini-pro';
-        default:
-          throw new Error('Invalid model');
-      }
+      return settings as VertexSafetySetting[];
     case 'google-ai':
-      switch (process.env.MODEL) {
-        case 'gemini-pro':
-          return 'gemini-pro';
-        default:
-          throw new Error('Invalid model');
-      }
+      return settings as GoogleAISafetySetting[];
     default:
-      throw new Error('Invalid provider');
+      throw new Error('Invalid Provider');
   }
 }
 
 const config: Config = {
   vertex: {
-    model: getModel(),
+    model: process.env.MODEL!,
   },
   googleAi: {
-    model: getModel(),
+    model: process.env.MODEL!,
     apiKey: process.env.API_KEY,
   },
+  context: process.env.CONTEXT,
   location: process.env.LOCATION!,
   projectId: process.env.PROJECT_ID!,
   instanceId: process.env.EXT_INSTANCE_ID!,
@@ -94,10 +109,13 @@ const config: Config = {
     ? parseInt(process.env.CANDIDATE_COUNT)
     : 1,
   candidatesField: process.env.CANDIDATES_FIELD || 'candidates',
+  safetySettings: getSafetySettings(),
   provider:
     (process.env.GENERATIVE_AI_PROVIDER as GenerativeAIProvider) ||
     GenerativeAIProvider.GOOGLE_AI,
-  apiKey: process.env.API_KEY,
+  maxOutputTokens: process.env.MAX_OUTPUT_TOKENS
+    ? parseInt(process.env.MAX_OUTPUT_TOKENS)
+    : undefined,
 };
 
 export default config;

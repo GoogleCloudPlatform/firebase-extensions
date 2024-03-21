@@ -16,7 +16,7 @@ jest.mock('../src/config', () => ({
     projectId: 'test-project',
     instanceId: 'test-instance',
     collectionName: 'summariesTest/{summaryId}/messages',
-    model: 'models/text-bison-001',
+    model: 'models/text-bison',
     textField: 'text',
     responseField: 'output',
     provider: 'generative',
@@ -235,7 +235,7 @@ describe('generateText with GL', () => {
 
     // verify SDK is called with expected arguments
     const expectedRequestData = {
-      model: 'models/models/text-bison-001',
+      model: 'models/models/text-bison',
       prompt: {
         text: 'Give a summary of the following text in undefined sentences, do not use any information that is not explicitly mentioned in the text.\n  text: test generate text\n',
       },

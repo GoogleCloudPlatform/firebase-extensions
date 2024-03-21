@@ -5,6 +5,8 @@
     "firestore-palm-chatbot/functions",
     "firestore-palm-gen-text/functions",
     "palm-secure-backend/functions",
+    "firestore-multimodal-genai/functions",
+    "firestore-genai-chatbot/functions",
     "firestore-palm-summarize-text/functions",
     "speech-to-text/functions",
     "storage-extract-image-text/functions",

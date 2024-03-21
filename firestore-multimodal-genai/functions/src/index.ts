@@ -29,19 +29,11 @@ import {
   variableTypeError,
 } from './errors';
 
-const {
-  prompt,
-  responseField,
-  collectionName,
-  candidateCount,
-  candidatesField,
-  variableFields,
-} = config;
+const {prompt, responseField, collectionName} = config;
 
-import {getGenerativeClient} from './generative-client/generate';
-
-// TODO: make sure we redact API KEY
-// logs.init(config);
+import {getGenerativeClient, GenerativeResponse} from './generative-client';
+import {extractHandlebarsVariables} from './utils';
+import {throwInvalidArgumentError, throwUnauthenticatedError} from './errors';
 
 export const generateText = functions.firestore
   .document(collectionName)
@@ -83,32 +75,16 @@ export const generateText = functions.firestore
     });
 
     try {
-      const view: Record<string, string> = {};
-
-      for (const field of variableFields || []) {
-        if (!data[field]) {
-          throw missingVariableError(field);
-        }
-        if (typeof data[field] !== 'string') {
-          throw variableTypeError(field);
-        }
-        view[field] = data[field];
-      }
-
       // if prompt contains handlebars for variable substitution, do it:
-      const substitutedPrompt = Mustache.render(prompt, view);
+      const substitutedPrompt = getSubstitutedPrompt(data, prompt);
 
       const t0 = performance.now();
       let requestOptions = {};
       if (config.googleAi.model === 'gemini-pro-vision') {
-        if (!data[config.imageField]) {
-          throw new Error(
-            `Gemini Pro Vision requires you to provide an image but you are missing any ${config.imageField} value!`
-          );
-        }
         requestOptions = {
           ...requestOptions,
           image: data[config.imageField],
+          safetySettings: config.safetySettings,
         };
       }
 
@@ -137,17 +113,11 @@ export const generateText = functions.firestore
         }
       }
 
-      const addCandidatesField =
-        config.provider === 'generative' &&
-        candidatesField &&
-        candidateCount &&
-        candidateCount > 1;
-
-      if (addCandidatesField) {
+      if (config.candidates.shouldIncludeCandidatesField) {
         return ref.update({
           ...metadata,
           [responseField]: result.candidates[0],
-          [candidatesField]: result.candidates,
+          [config.candidates.field]: result.candidates,
           'status.error': null,
         });
       }
@@ -167,3 +137,83 @@ export const generateText = functions.firestore
       });
     }
   });
+
+export const generateOnCall = functions.https.onCall(async (data, context) => {
+  if (!context.auth) throwUnauthenticatedError();
+  if (typeof data !== 'object') throwInvalidArgumentError();
+
+  const {image, safetySettings} = data;
+
+  const substitutedPrompt = getSubstitutedPrompt(data, prompt);
+
+  let requestOptions = {};
+  if (config.googleAi.model === 'gemini-pro-vision') {
+    requestOptions = {
+      ...requestOptions,
+      image,
+      safetySettings: safetySettings || config.safetySettings,
+    };
+  }
+
+  const generativeClient = getGenerativeClient();
+
+  const result = await generativeClient.generate(
+    substitutedPrompt,
+    requestOptions
+  );
+
+  const metadata = extractMetadata(result);
+
+  if (config.candidates.shouldIncludeCandidatesField) {
+    return {
+      ...metadata,
+      [responseField]: result.candidates[0],
+      [config.candidates.field]: result.candidates,
+    };
+  } else {
+    return {
+      ...metadata,
+      [responseField]: result.candidates[0],
+    };
+  }
+});
+
+function getSubstitutedPrompt(data: any, prompt: string) {
+  const view: Record<string, string> = {};
+
+  const variableFields = extractHandlebarsVariables(prompt);
+
+  for (const field of variableFields || []) {
+    if (!data[field]) {
+      throw missingVariableError(field);
+    }
+    if (typeof data[field] !== 'string') {
+      throw variableTypeError(field);
+    }
+    view[field] = data[field];
+  }
+
+  // if prompt contains handlebars for variable substitution, do it:
+  const substitutedPrompt = Mustache.render(prompt, view);
+
+  return substitutedPrompt;
+}
+
+interface Metadata {
+  safetyMetadata?: Record<string, any>;
+}
+
+// Extract metadata from the result
+function extractMetadata(result: GenerativeResponse): Metadata {
+  const metadata: Metadata = {};
+  if (result.safetyMetadata) {
+    metadata.safetyMetadata = {};
+
+    for (const key of Object.keys(result.safetyMetadata)) {
+      if (result.safetyMetadata[key] !== undefined) {
+        metadata.safetyMetadata[key] = result.safetyMetadata[key];
+      }
+    }
+  }
+  return metadata;
+}

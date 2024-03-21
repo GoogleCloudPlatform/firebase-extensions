@@ -14,7 +14,13 @@ export const generateChatResponse = async (
 ) => {
   const ref = after.ref;
   const history = await fetchHistory(ref);
-  let requestOptions: GenerateMessageOptions = {history};
+
+  let requestOptions: GenerateMessageOptions = {
+    history,
+    context: config.context,
+    maxOutputTokens: config.maxOutputTokens,
+    safetySettings: config.safetySettings || [],
+  };
 
   if (config.enableDiscussionOptionOverrides) {
     const discussionOptions = await fetchDiscussionOptions(ref);

@@ -1,10 +1,10 @@
 import * as firebaseFunctionsTest from 'firebase-functions-test';
 import * as admin from 'firebase-admin';
-import config, {Config} from '../../src/config';
+import config from '../../src/config';
 import {generateText} from '../../src/index';
 import {WrappedFunction} from 'firebase-functions-test/lib/v1';
 import {Change} from 'firebase-functions/v1';
-
+import waitForExpect from 'wait-for-expect';
 import {QuerySnapshot} from 'firebase-admin/firestore';
 import {expectToProcessCorrectly} from '../util';
 
@@ -31,6 +31,11 @@ jest.mock('../../src/config', () => ({
     projectId: 'demo-test',
     instanceId: 'demo-test',
     provider: 'google-ai',
+    candidates: {
+      field: 'candidates',
+      count: 1,
+      shouldIncludeCandidatesField: false,
+    },
   },
 }));
 
@@ -42,13 +47,13 @@ const mockGenerateContent = jest.fn();
 jest.mock('@google/generative-ai', () => {
   return {
     ...jest.requireActual('@google/generative-ai'),
-    GoogleGenerativeAI: function mockedClient(args) {
+    GoogleGenerativeAI: function mockedClient(args: any) {
       mockGetClient(args);
       return {
         getGenerativeModel: (args: unknown) => {
           mockGetModel(args);
           return {
-            generateContent: function mockedStartChat(args) {
+            generateContent: function mockedStartChat(args: any) {
               mockGenerateContent(args);
               return {
                 response: {
@@ -176,6 +181,10 @@ describe('generateMessage', () => {
 
     await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
 
+    await waitForExpect(() => {
+      expect(firestoreObserver).toHaveBeenCalledTimes(3);
+    });
+
     const firestoreCallData = firestoreObserver.mock.calls.map(call => {
       return call[0].docs[0].data();
     });
@@ -218,7 +227,9 @@ describe('generateMessage', () => {
 
     await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
 
-    expect(firestoreObserver).toHaveBeenCalledTimes(3);
+    await waitForExpect(() => {
+      expect(firestoreObserver).toHaveBeenCalledTimes(3);
+    });
 
     const firestoreCallData = firestoreObserver.mock.calls.map(call =>
       call[0].docs[0].data()
@@ -271,8 +282,9 @@ describe('generateMessage', () => {
       beforeOrderField
     );
 
-    // we expect the firestore observer to be called 4 times total.
-    expect(firestoreObserver).toHaveBeenCalledTimes(3);
+    await waitForExpect(() => {
+      expect(firestoreObserver).toHaveBeenCalledTimes(3);
+    });
 
     const firestoreCallData = firestoreObserver.mock.calls.map(call => {
       return call[0].docs[0].data();

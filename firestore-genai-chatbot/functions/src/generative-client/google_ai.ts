@@ -1,6 +1,7 @@
 import {DiscussionClient, Message} from './base_class';
 import {GoogleGenerativeAI, InputContent} from '@google/generative-ai';
 import {logger} from 'firebase-functions/v1';
+import {SafetySetting} from '@google/generative-ai';
 
 interface GeminiChatOptions {
   history?: Message[];
@@ -13,6 +14,7 @@ interface GeminiChatOptions {
   projectId: string;
   location: string;
   context?: string;
+  safetySettings: SafetySetting[];
 }
 
 type ApiMessage = {
@@ -45,9 +47,14 @@ export class GeminiDiscussionClient extends DiscussionClient<
     this.client = new GoogleGenerativeAI(apiKey);
   }
 
-  createLatestApiMessage(messageContent: string): ApiMessage {
+  createApiMessage(
+    messageContent: string,
+    role: 'user' | 'model' = 'user'
+  ): ApiMessage {
+    const apiRole = role === 'user' ? Role.USER : Role.GEMINI;
+
     return {
-      role: Role.USER,
+      role: apiRole,
       parts: [{text: messageContent}],
     };
   }
@@ -55,7 +62,7 @@ export class GeminiDiscussionClient extends DiscussionClient<
   async generateResponse(
     history: Message[],
     latestApiMessage: ApiMessage,
-    _options: GeminiChatOptions
+    options: GeminiChatOptions
   ) {
     if (!this.client) {
       throw new Error('Client not initialized.');
@@ -68,12 +75,13 @@ export class GeminiDiscussionClient extends DiscussionClient<
     const chatSession = model.startChat({
       history: this.messagesToApi(history),
       generationConfig: {
-        topP: _options.topP,
-        topK: _options.topK,
-        temperature: _options.temperature,
-        maxOutputTokens: _options.maxOutputTokens,
-        candidateCount: _options.candidateCount,
+        topP: options.topP,
+        topK: options.topK,
+        temperature: options.temperature,
+        maxOutputTokens: options.maxOutputTokens,
+        candidateCount: options.candidateCount,
       },
+      safetySettings: options.safetySettings,
     });
 
     let result;

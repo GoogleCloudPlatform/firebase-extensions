@@ -1,28 +1,33 @@
 name: firestore-genai-chatbot
-version: 0.0.4
+version: 0.0.10
 specVersion: v1beta
 
 icon: icon.png
 
-displayName: Chatbot with Gemini
+displayName: Build Chatbot with the Gemini API
 
 description: >-
-  Deploys customizable chatbots using Google AI and Firestore.
+  Deploys customizable chatbots using Gemini models and Firestore.
 
 license: Apache-2.0 # https://spdx.org/licenses/
 
 tags:
   [
     ai,
-    chatbot-api,
+    chatbot-ai,
     generative-ai,
     text-ai,
-    language-ai,
-    large-language-models,
+    generative-ai,
+    vertex-ai,
+    generative-models,
     llm,
     nlp,
     google-ai,
   ]
+
+apis:
+  - apiName: aiplatform.googleapis.com
+    reason: For access to the Vertex AI Gemini API if this provider is chosen.
 
 author:
   authorName: Google Cloud
@@ -44,19 +49,15 @@ releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree
 
 billingRequired: true
 
-apis:
-  - apiName: generativelanguage.googleapis.com
-    reason: Used to access Gemini models through the Generative Language API.
-
 roles:
   - role: datastore.user
     reason:
       Allows this extension to access Cloud Firestore to read and process added
       messages.
-  # - role: aiplatform.user
-  #   reason:
-  #     Allows this extension to access the PaLM API via Vertex AI if this
-  #     provider is chosen.
+  - role: aiplatform.user
+    reason:
+      Allows this extension to access the Vertex AI API if this provider is
+      chosen.
 
 resources:
   - name: generateMessage
@@ -74,48 +75,52 @@ params:
   - param: GENERATIVE_AI_PROVIDER
     label: Gemini API Provider
     description: >-
-      This extension makes use of the Gemini family of large language models.
-      Currently the extension only supports the Google AI API (for developers)
-      but in future will support the Vertex AI Gemini API.
+      This extension makes use of the Gemini family of generative models. For
+      Google AI you will require an API key, whereas Vertex AI will authenticate
+      using application default credentials. For more information see the
+      [docs](https://firebase.google.com/docs/admin/setup#initialize-sdk).
     type: select
     options:
       - label: Google AI
         value: google-ai
+      - label: Vertex AI
+        value: vertex-ai
     required: true
     default: google-ai
     immutable: false
 
   - param: API_KEY
-    label: API Key for Gemini
+    label: Google AI API Key
     description: >-
-      If you would like the extension to use an API to access the Gemini API,
-      please enter it here.
+      If you have selected Google AI as your provider, then this parameteris
+      required. If you have instead selected Vertex AI, then this parameter is
+      not required, and application default credentials will be used.
     type: secret
     required: false
     immutable: false
 
   - param: MODEL
-    label: Language model
+    label: Gemini model
     description: >-
-      Which language model do you want to use? Please ensure you pick a model
-      supported by your selected provider.
-    type: select
-    options:
-      - label: Gemini Pro
-        value: gemini-pro
+      Input the name of the Gemini model you would like to use. To view
+      available models for each provider, see: [Vertex AI Gemini
+      models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models),
+      [Google AI Gemini models](https://ai.google.dev/models/gemini)
+    type: string
     required: true
     default: gemini-pro
     immutable: false
 
   - param: COLLECTION_NAME
-    label: Collection Path
+    label: Firestore Collection Path
     description: >-
-      Path to a Cloud Firestore collection which will represent a discussion
-      with a LLM on the Google AI Gemini API.
+      Used to store conversation history represented as documents. This
+      extension will listen to the specified collection(s) for new message
+      documents.
     type: string
     validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
     validationErrorMessage: Must be a valid Cloud Firestore Collection
-    example: users/{uid}/discussions/{discussionId}/messages
+    default: generate
     required: true
     immutable: false
 
@@ -146,6 +151,7 @@ params:
       when processing begins, the current timestamp will be written to this
       field. Sorting will be in descending order.
     type: string
+    default: createTime
     example: createTime
     required: false
     immutable: false
@@ -155,7 +161,11 @@ params:
     description: >-
       Where do you want to deploy the functions created for this extension? For
       help selecting a location, refer to the [location selection
-      guide](https://firebase.google.com/docs/functions/locations).
+      guide](https://firebase.google.com/docs/functions/locations). Note that
+      Generative AI on Vertex AI is only available in the regions listed
+      [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/locations-genai).
+      A list of languages and regions supported by the Gemini API on Google AI
+      is [here](https://ai.google.dev/available_regions).
     type: select
     options:
       - label: Iowa (us-central1)
@@ -204,8 +214,8 @@ params:
   - param: CONTEXT
     label: Context
     description: >-
-      Contextual preamble for the language model. A string giving context for
-      the discussion.
+      Contextual preamble for the generative AI model. A string giving context
+      for the discussion.
     type: string
     required: false
     immutable: false
@@ -261,6 +271,17 @@ params:
     required: false
     immutable: false
 
+  - param: MAX_OUTPUT_TOKENS
+    label: Max Output Tokens
+    description: >-
+      If specified, this parameter is passed to the Gemini API to control the
+      length of the response.
+    type: string
+    validationRegex: ^[1-9][0-9]*
+    validationErrorMessage: Please specify a positive integer.
+    required: false
+    immutable: false
+
   - param: CANDIDATES_FIELD
     label: Candidates field
     description: >-
@@ -284,3 +305,87 @@ params:
         value: no
     default: no
     required: true
+
+  - param: HARM_CATEGORY_HATE_SPEECH
+    label: Hate Speech Threshold
+    description: >-
+      Threshold for hate speech content. Specify what probability level of hate
+      speech content is blocked by the Gemini provider.
+    type: select
+    options:
+      - label: Default
+        value: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+      - label: Block low and above
+        value: BLOCK_LOW_AND_ABOVE
+      - label: Block medium and above
+        value: BLOCK_MEDIUM_AND_ABOVE
+      - label: Block only high
+        value: BLOCK_ONLY_HIGH
+      - label: Block none
+        value: BLOCK_NONE
+    required: false
+    default: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+    immutable: false
+
+  - param: HARM_CATEGORY_DANGEROUS_CONTENT
+    label: Dangerous Content Threshold
+    description: >-
+      Threshold for dangerous content. Specify what probability level of
+      dangerous content is blocked by the Gemini provider.
+    type: select
+    options:
+      - label: Default
+        value: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+      - label: Block low and above
+        value: BLOCK_LOW_AND_ABOVE
+      - label: Block medium and above
+        value: BLOCK_MEDIUM_AND_ABOVE
+      - label: Block only high
+        value: BLOCK_ONLY_HIGH
+      - label: Block none
+        value: BLOCK_NONE
+    required: false
+    default: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+    immutable: false
+
+  - param: HARM_CATEGORY_HARASSMENT
+    label: harassment Content Threshold
+    description: >-
+      Threshold for harassment content. Specify what probability level of
+      harassment content is blocked by the Gemini provider.
+    type: select
+    options:
+      - label: Default
+        value: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+      - label: Block low and above
+        value: BLOCK_LOW_AND_ABOVE
+      - label: Block medium and above
+        value: BLOCK_MEDIUM_AND_ABOVE
+      - label: Block only high
+        value: BLOCK_ONLY_HIGH
+      - label: Block none
+        value: BLOCK_NONE
+    required: false
+    default: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+    immutable: false
+
+  - param: HARM_CATEGORY_SEXUALLY_EXPLICIT
+    label: Sexual Content Threshold
+    description: >-
+      Threshold for sexually explicit content. Specify what probability level of
+      sexual content is blocked by the Gemini provider.
+    type: select
+    options:
+      - label: Default
+        value: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+      - label: Block low and above
+        value: BLOCK_LOW_AND_ABOVE
+      - label: Block medium and above
+        value: BLOCK_MEDIUM_AND_ABOVE
+      - label: Block only high
+        value: BLOCK_ONLY_HIGH
+      - label: Block none
+        value: BLOCK_NONE
+    required: false
+    default: HARM_BLOCK_THRESHOLD_UNSPECIFIED
+    immutable: false
