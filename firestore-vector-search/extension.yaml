@@ -16,21 +16,36 @@ name: firestore-vector-search
 version: 0.0.1
 specVersion: v1beta
 
-tags: [ai]
+tags:
+  [
+    ai,
+    search,
+    semantic-search,
+    vector-search,
+    text-search,
+    generative-ai,
+    nlp,
+    llm,
+    large-language-models,
+    gemini,
+    embeddings,
+    google-ai,
+    firestore
+  ]
 
-displayName: Firestore Vector Search
-description: (TODO)
-
-license: Apache-2.0
+displayName: Vector Search with Firestore
+description: Perform vector similarity search with Firestore
 
 icon: icon.png
 
-sourceUrl: (TODO)
-releaseNotesUrl: (TODO)
+license: Apache-2.0 # https://spdx.org/licenses/
+
+sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-palm-gen-text
+releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-palm-gen-text/CHANGELOG.md
 
 author:
-  authorName: (TODO)
-  url: (TODO)
+  authorName: Google Cloud
+  url: https://cloud.google.com
 
 contributors:
   - authorName: Jacob Cable

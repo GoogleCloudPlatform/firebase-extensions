@@ -1,8 +1,8 @@
-# Firestore Vector Search
+# Vector Search with Firestore
 
-**Author**: (TODO) (**[(TODO)]((TODO))**)
+**Author**: Google Cloud (**[https://cloud.google.com](https://cloud.google.com)**)
 
-**Description**: (TODO)
+**Description**: Perform vector similarity search with Firestore
 
 
 
@@ -14,11 +14,9 @@ This vector embedding is written back to the same document, and the document is 
 
 The extension currently provides two ways to query:
 
-1. A callable function (TODO: this is currently http for ease of development) which takes two parameters, `query`  and `limit`
+1. A callable function which takes `query`, `limit` and `prefilter` parameters
 
-2. In a predetermined collection (see instructions after install for the collection path) the results of the query will be written back to documents added here (with `query` and `limit` fields).
-
-In either case the extension defaults `topK` to the value `1` if it is omitted. 
+2. In a predetermined collection (see instructions after install for the collection path) the results of the query will be written back to documents added here (with `query` and `limit` and `prefilter` fields).
 
 ## Index management with the index document
 
@@ -33,6 +31,7 @@ This extension uses distributed tasks to backfill a collection and embed existin
 Before installing this extension, make sure that you've [set up a Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) in your Firebase project.
 
 ### Billing
+
 To install an extension, your project must be on the [Blaze (pay as you go) plan](https://firebase.google.com/pricing)
 
 - You will be charged a small amount (typically around $0.01/month) for the Firebase resources required by this extension (even if it is not used).
@@ -69,7 +68,10 @@ To install an extension, your project must be on the [Blaze (pay as you go) plan
 * Output field name: What is the name of the field where you want to store your embeddings?
 
 
-* Embed existing documents?: Should existing documents in the Firestore collection be embedded as well? 
+* Status field name: What is the name of the field where you want to track the state of a document being embedded?
+
+
+* Embed existing documents?: Should existing documents in the Firestore collection be embedded as well?
 
 
 * Update existing embeddings?: Should existing documents in the Firestore collection be updated with new embeddings on reconfiguring the extensions?
