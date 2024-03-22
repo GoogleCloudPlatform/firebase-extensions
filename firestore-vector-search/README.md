@@ -54,6 +54,12 @@ To install an extension, your project must be on the [Blaze (pay as you go) plan
 * LLM Function: If you selected \"Other\" as your embedding provider, please provide the URL of your function that will calculate the embeddings.
 
 
+* LLM Function: If you selected \"Other\" as your embedding provider, please provide the batch size of your function that will calculate the embeddings.
+
+
+* LLM Function: If you selected \"Other\" as your embedding provider, please provide the dimension of the embedding you will be using.
+
+
 * Collection path: What is the path to the collection that contains the strings that you want to embed?
 
 
