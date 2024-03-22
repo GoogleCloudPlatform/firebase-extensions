@@ -55,12 +55,12 @@ export const triggerRestorationJob = functions.firestore
  * Uses the event log method `google.firestore.admin.v1.FirestoreAdmin.RestoreDatabase`.
  */
 export const checkScheduledBackupState = functions.tasks
-  .taskQueue({retryConfig: {maxAttempts: 2}})
+  .taskQueue()
   .onDispatch(checkScheduledBackupStateHandler);
 
 /**
  * Triggered once the DataFlow job starts.
  */
 export const checkDataflowJobState = functions.tasks
-  .taskQueue({retryConfig: {maxAttempts: 2}})
+  .taskQueue()
   .onDispatch(checkDataflowJobStateHandler);

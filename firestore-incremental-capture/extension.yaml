@@ -80,7 +80,9 @@ resources:
       location: ${LOCATION}
       runtime: nodejs18
       timeout: 540s
-      taskQueueTrigger: {}
+      taskQueueTrigger:
+        retryConfig:
+          maxAttempts: 15
 
   - name: syncData
     type: firebaseextensions.v1beta.function
@@ -111,7 +113,9 @@ resources:
       availableMemoryMb: 512
       runtime: nodejs18
       location: ${LOCATION}
-      taskQueueTrigger: {}
+      taskQueueTrigger:
+        retryConfig:
+          maxAttempts: 2
 
   - name: checkDataflowJobState
     type: firebaseextensions.v1beta.function
@@ -121,7 +125,9 @@ resources:
       availableMemoryMb: 512
       runtime: nodejs18
       location: ${LOCATION}
-      taskQueueTrigger: {}
+      taskQueueTrigger:
+        retryConfig:
+          maxAttempts: 2
 
 params:
   - param: LOCATION
