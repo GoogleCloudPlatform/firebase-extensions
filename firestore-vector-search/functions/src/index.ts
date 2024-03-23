@@ -73,6 +73,7 @@ const backfillOptions: FirestoreBackfillOptions = {
   collectionName: config.collectionName,
   metadataDocumentPath: config.indexMetadataDocumentPath,
   shouldDoBackfill,
+  statusField: config.statusField,
   extensionInstanceId: config.instanceId,
   metadata: {
     embeddingProvider: config.embeddingProvider,
@@ -116,6 +117,7 @@ export const backfillTask = functions.tasks
 const updateOptions: FirestoreBackfillOptions = {
   queueName: config.updateQueueName,
   collectionName: config.collectionName,
+  statusField: config.statusField,
   metadataDocumentPath: config.indexMetadataDocumentPath,
   shouldDoBackfill,
   extensionInstanceId: config.instanceId,
