@@ -58,8 +58,7 @@ This extension may be configured to use embedding models other than Gemini and O
 
 ```
 {
-    "batch": ["sample text 1","sample text 2", "sample text 3"]
-}
+    "batch": string[]
 ```
 
 It must return a response with body of type
@@ -68,10 +67,11 @@ It must return a response with body of type
     embeddings: number[][]
 }
 ```
+The lengths of `batch` and `embeddings` must match.
 
 - Custom embedding dimension: This is the dimension of your custom embedding
 
-- Custom embedding batch size: The
+- Custom embedding batch size: The extension will POST to the custom function endpoint in batches of this size.
 
 
 ## Monitoring
