@@ -75,21 +75,33 @@ export const upsertTransferConfig = functions.tasks
         const splitName = transferConfigName.split('/');
         const transferConfigId = splitName[splitName.length - 1];
 
-        await dts.updateTransferConfig(transferConfigName);
+        const response = await dts.updateTransferConfig(transferConfigName);
 
-        const updatedConfig = dts.getTransferConfig(config.transferConfigName);
+        if (response) {
+          const updatedConfig = dts.getTransferConfig(
+            config.transferConfigName
+          );
 
-        await db
-          .collection(config.firestoreCollection)
-          .doc(transferConfigId)
-          .set({
-            extInstanceId: config.instanceId,
-            ...updatedConfig,
-          });
+          await db
+            .collection(config.firestoreCollection)
+            .doc(transferConfigId)
+            .set({
+              extInstanceId: config.instanceId,
+              ...updatedConfig,
+            });
+
+          await runtime.setProcessingState(
+            'PROCESSING_COMPLETE',
+            'Transfer Config Name was not provided to the extension, and an existing Transfer Config found. Transfer Config object was successfully updated in BQ and Firestore.'
+          );
+          return;
+        }
+
         await runtime.setProcessingState(
           'PROCESSING_COMPLETE',
-          'Transfer Config Name was not provided to the extension, and an existing Transfer Config found. Transfer Config object was successfully updated in BQ and Firestore.'
+          `An existing Transfer Config name found in ${config.firestoreCollection}, but the associated Transfer Config does not exist.`
         );
+
         return;
       } else {
         const transferConfig = await dts.createTransferConfig();

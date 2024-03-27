@@ -4,12 +4,20 @@ const mapValues = require('lodash.mapvalues');
 import * as logs from './logs';
 import {Config} from './types';
 
+import * as functions from 'firebase-functions';
+
 export const getTransferConfig = async (transferConfigName: string) => {
-  const datatransferClient =
-    new bigqueryDataTransfer.v1.DataTransferServiceClient();
-  const request = {name: transferConfigName};
-  const response = await datatransferClient.getTransferConfig(request);
-  return response[0];
+  try {
+    const datatransferClient =
+      new bigqueryDataTransfer.v1.DataTransferServiceClient();
+    const request = {name: transferConfigName};
+    const response = await datatransferClient.getTransferConfig(request);
+
+    return response[0];
+  } catch (e) {
+    functions.logger.error(`Failed to get transfer config: ${e}`);
+    return null;
+  }
 };
 
 export const createTransferConfigRequest = (config: Config) => {
@@ -74,6 +82,11 @@ export const constructUpdateTransferConfigRequest = async (
   config: Config
 ) => {
   const transferConfig = await getTransferConfig(transferConfigName);
+
+  if (!transferConfig) {
+    throw new Error('Transfer config not found');
+  }
+
   const updateMask = [];
   const updatedConfig = JSON.parse(JSON.stringify(transferConfig));
   //TODO - what if null or undefined?
@@ -113,24 +126,31 @@ export const constructUpdateTransferConfigRequest = async (
     updateMask: {paths: updateMask},
     name: transferConfig.name,
   };
+
   return request;
 };
 
 export const updateTransferConfig = async (transferConfigName: string) => {
-  const datatransferClient =
-    new bigqueryDataTransfer.v1.DataTransferServiceClient();
-  const request = constructUpdateTransferConfigRequest(
-    transferConfigName,
-    config
-  );
-
-  // Run request
-  logs.updateTransferConfig(transferConfigName);
-  const converted =
-    bigqueryDataTransfer.protos.google.cloud.bigquery.datatransfer.v1.UpdateTransferConfigRequest.fromObject(
-      request
+  try {
+    const datatransferClient =
+      new bigqueryDataTransfer.v1.DataTransferServiceClient();
+    const request = await constructUpdateTransferConfigRequest(
+      transferConfigName,
+      config
     );
-  const response = await datatransferClient.updateTransferConfig(converted);
-  logs.transferConfigUpdated(transferConfigName);
-  return response[0];
+
+    // Run request
+    logs.updateTransferConfig(transferConfigName);
+    const converted =
+      bigqueryDataTransfer.protos.google.cloud.bigquery.datatransfer.v1.UpdateTransferConfigRequest.fromObject(
+        request
+      );
+
+    const response = await datatransferClient.updateTransferConfig(converted);
+    logs.transferConfigUpdated(transferConfigName);
+    return response[0];
+  } catch (e) {
+    functions.logger.error(`Error updating transfer config: ${e}`);
+    return null;
+  }
 };
