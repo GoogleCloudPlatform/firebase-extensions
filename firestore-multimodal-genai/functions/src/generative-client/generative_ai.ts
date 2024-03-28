@@ -39,7 +39,13 @@ export class GeminiGenerativeClient extends GenerativeClient<
         throw new Error('Gemini Pro Vision selected, but missing Image Field');
       }
 
-      const base64String = await getImageBase64(options.image, 'google-ai');
+      let base64String: string;
+
+      if (options.image.startsWith('gs://')) {
+        base64String = await getImageBase64(options.image, 'google-ai');
+      } else {
+        base64String = options.image.replace(/^data:image\/\w+;base64,/, '');
+      }
 
       const imagePart = {
         inlineData: {
