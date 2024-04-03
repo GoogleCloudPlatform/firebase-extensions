@@ -1,4 +1,5 @@
 # How to use this extension
+
 ## Embedding documents
 
 1.  Go to your [Cloud Firestore dashboard](https://console.firebase.google.com/project/${param:PROJECT_ID}/firestore/data) in the Firebase console.
@@ -11,12 +12,11 @@
 
 ## Querying the index
 
-*Important: Before you will be able to query the collection, firestore will have to build a vector index. This extension will trigger the basic index (no prefilters) upon installation or reconfiguration.
+\*Important: Before you will be able to query the collection, firestore will have to build a vector index. This extension will trigger the basic index (no prefilters) upon installation or reconfiguration.
 
 You can check the build status of indexes here:
 
 https://console.firebase.google.com/project/${param:PROJECT_ID}/firestore/indexes
-
 
 Where you have replaced `<DIMENSION>` with the dimension of the embedding space you are using, e.g 768 for Gemini.
 
@@ -62,17 +62,18 @@ This extension may be configured to use embedding models other than Gemini and O
 ```
 
 It must return a response with body of type
+
 ```
 {
     embeddings: number[][]
 }
 ```
+
 The lengths of `batch` and `embeddings` must match.
 
 - Custom embedding dimension: This is the dimension of your custom embedding
 
 - Custom embedding batch size: The extension will POST to the custom function endpoint in batches of this size.
-
 
 ## Monitoring
 
