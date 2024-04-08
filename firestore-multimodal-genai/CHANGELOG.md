@@ -1,3 +1,7 @@
+## Version 0.0.9
+
+- Add docs on regional support for Gemini APIs
+
 ## Version 0.0.8
 
 - fix typo in documentation

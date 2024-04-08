@@ -12,12 +12,13 @@ export default {
   collectionName: 'discussions',
   prompt: 'test prompt',
   responseField: 'output',
-  candidateCount: 1,
   provider: 'vertex-ai',
   apiKey: process.env.API_KEY,
   bucketName: 'demo-gcp.appspot.com',
   imageField: 'image',
-  customRagHookUrl: 'https://www.test.com',
-  ragHookInputFields: ['test'],
-  ragHookOutputFields: ['foo'],
+  candidates: {
+    field: 'candidates',
+    count: 1,
+    shouldIncludeCandidatesField: false,
+  },
 };

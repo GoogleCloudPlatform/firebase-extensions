@@ -31,6 +31,11 @@ jest.mock('../../src/config', () => ({
     projectId: 'demo-test',
     instanceId: 'demo-test',
     provider: 'google-ai',
+    candidates: {
+      field: 'candidates',
+      count: 1,
+      shouldIncludeCandidatesField: false,
+    },
   },
 }));
 

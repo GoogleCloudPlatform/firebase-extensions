@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import {GoogleError} from 'google-gax';
+import * as functions from 'firebase-functions';
 
 export const missingVariableError = (field: string) =>
   new Error(
@@ -52,3 +53,17 @@ export function createErrorMessage(e: unknown): string {
   }
   return `An error occurred while processing the provided message, ${e.message}`;
 }
+
+export const throwUnauthenticatedError = () => {
+  throw new functions.https.HttpsError(
+    'unauthenticated',
+    'User is not authenticated'
+  );
+};
+
+export const throwInvalidArgumentError = () => {
+  throw new functions.https.HttpsError(
+    'invalid-argument',
+    'Data must be an object'
+  );
+};

@@ -2,7 +2,12 @@ This extension allows you to perform generative tasks using the Gemini API, a cu
 
 On installation, you will be asked to provide the following information:
 
-**Gemini API Provider**: This extension makes use of the Gemini family of large language models. Currently the extension supports the Google AI Gemini API (for developers) and the Vertex AI Gemini API. Learn more about the differences between the Google AI and Vertex AI Gemini APIs here.
+- **Gemini API Provider** This extension makes use of the Gemini family of models. Currently the extension supports the Google AI Gemini API and the Vertex AI Gemini API. Learn more about the differences between the Google AI and Vertex AI Gemini APIs [here](https://cloud.google.com/vertex-ai/docs/generative-ai/migrate/migrate-google-ai).
+
+Note that Generative AI on Vertex AI is only available in the regions listed [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/locations-genai).
+
+A list of languages and regions supported by the Gemini API on Google AI is [here](https://ai.google.dev/available_regions).
+
 **Gemini Model**: Input the name of which Gemini model you would like to use. To view available models for each provider, see:
 
 - [Vertex AI Gemini models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models)
@@ -15,6 +20,8 @@ This extension will listen to the specified collection for new documents. When s
 1. Substitute any variables from the document into the prompt.
 2. Query the Gemini API to generate a response based on the prompt.
 3. Write the response from the Model API back to the triggering document in the response field.
+
+Additionally the extension deploys a callable function, which may be called with data containing the values for handlebar substitution.
 
 Note that the extension only supports top-level handlebars variables, substitution into nested handlebar templates is not supported.
 
