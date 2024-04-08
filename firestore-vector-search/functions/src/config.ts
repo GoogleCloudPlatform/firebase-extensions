@@ -6,6 +6,7 @@ export const enum EmbeddingProvider {
   Gemini = 'gemini',
   Multimodal = 'multimodal',
   OpenAI = 'openai',
+  VertexAI = 'vertex',
   Custom = 'custom',
 }
 
@@ -30,6 +31,8 @@ const getDimension = () => {
       return 512;
     case EmbeddingProvider.OpenAI:
       return 512;
+    case EmbeddingProvider.VertexAI:
+      return 786;
     case EmbeddingProvider.Custom:
       if (!process.env.CUSTOM_EMBEDDINGS_DIMENSION) {
         throw new Error(

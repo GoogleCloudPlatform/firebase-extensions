@@ -52,7 +52,7 @@ It is important to note that such a query will require a composite index. The fi
 
 ## Setting up a custom embedding function
 
-This extension may be configured to use embedding models other than Gemini and OpenAI. To use this feature you must specify additional configuration parameters:
+This extension may be configured to use embedding models other than Gemini, Vertex AI, and OpenAI. To use this feature you must specify additional configuration parameters:
 
 - Custom embedding endpoint: This is the endpoint of some http function which should accept a POST request with sample body shape:
 
