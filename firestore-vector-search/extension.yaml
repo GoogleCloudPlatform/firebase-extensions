@@ -40,8 +40,8 @@ icon: icon.png
 
 license: Apache-2.0 # https://spdx.org/licenses/
 
-sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-palm-gen-text
-releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-palm-gen-text/CHANGELOG.md
+sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-vector-search
+releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-vector-search/CHANGELOG.md
 
 author:
   authorName: Google Cloud

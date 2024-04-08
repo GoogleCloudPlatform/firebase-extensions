@@ -7,7 +7,7 @@ import {GeminiAITextEmbedClient} from '../../src/embeddings/client/text/gemini';
 //   geminiApiKey: "test-api-key",
 // }));
 
-describe('GenerativeAIPalmEmbedClient', () => {
+describe('Gemini Embeddings', () => {
   let embedClient;
 
   beforeEach(() => {

@@ -12,7 +12,7 @@ export class VectorStoreClient {
     _prefilters: Prefilter[],
     _limit: number,
     _outputField: string
-  ): Promise<string[]> {
+  ): Promise<{ids: string[]}> {
     throw new Error('Not implemented');
   }
 

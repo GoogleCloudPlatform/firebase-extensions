@@ -47,7 +47,7 @@ const performTextQuery = async ({
     limit,
     config.outputField
   );
-  return {[config.inputField + 'Result']: result};
+  return {result: result};
 };
 
 export const textQueryProcess = new FirestoreOnWriteProcess(performTextQuery, {

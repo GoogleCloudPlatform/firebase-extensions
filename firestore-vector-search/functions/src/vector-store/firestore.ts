@@ -20,7 +20,7 @@ export class FirestoreVectorStoreClient extends VectorStoreClient {
     prefilters: Prefilter[],
     limit: number,
     outputField: string
-  ): Promise<string[]> {
+  ): Promise<{ids: string[]}> {
     const col = this.firestore.collection(collection);
 
     let q: Query | VectorQuery = col;
@@ -38,6 +38,6 @@ export class FirestoreVectorStoreClient extends VectorStoreClient {
 
     const result = await q.get();
 
-    return result.docs.map(doc => doc.ref.id);
+    return {ids: result.docs.map(doc => doc.ref.id)};
   }
 }
