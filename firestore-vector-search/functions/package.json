@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@google-ai/generativelanguage": "^1.1.0",
-    "@google-cloud/aiplatform": "^3.6.0",
+    "@google-cloud/aiplatform": "^3.17.0",
     "@google-cloud/firestore": "^7.6.0",
     "@google-cloud/pubsub": "^4.0.7",
     "@google-cloud/vertexai": "^0.1.3",
