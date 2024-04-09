@@ -173,7 +173,8 @@ params:
   - param: EMBEDDING_PROVIDER
     label: LLM
     description: >
-      Which embedding API do you want to use?
+      Which embedding API do you want to use? Note: **Vertex AI provider** is
+      supported only with the **us-central1** location.
     type: select
     options:
       - label: Gemini
@@ -182,6 +183,8 @@ params:
         value: multimodal
       - label: OpenAI
         value: openai
+      - label: Vertex AI
+        value: vertex
       - label: Other (User-provided endpoint)
         value: custom
     default: gemini

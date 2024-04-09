@@ -3,6 +3,7 @@ import {MultimodalEmbeddingClient} from './multimodal';
 import {CustomEndpointClient} from './text/custom_function';
 import {GeminiAITextEmbedClient} from './text/gemini';
 import {OpenAIEmbedClient} from './text/open_ai';
+import {VertexAITextEmbedClient} from './text/vertex_ai';
 
 const getEmbeddingClient = () => {
   switch (config.embeddingProvider) {
@@ -15,6 +16,8 @@ const getEmbeddingClient = () => {
       });
     case 'openai' as EmbeddingProvider.OpenAI:
       return new OpenAIEmbedClient();
+    case 'vertex' as EmbeddingProvider.VertexAI:
+      return new VertexAITextEmbedClient();
     case 'custom' as EmbeddingProvider.Custom:
       return new CustomEndpointClient();
     default:

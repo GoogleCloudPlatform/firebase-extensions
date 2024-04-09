@@ -30,6 +30,10 @@ This extension uses distributed tasks to backfill a collection and embed existin
 
 Before installing this extension, make sure that you've [set up a Cloud Firestore database](https://firebase.google.com/docs/firestore/quickstart) in your Firebase project.
 
+### Vertex AI Embeddings Preview
+
+This product or feature is subject to the "Pre-GA Offerings Terms" in the General Service Terms section of the [Service Specific Terms](https://cloud.google.com/terms/service-terms#1). Pre-GA products and features are available "as is" and might have limited support. For more information, see the [launch stage descriptions](https://cloud.google.com/products?hl=en#product-launch-stages).
+
 ### Billing
 
 To install an extension, your project must be on the [Blaze (pay as you go) plan](https://firebase.google.com/pricing)
@@ -42,7 +46,7 @@ To install an extension, your project must be on the [Blaze (pay as you go) plan
 
 **Configuration Parameters:**
 
-* LLM: Which embedding API do you want to use?
+* LLM: Which embedding API do you want to use? Note: **Vertex AI provider** is supported only with the **us-central1** location.
 
 
 * Gemini API key: If you selected Gemini to calculate embeddings, please provide your Gemini API key
