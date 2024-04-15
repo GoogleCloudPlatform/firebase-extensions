@@ -2,7 +2,8 @@ import {config} from '../config';
 import * as functions from 'firebase-functions';
 import {embeddingClient} from '../embeddings/client';
 import {textVectorStoreClient} from '../vector-store';
-import {parseQuerySchema, parseLimit, Prefilter} from './util';
+import {parseQuerySchema, parseLimit, Prefilter, parsedRequest} from './util';
+import {z} from 'zod';
 
 // TODO: remove any
 export async function handleQueryCall(data: unknown, context: any) {
@@ -13,19 +14,33 @@ export async function handleQueryCall(data: unknown, context: any) {
       'The function must be called while authenticated.'
     );
   }
-  const queryParams = parseQuerySchema(data);
-  const text = queryParams['query']!;
-  const limitParam = queryParams['limit'];
+  let queryParams: parsedRequest;
+  try {
+    queryParams = parseQuerySchema(data);
+  } catch (e) {
+    const zodError = e instanceof z.ZodError ? e : undefined;
 
-  const prefilters: Prefilter[] = queryParams['prefilters'] || [];
+    const errorMessage = 'The function was called with an invalid argument';
+
+    if (zodError) {
+      throw new functions.https.HttpsError(
+        'invalid-argument',
+        errorMessage,
+        zodError.errors
+      );
+    }
+    throw new functions.https.HttpsError('invalid-argument', errorMessage);
+  }
+  const text = queryParams.query;
+  const limitParam = queryParams.limit;
+
+  const prefilters: Prefilter[] = queryParams.prefilters || [];
 
   const limit = limitParam ? parseLimit(limitParam) : config.defaultQueryLimit;
 
   await embeddingClient.initialize();
 
   const textQueryEmbedding = await embeddingClient.getSingleEmbedding(text);
-
-  // query firestore for the documents
 
   return await textVectorStoreClient.query(
     textQueryEmbedding,
