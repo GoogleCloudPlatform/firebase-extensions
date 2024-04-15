@@ -79,7 +79,6 @@ export class GenerativeLanguageClient extends GenerativeClient<
       });
     } catch (e) {
       logger.error(e);
-      // TODO: the error message provided exposes the API key, so we should handle this/ get the Gemini team to fix it their side.
       throw new Error(
         'failed to generate content, see function logs for details'
       );
