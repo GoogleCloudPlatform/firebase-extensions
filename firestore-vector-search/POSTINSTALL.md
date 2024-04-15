@@ -50,6 +50,15 @@ A sample callable function argument is as follows:
 
 It is important to note that such a query will require a composite index. The first call you make to the function will fail, and a `gcloud` CLI command will be logged which will trigger the build of an appropriate index.
 
+The response data returned from the callable function will be an object with shape
+
+```
+{
+  ids: string[]
+}
+```
+Where ids is an array of document ID strings.
+
 ## Setting up a custom embedding function
 
 This extension may be configured to use embedding models other than Gemini, Vertex AI, and OpenAI. To use this feature you must specify additional configuration parameters:

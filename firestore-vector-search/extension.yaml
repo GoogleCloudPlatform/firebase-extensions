@@ -13,7 +13,7 @@
 # limitations under the License.
 
 name: firestore-vector-search
-version: 0.0.2
+version: 0.0.3
 specVersion: v1beta
 
 tags:
@@ -168,6 +168,7 @@ resources:
     properties:
       location: ${LOCATION}
       httpsTrigger: {}
+      availableMemoryMb: 512
       runtime: nodejs18
 params:
   - param: EMBEDDING_PROVIDER
