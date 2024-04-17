@@ -1,4 +1,5 @@
 import {firestoreAdminClient} from '../config';
+import * as functions from 'firebase-functions';
 
 interface CreateIndexOptions {
   collectionName: string;
@@ -24,12 +25,28 @@ const getIndex = (options: CreateIndexOptions) => ({
 });
 
 export async function createIndex(options: CreateIndexOptions) {
+  const allIndexes = await firestoreAdminClient.listIndexes({
+    parent: getParent(options),
+  });
+  const indexExists = allIndexes[0].some(index => {
+    const hasCollectionName = index.name?.includes(options.collectionName);
+    const hasFieldPath = index.fields?.some(
+      field => field.fieldPath === options.fieldPath
+    );
+    return hasCollectionName && hasFieldPath;
+  });
+
+  if (indexExists) {
+    functions.logger.info(`Index already exists, skipping index creation`);
+    return;
+  }
+
   const result = await firestoreAdminClient.createIndex({
     parent: getParent(options),
     index: getIndex(options),
   });
 
-  console.log(`Index created: ${JSON.stringify(result)}`);
+  functions.logger.info(`Index created: ${JSON.stringify(result)}`);
 }
 
 export async function checkCreateIndexProgress(indexName: string) {
