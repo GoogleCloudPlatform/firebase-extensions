@@ -10,6 +10,14 @@ chore - remove TODO security comment in code
 
 feat - add Vertex AI embeddings preview
 
+fix - correct typos in errors
+
+fix - check indexes correctly
+
+fix - increase default memory in query callable and improve error handling
+
+docs - add info about shape of response from callable
+
 ## Version 0.0.1
 
 Initial release

@@ -102,7 +102,7 @@ export const backfillTrigger = functions.tasks
       });
     } catch (e) {
       console.error(e);
-      throw new Error('Error creating firestore Vector index');
+      throw new Error('Error creating firestore vector index');
     }
 
     return onInstallTrigger();
@@ -144,7 +144,7 @@ export const updateTrigger = functions.tasks
     } catch (e) {
       console.error(e);
       throw new Error(
-        'Error creating new firestore Vector index during update'
+        'Error creating new firestore vector index during update'
       );
     }
 
