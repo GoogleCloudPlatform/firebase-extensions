@@ -1,3 +1,7 @@
+## Version 0.0.10
+
+chore - remove TODO security comment in code
+
 ## Version 0.0.9
 
 - feature: Add callable function
