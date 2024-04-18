@@ -4,7 +4,9 @@ fix - better messaging on an invalid argument
 
 docs - include description of result object from query.
 
-chore - remove TODO security comment in code
+fix - check indexes correctly
+
+fix - increase default memory in query callable and improve error handling
 
 ## Version 0.0.2
 
