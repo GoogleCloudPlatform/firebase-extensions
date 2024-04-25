@@ -125,5 +125,5 @@ export default {
   apiKey: process.env.API_KEY,
   safetySettings: getSafetySettings(),
   bucketName: process.env.BUCKET_NAME || defaultBucketName,
-  imageField: process.env.IMAGE_FIELD || 'image',
+  imageField: process.env.IMAGE_FIELD,
 };
