@@ -35,8 +35,8 @@ export class VertexLanguageClient extends GenerativeClient<any, VertexAI> {
     if (this.modelName === 'gemini-pro-vision') {
       if (options.image) {
         promptParts.push({
-          inline_data: {
-            mime_type: 'image/png',
+          inlineData: {
+            mimeType: 'image/png',
             data: await getImageBase64(options.image, 'vertex-ai'),
           },
         });
@@ -50,14 +50,14 @@ export class VertexLanguageClient extends GenerativeClient<any, VertexAI> {
           parts: promptParts,
         },
       ],
-      generation_config: {
-        top_k: options.topK,
-        top_p: options.topP,
+      generationConfig: {
+        topK: options.topK,
+        topP: options.topP,
         temperature: options.temperature,
-        candidate_count: options.candidateCount,
-        max_output_tokens: options.maxOutputTokens,
+        candidateCount: options.candidateCount,
+        maxOutputTokens: options.maxOutputTokens,
       },
-      safety_settings: options.safetySettings,
+      safetySettings: options.safetySettings,
     };
 
     let result;
