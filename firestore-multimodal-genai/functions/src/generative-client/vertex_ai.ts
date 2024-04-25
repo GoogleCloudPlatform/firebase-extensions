@@ -32,7 +32,7 @@ export class VertexLanguageClient extends GenerativeClient<any, VertexAI> {
     };
     const promptParts: Part[] = [textPart];
 
-    if (this.modelName === 'gemini-pro-vision') {
+    if (config.imageField) {
       if (options.image) {
         promptParts.push({
           inlineData: {

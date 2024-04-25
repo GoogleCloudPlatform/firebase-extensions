@@ -80,7 +80,7 @@ export const generateText = functions.firestore
 
       const t0 = performance.now();
       let requestOptions = {};
-      if (config.googleAi.model === 'gemini-pro-vision') {
+      if (config.imageField) {
         requestOptions = {
           ...requestOptions,
           image: data[config.imageField],
@@ -147,7 +147,7 @@ export const generateOnCall = functions.https.onCall(async (data, context) => {
   const substitutedPrompt = getSubstitutedPrompt(data, prompt);
 
   let requestOptions = {};
-  if (config.googleAi.model === 'gemini-pro-vision') {
+  if (config.imageField) {
     requestOptions = {
       ...requestOptions,
       image,
