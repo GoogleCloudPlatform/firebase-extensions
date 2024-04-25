@@ -249,12 +249,12 @@ describe('generateMessage', () => {
           role: 'user',
         },
       ],
-      generation_config: {
-        top_k: undefined,
-        top_p: undefined,
+      generationConfig: {
+        topK: undefined,
+        topP: undefined,
         temperature: undefined,
-        candidate_count: undefined,
-        max_output_tokens: undefined,
+        candidateCount: undefined,
+        maxOutputTokens: undefined,
       },
     });
   });
@@ -304,14 +304,14 @@ describe('generateMessage', () => {
           role: 'user',
         },
       ],
-      generation_config: {
-        top_k: undefined,
-        top_p: undefined,
+      generationConfig: {
+        topK: undefined,
+        topP: undefined,
         temperature: undefined,
-        candidate_count: undefined,
-        max_output_tokens: undefined,
+        candidateCount: undefined,
+        maxOutputTokens: undefined,
       },
-      safety_settings: undefined,
+      safetySettings: undefined,
     });
   });
 });
