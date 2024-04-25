@@ -115,7 +115,7 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Prompt: This is the text that you want the Gemini API to generate a response for. It can be free-form text or it can use handlebars variables to substitute values from the Firestore document. For example if you set this parameter as "What is the capital of {{ country }}?"
 
-* Image field (Gemini Pro Vision): A document field containing a cloud storage URL of an image, or a base64 string of an image. Note that this field is only supported by Gemini, and only with the Gemini Pro Vision model.
+* Image field (Gemini Vision Models ONLY): A document field containing a cloud storage URL of an image, or a base64 string of an image. Note that this field is only supported by Gemini, and only with the Gemini Pro Vision models. If you are using a text-only model, you should leave this field blank.
 
 * Response Field: The field in the message document into which to put the response.
 

@@ -41,3 +41,37 @@ export const expectToProcessCorrectly = (
     firestoreCallData[2].status.completeTime
   );
 };
+
+export const expectToError = (
+  firestoreCallData: any[],
+  message: any,
+  errorMessage: string
+) => {
+  expect(firestoreCallData[0]).toEqual({
+    ...message,
+  });
+
+  expect(firestoreCallData[1]).toEqual({
+    ...message,
+    status: {
+      state: 'PROCESSING',
+      startTime: expect.any(Timestamp),
+      updateTime: expect.any(Timestamp),
+    },
+  });
+
+  expect(firestoreCallData[1].status.startTime).toEqual(
+    firestoreCallData[1].status.updateTime
+  );
+
+  expect(firestoreCallData[2]).toEqual({
+    ...message,
+    status: {
+      state: 'ERRORED',
+      error: errorMessage,
+      startTime: expect.any(Timestamp),
+      completeTime: expect.any(Timestamp),
+      updateTime: expect.any(Timestamp),
+    },
+  });
+};

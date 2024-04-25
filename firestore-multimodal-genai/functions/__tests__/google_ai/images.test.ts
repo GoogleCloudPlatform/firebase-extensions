@@ -6,12 +6,12 @@ import {WrappedFunction} from 'firebase-functions-test/lib/v1';
 import {Change} from 'firebase-functions/v1';
 import waitForExpect from 'wait-for-expect';
 import {QuerySnapshot} from 'firebase-admin/firestore';
-import {expectToProcessCorrectly} from '../util';
+import {expectToError, expectToProcessCorrectly} from '../util';
+import {imageMock} from '../fixtures/imageMock';
 
 process.env.GCLOUD_PROJECT = 'demo-gcp';
 
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
-
 // // We mock out the config here instead of setting environment variables directly
 jest.mock('../../src/config', () => ({
   default: {
@@ -29,6 +29,7 @@ jest.mock('../../src/config', () => ({
     responseField: 'output',
     projectId: 'demo-test',
     instanceId: 'demo-test',
+    imageField: 'image',
     provider: 'google-ai',
     candidates: {
       field: 'candidates',
@@ -37,6 +38,17 @@ jest.mock('../../src/config', () => ({
     },
   },
 }));
+
+const mockgetImageBase64 = jest.fn();
+
+jest.mock('../../src/generative-client/image_utils', () => ({
+  ...jest.requireActual('../../src/generative-client/image_utils'),
+  getImageBase64: async () => mockgetImageBase64(),
+}));
+
+const imageUtils = require('../../src/generative-client/image_utils');
+
+console.log(imageUtils);
 
 // // mock to check the arguments passed to the annotateVideo function+
 const mockGetClient = jest.fn();
@@ -108,6 +120,7 @@ describe('generateMessage', () => {
 
   // clear firestore
   beforeEach(async () => {
+    jest.resetAllMocks();
     await fetch(
       `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
       {method: 'DELETE'}
@@ -218,9 +231,11 @@ describe('generateMessage', () => {
   });
 
   test('should run when given createTime', async () => {
+    mockgetImageBase64.mockResolvedValue(imageMock);
     const message = {
       instruction: 'hello gemini',
       createTime: Timestamp.now(),
+      image: 'gs://test-bucket/test-image.png',
     };
     const ref = await admin.firestore().collection(collectionName).add(message);
 
@@ -240,7 +255,7 @@ describe('generateMessage', () => {
     expect(mockGetClient).toHaveBeenCalledWith(config.googleAi.apiKey);
 
     expect(mockGetModel).toHaveBeenCalledTimes(1);
-    expect(mockGetModel).toBeCalledWith({model: config.googleAi.model});
+    expect(mockGetModel).toHaveBeenCalledWith({model: config.googleAi.model});
 
     expect(mockGenerateContent).toHaveBeenCalledTimes(1);
     expect(mockGenerateContent).toHaveBeenCalledWith({
@@ -249,6 +264,12 @@ describe('generateMessage', () => {
           parts: [
             {
               text: 'hello gemini',
+            },
+            {
+              inlineData: {
+                mimeType: 'image/png',
+                data: imageMock,
+              },
             },
           ],
           role: 'user',
@@ -265,8 +286,11 @@ describe('generateMessage', () => {
   });
 
   test('should run when not given createTime', async () => {
+    mockgetImageBase64.mockResolvedValue(imageMock);
+
     const message = {
       instruction: 'hello gemini',
+      image: 'gs://test-bucket/test-image.png',
     };
 
     // Make a write to the collection. This won't trigger our wrapped function as it isn't deployed to the emulator.
@@ -297,7 +321,7 @@ describe('generateMessage', () => {
     expect(mockGetClient).toHaveBeenCalledWith(config.googleAi.apiKey);
 
     expect(mockGetModel).toHaveBeenCalledTimes(1);
-    expect(mockGetModel).toBeCalledWith({model: config.googleAi.model});
+    expect(mockGetModel).toHaveBeenCalledWith({model: config.googleAi.model});
 
     expect(mockGenerateContent).toHaveBeenCalledTimes(1);
     expect(mockGenerateContent).toHaveBeenCalledWith({
@@ -306,6 +330,12 @@ describe('generateMessage', () => {
           parts: [
             {
               text: 'hello gemini',
+            },
+            {
+              inlineData: {
+                mimeType: 'image/png',
+                data: imageMock,
+              },
             },
           ],
           role: 'user',
@@ -319,6 +349,38 @@ describe('generateMessage', () => {
         topP: undefined,
       },
     });
+  });
+
+  test('should error if missing image field', async () => {
+    const message = {
+      instruction: 'hello gemini',
+    };
+
+    // Make a write to the collection. This won't trigger our wrapped function as it isn't deployed to the emulator.
+    const ref = await admin.firestore().collection(collectionName).add(message);
+
+    const beforeOrderField = await simulateFunctionTriggered(
+      wrappedGenerateMessage
+    )(ref);
+
+    await simulateFunctionTriggered(wrappedGenerateMessage)(
+      ref,
+      beforeOrderField
+    );
+
+    await waitForExpect(() => {
+      expect(firestoreObserver).toHaveBeenCalledTimes(3);
+    });
+
+    const firestoreCallData = firestoreObserver.mock.calls.map(call => {
+      return call[0].docs[0].data();
+    });
+
+    expectToError(
+      firestoreCallData,
+      message,
+      'An error occurred while processing the provided message, Vision model selected, but missing Image Field'
+    );
   });
 });
 

@@ -4,9 +4,10 @@ import config from '../../src/config';
 import {generateText} from '../../src/index';
 import {WrappedFunction} from 'firebase-functions-test/lib/v1';
 import {Change} from 'firebase-functions/v1';
-import waitForExpect from 'wait-for-expect';
+
 import {QuerySnapshot} from 'firebase-admin/firestore';
 import {expectToProcessCorrectly} from '../util';
+import {imageMock} from '../fixtures/imageMock';
 
 process.env.GCLOUD_PROJECT = 'demo-gcp';
 
@@ -17,7 +18,6 @@ jest.mock('../../src/config', () => ({
   default: {
     googleAi: {
       model: 'gemini-pro',
-      apiKey: 'test-api-key',
     },
     vertex: {
       model: 'gemini-pro',
@@ -27,9 +27,10 @@ jest.mock('../../src/config', () => ({
     prompt: '{{ instruction }}',
     variableFields: ['instruction'],
     responseField: 'output',
+    imageField: 'image',
     projectId: 'demo-test',
     instanceId: 'demo-test',
-    provider: 'google-ai',
+    provider: 'vertex-ai',
     candidates: {
       field: 'candidates',
       count: 1,
@@ -38,39 +39,48 @@ jest.mock('../../src/config', () => ({
   },
 }));
 
+const mockgetImageBase64 = jest.fn();
+
+jest.mock('../../src/generative-client/image_utils', () => ({
+  ...jest.requireActual('../../src/generative-client/image_utils'),
+  getImageBase64: async () => mockgetImageBase64(),
+}));
+
 // // mock to check the arguments passed to the annotateVideo function+
 const mockGetClient = jest.fn();
 const mockGetModel = jest.fn();
-const mockGenerateContent = jest.fn();
+const mockGenerateContentStream = jest.fn();
 
-jest.mock('@google/generative-ai', () => {
+jest.mock('@google-cloud/vertexai', () => {
   return {
-    ...jest.requireActual('@google/generative-ai'),
-    GoogleGenerativeAI: function mockedClient(args: any) {
+    ...jest.requireActual('@google-cloud/vertexai'),
+    VertexAI: function mockedClient(args: any) {
       mockGetClient(args);
       return {
-        getGenerativeModel: (args: unknown) => {
-          mockGetModel(args);
-          return {
-            generateContent: function mockedStartChat(args: any) {
-              mockGenerateContent(args);
-              return {
-                response: {
-                  candidates: [
-                    {
-                      content: {
-                        parts: [
-                          {
-                            text: 'test response',
-                          },
-                        ],
+        preview: {
+          getGenerativeModel: (args: unknown) => {
+            mockGetModel(args);
+            return {
+              generateContentStream: async function mockedStartChat(args: any) {
+                mockGenerateContentStream(args);
+                return {
+                  response: {
+                    candidates: [
+                      {
+                        content: {
+                          parts: [
+                            {
+                              text: 'test response',
+                            },
+                          ],
+                        },
                       },
-                    },
-                  ],
-                },
-              };
-            },
-          };
+                    ],
+                  },
+                };
+              },
+            };
+          },
         },
       };
     },
@@ -108,6 +118,8 @@ describe('generateMessage', () => {
 
   // clear firestore
   beforeEach(async () => {
+    jest.resetAllMocks();
+
     await fetch(
       `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
       {method: 'DELETE'}
@@ -180,10 +192,6 @@ describe('generateMessage', () => {
 
     await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
 
-    await waitForExpect(() => {
-      expect(firestoreObserver).toHaveBeenCalledTimes(3);
-    });
-
     const firestoreCallData = firestoreObserver.mock.calls.map(call => {
       return call[0].docs[0].data();
     });
@@ -218,17 +226,18 @@ describe('generateMessage', () => {
   });
 
   test('should run when given createTime', async () => {
+    mockgetImageBase64.mockResolvedValue(imageMock);
+
     const message = {
       instruction: 'hello gemini',
+      image: 'gs://test-bucket/test-image.png',
       createTime: Timestamp.now(),
     };
     const ref = await admin.firestore().collection(collectionName).add(message);
 
     await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
 
-    await waitForExpect(() => {
-      expect(firestoreObserver).toHaveBeenCalledTimes(3);
-    });
+    expect(firestoreObserver).toHaveBeenCalledTimes(3);
 
     const firestoreCallData = firestoreObserver.mock.calls.map(call =>
       call[0].docs[0].data()
@@ -237,36 +246,41 @@ describe('generateMessage', () => {
     expectToProcessCorrectly(firestoreCallData, message, 'test response');
 
     expect(mockGetClient).toHaveBeenCalledTimes(1);
-    expect(mockGetClient).toHaveBeenCalledWith(config.googleAi.apiKey);
 
     expect(mockGetModel).toHaveBeenCalledTimes(1);
-    expect(mockGetModel).toBeCalledWith({model: config.googleAi.model});
+    expect(mockGetModel).toHaveBeenCalledWith({model: config.vertex.model});
 
-    expect(mockGenerateContent).toHaveBeenCalledTimes(1);
-    expect(mockGenerateContent).toHaveBeenCalledWith({
+    expect(mockGenerateContentStream).toHaveBeenCalledTimes(1);
+    expect(mockGenerateContentStream).toHaveBeenCalledWith({
       contents: [
         {
           parts: [
             {
               text: 'hello gemini',
             },
+            {
+              inlineData: {mimeType: 'image/png', data: imageMock},
+            },
           ],
           role: 'user',
         },
       ],
       generationConfig: {
-        candidateCount: undefined,
-        maxOutputTokens: undefined,
-        temperature: undefined,
         topK: undefined,
         topP: undefined,
+        temperature: undefined,
+        candidateCount: undefined,
+        maxOutputTokens: undefined,
       },
     });
   });
 
   test('should run when not given createTime', async () => {
+    mockgetImageBase64.mockResolvedValue(imageMock);
+
     const message = {
       instruction: 'hello gemini',
+      image: 'gs://test-bucket/test-image.png',
     };
 
     // Make a write to the collection. This won't trigger our wrapped function as it isn't deployed to the emulator.
@@ -281,9 +295,8 @@ describe('generateMessage', () => {
       beforeOrderField
     );
 
-    await waitForExpect(() => {
-      expect(firestoreObserver).toHaveBeenCalledTimes(3);
-    });
+    // we expect the firestore observer to be called 4 times total.
+    expect(firestoreObserver).toHaveBeenCalledTimes(3);
 
     const firestoreCallData = firestoreObserver.mock.calls.map(call => {
       return call[0].docs[0].data();
@@ -294,30 +307,36 @@ describe('generateMessage', () => {
     // // verify SDK is called with expected arguments
     // we expect the mock API to be called once
     expect(mockGetClient).toHaveBeenCalledTimes(1);
-    expect(mockGetClient).toHaveBeenCalledWith(config.googleAi.apiKey);
 
     expect(mockGetModel).toHaveBeenCalledTimes(1);
-    expect(mockGetModel).toBeCalledWith({model: config.googleAi.model});
+    expect(mockGetModel).toHaveBeenCalledWith({model: config.vertex.model});
 
-    expect(mockGenerateContent).toHaveBeenCalledTimes(1);
-    expect(mockGenerateContent).toHaveBeenCalledWith({
+    expect(mockGenerateContentStream).toHaveBeenCalledTimes(1);
+    expect(mockGenerateContentStream).toHaveBeenCalledWith({
       contents: [
         {
           parts: [
             {
               text: 'hello gemini',
             },
+            {
+              inlineData: {
+                mimeType: 'image/png',
+                data: imageMock,
+              },
+            },
           ],
           role: 'user',
         },
       ],
       generationConfig: {
-        candidateCount: undefined,
-        maxOutputTokens: undefined,
-        temperature: undefined,
         topK: undefined,
         topP: undefined,
+        temperature: undefined,
+        candidateCount: undefined,
+        maxOutputTokens: undefined,
       },
+      safetySettings: undefined,
     });
   });
 });
