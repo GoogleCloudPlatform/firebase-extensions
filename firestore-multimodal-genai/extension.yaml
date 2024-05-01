@@ -1,5 +1,5 @@
 name: firestore-multimodal-genai
-version: 0.0.10
+version: 1.0.0
 specVersion: v1beta
 
 icon: icon.png
@@ -151,11 +151,12 @@ params:
     immutable: false
 
   - param: IMAGE_FIELD
-    label: Image field (Gemini Pro Vision)
+    label: Image field (Gemini Vision Models ONLY)
     description: >-
       A document field containing a cloud storage URL of an image, or a base64
       string of an image. Note that this field is only supported by Gemini, and
-      only with the Gemini Pro Vision model.
+      only with the Gemini Pro Vision models. If you are using a text-only
+      model, you should leave this field blank.
     type: string
     required: false
     immutable: false

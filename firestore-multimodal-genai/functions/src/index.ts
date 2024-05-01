@@ -17,7 +17,7 @@
 import * as functions from 'firebase-functions';
 import * as logs from './logs';
 import config from './config';
-import {DocumentReference, FieldValue} from 'firebase-admin/firestore';
+import { DocumentReference, FieldValue } from 'firebase-admin/firestore';
 import * as Mustache from 'mustache';
 import * as admin from 'firebase-admin';
 
@@ -29,11 +29,11 @@ import {
   variableTypeError,
 } from './errors';
 
-const {prompt, responseField, collectionName} = config;
+const { prompt, responseField, collectionName } = config;
 
-import {getGenerativeClient, GenerativeResponse} from './generative-client';
-import {extractHandlebarsVariables} from './utils';
-import {throwInvalidArgumentError, throwUnauthenticatedError} from './errors';
+import { getGenerativeClient, GenerativeResponse } from './generative-client';
+import { extractHandlebarsVariables } from './utils';
+import { throwInvalidArgumentError, throwUnauthenticatedError } from './errors';
 
 export const generateText = functions.firestore
   .document(collectionName)
@@ -80,7 +80,7 @@ export const generateText = functions.firestore
 
       const t0 = performance.now();
       let requestOptions = {};
-      if (config.googleAi.model === 'gemini-pro-vision') {
+      if (config.imageField) {
         requestOptions = {
           ...requestOptions,
           image: data[config.imageField],
@@ -142,12 +142,12 @@ export const generateOnCall = functions.https.onCall(async (data, context) => {
   if (!context.auth) throwUnauthenticatedError();
   if (typeof data !== 'object') throwInvalidArgumentError();
 
-  const {image, safetySettings} = data;
+  const { image, safetySettings } = data;
 
   const substitutedPrompt = getSubstitutedPrompt(data, prompt);
 
   let requestOptions = {};
-  if (config.googleAi.model === 'gemini-pro-vision') {
+  if (config.imageField) {
     requestOptions = {
       ...requestOptions,
       image,
