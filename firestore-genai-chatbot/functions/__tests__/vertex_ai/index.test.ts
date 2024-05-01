@@ -209,14 +209,14 @@ describe('generateMessage', () => {
     expect(mockGenerateContentStream).toHaveBeenCalledTimes(1);
     expect(mockGenerateContentStream).toHaveBeenCalledWith({
       contents: [{parts: [{text: 'hello chat bison'}], role: 'user'}],
-      generation_config: {
-        candidate_count: undefined,
-        max_output_tokens: undefined,
+      generationConfig: {
+        topK: undefined,
+        topP: undefined,
         temperature: undefined,
-        top_k: undefined,
-        top_p: undefined,
+        candidateCount: undefined,
+        maxOutputTokens: undefined,
       },
-      safety_settings: [],
+      safetySettings: [],
     });
   });
 
@@ -255,14 +255,14 @@ describe('generateMessage', () => {
     expect(mockGenerateContentStream).toHaveBeenCalledTimes(1);
     expect(mockGenerateContentStream).toHaveBeenCalledWith({
       contents: [{parts: [{text: 'hello chat bison'}], role: 'user'}],
-      generation_config: {
-        candidate_count: undefined,
-        max_output_tokens: undefined,
+      generationConfig: {
+        topK: undefined,
+        topP: undefined,
         temperature: undefined,
-        top_k: undefined,
-        top_p: undefined,
+        candidateCount: undefined,
+        maxOutputTokens: undefined,
       },
-      safety_settings: [],
+      safetySettings: [],
     });
   });
 });

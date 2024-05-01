@@ -80,14 +80,14 @@ export class VertexDiscussionClient extends DiscussionClient<
 
     const request: GenerateContentRequest = {
       contents,
-      generation_config: {
-        top_k: options.topK,
-        top_p: options.topP,
+      generationConfig: {
+        topK: options.topK,
+        topP: options.topP,
         temperature: options.temperature,
-        candidate_count: options.candidateCount,
-        max_output_tokens: options.maxOutputTokens,
+        candidateCount: options.candidateCount,
+        maxOutputTokens: options.maxOutputTokens,
       },
-      safety_settings: options.safetySettings,
+      safetySettings: options.safetySettings,
     };
     try {
       const responseStream =
