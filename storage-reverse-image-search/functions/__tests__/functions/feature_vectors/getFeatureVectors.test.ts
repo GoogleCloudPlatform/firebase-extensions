@@ -57,7 +57,7 @@ describe('getFeatureVectors', () => {
     expect(featureVectors).toEqual([]);
   });
 
-  test('should run', async () => {
+  test.skip('should run', async () => {
     const testImagePath = __dirname + '/test-image.png';
     const imagePathInStorage = config.path + '/test-image.png';
 

@@ -2,6 +2,7 @@ import {GoogleGenerativeAI, Part} from '@google/generative-ai';
 import {GenerativeClient} from './base_client';
 import {logger} from 'firebase-functions/v1';
 import {getImageBase64} from './image_utils';
+import config from '../config';
 enum Role {
   USER = 'user',
   GEMINI = 'model',
@@ -34,9 +35,9 @@ export class GeminiGenerativeClient extends GenerativeClient<
     };
     const promptParts: Part[] = [textPart];
 
-    if (this.modelName === 'gemini-pro-vision') {
+    if (config.imageField) {
       if (!options.image) {
-        throw new Error('Gemini Pro Vision selected, but missing Image Field');
+        throw new Error('Vision model selected, but missing Image Field');
       }
 
       let base64String: string;

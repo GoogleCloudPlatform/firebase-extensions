@@ -209,11 +209,11 @@ describe('generateMessage', () => {
     expect(mockStartChat).toHaveBeenCalledWith({
       history: [],
       generationConfig: {
-        candidate_count: undefined,
-        max_output_tokens: undefined,
+        topK: undefined,
+        topP: undefined,
         temperature: undefined,
-        top_k: undefined,
-        top_p: undefined,
+        candidateCount: undefined,
+        maxOutputTokens: undefined,
       },
       safetySettings: [],
     });

@@ -1,8 +1,14 @@
-## Version 0.0.10
+## Version 1.0.0
 
-- feature: Add callable function
+- **Breaking**: made whether IMAGE_FIELDS parameter is defined determine whether the extension calls Gemini with an image.
+
+- Fixed: update dependencies to latest versions, fixes critical protobufjs dependency vulnerability
+
+chore - remove TODO security comment in code
 
 ## Version 0.0.9
+
+- feature: Add callable function
 
 - Add docs on regional support for Gemini APIs
 

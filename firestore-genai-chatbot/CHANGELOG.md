@@ -2,6 +2,8 @@
 
 - Add docs on regional support for Gemini APIs
 
+- Fixed: dependency vulnerabilties and SDK bumps
+
 ## Version 0.0.9
 
 - fix typo in documentation
