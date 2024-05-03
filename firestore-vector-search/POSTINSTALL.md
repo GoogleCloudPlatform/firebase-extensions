@@ -12,7 +12,7 @@
 
 ## Querying the index
 
-\*Important: Before you will be able to query the collection, firestore will have to build a vector index. This extension will trigger the basic index (no prefilters) upon installation or reconfiguration.
+**Important**: Before you will be able to query the collection, firestore will have to build a vector index. This extension will trigger the basic index (no prefilters) upon installation or reconfiguration.
 
 You can check the build status of indexes here:
 
