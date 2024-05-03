@@ -40,13 +40,7 @@ export class GeminiGenerativeClient extends GenerativeClient<
         throw new Error('Vision model selected, but missing Image Field');
       }
 
-      let base64String: string;
-
-      if (options.image.startsWith('gs://')) {
-        base64String = await getImageBase64(options.image, 'google-ai');
-      } else {
-        base64String = options.image.replace(/^data:image\/\w+;base64,/, '');
-      }
+      const base64String = await getImageBase64(options.image, 'google-ai');
 
       const imagePart = {
         inlineData: {
