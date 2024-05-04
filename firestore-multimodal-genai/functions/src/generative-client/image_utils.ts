@@ -10,7 +10,18 @@ export async function getImageBase64(
   image: string,
   provider: 'google-ai' | 'vertex-ai'
 ): Promise<string> {
-  const {buffer, imageExtension} = await getImageFromStorage(image);
+  let buffer: Buffer;
+  let imageExtension: string;
+
+  if (image.startsWith('gs://')) {
+    const response = await getImageFromStorage(image);
+    buffer = response.buffer;
+    imageExtension = response.imageExtension;
+  } else {
+    const base64String = image.replace(/^data:image\/\w+;base64,/, '');
+    buffer = Buffer.from(base64String, 'base64');
+    imageExtension = base64String.split(';')[0].split('/')[1];
+  }
 
   const imageSize = buffer.byteLength / 1_000_000;
 
