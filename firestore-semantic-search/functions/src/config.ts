@@ -28,6 +28,7 @@ export default {
   palmModel: process.env.PALM_EMBEDDING_MODEL!,
   collectionName: process.env.COLLECTION_NAME!,
   embeddingMethod: process.env.EMBEDDING_METHOD!,
+  googleAIKey: process.env.GOOGLE_AI_KEY!,
   shardSize: process.env.SHARD_SIZE!,
   machineType: process.env.MACHINE_TYPE!,
   acceleratorType: process.env.ACCELERATOR_TYPE!,
@@ -45,6 +46,6 @@ export default {
   // Extension-specific vars
   tasksDoc: `_ext-${process.env.EXT_INSTANCE_ID!}/tasks`,
   metadataDoc: `_ext-${process.env.EXT_INSTANCE_ID!}/metadata`,
-  dimension: process.env.EMBEDDING_METHOD === 'palm' ? 768 : 512,
+  dimension: process.env.EMBEDDING_METHOD === 'use' ? 512 : 768,
   bucketName: `${process.env.PROJECT_ID!}-ext-${process.env.EXT_INSTANCE_ID!}`,
 };
