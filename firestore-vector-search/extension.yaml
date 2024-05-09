@@ -150,8 +150,8 @@ resources:
     type: firebaseextensions.v1beta.function
     description: >-
       An event-triggered function that gets called when a document is created or
-      updated. It generates embeddings for the document and writes those
-      embeddings back to firestore
+      updated. It uses the document fields `query`, `limit`, and `prefilters` to perform a
+      vector search query.
     properties:
       location: ${LOCATION}
       runtime: nodejs18
