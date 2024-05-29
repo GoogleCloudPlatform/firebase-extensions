@@ -32,7 +32,7 @@ const getDimension = () => {
     case EmbeddingProvider.OpenAI:
       return 512;
     case EmbeddingProvider.VertexAI:
-      return 786;
+      return 768;
     case EmbeddingProvider.Custom:
       if (!process.env.CUSTOM_EMBEDDINGS_DIMENSION) {
         throw new Error(
