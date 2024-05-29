@@ -67,7 +67,7 @@ To install an extension, your project must be on the [Blaze (pay as you go) plan
 * Collection path: What is the path to the collection that contains the strings that you want to embed?
 
 
-* Default query limit: What is the default number of results to return when making avector search query?
+* Default query limit: What is the default number of results to return when making a vector search query?
 
 
 * Distance measure: What distance measure do you want to be used to rank the results of your vector search?
@@ -93,9 +93,9 @@ To install an extension, your project must be on the [Blaze (pay as you go) plan
 
 **Cloud Functions:**
 
-* **updateTrigger:** Queues the backfill tasks
+* **updateTrigger:** Queues the document update tasks
 
-* **updateTask:** Performs the embeddings for backfill
+* **updateTask:** Performs the embeddings for document updates
 
 * **backfillTrigger:** Queues the backfill tasks
 
@@ -103,7 +103,7 @@ To install an extension, your project must be on the [Blaze (pay as you go) plan
 
 * **embedOnWrite:** An event-triggered function that gets called when a document is created or updated. It generates embeddings for the document and writes those embeddings back to firestore
 
-* **queryOnWrite:** An event-triggered function that gets called when a document is created or updated. It generates embeddings for the document and writes those embeddings back to firestore
+* **queryOnWrite:** An event-triggered function that gets called when a document is created or updated. It uses the document fields `query`, `limit`, and `prefilters` to perform a vector search query.
 
 * **queryCallable:** A callable function that queries a firestore collection with vector search
 
