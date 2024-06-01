@@ -20,10 +20,53 @@ https://console.firebase.google.com/project/${param:PROJECT_ID}/firestore/indexe
 
 Where you have replaced `<DIMENSION>` with the dimension of the embedding space you are using, e.g 768 for Gemini.
 
-Once the index is created, you may query it either through a callable cloud function deployed by the extension:
+#### Querying using JavaScript
 
-```
-gcloud functions --project ${param:PROJECT_ID} call ext-${param:EXT_INSTANCE_ID}-queryCallable --data '{"data": {"query":"foo bar"}}'
+Once the index is created, you may query it either through a callable cloud function deployed by the extension. For the snippet below you will have to have Firebase Auth enabled, and anonymous sign-ins enabled.
+
+```javascript
+import {getFunctions, httpsCallable} from 'firebase/functions';
+import {getAuth, signInAnonymously} from 'firebase/auth';
+import {initializeApp} from 'firebase/app';
+
+const firebaseConfig = {
+  apiKey: 'YOUR_API_KEY',
+  authDomain: 'YOUR_AUTH_DOMAIN',
+  projectId: 'YOUR_PROJECT_ID',
+  storageBucket: 'YOUR_STORAGE_BUCKET',
+  messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
+  appId: 'YOUR_APP_ID',
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+// Initialize Firebase Auth
+const auth = getAuth(app);
+
+// Initialize Firebase Functions with the specified region
+const functions = getFunctions(app, '${param:LOCATION}');
+
+// Sign in anonymously
+signInAnonymously(auth)
+  .then(() => {
+    const queryCallable = httpsCallable(
+      functions,
+      'ext-${param:EXT_INSTANCE_ID}-queryCallable'
+    );
+
+    queryCallable({query: 'foo bar'})
+      .then(result => {
+        // Read result
+        console.log(result.data);
+      })
+      .catch(error => {
+        console.error('Error querying function:', error);
+      });
+  })
+  .catch(error => {
+    console.error('Error signing in anonymously:', error);
+  });
 ```
 
 Or by adding a document to the collection `_${param:EXT_INSTANCE_ID}/index/queries` with a `query` field and an (optional) limit field.
@@ -57,6 +100,7 @@ The response data returned from the callable function will be an object with sha
   ids: string[]
 }
 ```
+
 Where ids is an array of document ID strings.
 
 ## Setting up a custom embedding function
