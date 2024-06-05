@@ -40,7 +40,7 @@ The extension gives you a choice of what provider to use for the available model
 ## About the models
 
 For Google AI the list of supported models is [here](https://ai.google.dev/models/gemini), and this parameter should be set to the model name, the second segment of the model code (for
-example models/gemini-pro should be chosen as gemini-pro).
+example `models/gemini-1.0-pro` should be chosen as `gemini-1.0-pro`).
 
 For Vertex AI, the list of models is [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models).
 
