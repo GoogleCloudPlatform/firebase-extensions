@@ -627,7 +627,7 @@ params:
       - label: Mumbai (asia-south1)
         value: asia-south1
       - label: Singapore (asia-southeast1)
-        value: asia-south1
+        value: asia-southeast1
       - label: Sydney (australia-southeast1)
         value: australia-southeast1
     required: true
