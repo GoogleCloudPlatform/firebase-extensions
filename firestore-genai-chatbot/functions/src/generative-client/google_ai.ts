@@ -1,5 +1,5 @@
 import {DiscussionClient, Message} from './base_class';
-import {GoogleGenerativeAI, InputContent} from '@google/generative-ai';
+import {GoogleGenerativeAI, Content} from '@google/generative-ai';
 import {logger} from 'firebase-functions/v1';
 import {SafetySetting} from '@google/generative-ai';
 
@@ -70,6 +70,8 @@ export class GeminiDiscussionClient extends DiscussionClient<
 
     const model = this.client.getGenerativeModel({
       model: this.modelName,
+      generationConfig: {responseMimeType: "application/json"}
+
     });
 
     const chatSession = model.startChat({
@@ -112,7 +114,7 @@ export class GeminiDiscussionClient extends DiscussionClient<
   }
 
   private messagesToApi(messages: Message[]) {
-    const out: InputContent[] = [];
+    const out: Content[] = [];
     for (const message of messages) {
       if (!message.prompt || !message.response) {
         // logs.warnMissingPromptOrResponse(message.path!);
