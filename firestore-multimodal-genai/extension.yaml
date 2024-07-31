@@ -113,7 +113,7 @@ params:
       [Google AI Gemini models](https://ai.google.dev/models/gemini)
     type: string
     required: true
-    default: gemini-pro
+    default: gemini-1.0-pro
     immutable: false
 
   - param: API_KEY
