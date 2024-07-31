@@ -1,3 +1,9 @@
+## Version 0.0.4
+
+fix - correct Vertex AI embedding dimension
+
+docs - update to correct snipper handling authentication
+
 ## Version 0.0.3
 
 fix - better messaging on an invalid argument
