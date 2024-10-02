@@ -1,3 +1,7 @@
+## Version 0.0.5
+
+fix - fix backfill and fix npm audit
+
 ## Version 0.0.4
 
 fix - correct Vertex AI embedding dimension
