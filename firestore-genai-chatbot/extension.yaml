@@ -1,5 +1,5 @@
 name: firestore-genai-chatbot
-version: 0.0.10
+version: 0.0.11
 specVersion: v1beta
 
 icon: icon.png
@@ -108,7 +108,7 @@ params:
       [Google AI Gemini models](https://ai.google.dev/models/gemini)
     type: string
     required: true
-    default: gemini-pro
+    default: gemini-1.0-pro
     immutable: false
 
   - param: COLLECTION_NAME

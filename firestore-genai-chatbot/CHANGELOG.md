@@ -1,3 +1,7 @@
+## Version 0.0.11
+
+fix - update default Gemini models
+
 ## Version 0.0.10
 
 - Add docs on regional support for Gemini APIs

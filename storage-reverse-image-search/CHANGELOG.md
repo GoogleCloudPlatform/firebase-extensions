@@ -1,3 +1,7 @@
+## Version 0.1.8
+
+fix - update default Gemini models
+
 ## Version 0.1.7
 
 docs - updates to POSTINSTALL

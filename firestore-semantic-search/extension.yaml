@@ -1,5 +1,5 @@
 name: firestore-semantic-search
-version: 0.1.8
+version: 0.1.9
 specVersion: v1beta
 
 icon: icon.png
@@ -646,7 +646,7 @@ params:
       - label: Mumbai (asia-south1)
         value: asia-south1
       - label: Singapore (asia-southeast1)
-        value: asia-south1
+        value: asia-southeast1
       - label: Sydney (australia-southeast1)
         value: australia-southeast1
     required: true

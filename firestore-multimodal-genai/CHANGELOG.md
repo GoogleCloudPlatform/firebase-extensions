@@ -1,3 +1,7 @@
+## Version 1.0.1
+
+fix - update default Gemini models
+
 ## Version 1.0.0
 
 - **Breaking**: made whether IMAGE_FIELDS parameter is defined determine whether the extension calls Gemini with an image.
