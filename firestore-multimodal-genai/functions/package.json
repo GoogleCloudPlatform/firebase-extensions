@@ -11,6 +11,10 @@
   },
   "main": "lib/index.js",
   "dependencies": {
+    "@genkit-ai/ai": "^0.5.16",
+    "@genkit-ai/core": "^0.5.16",
+    "@genkit-ai/googleai": "^0.5.16",
+    "@genkit-ai/vertexai": "^0.5.16",
     "@google-ai/generativelanguage": "^2.3.0",
     "@google-cloud/aiplatform": "^3.19.0",
     "@google-cloud/vertexai": "^1.1.0",
@@ -23,7 +27,7 @@
     "mustache": "^4.2.0",
     "sharp": "^0.33.3",
     "typescript": "^4.9.0",
-    "zod": "^3.23.3"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/node-fetch": "^2.6.11",

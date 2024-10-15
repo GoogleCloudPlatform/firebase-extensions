@@ -4,6 +4,7 @@ export interface GenerativeResponse {
     blocked: boolean;
     [key: string]: any;
   };
+  response: string;
 }
 
 export abstract class GenerativeClient<GenerativeRequestOptions, Client> {

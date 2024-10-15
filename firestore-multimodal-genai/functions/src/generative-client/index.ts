@@ -5,10 +5,12 @@ import {v1} from '@google-ai/generativelanguage';
 import {VertexLanguageClient} from './vertex_ai';
 import {VertexAI} from '@google-cloud/vertexai';
 import {GeminiGenerativeClient} from './generative_ai';
-import {GoogleGenerativeAI} from '@google/generative-ai';
+// import {GoogleGenerativeAI} from '@google/generative-ai';
 
-type Client = v1.GenerativeServiceClient | VertexAI | GoogleGenerativeAI;
+// TODO: fix
+type Client = v1.GenerativeServiceClient | VertexAI;
 
+// TODO replace with Genkit based Clients
 export const getGenerativeClient = (): GenerativeClient<any, Client> => {
   switch (config.provider as GenerativeAIProvider) {
     case 'google-ai':
