@@ -18,19 +18,13 @@ interface GeminiChatOptions {
   context?: string;
 }
 
-type ApiMessage = {
-  role: string;
-  parts: Part[];
-};
-
 const ai = genkit({
   plugins: [vertexAI()],
 });
 
 export class VertexDiscussionClient extends DiscussionClient<
   Genkit,
-  GeminiChatOptions,
-  ApiMessage
+  GeminiChatOptions
 > {
   modelName: string;
 
@@ -44,14 +38,14 @@ export class VertexDiscussionClient extends DiscussionClient<
 
   async generateResponse(
     history: MessageData[],
-    latestApiMessage: ApiMessage,
+    latestApiMessage: Part[],
     options: GeminiChatOptions
   ) {
     try {
       const llmResponse = await this.client.generate({
-        prompt: latestApiMessage.parts,
+        prompt: latestApiMessage,
         messages: history,
-        model: this.modelName,
+        model: `vertexai/${this.modelName}`,
         config: {
           topP: options.topP,
           topK: options.topK,

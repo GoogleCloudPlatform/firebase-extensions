@@ -1,4 +1,4 @@
-import {MessageData} from 'genkit';
+import {MessageData, Part} from 'genkit';
 
 export interface Message {
   path?: string;
@@ -20,7 +20,6 @@ export abstract class DiscussionClient<
     history?: Message[];
     context?: string;
   },
-  ApiMessage,
 > {
   client: Genkit;
   constructor(client: Genkit) {
@@ -28,16 +27,23 @@ export abstract class DiscussionClient<
   }
 
   private getHistory(options: ChatOptions) {
-    return (
-      (options.history?.map(i => {
-        return {
-          content: {
-            text: i.prompt || i.response,
-          },
-          role: i.prompt ? 'user' : 'model',
-        };
-      }) as MessageData[] | undefined) ?? []
-    );
+    const history: MessageData[] = [];
+    if (options.context) {
+      history.push({content: [{text: options.context}], role: 'system'});
+    }
+
+    if (options.history) {
+      options.history.forEach(message => {
+        if (!message.response) return;
+        history.push({content: [{text: message.prompt ?? ''}], role: 'user'});
+        history.push({
+          content: [{text: message.response ?? ''}],
+          role: 'model',
+        });
+      });
+    }
+
+    return history;
   }
 
   async send(
@@ -52,16 +58,13 @@ export abstract class DiscussionClient<
     return await this.generateResponse(history, latestApiMessage, options);
   }
 
-  createApiMessage(
-    _messageContent: string,
-    _role: 'user' | 'model' = 'user'
-  ): ApiMessage {
-    throw new Error('Method Not implemented');
+  createApiMessage(_messageContent: string): Part[] {
+    return [{text: _messageContent}];
   }
 
   async generateResponse(
     _history: MessageData[],
-    _latestApiMessage: ApiMessage,
+    _latestApiMessage: Part[],
     _options: ChatOptions
   ): Promise<ChatResponse> {
     throw new Error('Not implemented');

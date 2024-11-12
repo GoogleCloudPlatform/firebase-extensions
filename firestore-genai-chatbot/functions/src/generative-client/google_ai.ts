@@ -1,6 +1,6 @@
 import {DiscussionClient, Message} from './base_class';
 import {logger} from 'firebase-functions/v1';
-import {genkit, Genkit, MessageData} from 'genkit';
+import {genkit, Genkit, MessageData, Part} from 'genkit';
 import {googleAI} from '@genkit-ai/googleai';
 import config from '../config';
 
@@ -19,13 +19,6 @@ interface GeminiChatOptions {
   // safetySettings: SafetySetting[];
 }
 
-type ApiMessage = {
-  role: string;
-  parts: {
-    text: string;
-  }[];
-};
-
 const ai = genkit({
   plugins: [
     googleAI({
@@ -36,8 +29,7 @@ const ai = genkit({
 
 export class GeminiDiscussionClient extends DiscussionClient<
   Genkit,
-  GeminiChatOptions,
-  ApiMessage
+  GeminiChatOptions
 > {
   modelName: string;
 
@@ -54,19 +46,20 @@ export class GeminiDiscussionClient extends DiscussionClient<
 
   async generateResponse(
     history: MessageData[],
-    latestApiMessage: ApiMessage,
+    latestApiMessage: Part[],
     options: GeminiChatOptions
   ) {
     try {
       const llmResponse = await this.client.generate({
-        prompt: latestApiMessage.parts,
+        prompt: latestApiMessage,
         messages: history,
-        model: this.modelName,
+        model: `googleai/${this.modelName}`,
         config: {
           topP: options.topP,
           topK: options.topK,
           temperature: options.temperature,
           maxOutputTokens: options.maxOutputTokens,
+          // safetySettings: options.safetySettings,
         },
       });
 

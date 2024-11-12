@@ -5,7 +5,7 @@ import {VertexDiscussionClient} from './vertex_ai';
 import {Genkit} from 'genkit';
 
 // TODO fix any
-export const getGenerativeClient = (): DiscussionClient<Genkit, any, any> => {
+export const getGenerativeClient = (): DiscussionClient<Genkit, any> => {
   switch (config.provider as GenerativeAIProvider) {
     case 'google-ai':
       if (!config.googleAi.model) throw new Error('Gemini model not set');

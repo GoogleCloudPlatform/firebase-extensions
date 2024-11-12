@@ -19,7 +19,7 @@ export const generateChatResponse = async (
     history,
     context: config.context,
     maxOutputTokens: config.maxOutputTokens,
-    safetySettings: config.safetySettings || [],
+    // safetySettings: config.safetySettings || [],
   };
 
   if (config.enableDiscussionOptionOverrides) {
