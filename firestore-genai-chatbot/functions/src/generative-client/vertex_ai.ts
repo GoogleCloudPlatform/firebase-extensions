@@ -48,7 +48,7 @@ export class VertexDiscussionClient extends DiscussionClient<
     options: GeminiChatOptions
   ) {
     try {
-      const llmResponse = await this.client!.generate({
+      const llmResponse = await this.client.generate({
         prompt: latestApiMessage.parts,
         messages: history,
         model: this.modelName,
