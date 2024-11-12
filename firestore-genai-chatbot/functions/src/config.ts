@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-import {SafetySetting as VertexSafetySetting} from '@google-cloud/vertexai';
-
-import {SafetySetting as GoogleAISafetySetting} from '@google/generative-ai';
-
 export enum GenerativeAIProvider {
   GOOGLE_AI = 'google-ai',
   VERTEX_AI = 'vertex-ai',
@@ -45,12 +41,12 @@ export interface Config {
   topK?: number;
   candidateCount?: number;
   candidatesField?: string;
-  safetySettings?: GoogleAISafetySetting[] | VertexSafetySetting[];
+  safetySettings?: any;
   provider: GenerativeAIProvider;
   maxOutputTokens?: number;
 }
 
-function getSafetySettings(): GoogleAISafetySetting[] | VertexSafetySetting[] {
+function getSafetySettings(): any {
   const categories = [
     'HARM_CATEGORY_HATE_SPEECH',
     'HARM_CATEGORY_DANGEROUS_CONTENT',
@@ -71,9 +67,9 @@ function getSafetySettings(): GoogleAISafetySetting[] | VertexSafetySetting[] {
 
   switch (process.env.GENERATIVE_AI_PROVIDER) {
     case 'vertex-ai':
-      return settings as VertexSafetySetting[];
+      return settings as [];
     case 'google-ai':
-      return settings as GoogleAISafetySetting[];
+      return settings as [];
     default:
       throw new Error('Invalid Provider');
   }

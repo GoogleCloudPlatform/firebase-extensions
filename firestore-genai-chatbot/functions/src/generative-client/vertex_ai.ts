@@ -1,13 +1,9 @@
-import {DiscussionClient, Message} from './base_class';
 import {logger} from 'firebase-functions/v1';
-import {
-  VertexAI,
-  GenerateContentRequest,
-  Content,
-  Part,
-} from '@google-cloud/vertexai';
-import config from '../config';
-import {SafetySetting as VertexSafetySetting} from '@google-cloud/vertexai';
+
+import {Part, MessageData, Genkit, genkit} from 'genkit';
+import {DiscussionClient} from './base_class';
+import {Message} from '../types';
+import vertexAI from '@genkit-ai/vertexai';
 
 interface GeminiChatOptions {
   history?: Message[];
@@ -20,7 +16,6 @@ interface GeminiChatOptions {
   projectId: string;
   location: string;
   context?: string;
-  safetySettings?: VertexSafetySetting[];
 }
 
 type ApiMessage = {
@@ -28,122 +23,54 @@ type ApiMessage = {
   parts: Part[];
 };
 
-enum Role {
-  USER = 'user',
-  GEMINI = 'model',
-}
+const ai = genkit({
+  plugins: [vertexAI()],
+});
 
 export class VertexDiscussionClient extends DiscussionClient<
-  VertexAI,
+  Genkit,
   GeminiChatOptions,
   ApiMessage
 > {
   modelName: string;
+
   constructor({modelName}: {apiKey?: string; modelName: string}) {
-    super();
-    this.client = new VertexAI({
-      project: config.projectId,
-      location: config.location,
-    });
+    super(ai);
     if (!modelName) {
       throw new Error('Model name required.');
     }
     this.modelName = modelName;
   }
 
-  createApiMessage(
-    messageContent: string,
-    role: 'user' | 'model' = 'user'
-  ): ApiMessage {
-    const apiRole = role === 'user' ? Role.USER : Role.GEMINI;
-    return {
-      role: apiRole,
-      parts: [{text: messageContent}],
-    };
-  }
-
   async generateResponse(
-    history: Message[],
+    history: MessageData[],
     latestApiMessage: ApiMessage,
     options: GeminiChatOptions
   ) {
-    if (!this.client) {
-      throw new Error('Client not initialized.');
-    }
-
-    let result;
-    const generativeModel = this.client.preview.getGenerativeModel({
-      model: this.modelName,
-    });
-
-    const contents = [...this.messagesToApi(history), latestApiMessage];
-
-    const request: GenerateContentRequest = {
-      contents,
-      generationConfig: {
-        topK: options.topK,
-        topP: options.topP,
-        temperature: options.temperature,
-        candidateCount: options.candidateCount,
-        maxOutputTokens: options.maxOutputTokens,
-      },
-      safetySettings: options.safetySettings,
-    };
     try {
-      const responseStream =
-        await generativeModel.generateContentStream(request);
+      const llmResponse = await this.client!.generate({
+        prompt: latestApiMessage.parts,
+        messages: history,
+        model: this.modelName,
+        config: {
+          topP: options.topP,
+          topK: options.topK,
+          temperature: options.temperature,
+          maxOutputTokens: options.maxOutputTokens,
+        },
+      });
 
-      // TODO: we can stream now!
-      const aggregatedResponse = await responseStream.response;
-
-      result = aggregatedResponse;
-      // result = await chatSession.sendMessage(latestApiMessage.parts[0].text);
+      return {
+        response: llmResponse.text,
+        // TODO how to handle candidates through genkit?
+        candidates: [],
+        // TODO might be in "evaluations API of genkit" or might be here
+        // safetyMetadata: llmResponse.
+        history,
+      };
     } catch (e) {
       logger.error(e);
-      // TODO: the error message provided exposes the API key, so we should handle this/ get the Gemini team to fix it their side.
-      throw new Error(
-        'Failed to generate response, see function logs for more details.'
-      );
+      throw e;
     }
-
-    if (
-      !result.candidates ||
-      !Array.isArray(result.candidates) ||
-      result.candidates.length === 0
-    ) {
-      // TODO: handle blocked responses
-      throw new Error('No candidates returned');
-    }
-
-    const candidates = result.candidates.filter(c => {
-      return (
-        c &&
-        c.content &&
-        c.content.parts &&
-        c.content.parts.length > 0 &&
-        c.content.parts[0].text &&
-        typeof c.content.parts[0].text === 'string'
-      );
-    });
-
-    return {
-      response: candidates[0]!.content!.parts![0].text!,
-      candidates: candidates?.map(c => c.content!.parts![0].text!) ?? [],
-      safetyMetadata: result.promptFeedback,
-      history,
-    };
-  }
-
-  private messagesToApi(messages: Message[]) {
-    const out: Content[] = [];
-    for (const message of messages) {
-      if (!message.prompt || !message.response) {
-        // logs.warnMissingPromptOrResponse(message.path!);
-        continue;
-      }
-      out.push({role: Role.USER, parts: [{text: message.prompt!}]});
-      out.push({role: Role.GEMINI, parts: [{text: message.response!}]});
-    }
-    return out;
   }
 }

@@ -1,3 +1,5 @@
+import {MessageData} from 'genkit';
+
 export interface Message {
   path?: string;
   prompt?: string;
@@ -9,34 +11,33 @@ export interface ChatResponse {
   candidates: string[];
   //TODO: fix this type
   safetyMetadata?: any;
-  history: Message[];
+  history: MessageData[];
 }
 
 export abstract class DiscussionClient<
-  Client,
+  Genkit,
   ChatOptions extends {
     history?: Message[];
     context?: string;
   },
   ApiMessage,
 > {
-  client?: Client;
-  constructor() {}
+  client: Genkit;
+  constructor(client: Genkit) {
+    this.client = client;
+  }
 
   private getHistory(options: ChatOptions) {
-    let history: Message[] = [];
-
-    if (options.context) {
-      const contextMessage = {
-        prompt: `System prompt: ${options.context}.`,
-        response: 'Understood.',
-      };
-      history = [contextMessage];
-    }
-    if (options.history) {
-      history = [...history, ...options.history];
-    }
-    return history;
+    return (
+      (options.history?.map(i => {
+        return {
+          content: {
+            text: i.prompt || i.response,
+          },
+          role: i.prompt ? 'user' : 'model',
+        };
+      }) as MessageData[] | undefined) ?? []
+    );
   }
 
   async send(
@@ -59,7 +60,7 @@ export abstract class DiscussionClient<
   }
 
   async generateResponse(
-    _history: Message[],
+    _history: MessageData[],
     _latestApiMessage: ApiMessage,
     _options: ChatOptions
   ): Promise<ChatResponse> {
