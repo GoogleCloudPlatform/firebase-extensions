@@ -55,7 +55,10 @@ export abstract class DiscussionClient<
     }
     const history = this.getHistory(options);
     const latestApiMessage = this.createApiMessage(messageContent);
-    return await this.generateResponse(history, latestApiMessage, options);
+    const res = await this.generateResponse(history, latestApiMessage, options);
+
+    console.log('RES', res);
+    return res;
   }
 
   createApiMessage(_messageContent: string): Part[] {

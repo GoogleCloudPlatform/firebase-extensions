@@ -1,9 +1,10 @@
 import {logger} from 'firebase-functions/v1';
-
+import {logger as genkitLogger} from 'genkit/logging';
 import {Part, MessageData, Genkit, genkit} from 'genkit';
 import {DiscussionClient} from './base_class';
 import {Message} from '../types';
 import vertexAI from '@genkit-ai/vertexai';
+import config from '../config';
 
 interface GeminiChatOptions {
   history?: Message[];
@@ -21,6 +22,8 @@ interface GeminiChatOptions {
 const ai = genkit({
   plugins: [vertexAI()],
 });
+
+genkitLogger.setLogLevel('debug');
 
 export class VertexDiscussionClient extends DiscussionClient<
   Genkit,
@@ -42,6 +45,7 @@ export class VertexDiscussionClient extends DiscussionClient<
     options: GeminiChatOptions
   ) {
     try {
+      // @ts-expect-error - passing in the model as a string means no config schema available in types
       const llmResponse = await this.client.generate({
         prompt: latestApiMessage,
         messages: history,
@@ -51,15 +55,24 @@ export class VertexDiscussionClient extends DiscussionClient<
           topK: options.topK,
           temperature: options.temperature,
           maxOutputTokens: options.maxOutputTokens,
+          safetySettings: config.safetySettings,
         },
       });
 
+      // @ts-expect-error - passing in the model as a string means no config schema available in types
+      if (llmResponse.custom?.candidates?.[0]?.safetyRatings) {
+        return {
+          response: llmResponse.text,
+          candidates: [],
+          // @ts-expect-error - passing in the model as a string means no config schema available in types
+          safetyMetadata: llmResponse.custom.candidates[0].safetyRatings,
+          history,
+        };
+      }
+
       return {
         response: llmResponse.text,
-        // TODO how to handle candidates through genkit?
         candidates: [],
-        // TODO might be in "evaluations API of genkit" or might be here
-        // safetyMetadata: llmResponse.
         history,
       };
     } catch (e) {

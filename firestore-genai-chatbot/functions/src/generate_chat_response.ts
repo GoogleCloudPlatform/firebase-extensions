@@ -30,10 +30,18 @@ export const generateChatResponse = async (
   const discussionClient = getGenerativeClient();
   const result = await discussionClient.send(prompt, requestOptions);
 
-  return shouldAddCandidatesField
+  console.log('result', JSON.stringify(result));
+
+  return shouldAddCandidatesField && result.candidates && result.safetyMetadata
     ? {
-        [config.responseField]: result.response!,
-        [config.candidatesField!]: result.candidates!,
+        [config.responseField]: result.response,
+        safetyMetadata: result.safetyMetadata,
+        [config.candidatesField!]: result.candidates,
+      }
+    : result.safetyMetadata
+    ? {
+        [config.responseField]: result.response,
+        safetyMetadata: result.safetyMetadata,
       }
     : {
         [config.responseField]: result.response,

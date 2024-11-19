@@ -16,7 +16,6 @@ interface GeminiChatOptions {
   location: string;
   context?: string;
   //TODO where to get these from Genkit?
-  // safetySettings: SafetySetting[];
 }
 
 const ai = genkit({
@@ -50,6 +49,7 @@ export class GeminiDiscussionClient extends DiscussionClient<
     options: GeminiChatOptions
   ) {
     try {
+      // @ts-expect-error - passing in the model as a string means no config schema available in types
       const llmResponse = await this.client.generate({
         prompt: latestApiMessage,
         messages: history,
@@ -59,16 +59,24 @@ export class GeminiDiscussionClient extends DiscussionClient<
           topK: options.topK,
           temperature: options.temperature,
           maxOutputTokens: options.maxOutputTokens,
-          // safetySettings: options.safetySettings,
+          safetySettings: config.safetySettings,
         },
       });
 
+      // @ts-expect-error - passing in the model as a string means no config schema available in types
+      if (llmResponse.custom?.candidates?.[0]?.safetyRatings) {
+        return {
+          response: llmResponse.text,
+          candidates: [],
+          // @ts-expect-error - passing in the model as a string means no config schema available in types
+          safetyMetadata: llmResponse.custom.candidates[0].safetyRatings,
+          history,
+        };
+      }
+
       return {
         response: llmResponse.text,
-        // TODO how to handle candidates through genkit?
         candidates: [],
-        // TODO might be in "evaluations API of genkit" or might be here
-        // safetyMetadata: llmResponse.
         history,
       };
     } catch (e) {
