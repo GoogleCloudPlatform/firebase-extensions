@@ -1,8 +1,17 @@
-  {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "verbose": true,
-    "testPathIgnorePatterns": [
-      "__tests__/util.ts"
-    ]
+{
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "verbose": true,
+  "testPathIgnorePatterns": [
+    "__tests__/util.ts"
+  ],
+  "extensionsToTreatAsEsm": [".ts"],
+  "transform": {
+    "^.+\\.ts$": "ts-jest"
+  },
+  "globals": {
+    "ts-jest": {
+      "useESM": true
+    }
   }
+}

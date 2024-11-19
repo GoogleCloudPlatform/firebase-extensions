@@ -16,11 +16,11 @@ process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 jest.mock('../../src/config', () => ({
   default: {
     googleAi: {
-      model: 'gemini-pro',
+      model: 'gemini-1.5-flash',
       apiKey: 'test-api-key',
     },
     vertex: {
-      model: 'gemini-pro',
+      model: 'gemini-1.5-flash',
     },
     collectionName: 'discussionsTestGenerative/{discussionId}/messages',
     location: 'us-central1',
@@ -30,7 +30,7 @@ jest.mock('../../src/config', () => ({
     enableDiscussionOptionOverrides: true,
     candidatesField: 'candidates',
     provider: 'google-ai',
-    model: 'gemini-pro',
+    model: 'gemini-1.5-flash',
     apiKey: 'test-api-key',
   },
 }));

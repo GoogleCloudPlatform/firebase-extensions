@@ -16,11 +16,11 @@ process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 jest.mock('../../src/config', () => ({
   default: {
     googleAi: {
-      model: 'gemini-pro',
+      model: 'gemini-1.5-flash',
       apiKey: 'test-api-key',
     },
     vertex: {
-      model: 'gemini-pro',
+      model: 'gemini-1.5-flash',
     },
     collectionName: 'discussionsTestGenerative/{discussionId}/messages',
     location: 'us-central1',
@@ -30,7 +30,7 @@ jest.mock('../../src/config', () => ({
     enableDiscussionOptionOverrides: true,
     candidatesField: 'candidates',
     provider: 'vertex-ai',
-    model: 'gemini-pro',
+    model: 'gemini-1.5-flash',
     apiKey: 'test-api-key',
   },
 }));
@@ -40,41 +40,22 @@ const mockGetClient = jest.fn();
 const mockGetModel = jest.fn();
 const mockGenerateContentStream = jest.fn();
 
-jest.mock('@google-cloud/vertexai', () => {
+jest.mock('genkit', () => {
+  const mockGenerate = jest.fn();
+  const mockGenkit = jest.fn(() => ({
+    generate: mockGenerate,
+  }));
+
   return {
-    ...jest.requireActual('@google-cloud/vertexai'),
-    VertexAI: function mockedClient(args: any) {
-      mockGetClient(args);
-      return {
-        preview: {
-          getGenerativeModel: (args: unknown) => {
-            mockGetModel(args);
-            return {
-              generateContentStream: async function mockedStartChat(args: any) {
-                mockGenerateContentStream(args);
-                return {
-                  response: {
-                    candidates: [
-                      {
-                        content: {
-                          parts: [
-                            {
-                              text: 'test response',
-                            },
-                          ],
-                        },
-                      },
-                    ],
-                  },
-                };
-              },
-            };
-          },
-        },
-      };
-    },
+    genkit: mockGenkit,
+    __mocks__: { generate: mockGenerate },
   };
 });
+
+import { genkit } from 'genkit';
+
+const mockGenerate = (genkit as jest.Mocked<any>).__mocks__.generate;
+
 
 const fft = firebaseFunctionsTest({
   projectId: 'demo-gcp',
@@ -105,6 +86,7 @@ describe('generateMessage', () => {
 
   // clear firestore
   beforeEach(async () => {
+
     await fetch(
       `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
       {method: 'DELETE'}
@@ -126,6 +108,10 @@ describe('generateMessage', () => {
          * This is a workaround to ensure the observer is only called when it should be
          */
         if (snap.docs.length) firestoreObserver(snap);
+      });
+
+      mockGenerate.mockResolvedValue({
+        text: 'test response',
       });
   });
   afterEach(() => {
@@ -182,7 +168,7 @@ describe('generateMessage', () => {
 
   test('should run when given createTime', async () => {
     const message = {
-      prompt: 'hello chat bison',
+      prompt: 'hello world',
       createTime: Timestamp.now(),
     };
     const ref = await admin.firestore().collection(collectionName).add(message);
@@ -202,21 +188,18 @@ describe('generateMessage', () => {
       'test response'
     );
 
-    expect(mockGetClient).toHaveBeenCalledTimes(1);
-
-    expect(mockGetModel).toHaveBeenCalledTimes(1);
-    expect(mockGetModel).toHaveBeenCalledWith({model: config.googleAi.model});
-    expect(mockGenerateContentStream).toHaveBeenCalledTimes(1);
-    expect(mockGenerateContentStream).toHaveBeenCalledWith({
-      contents: [{parts: [{text: 'hello chat bison'}], role: 'user'}],
-      generationConfig: {
-        topK: undefined,
+    // Verify that `generate` was called with expected arguments
+    expect(mockGenerate).toHaveBeenCalledTimes(1);
+    expect(mockGenerate).toHaveBeenCalledWith({
+      prompt: [{ parts: [{ text: 'hello world' }], role: 'user' }],
+      messages: [],
+      model: 'vertexai/gemini-1.5-flash',
+      config: {
         topP: undefined,
+        topK: undefined,
         temperature: undefined,
-        candidateCount: undefined,
         maxOutputTokens: undefined,
       },
-      safetySettings: [],
     });
   });
 
