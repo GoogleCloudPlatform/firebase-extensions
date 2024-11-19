@@ -1,9 +1,9 @@
 import * as admin from 'firebase-admin';
-import { Timestamp } from 'firebase-admin/firestore';
-import { FirestoreOnWriteProcessor } from '../../src/firestore-onwrite-processor';
-import { WrappedFunction } from 'firebase-functions-test/lib/v1';
-import { Change, firestore } from 'firebase-functions/v1';
-import { describe, test, beforeEach, afterEach, expect, vi } from 'vitest';
+import {Timestamp} from 'firebase-admin/firestore';
+import {FirestoreOnWriteProcessor} from '../../src/firestore-onwrite-processor';
+import {WrappedFunction} from 'firebase-functions-test/lib/v1';
+import {Change, firestore} from 'firebase-functions/v1';
+import {describe, test, beforeEach, afterEach, expect, vi} from 'vitest';
 
 const firebaseFunctionsTest = require('firebase-functions-test');
 const fft = firebaseFunctionsTest({
@@ -13,7 +13,7 @@ const fft = firebaseFunctionsTest({
 process.env.GCLOUD_PROJECT = 'demo-gcp';
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 
-type DocumentReference = admin.firestore.DocumentReference; 
+type DocumentReference = admin.firestore.DocumentReference;
 type DocumentData = admin.firestore.DocumentData;
 type DocumentSnapshot = admin.firestore.DocumentSnapshot<DocumentData>;
 type WrappedFirebaseFunction = WrappedFunction<
@@ -28,10 +28,10 @@ admin.initializeApp({
 const firestoreObserver = vi.fn((_x: any) => {});
 let collectionName: string;
 
-const processor = new FirestoreOnWriteProcessor<string, { output: string }>({
+const processor = new FirestoreOnWriteProcessor<string, {output: string}>({
   inputField: 'input',
   processFn: async (input: string) => {
-    return { output: input };
+    return {output: input};
   },
   errorFn: JSON.stringify,
 });
@@ -55,7 +55,7 @@ describe('SingleFieldProcessor', () => {
 
     await fetch(
       `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
-      { method: 'DELETE' }
+      {method: 'DELETE'}
     );
     vi.clearAllMocks();
 
@@ -84,10 +84,10 @@ describe('SingleFieldProcessor', () => {
 
     expect(firestoreObserver).toHaveBeenCalledTimes(3);
     const firestoreCallData = firestoreObserver.mock.calls.map(
-      (call: { docs: { data: () => any }[] }[]) => call[0].docs[0].data()
+      (call: {docs: {data: () => any}[]}[]) => call[0].docs[0].data()
     );
 
-    expect(firestoreCallData[0]).toEqual({ input: 'test' });
+    expect(firestoreCallData[0]).toEqual({input: 'test'});
     expect(firestoreCallData[1]).toEqual({
       input: 'test',
       createTime: expect.any(Timestamp),
@@ -131,7 +131,7 @@ describe('SingleFieldProcessor', () => {
 
     expect(firestoreObserver).toHaveBeenCalledTimes(3);
     const firestoreCallData = firestoreObserver.mock.calls.map(
-      (call: { docs: { data: () => any }[] }[]) => call[0].docs[0].data()
+      (call: {docs: {data: () => any}[]}[]) => call[0].docs[0].data()
     );
 
     expect(firestoreCallData[0]).toEqual({
@@ -171,7 +171,7 @@ describe('SingleFieldProcessor', () => {
 const simulateFunctionTriggered =
   (wrappedFunction: WrappedFirebaseFunction) =>
   async (ref: DocumentReference, before?: DocumentSnapshot) => {
-    const data = (await ref.get()).data() as { [key: string]: unknown };
+    const data = (await ref.get()).data() as {[key: string]: unknown};
     const beforeFunctionExecution = fft.firestore.makeDocumentSnapshot(
       data,
       `${collectionName}/${ref.id}`

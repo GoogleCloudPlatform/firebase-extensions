@@ -1,7 +1,7 @@
 // Hoisted mocks
-const { mockGenerate, mockVertexAI } = vi.hoisted(() => ({
+const {mockGenerate, mockVertexAI} = vi.hoisted(() => ({
   mockGenerate: vi.fn(),
-  mockVertexAI: vi.fn(() => ({}))
+  mockVertexAI: vi.fn(() => ({})),
 }));
 
 // Mock setup using hoisted mocks
@@ -16,16 +16,16 @@ vi.mock('@genkit-ai/vertexai', () => ({
 }));
 
 // Type imports
-import { Change } from 'firebase-functions/v1';
-import type { WrappedFunction } from 'firebase-functions-test/lib/v1';
-import type { QuerySnapshot } from 'firebase-admin/firestore';
+import {Change} from 'firebase-functions/v1';
+import type {WrappedFunction} from 'firebase-functions-test/lib/v1';
+import type {QuerySnapshot} from 'firebase-admin/firestore';
 
 // Regular imports
 import * as admin from 'firebase-admin';
 const firebaseFunctionsTest = require('firebase-functions-test');
 
-import { describe, beforeEach, afterEach, test, expect, vi } from 'vitest';
-import { expectToProcessCorrectly } from '../util';
+import {describe, beforeEach, afterEach, test, expect, vi} from 'vitest';
+import {expectToProcessCorrectly} from '../util';
 
 // Mock configuration
 vi.mock('../../src/config', () => ({
@@ -52,7 +52,7 @@ vi.mock('../../src/config', () => ({
 
 // Import modules that depend on mocks
 import config from '../../src/config';
-import { generateMessage } from '../../src/index';
+import {generateMessage} from '../../src/index';
 
 process.env.GCLOUD_PROJECT = 'demo-gcp';
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
@@ -88,7 +88,7 @@ describe('generateMessage Vertex AI', () => {
   beforeEach(async () => {
     await fetch(
       `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
-      { method: 'DELETE' }
+      {method: 'DELETE'}
     );
     vi.clearAllMocks();
     const randomInteger = Math.floor(Math.random() * 1000000);
@@ -169,25 +169,25 @@ describe('generateMessage Vertex AI', () => {
       createTime: Timestamp.now(),
     };
     const ref = await admin.firestore().collection(collectionName).add(message);
-  
+
     await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
-  
+
     expect(firestoreObserver).toHaveBeenCalledTimes(3);
-  
+
     const firestoreCallData = firestoreObserver.mock.calls.map(call =>
       call[0].docs[0].data()
     );
-  
+
     expectToProcessCorrectly(
       firestoreCallData,
       message,
       false,
       'test response'
     );
-  
+
     expect(mockGenerate).toHaveBeenCalledTimes(1);
     expect(mockGenerate).toHaveBeenCalledWith({
-      prompt: [{ text: 'hello world' }],
+      prompt: [{text: 'hello world'}],
       messages: [],
       model: 'vertexai/gemini-1.5-flash',
       config: {
@@ -203,29 +203,29 @@ describe('generateMessage Vertex AI', () => {
     const message = {
       prompt: 'hello chat bison',
     };
-  
+
     const ref = await admin.firestore().collection(collectionName).add(message);
-  
+
     const beforeOrderField = await simulateFunctionTriggered(
       wrappedGenerateMessage
     )(ref);
-  
+
     await simulateFunctionTriggered(wrappedGenerateMessage)(
       ref,
       beforeOrderField
     );
-  
+
     expect(firestoreObserver).toHaveBeenCalledTimes(3);
-  
+
     const firestoreCallData = firestoreObserver.mock.calls.map(call => {
       return call[0].docs[0].data();
     });
-  
+
     expectToProcessCorrectly(firestoreCallData, message, true, 'test response');
-  
+
     expect(mockGenerate).toHaveBeenCalledTimes(1);
     expect(mockGenerate).toHaveBeenCalledWith({
-      prompt: [{ text: 'hello chat bison' }],
+      prompt: [{text: 'hello chat bison'}],
       messages: [],
       model: 'vertexai/gemini-1.5-flash',
       config: {
@@ -240,28 +240,29 @@ describe('generateMessage Vertex AI', () => {
   test('should handle errors from genkit', async () => {
     // Setup mock to reject
     mockGenerate.mockRejectedValueOnce(new Error('API Error'));
-    
+
     const message = {
       prompt: 'hello world',
       createTime: Timestamp.now(),
     };
-  
+
     const ref = await admin.firestore().collection(collectionName).add(message);
     await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
     await new Promise(resolve => setTimeout(resolve, 100));
-  
+
     const updatedDoc = await ref.get();
     const data = updatedDoc.data();
-  
+
     expect(data).toMatchObject({
       prompt: 'hello world',
       status: {
         state: 'ERROR',
-        error: 'An error occurred while processing the provided message, API Error',
-        updateTime: expect.any(Timestamp)
-      }
+        error:
+          'An error occurred while processing the provided message, API Error',
+        updateTime: expect.any(Timestamp),
+      },
     });
-  
+
     expect(mockGenerate).toHaveBeenCalledTimes(1);
     expect(firestoreObserver).toHaveBeenCalled();
   });
@@ -270,7 +271,7 @@ describe('generateMessage Vertex AI', () => {
 const simulateFunctionTriggered =
   (wrappedFunction: WrappedFirebaseFunction) =>
   async (ref: DocumentReference, before?: DocumentSnapshot) => {
-    const data = (await ref.get()).data() as { [key: string]: unknown };
+    const data = (await ref.get()).data() as {[key: string]: unknown};
     const beforeFunctionExecution = fft.firestore.makeDocumentSnapshot(
       data,
       `${collectionName}/${ref.id}`

@@ -1,5 +1,5 @@
-import { extractOverrides } from '../../src/overrides'; // Adjust the import as per your file structure
-import { describe, beforeEach, afterEach, test, expect, vi } from 'vitest';
+import {extractOverrides} from '../../src/overrides'; // Adjust the import as per your file structure
+import {describe, beforeEach, afterEach, test, expect, vi} from 'vitest';
 
 describe('extractOverrides function', () => {
   let mockDocSnap: any;
