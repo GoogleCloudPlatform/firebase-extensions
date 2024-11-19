@@ -1,19 +1,34 @@
-import * as firebaseFunctionsTest from 'firebase-functions-test';
+// Hoisted mocks
+const { mockGenerate, mockVertexAI } = vi.hoisted(() => ({
+  mockGenerate: vi.fn(),
+  mockVertexAI: vi.fn(() => ({}))
+}));
+
+// Mock setup using hoisted mocks
+vi.mock('genkit', () => ({
+  genkit: vi.fn(() => ({
+    generate: mockGenerate,
+  })),
+}));
+
+vi.mock('@genkit-ai/vertexai', () => ({
+  default: mockVertexAI,
+}));
+
+// Type imports
+import { Change } from 'firebase-functions/v1';
+import type { WrappedFunction } from 'firebase-functions-test/lib/v1';
+import type { QuerySnapshot } from 'firebase-admin/firestore';
+
+// Regular imports
 import * as admin from 'firebase-admin';
-import config from '../../src/config';
-import {generateMessage} from '../../src/index';
-import {WrappedFunction} from 'firebase-functions-test/lib/v1';
-import {Change} from 'firebase-functions/v1';
+const firebaseFunctionsTest = require('firebase-functions-test');
 
-import {QuerySnapshot} from 'firebase-admin/firestore';
-import {expectToProcessCorrectly} from '../util';
+import { describe, beforeEach, afterEach, test, expect, vi } from 'vitest';
+import { expectToProcessCorrectly } from '../util';
 
-process.env.GCLOUD_PROJECT = 'demo-gcp';
-
-process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
-
-// // We mock out the config here instead of setting environment variables directly
-jest.mock('../../src/config', () => ({
+// Mock configuration
+vi.mock('../../src/config', () => ({
   default: {
     googleAi: {
       model: 'gemini-1.5-flash',
@@ -35,27 +50,12 @@ jest.mock('../../src/config', () => ({
   },
 }));
 
-// // mock to check the arguments passed to the annotateVideo function+
-const mockGetClient = jest.fn();
-const mockGetModel = jest.fn();
-const mockGenerateContentStream = jest.fn();
+// Import modules that depend on mocks
+import config from '../../src/config';
+import { generateMessage } from '../../src/index';
 
-jest.mock('genkit', () => {
-  const mockGenerate = jest.fn();
-  const mockGenkit = jest.fn(() => ({
-    generate: mockGenerate,
-  }));
-
-  return {
-    genkit: mockGenkit,
-    __mocks__: { generate: mockGenerate },
-  };
-});
-
-import { genkit } from 'genkit';
-
-const mockGenerate = (genkit as jest.Mocked<any>).__mocks__.generate;
-
+process.env.GCLOUD_PROJECT = 'demo-gcp';
+process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 
 const fft = firebaseFunctionsTest({
   projectId: 'demo-gcp',
@@ -68,64 +68,61 @@ admin.initializeApp({
 type DocumentReference = admin.firestore.DocumentReference;
 type DocumentData = admin.firestore.DocumentData;
 type DocumentSnapshot = admin.firestore.DocumentSnapshot<DocumentData>;
+const Timestamp = admin.firestore.Timestamp;
+
 type WrappedFirebaseFunction = WrappedFunction<
   Change<DocumentSnapshot | undefined>,
   void
 >;
-const Timestamp = admin.firestore.Timestamp;
 
 const wrappedGenerateMessage = fft.wrap(
   generateMessage
 ) as WrappedFirebaseFunction;
 
-const firestoreObserver = jest.fn((_x: any) => {});
+const firestoreObserver = vi.fn((_x: any) => {});
 let collectionName: string;
 
-describe('generateMessage', () => {
+describe('generateMessage Vertex AI', () => {
   let unsubscribe: (() => void) | undefined;
 
-  // clear firestore
   beforeEach(async () => {
-
     await fetch(
       `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
-      {method: 'DELETE'}
+      { method: 'DELETE' }
     );
-    jest.clearAllMocks();
+    vi.clearAllMocks();
     const randomInteger = Math.floor(Math.random() * 1000000);
     collectionName = config.collectionName.replace(
       '{discussionId}',
       randomInteger.toString()
     );
 
-    // set up observer on collection
     unsubscribe = admin
       .firestore()
       .collection(collectionName)
       .onSnapshot((snap: QuerySnapshot) => {
-        /** There is a bug on first init and write, causing the the emulator to the observer is called twice
-         * A snapshot is registered on the first run, this affects the observer count
-         * This is a workaround to ensure the observer is only called when it should be
-         */
         if (snap.docs.length) firestoreObserver(snap);
       });
 
-      mockGenerate.mockResolvedValue({
-        text: 'test response',
-      });
+    // Setup mock response
+    mockGenerate.mockResolvedValue({
+      text: 'test response',
+      candidates: [],
+      history: [],
+    });
   });
+
   afterEach(() => {
     if (unsubscribe && typeof unsubscribe === 'function') {
       unsubscribe();
     }
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should not run if the prompt field is not set', async () => {
     const notMessage = {
       notPrompt: 'hello chat bison',
     };
-    // Make a write to the collection. This won't trigger our wrapped function as it isn't deployed to the emulator.
     const ref = await admin
       .firestore()
       .collection(collectionName)
@@ -172,26 +169,25 @@ describe('generateMessage', () => {
       createTime: Timestamp.now(),
     };
     const ref = await admin.firestore().collection(collectionName).add(message);
-
+  
     await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
-
+  
     expect(firestoreObserver).toHaveBeenCalledTimes(3);
-
+  
     const firestoreCallData = firestoreObserver.mock.calls.map(call =>
       call[0].docs[0].data()
     );
-
+  
     expectToProcessCorrectly(
       firestoreCallData,
       message,
       false,
       'test response'
     );
-
-    // Verify that `generate` was called with expected arguments
+  
     expect(mockGenerate).toHaveBeenCalledTimes(1);
     expect(mockGenerate).toHaveBeenCalledWith({
-      prompt: [{ parts: [{ text: 'hello world' }], role: 'user' }],
+      prompt: [{ text: 'hello world' }],
       messages: [],
       model: 'vertexai/gemini-1.5-flash',
       config: {
@@ -207,64 +203,89 @@ describe('generateMessage', () => {
     const message = {
       prompt: 'hello chat bison',
     };
-
-    // Make a write to the collection. This won't trigger our wrapped function as it isn't deployed to the emulator.
+  
     const ref = await admin.firestore().collection(collectionName).add(message);
-
+  
     const beforeOrderField = await simulateFunctionTriggered(
       wrappedGenerateMessage
     )(ref);
-
+  
     await simulateFunctionTriggered(wrappedGenerateMessage)(
       ref,
       beforeOrderField
     );
-
-    // we expect the firestore observer to be called 4 times total.
+  
     expect(firestoreObserver).toHaveBeenCalledTimes(3);
-
+  
     const firestoreCallData = firestoreObserver.mock.calls.map(call => {
       return call[0].docs[0].data();
     });
-
+  
     expectToProcessCorrectly(firestoreCallData, message, true, 'test response');
-
-    // // verify SDK is called with expected arguments
-    // we expect the mock API to be called once
-    expect(mockGetClient).toHaveBeenCalledTimes(1);
-
-    expect(mockGetModel).toHaveBeenCalledTimes(1);
-    expect(mockGetModel).toBeCalledWith({model: config.googleAi.model});
-    expect(mockGenerateContentStream).toHaveBeenCalledTimes(1);
-    expect(mockGenerateContentStream).toHaveBeenCalledWith({
-      contents: [{parts: [{text: 'hello chat bison'}], role: 'user'}],
-      generationConfig: {
-        topK: undefined,
+  
+    expect(mockGenerate).toHaveBeenCalledTimes(1);
+    expect(mockGenerate).toHaveBeenCalledWith({
+      prompt: [{ text: 'hello chat bison' }],
+      messages: [],
+      model: 'vertexai/gemini-1.5-flash',
+      config: {
         topP: undefined,
+        topK: undefined,
         temperature: undefined,
-        candidateCount: undefined,
         maxOutputTokens: undefined,
       },
-      safetySettings: [],
     });
+  });
+
+  test('should handle errors from genkit', async () => {
+    // Setup mock to reject
+    mockGenerate.mockRejectedValueOnce(new Error('API Error'));
+    
+    const message = {
+      prompt: 'hello world',
+      createTime: Timestamp.now(),
+    };
+  
+    const ref = await admin.firestore().collection(collectionName).add(message);
+    await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
+    await new Promise(resolve => setTimeout(resolve, 100));
+  
+    const updatedDoc = await ref.get();
+    const data = updatedDoc.data();
+  
+    expect(data).toMatchObject({
+      prompt: 'hello world',
+      status: {
+        state: 'ERROR',
+        error: 'An error occurred while processing the provided message, API Error',
+        updateTime: expect.any(Timestamp)
+      }
+    });
+  
+    expect(mockGenerate).toHaveBeenCalledTimes(1);
+    expect(firestoreObserver).toHaveBeenCalled();
   });
 });
 
 const simulateFunctionTriggered =
   (wrappedFunction: WrappedFirebaseFunction) =>
   async (ref: DocumentReference, before?: DocumentSnapshot) => {
-    const data = (await ref.get()).data() as {[key: string]: unknown};
+    const data = (await ref.get()).data() as { [key: string]: unknown };
     const beforeFunctionExecution = fft.firestore.makeDocumentSnapshot(
       data,
       `${collectionName}/${ref.id}`
     ) as DocumentSnapshot;
     const change = fft.makeChange(before, beforeFunctionExecution);
-    await wrappedFunction(change);
-    return beforeFunctionExecution;
+    try {
+      await wrappedFunction(change);
+      return beforeFunctionExecution;
+    } catch (error) {
+      throw error; // Make sure to propagate the error
+    }
   };
 
 const expectNoOp = async () => {
   await new Promise(resolve => setTimeout(resolve, 100));
   expect(firestoreObserver).toHaveBeenCalledTimes(1);
-  expect(mockGetModel).toHaveBeenCalledTimes(0);
+  expect(mockGenerate).toHaveBeenCalledTimes(0);
 };

@@ -1,21 +1,19 @@
 import * as admin from 'firebase-admin';
-import {Timestamp} from 'firebase-admin/firestore';
-import * as firebaseFunctionsTest from 'firebase-functions-test';
-import {FirestoreOnWriteProcessor} from '../../src/firestore-onwrite-processor';
-import {WrappedFunction} from 'firebase-functions-test/lib/v1';
-import {Change, firestore} from 'firebase-functions/v1';
+import { Timestamp } from 'firebase-admin/firestore';
+import { FirestoreOnWriteProcessor } from '../../src/firestore-onwrite-processor';
+import { WrappedFunction } from 'firebase-functions-test/lib/v1';
+import { Change, firestore } from 'firebase-functions/v1';
+import { describe, test, beforeEach, afterEach, expect, vi } from 'vitest';
 
+const firebaseFunctionsTest = require('firebase-functions-test');
 const fft = firebaseFunctionsTest({
   projectId: 'demo-gcp',
 });
 
 process.env.GCLOUD_PROJECT = 'demo-gcp';
-
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 
-process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
-
-type DocumentReference = admin.firestore.DocumentReference;
+type DocumentReference = admin.firestore.DocumentReference; 
 type DocumentData = admin.firestore.DocumentData;
 type DocumentSnapshot = admin.firestore.DocumentSnapshot<DocumentData>;
 type WrappedFirebaseFunction = WrappedFunction<
@@ -27,13 +25,13 @@ admin.initializeApp({
   projectId: 'demo-gcp',
 });
 
-const firestoreObserver = jest.fn((_x: any) => {});
+const firestoreObserver = vi.fn((_x: any) => {});
 let collectionName: string;
 
-const processor = new FirestoreOnWriteProcessor<string, {output: string}>({
+const processor = new FirestoreOnWriteProcessor<string, { output: string }>({
   inputField: 'input',
   processFn: async (input: string) => {
-    return {output: input};
+    return { output: input };
   },
   errorFn: JSON.stringify,
 });
@@ -43,7 +41,6 @@ describe('SingleFieldProcessor', () => {
   let wrappedGenerateMessage: WrappedFirebaseFunction;
   let docId: string;
 
-  // clear firestore
   beforeEach(async () => {
     collectionName = 'test';
     docId = '123';
@@ -58,19 +55,14 @@ describe('SingleFieldProcessor', () => {
 
     await fetch(
       `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
-      {method: 'DELETE'}
+      { method: 'DELETE' }
     );
-    jest.clearAllMocks();
+    vi.clearAllMocks();
 
-    // set up observer on collection
     unsubscribe = admin
       .firestore()
       .collection(collectionName)
       .onSnapshot((snap: any) => {
-        /** There is a bug on first init and write, causing the the emulator to the observer is called twice
-         * A snapshot is registered on the first run, this affects the observer count
-         * This is a workaround to ensure the observer is only called when it should be
-         */
         if (snap.docs.length) firestoreObserver(snap);
       });
   });
@@ -79,7 +71,7 @@ describe('SingleFieldProcessor', () => {
     if (unsubscribe && typeof unsubscribe === 'function') {
       unsubscribe();
     }
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   test('should run when not given order field', async () => {
@@ -89,17 +81,13 @@ describe('SingleFieldProcessor', () => {
     const ref = await admin.firestore().collection(collectionName).add(data);
 
     await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
-    // we expect the firestore observer to be called 4 times total.
+
     expect(firestoreObserver).toHaveBeenCalledTimes(3);
     const firestoreCallData = firestoreObserver.mock.calls.map(
-      (call: {docs: {data: () => any}[]}[]) => call[0].docs[0].data()
+      (call: { docs: { data: () => any }[] }[]) => call[0].docs[0].data()
     );
 
-    // for (const call of firestoreCallData) {
-    //   console.log(call);
-    // }
-
-    expect(firestoreCallData[0]).toEqual({input: 'test'});
+    expect(firestoreCallData[0]).toEqual({ input: 'test' });
     expect(firestoreCallData[1]).toEqual({
       input: 'test',
       createTime: expect.any(Timestamp),
@@ -129,6 +117,7 @@ describe('SingleFieldProcessor', () => {
       firestoreCallData[2].status.completeTime
     );
   });
+
   test('should run when given order field', async () => {
     const customCreateTime = new Date().toISOString();
     const data = {
@@ -139,15 +128,11 @@ describe('SingleFieldProcessor', () => {
     const ref = await admin.firestore().collection(collectionName).add(data);
 
     await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
-    // we expect the firestore observer to be called 4 times total.
+
     expect(firestoreObserver).toHaveBeenCalledTimes(3);
     const firestoreCallData = firestoreObserver.mock.calls.map(
-      (call: {docs: {data: () => any}[]}[]) => call[0].docs[0].data()
+      (call: { docs: { data: () => any }[] }[]) => call[0].docs[0].data()
     );
-
-    // for (const call of firestoreCallData) {
-    //   console.log(call);
-    // }
 
     expect(firestoreCallData[0]).toEqual({
       input: 'test',
@@ -186,7 +171,7 @@ describe('SingleFieldProcessor', () => {
 const simulateFunctionTriggered =
   (wrappedFunction: WrappedFirebaseFunction) =>
   async (ref: DocumentReference, before?: DocumentSnapshot) => {
-    const data = (await ref.get()).data() as {[key: string]: unknown};
+    const data = (await ref.get()).data() as { [key: string]: unknown };
     const beforeFunctionExecution = fft.firestore.makeDocumentSnapshot(
       data,
       `${collectionName}/${ref.id}`
