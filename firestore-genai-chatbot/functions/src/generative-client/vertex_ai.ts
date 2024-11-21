@@ -1,11 +1,11 @@
 import {logger} from 'firebase-functions/v1';
 import {logger as genkitLogger} from 'genkit/logging';
 import {Part, MessageData, Genkit, genkit} from 'genkit';
+import {z} from 'genkit';
 import {DiscussionClient} from './base_class';
 import {Message} from '../types';
-import vertexAI from '@genkit-ai/vertexai';
+import {vertexAI, gemini15Flash} from '@genkit-ai/vertexai';
 import config from '../config';
-
 interface GeminiChatOptions {
   history?: Message[];
   model: string;
@@ -24,6 +24,15 @@ const ai = genkit({
 });
 
 genkitLogger.setLogLevel('debug');
+
+// Schema for validating `custom` field
+const CustomSchema = z.object({
+  candidates: z.array(
+    z.object({
+      safetyRatings: z.array(z.any()).optional(),
+    })
+  ),
+});
 
 export class VertexDiscussionClient extends DiscussionClient<
   Genkit,
@@ -45,11 +54,10 @@ export class VertexDiscussionClient extends DiscussionClient<
     options: GeminiChatOptions
   ) {
     try {
-      // @ts-expect-error - passing in the model as a string means no config schema available in types
       const llmResponse = await this.client.generate({
         prompt: latestApiMessage,
         messages: history,
-        model: `vertexai/${this.modelName}`,
+        model: `vertexai/${this.modelName}` as unknown as typeof gemini15Flash,
         config: {
           topP: options.topP,
           topK: options.topK,
@@ -59,22 +67,25 @@ export class VertexDiscussionClient extends DiscussionClient<
         },
       });
 
-      // @ts-expect-error - passing in the model as a string means no config schema available in types
-      if (llmResponse.custom?.candidates?.[0]?.safetyRatings) {
+      // Safe parsing of `custom` using CustomSchema
+      const safeCustom = CustomSchema.safeParse(llmResponse.custom);
+
+      if (safeCustom.success) {
         return {
           response: llmResponse.text,
-          candidates: [],
-          // @ts-expect-error - passing in the model as a string means no config schema available in types
-          safetyMetadata: llmResponse.custom.candidates[0].safetyRatings,
+          candidates: safeCustom.data.candidates.map(c => JSON.stringify(c)),
+          safetyMetadata: safeCustom.data.candidates[0]?.safetyRatings,
+          history,
+        };
+      } else {
+        return {
+          response: llmResponse.text,
+          candidates: (llmResponse.custom as any).candidates.map((c: any) =>
+            JSON.stringify(c)
+          ),
           history,
         };
       }
-
-      return {
-        response: llmResponse.text,
-        candidates: [],
-        history,
-      };
     } catch (e) {
       logger.error(e);
       throw e;

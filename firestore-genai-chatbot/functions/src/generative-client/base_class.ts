@@ -8,8 +8,7 @@ export interface Message {
 
 export interface ChatResponse {
   response: string;
-  candidates: string[];
-  //TODO: fix this type
+  candidates?: string[];
   safetyMetadata?: any;
   history: MessageData[];
 }

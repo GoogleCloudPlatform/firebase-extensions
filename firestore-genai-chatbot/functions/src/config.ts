@@ -27,6 +27,7 @@ export interface Config {
     model: string;
     apiKey?: string;
   };
+  model: string;
   context?: string;
   location: string;
   projectId: string;
@@ -46,43 +47,85 @@ export interface Config {
   maxOutputTokens?: number;
 }
 
+import {
+  HarmBlockThreshold as HarmBlockThresholdVertexAI,
+  HarmCategory as HarmCategoryVertexAI,
+} from '@google-cloud/vertexai';
+import {
+  HarmBlockThreshold as HarmBlockThresholdGoogleAI,
+  HarmCategory as HarmCategoryGoogleAI,
+} from '@google/generative-ai';
+
 function getSafetySettings(): any {
-  const categories = [
-    'HARM_CATEGORY_HATE_SPEECH',
-    'HARM_CATEGORY_DANGEROUS_CONTENT',
-    'HARM_CATEGORY_HARASSMENT',
-    'HARM_CATEGORY_SEXUALLY_EXPLICIT',
-  ];
+  const categoriesVertexAI = {
+    HARM_CATEGORY_HATE_SPEECH: HarmCategoryVertexAI.HARM_CATEGORY_HATE_SPEECH,
+    HARM_CATEGORY_DANGEROUS_CONTENT:
+      HarmCategoryVertexAI.HARM_CATEGORY_DANGEROUS_CONTENT,
+    HARM_CATEGORY_HARASSMENT: HarmCategoryVertexAI.HARM_CATEGORY_HARASSMENT,
+    HARM_CATEGORY_SEXUALLY_EXPLICIT:
+      HarmCategoryVertexAI.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+  };
+
+  const categoriesGoogleAI = {
+    HARM_CATEGORY_HATE_SPEECH: HarmCategoryGoogleAI.HARM_CATEGORY_HATE_SPEECH,
+    HARM_CATEGORY_DANGEROUS_CONTENT:
+      HarmCategoryGoogleAI.HARM_CATEGORY_DANGEROUS_CONTENT,
+    HARM_CATEGORY_HARASSMENT: HarmCategoryGoogleAI.HARM_CATEGORY_HARASSMENT,
+    HARM_CATEGORY_SEXUALLY_EXPLICIT:
+      HarmCategoryGoogleAI.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+  };
 
   const settings = [];
 
-  for (const category of categories) {
-    if (process.env[category]) {
+  const provider = process.env.GENERATIVE_AI_PROVIDER;
+  if (!provider || (provider !== 'vertex-ai' && provider !== 'google-ai')) {
+    throw new Error('Invalid Provider');
+  }
+
+  const categories =
+    provider === 'vertex-ai' ? categoriesVertexAI : categoriesGoogleAI;
+
+  const thresholdEnum =
+    provider === 'vertex-ai'
+      ? HarmBlockThresholdVertexAI
+      : HarmBlockThresholdGoogleAI;
+
+  for (const [envCategory, category] of Object.entries(categories)) {
+    const thresholdEnv = process.env[envCategory];
+    if (thresholdEnv && thresholdEnv in thresholdEnum) {
       settings.push({
         category,
-        threshold: process.env[category],
+        threshold: thresholdEnum[thresholdEnv as keyof typeof thresholdEnum],
       });
+    } else if (thresholdEnv) {
+      throw new Error(
+        `Invalid threshold value for ${envCategory}: ${thresholdEnv}`
+      );
     }
   }
 
-  switch (process.env.GENERATIVE_AI_PROVIDER) {
-    case 'vertex-ai':
-      return settings as [];
-    case 'google-ai':
-      return settings as [];
-    default:
-      throw new Error('Invalid Provider');
-  }
+  return provider === 'vertex-ai'
+    ? (settings as {
+        category: HarmCategoryVertexAI;
+        threshold: HarmBlockThresholdVertexAI;
+      }[])
+    : (settings as {
+        category: HarmCategoryGoogleAI;
+        threshold: HarmBlockThresholdGoogleAI;
+      }[]);
 }
+
+const model = process.env.MODEL!;
 
 const config: Config = {
   vertex: {
-    model: process.env.MODEL!,
+    model,
   },
   googleAi: {
-    model: process.env.MODEL!,
+    model,
     apiKey: process.env.API_KEY,
   },
+  model,
   context: process.env.CONTEXT,
   location: process.env.LOCATION!,
   projectId: process.env.PROJECT_ID!,

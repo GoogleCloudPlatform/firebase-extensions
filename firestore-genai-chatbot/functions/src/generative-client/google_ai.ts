@@ -1,7 +1,8 @@
 import {DiscussionClient, Message} from './base_class';
 import {logger} from 'firebase-functions/v1';
 import {genkit, Genkit, MessageData, Part} from 'genkit';
-import {googleAI} from '@genkit-ai/googleai';
+import {z} from 'genkit';
+import {googleAI, gemini15Flash} from '@genkit-ai/googleai';
 import config from '../config';
 
 interface GeminiChatOptions {
@@ -15,7 +16,6 @@ interface GeminiChatOptions {
   projectId: string;
   location: string;
   context?: string;
-  //TODO where to get these from Genkit?
 }
 
 const ai = genkit({
@@ -24,6 +24,15 @@ const ai = genkit({
       apiKey: config.googleAi.apiKey,
     }),
   ],
+});
+
+// Schema for validating `custom` field
+const CustomSchema = z.object({
+  candidates: z.array(
+    z.object({
+      safetyRatings: z.array(z.any()).optional(),
+    })
+  ),
 });
 
 export class GeminiDiscussionClient extends DiscussionClient<
@@ -49,11 +58,10 @@ export class GeminiDiscussionClient extends DiscussionClient<
     options: GeminiChatOptions
   ) {
     try {
-      // @ts-expect-error - passing in the model as a string means no config schema available in types
       const llmResponse = await this.client.generate({
         prompt: latestApiMessage,
         messages: history,
-        model: `googleai/${this.modelName}`,
+        model: `googleai/${this.modelName}` as unknown as typeof gemini15Flash,
         config: {
           topP: options.topP,
           topK: options.topK,
@@ -63,22 +71,25 @@ export class GeminiDiscussionClient extends DiscussionClient<
         },
       });
 
-      // @ts-expect-error - passing in the model as a string means no config schema available in types
-      if (llmResponse.custom?.candidates?.[0]?.safetyRatings) {
+      // Safe parsing of `custom` using CustomSchema
+      const safeCustom = CustomSchema.safeParse(llmResponse.custom);
+
+      if (safeCustom.success) {
         return {
           response: llmResponse.text,
-          candidates: [],
-          // @ts-expect-error - passing in the model as a string means no config schema available in types
-          safetyMetadata: llmResponse.custom.candidates[0].safetyRatings,
+          candidates: safeCustom.data.candidates.map(c => JSON.stringify(c)),
+          safetyMetadata: safeCustom.data.candidates[0]?.safetyRatings ?? null,
+          history,
+        };
+      } else {
+        return {
+          response: llmResponse.text,
+          candidates: (llmResponse.custom as any).candidates.map((c: any) =>
+            JSON.stringify(c)
+          ),
           history,
         };
       }
-
-      return {
-        response: llmResponse.text,
-        candidates: [],
-        history,
-      };
     } catch (e) {
       logger.error(e);
       throw e;
