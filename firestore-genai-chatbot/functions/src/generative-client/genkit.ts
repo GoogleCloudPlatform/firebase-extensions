@@ -87,7 +87,7 @@ export class GenkitDiscussionClient extends DiscussionClient<
 
     for (const modelReference of modelReferences) {
       if (modelReference.name === model) {
-        modelReference;
+        return modelReference;
       }
       if (modelReference.info?.versions?.includes(model)) {
         return modelReference.withVersion(model);
