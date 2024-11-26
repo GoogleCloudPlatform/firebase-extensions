@@ -85,8 +85,10 @@ export class GenkitDiscussionClient extends DiscussionClient<
         ? [gemini10ProGoogleAI, gemini15FlashGoogleAI, gemini15ProGoogleAI]
         : [gemini10ProVertexAI, gemini15FlashVertexAI, gemini15ProVertexAI];
 
+    const pluginName = provider === 'google-ai' ? 'googleai' : 'vertexai';
+
     for (const modelReference of modelReferences) {
-      if (modelReference.name === model) {
+      if (modelReference.name === `${pluginName}/${model}`) {
         return modelReference;
       }
       if (modelReference.info?.versions?.includes(model)) {
