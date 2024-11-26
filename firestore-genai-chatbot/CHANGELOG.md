@@ -1,6 +1,8 @@
 ## Version 0.0.11
 
-fix - update default Gemini models
+- refactor: use Firebase Genkit SDK to access Gemini API
+
+- fix: update default Gemini models
 
 ## Version 0.0.10
 

@@ -32,6 +32,8 @@ jest.mock('../../src/config', () => ({
     provider: 'google-ai',
     model: 'gemini-pro',
     apiKey: 'test-api-key',
+    candidateCount: 2,
+    candidateField: 'candidates',
   },
 }));
 
