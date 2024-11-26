@@ -1,15 +1,19 @@
 import config, {GenerativeAIProvider} from '../config';
 import {GenerativeClient} from './base_client';
-// import {GenerativeLanguageClient} from './generative_language';
-import {v1} from '@google-ai/generativelanguage';
 import {VertexLanguageClient} from './vertex_ai';
 import {VertexAI} from '@google-cloud/vertexai';
 import {GeminiGenerativeClient} from './generative_ai';
 import {GoogleGenerativeAI} from '@google/generative-ai';
+import {GenkitGenerativeClient} from './genkit';
+import {type Genkit} from 'genkit';
 
-type Client = v1.GenerativeServiceClient | VertexAI | GoogleGenerativeAI;
+type Client = Genkit | VertexAI | GoogleGenerativeAI;
 
 export const getGenerativeClient = (): GenerativeClient<any, Client> => {
+  if (GenkitGenerativeClient.shouldUseGenkitClient(config)) {
+    return new GenkitGenerativeClient(config);
+  }
+
   switch (config.provider as GenerativeAIProvider) {
     case 'google-ai':
       if (!config.googleAi.model) throw new Error('Gemini model not set');

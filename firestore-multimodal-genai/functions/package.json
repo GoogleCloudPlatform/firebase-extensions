@@ -11,6 +11,8 @@
   },
   "main": "lib/index.js",
   "dependencies": {
+    "@genkit-ai/googleai": "^0.9.4",
+    "@genkit-ai/vertexai": "^0.9.4",
     "@google-ai/generativelanguage": "^2.3.0",
     "@google-cloud/aiplatform": "^3.19.0",
     "@google-cloud/vertexai": "^1.1.0",
@@ -19,6 +21,7 @@
     "@types/mustache": "^4.2.2",
     "firebase-admin": "^12.1.0",
     "firebase-functions": "^4.9.0",
+    "genkit": "^0.9.4",
     "google-auth-library": "^9.0.0",
     "mustache": "^4.2.0",
     "sharp": "^0.33.3",

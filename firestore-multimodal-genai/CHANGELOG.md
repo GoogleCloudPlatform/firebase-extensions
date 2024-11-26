@@ -1,6 +1,8 @@
 ## Version 1.0.1
 
-fix - update default Gemini models
+- refactor: add Genkit SDK dependency
+
+- fix - update default Gemini models
 
 ## Version 1.0.0
 

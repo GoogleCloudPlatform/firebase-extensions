@@ -30,6 +30,7 @@ export interface Config {
     model: string;
     apiKey?: string;
   };
+  model: string;
   location: string;
   projectId: string;
   instanceId: string;
@@ -46,7 +47,7 @@ export interface Config {
   };
   maxOutputTokens?: number;
   maxOutputTokensVertex?: number;
-  provider?: string;
+  provider: string;
   apiKey?: string;
   safetySettings?: GoogleAISafetySetting[] | VertexSafetySetting[];
   bucketName?: string;
@@ -104,6 +105,7 @@ export default {
     model: process.env.MODEL!,
     apiKey: process.env.API_KEY,
   },
+  model: process.env.MODEL!,
   location: process.env.LOCATION!,
   projectId: process.env.PROJECT_ID!,
   instanceId: process.env.EXT_INSTANCE_ID!,
@@ -126,4 +128,4 @@ export default {
   safetySettings: getSafetySettings(),
   bucketName: process.env.BUCKET_NAME || defaultBucketName,
   imageField: process.env.IMAGE_FIELD,
-};
+} as Config;
