@@ -45,6 +45,7 @@ export class GenkitGenerativeClient extends GenerativeClient<
 
   //   We use this to check before creating the client to see if we should use the Genkit client
   static shouldUseGenkitClient(config: Config): boolean {
+    if (config.model.includes('pro-vision')) return false;
     const shouldReturnMultipleCandidates =
       config.candidates.shouldIncludeCandidatesField;
     return (
@@ -157,30 +158,20 @@ export class GenkitGenerativeClient extends GenerativeClient<
       }
     }
 
-    const messages: MessageData[] = [
-      {
-        role: 'user',
-        content: [{text: promptText}],
-      },
-    ];
+    const message: MessageData = {
+      role: 'user',
+      content: [{text: promptText}], // Initialize with the prompt text
+    };
 
     if (imageBase64) {
-      messages.push({
-        role: 'user',
-        content: [
-          {
-            text: 'Attached image:',
-          },
-          {
-            data: imageBase64,
-          },
-        ],
-      });
-    }
+      const dataUrl = `data:image/jpeg;base64,${imageBase64}`;
 
+      // Push additional content into the same message's content array
+      message.content.push({media: {url: dataUrl}});
+    }
     try {
       const response = await this.client.generate({
-        messages,
+        messages: [message],
         ...generateOptions,
       });
 
