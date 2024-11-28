@@ -16,11 +16,12 @@ process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 jest.mock('../../src/config', () => ({
   default: {
     googleAi: {
-      model: 'gemini-pro',
+      model: 'gemini-1.0-pro',
     },
     vertex: {
-      model: 'gemini-pro',
+      model: 'gemini-1.0-pro',
     },
+    model: 'gemini-1.0-pro',
     collectionName: 'generate',
     location: 'us-central1',
     prompt: '{{ instruction }}',
@@ -32,8 +33,8 @@ jest.mock('../../src/config', () => ({
     provider: 'vertex-ai',
     candidates: {
       field: 'candidates',
-      count: 1,
-      shouldIncludeCandidatesField: false,
+      count: 2,
+      shouldIncludeCandidatesField: true,
     },
   },
 }));
@@ -58,6 +59,15 @@ jest.mock('@google-cloud/vertexai', () => {
                 return {
                   response: {
                     candidates: [
+                      {
+                        content: {
+                          parts: [
+                            {
+                              text: 'test response',
+                            },
+                          ],
+                        },
+                      },
                       {
                         content: {
                           parts: [
@@ -105,7 +115,7 @@ const wrappedGenerateMessage = fft.wrap(
 const firestoreObserver = jest.fn((_x: any) => {});
 let collectionName: string;
 
-describe('generateMessage', () => {
+describe('generateMessage SDK directly', () => {
   let unsubscribe: (() => void) | undefined;
 
   // clear firestore
@@ -230,7 +240,7 @@ describe('generateMessage', () => {
       call[0].docs[0].data()
     );
 
-    expectToProcessCorrectly(firestoreCallData, message, 'test response');
+    expectToProcessCorrectly(firestoreCallData, message, 'test response', 2);
 
     expect(mockGetClient).toHaveBeenCalledTimes(1);
 
@@ -283,7 +293,7 @@ describe('generateMessage', () => {
       return call[0].docs[0].data();
     });
 
-    expectToProcessCorrectly(firestoreCallData, message, 'test response');
+    expectToProcessCorrectly(firestoreCallData, message, 'test response', 2);
 
     // // verify SDK is called with expected arguments
     // we expect the mock API to be called once
