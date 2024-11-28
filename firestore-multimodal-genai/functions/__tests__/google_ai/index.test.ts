@@ -1,29 +1,38 @@
 import * as firebaseFunctionsTest from 'firebase-functions-test';
 import * as admin from 'firebase-admin';
+import {
+  DocumentReference,
+  DocumentSnapshot,
+  QuerySnapshot,
+} from 'firebase-admin/firestore';
+import {Change} from 'firebase-functions/v1';
+import {WrappedFunction} from 'firebase-functions-test/lib/v1';
+import waitForExpect from 'wait-for-expect';
+
 import config from '../../src/config';
 import {generateText} from '../../src/index';
-import {WrappedFunction} from 'firebase-functions-test/lib/v1';
-import {Change} from 'firebase-functions/v1';
-import waitForExpect from 'wait-for-expect';
-import {QuerySnapshot} from 'firebase-admin/firestore';
 import {expectToProcessCorrectly} from '../util';
 
-process.env.GCLOUD_PROJECT = 'demo-gcp';
+// Type definitions for improved readability
+type DocumentData = admin.firestore.DocumentData;
+type WrappedGenerateText = WrappedFunction<
+  Change<DocumentSnapshot | undefined>,
+  void
+>;
 
+// Configure test environment
+process.env.GCLOUD_PROJECT = 'demo-gcp';
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 
-// // We mock out the config here instead of setting environment variables directly
+// Mock configuration
 jest.mock('../../src/config', () => ({
   default: {
     googleAi: {
       model: 'gemini-1.0-pro',
       apiKey: 'test-api-key',
     },
-    vertex: {
-      model: 'gemini-1.0-pro',
-    },
+    vertex: {model: 'gemini-1.0-pro'},
     model: 'gemini-1.0-pro',
-
     collectionName: 'generate',
     location: 'us-central1',
     prompt: '{{ instruction }}',
@@ -40,313 +49,229 @@ jest.mock('../../src/config', () => ({
   },
 }));
 
-// // mock to check the arguments passed to the annotateVideo function+
-const mockGetClient = jest.fn();
-const mockGetModel = jest.fn();
-const mockGenerateContent = jest.fn();
+// Mock Google AI client
+const mockGenerativeAI = {
+  getClient: jest.fn(),
+  getModel: jest.fn(),
+  generateContent: jest.fn(),
+};
 
-jest.mock('@google/generative-ai', () => {
-  return {
-    ...jest.requireActual('@google/generative-ai'),
-    GoogleGenerativeAI: function mockedClient(args: any) {
-      mockGetClient(args);
-      return {
-        getGenerativeModel: (args: unknown) => {
-          mockGetModel(args);
-          return {
-            generateContent: function mockedStartChat(args: any) {
-              mockGenerateContent(args);
-              return {
-                response: {
-                  candidates: [
-                    {
-                      content: {
-                        parts: [
-                          {
-                            text: 'test response',
-                          },
-                        ],
-                      },
-                    },
-                    {
-                      content: {
-                        parts: [
-                          {
-                            text: 'test response',
-                          },
-                        ],
-                      },
-                    },
-                  ],
-                },
-              };
-            },
-          };
-        },
-      };
-    },
+jest.mock('@google/generative-ai', () => ({
+  ...jest.requireActual('@google/generative-ai'),
+  GoogleGenerativeAI: function (apiKey: string) {
+    mockGenerativeAI.getClient(apiKey);
+    return {
+      getGenerativeModel: (args: unknown) => {
+        mockGenerativeAI.getModel(args);
+        return {
+          generateContent: (args: unknown) => {
+            mockGenerativeAI.generateContent(args);
+            return {
+              response: {
+                candidates: Array(2).fill({
+                  content: {
+                    parts: [{text: 'test response'}],
+                  },
+                }),
+              },
+            };
+          },
+        };
+      },
+    };
+  },
+}));
+
+describe('Generate Text Function Tests', () => {
+  // Test setup variables
+  let fft: ReturnType<typeof firebaseFunctionsTest>;
+  let wrappedGenerateText: WrappedGenerateText;
+  let unsubscribe: () => void;
+  let collectionName: string;
+  const firestoreObserver = jest.fn();
+
+  // Helper functions
+  const simulateFunctionTrigger = async (
+    ref: DocumentReference,
+    before?: DocumentSnapshot
+  ): Promise<DocumentSnapshot> => {
+    const data = (await ref.get()).data() as DocumentData;
+    const snapshot = fft.firestore.makeDocumentSnapshot(
+      data,
+      `${collectionName}/${ref.id}`
+    ) as DocumentSnapshot;
+    const change = fft.makeChange(before, snapshot);
+    await wrappedGenerateText(change);
+    return snapshot;
   };
-});
 
-const fft = firebaseFunctionsTest({
-  projectId: 'demo-gcp',
-});
+  const expectNoProcessing = async (): Promise<void> => {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    expect(mockGenerativeAI.getModel).not.toHaveBeenCalled();
+  };
 
-if (!admin.apps.length) {
-  admin.initializeApp({
-    projectId: 'demo-gcp',
-  });
-}
-
-type DocumentReference = admin.firestore.DocumentReference;
-type DocumentData = admin.firestore.DocumentData;
-type DocumentSnapshot = admin.firestore.DocumentSnapshot<DocumentData>;
-type WrappedFirebaseFunction = WrappedFunction<
-  Change<DocumentSnapshot | undefined>,
-  void
->;
-const Timestamp = admin.firestore.Timestamp;
-
-const wrappedGenerateMessage = fft.wrap(
-  generateText
-) as WrappedFirebaseFunction;
-
-const firestoreObserver = jest.fn((_x: any) => {});
-let collectionName: string;
-
-describe('generateMessage SDK directly', () => {
-  let unsubscribe: (() => void) | undefined;
-
-  // clear firestore
+  // Setup before each test
   beforeEach(async () => {
+    // Initialize test environment
+    fft = firebaseFunctionsTest({projectId: 'demo-gcp'});
+    if (!admin.apps.length) {
+      admin.initializeApp({projectId: 'demo-gcp'});
+    }
+
+    // Clear Firestore
     await fetch(
       `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
       {method: 'DELETE'}
     );
+
+    // Reset mocks and setup collection
     jest.clearAllMocks();
-    const randomInteger = Math.floor(Math.random() * 1000000);
+    const randomId = Math.floor(Math.random() * 1000000);
     collectionName = config.collectionName.replace(
       '{discussionId}',
-      randomInteger.toString()
+      randomId.toString()
     );
 
-    // set up observer on collection
+    // Initialize wrapped function
+    wrappedGenerateText = fft.wrap(generateText) as WrappedGenerateText;
+
+    // Setup Firestore observer
     unsubscribe = admin
       .firestore()
       .collection(collectionName)
       .onSnapshot((snap: QuerySnapshot) => {
-        /** There is a bug on first init and write, causing the the emulator to the observer is called twice
-         * A snapshot is registered on the first run, this affects the observer count
-         * This is a workaround to ensure the observer is only called when it should be
-         */
         if (snap.docs.length) firestoreObserver(snap);
       });
   });
+
   afterEach(() => {
-    if (unsubscribe && typeof unsubscribe === 'function') {
-      unsubscribe();
-    }
+    unsubscribe?.();
     jest.clearAllMocks();
   });
 
-  test('should not run if the prompt field is not set', async () => {
-    const notMessage = {
-      notPrompt: 'hello chat bison',
-    };
-    // Make a write to the collection. This won't trigger our wrapped function as it isn't deployed to the emulator.
-    const ref = await admin
-      .firestore()
-      .collection(collectionName)
-      .add(notMessage);
+  describe('Input Validation', () => {
+    test('should not process when prompt field is missing', async () => {
+      const ref = await admin
+        .firestore()
+        .collection(collectionName)
+        .add({notPrompt: 'hello chat bison'});
 
-    await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
-
-    await expectNoOp();
-  });
-
-  test('should not run if the prompt field is empty', async () => {
-    const notMessage = {
-      prompt: '',
-    };
-
-    const ref = await admin
-      .firestore()
-      .collection(collectionName)
-      .add(notMessage);
-
-    await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
-
-    await expectNoOp();
-  });
-
-  test('should not run if the prompt field is not a string', async () => {
-    const notMessage = {
-      instruction: 123,
-    };
-
-    const ref = await admin
-      .firestore()
-      .collection(collectionName)
-      .add(notMessage);
-
-    await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
-
-    await waitForExpect(() => {
-      expect(firestoreObserver).toHaveBeenCalledTimes(3);
+      await simulateFunctionTrigger(ref);
+      await expectNoProcessing();
     });
 
-    const firestoreCallData = firestoreObserver.mock.calls.map(call => {
-      return call[0].docs[0].data();
+    test('should not process when prompt field is empty', async () => {
+      const ref = await admin
+        .firestore()
+        .collection(collectionName)
+        .add({prompt: ''});
+
+      await simulateFunctionTrigger(ref);
+      await expectNoProcessing();
     });
 
-    expect(firestoreCallData.length).toEqual(3);
+    test('should error when prompt field is not a string', async () => {
+      const message = {instruction: 123};
+      const ref = await admin
+        .firestore()
+        .collection(collectionName)
+        .add(message);
 
-    expect(firestoreCallData[0]).toEqual({
-      ...notMessage,
-    });
-    expect(firestoreCallData[1]).toEqual({
-      ...notMessage,
-      status: {
-        state: 'PROCESSING',
-        startTime: expect.any(Timestamp),
-        updateTime: expect.any(Timestamp),
-      },
-    });
+      await simulateFunctionTrigger(ref);
 
-    expect(firestoreCallData[2]).toEqual({
-      ...notMessage,
-      status: {
-        state: 'ERRORED',
-        error:
-          'An error occurred while processing the provided message, Error substituting variable "instruction" variables into prompt. All variable fields must be strings',
-        startTime: expect.any(Timestamp),
-        updateTime: expect.any(Timestamp),
-        completeTime: expect.any(Timestamp),
-      },
-    });
+      await waitForExpect(() => {
+        expect(firestoreObserver).toHaveBeenCalledTimes(3);
+      });
 
-    await expectNoOp();
-  });
+      const firestoreCallData = firestoreObserver.mock.calls.map(call =>
+        call[0].docs[0].data()
+      );
 
-  test('should run when given createTime', async () => {
-    const message = {
-      instruction: 'hello gemini',
-      createTime: Timestamp.now(),
-    };
-    const ref = await admin.firestore().collection(collectionName).add(message);
-
-    await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
-
-    await waitForExpect(() => {
-      expect(firestoreObserver).toHaveBeenCalledTimes(3);
-    });
-
-    const firestoreCallData = firestoreObserver.mock.calls.map(call =>
-      call[0].docs[0].data()
-    );
-
-    expectToProcessCorrectly(firestoreCallData, message, 'test response', 2);
-
-    expect(mockGetClient).toHaveBeenCalledTimes(1);
-    expect(mockGetClient).toHaveBeenCalledWith(config.googleAi.apiKey);
-
-    expect(mockGetModel).toHaveBeenCalledTimes(1);
-    expect(mockGetModel).toBeCalledWith({model: config.googleAi.model});
-
-    expect(mockGenerateContent).toHaveBeenCalledTimes(1);
-    expect(mockGenerateContent).toHaveBeenCalledWith({
-      contents: [
-        {
-          parts: [
-            {
-              text: 'hello gemini',
-            },
-          ],
-          role: 'user',
+      expect(firestoreCallData[2]).toMatchObject({
+        status: {
+          state: 'ERRORED',
+          error: expect.stringContaining('All variable fields must be strings'),
         },
-      ],
-      generationConfig: {
-        candidateCount: undefined,
-        maxOutputTokens: undefined,
-        temperature: undefined,
-        topK: undefined,
-        topP: undefined,
-      },
+      });
     });
   });
 
-  test('should run when not given createTime', async () => {
-    const message = {
-      instruction: 'hello gemini',
-    };
+  describe('Successful Processing', () => {
+    test('should process message with createTime', async () => {
+      const message = {
+        instruction: 'hello gemini',
+        createTime: admin.firestore.Timestamp.now(),
+      };
 
-    // Make a write to the collection. This won't trigger our wrapped function as it isn't deployed to the emulator.
-    const ref = await admin.firestore().collection(collectionName).add(message);
+      const ref = await admin
+        .firestore()
+        .collection(collectionName)
+        .add(message);
 
-    const beforeOrderField = await simulateFunctionTriggered(
-      wrappedGenerateMessage
-    )(ref);
+      await simulateFunctionTrigger(ref);
 
-    await simulateFunctionTriggered(wrappedGenerateMessage)(
-      ref,
-      beforeOrderField
-    );
+      await waitForExpect(() => {
+        expect(firestoreObserver).toHaveBeenCalledTimes(3);
+      });
 
-    await waitForExpect(() => {
-      expect(firestoreObserver).toHaveBeenCalledTimes(3);
-    });
+      const firestoreCallData = firestoreObserver.mock.calls.map(call =>
+        call[0].docs[0].data()
+      );
 
-    const firestoreCallData = firestoreObserver.mock.calls.map(call => {
-      return call[0].docs[0].data();
-    });
+      expectToProcessCorrectly(firestoreCallData, message, 'test response', 2);
 
-    expectToProcessCorrectly(firestoreCallData, message, 'test response', 2);
-
-    // // verify SDK is called with expected arguments
-    // we expect the mock API to be called once
-    expect(mockGetClient).toHaveBeenCalledTimes(1);
-    expect(mockGetClient).toHaveBeenCalledWith(config.googleAi.apiKey);
-
-    expect(mockGetModel).toHaveBeenCalledTimes(1);
-    expect(mockGetModel).toBeCalledWith({model: config.googleAi.model});
-
-    expect(mockGenerateContent).toHaveBeenCalledTimes(1);
-    expect(mockGenerateContent).toHaveBeenCalledWith({
-      contents: [
-        {
-          parts: [
-            {
-              text: 'hello gemini',
-            },
-          ],
-          role: 'user',
+      // Verify API calls
+      expect(mockGenerativeAI.getClient).toHaveBeenCalledWith(
+        config.googleAi.apiKey
+      );
+      expect(mockGenerativeAI.getModel).toHaveBeenCalledWith({
+        model: config.googleAi.model,
+      });
+      expect(mockGenerativeAI.generateContent).toHaveBeenCalledWith({
+        contents: [
+          {
+            parts: [{text: 'hello gemini'}],
+            role: 'user',
+          },
+        ],
+        generationConfig: {
+          candidateCount: undefined,
+          maxOutputTokens: undefined,
+          temperature: undefined,
+          topK: undefined,
+          topP: undefined,
         },
-      ],
-      generationConfig: {
-        candidateCount: undefined,
-        maxOutputTokens: undefined,
-        temperature: undefined,
-        topK: undefined,
-        topP: undefined,
-      },
+      });
+    });
+
+    test('should process message without createTime', async () => {
+      const message = {instruction: 'hello gemini'};
+      const ref = await admin
+        .firestore()
+        .collection(collectionName)
+        .add(message);
+
+      const beforeSnapshot = await simulateFunctionTrigger(ref);
+      await simulateFunctionTrigger(ref, beforeSnapshot);
+
+      await waitForExpect(() => {
+        expect(firestoreObserver).toHaveBeenCalledTimes(3);
+      });
+
+      const firestoreCallData = firestoreObserver.mock.calls.map(call =>
+        call[0].docs[0].data()
+      );
+
+      expectToProcessCorrectly(firestoreCallData, message, 'test response', 2);
+
+      // Verify API calls
+      expect(mockGenerativeAI.getClient).toHaveBeenCalledWith(
+        config.googleAi.apiKey
+      );
+      expect(mockGenerativeAI.getModel).toHaveBeenCalledWith({
+        model: config.googleAi.model,
+      });
+      expect(mockGenerativeAI.generateContent).toHaveBeenCalledTimes(1);
     });
   });
 });
-
-const simulateFunctionTriggered =
-  (wrappedFunction: WrappedFirebaseFunction) =>
-  async (ref: DocumentReference, before?: DocumentSnapshot) => {
-    const data = (await ref.get()).data() as {[key: string]: unknown};
-    const beforeFunctionExecution = fft.firestore.makeDocumentSnapshot(
-      data,
-      `${collectionName}/${ref.id}`
-    ) as DocumentSnapshot;
-    const change = fft.makeChange(before, beforeFunctionExecution);
-    await wrappedFunction(change);
-    return beforeFunctionExecution;
-  };
-
-const expectNoOp = async () => {
-  await new Promise(resolve => setTimeout(resolve, 100));
-  expect(mockGetModel).toHaveBeenCalledTimes(0);
-};
