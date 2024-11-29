@@ -93,7 +93,7 @@ export class GenkitGenerativeClient extends GenerativeClient<
   static createModelReference(
     model: string,
     provider: string
-  ): ModelReference<any> {
+  ): ModelReference<any> | null {
     const modelReferences =
       provider === 'google-ai'
         ? [gemini10ProGoogleAI, gemini15FlashGoogleAI, gemini15ProGoogleAI]
@@ -109,7 +109,7 @@ export class GenkitGenerativeClient extends GenerativeClient<
         return modelReference.withVersion(model);
       }
     }
-    throw new Error('Model reference not found.');
+    return null;
   }
 
   private createGenerateOptions(config: Config): GenerateOptions {
@@ -117,11 +117,17 @@ export class GenkitGenerativeClient extends GenerativeClient<
       throw new Error('Model must be specified in the configuration.');
     }
 
+    const modelRef = GenkitGenerativeClient.createModelReference(
+      config.model,
+      config.provider!
+    );
+
+    if (!modelRef) {
+      throw new Error('Model reference not found.');
+    }
+
     return {
-      model: GenkitGenerativeClient.createModelReference(
-        config.model,
-        config.provider!
-      ),
+      model: modelRef,
       config: {
         topP: config.topP,
         topK: config.topK,
