@@ -13,7 +13,6 @@ import config from '../../src/config';
 import {generateText} from '../../src/index';
 import {expectToProcessCorrectly} from '../util';
 
-// Type definitions for improved readability
 type DocumentData = admin.firestore.DocumentData;
 type WrappedGenerateText = WrappedFunction<
   Change<DocumentSnapshot | undefined>,

@@ -15,7 +15,8 @@ import {
   gemini15Flash as gemini15FlashGoogleAI,
   gemini15Pro as gemini15ProGoogleAI,
 } from '@genkit-ai/googleai';
-import vertexAI, {
+import {
+  vertexAI,
   PluginOptions as PluginOptionsVertexAI,
   gemini10Pro as gemini10ProVertexAI,
   gemini15Flash as gemini15FlashVertexAI,
@@ -141,8 +142,6 @@ export class GenkitGenerativeClient extends GenerativeClient<
 
     const generateOptions = {...this.generateOptions, ...options};
 
-    logger.debug('Generating response with Genkit', {promptText});
-
     let imageBase64: string | undefined;
 
     if (options?.image) {
@@ -151,7 +150,6 @@ export class GenkitGenerativeClient extends GenerativeClient<
           options.image,
           this.provider as 'google-ai' | 'vertex-ai'
         );
-        logger.info('Image successfully converted to Base64.');
       } catch (error) {
         logger.error('Failed to process image:', error);
         throw new Error('Image processing failed.');
