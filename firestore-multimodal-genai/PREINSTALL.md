@@ -66,11 +66,20 @@ For Vertex AI, the list of models is [here](https://cloud.google.com/vertex-ai/d
 
 #### Multimodal Prompts
 
-This extension supports providing multimodal prompts. To use this feature, select the Gemini Pro Vision model on installation, and provide an Image Field parameter. The Image Field parameter should be the name of a document field in firestore.
+Many Gemini models, such as **Gemini 1.5 Flash**, support multimodal prompts, allowing both text and image inputs. This feature is not supported by text-only models like `gemini-1.0-pro`.
 
-When you select these options, any document handled by the extension must contain an image field. The image field must be a string, and can either be the Cloud Storage URL of an object (e.g `gs://my-bucket.appspot.com/filename.png`). This image will then be provided as part of the prompt to Gemini Pro Vision.
+**Image Field Configuration:**  
+During installation, you may specify an **Image Field**. This installation parameter is a string which corresponds to a field in Cloud Firestore documents.
 
-The Gemini Pro Vision API has a limit on image sizes. For Google AI this limit is currently 1MB, and for Vertex AI this limit is 4MB. This extension will compress and resize images that fall above this limit.
+When you select these options, any document handled by the extension must contain an image field. The image field must be a string, and can either be the Cloud Storage URL of an object (e.g `gs://my-bucket.appspot.com/filename.png`).
+
+##### Gemini Pro Vision (deprecated)
+
+This extension has historically supported calls to the (now deprecated) Gemini Pro Vision model on Google AI and Vertex AI APIs.
+
+For the Gemini Pro Vision models Google AI requires prompts to have both an image and text part, whereas Vertex AI allows gemini-pro-vision to be prompted with text only as well. If you have selected to use the Gemini Pro Vision model (deprecated) and have Google AI as a provider then any document handled by the extension must contain an image field.
+
+The Gemini Pro Vision API has a limit on image sizes. For Google AI this limit is currently 1MB, and for Vertex AI this limit is 4MB. This extension compress and resize images that fall above this limit.
 
 ### Troubleshooting timeout/PROCESSING errors
 
