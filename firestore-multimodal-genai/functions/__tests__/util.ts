@@ -3,7 +3,8 @@ import {Timestamp} from 'firebase-admin/firestore';
 export const expectToProcessCorrectly = (
   firestoreCallData: any[],
   message: any,
-  mockResponse = 'test response'
+  mockResponse = 'test response',
+  candidateCount?: number
 ) => {
   expect(firestoreCallData[0]).toEqual({
     ...message,
@@ -22,16 +23,36 @@ export const expectToProcessCorrectly = (
     firestoreCallData[1].status.updateTime
   );
 
-  expect(firestoreCallData[2]).toEqual({
-    ...message,
-    output: mockResponse,
-    status: {
-      state: 'COMPLETED',
-      startTime: expect.any(Timestamp),
-      updateTime: expect.any(Timestamp),
-      completeTime: expect.any(Timestamp),
-    },
-  });
+  const expectedCandidates =
+    candidateCount !== undefined
+      ? Array(candidateCount).fill(mockResponse)
+      : [];
+
+  const expectedCompleteData =
+    expectedCandidates.length > 0
+      ? {
+          ...message,
+          output: mockResponse,
+          candidates: expectedCandidates,
+          status: {
+            state: 'COMPLETED',
+            startTime: expect.any(Timestamp),
+            updateTime: expect.any(Timestamp),
+            completeTime: expect.any(Timestamp),
+          },
+        }
+      : {
+          ...message,
+          output: mockResponse,
+          status: {
+            state: 'COMPLETED',
+            startTime: expect.any(Timestamp),
+            updateTime: expect.any(Timestamp),
+            completeTime: expect.any(Timestamp),
+          },
+        };
+
+  expect(firestoreCallData[2]).toEqual(expectedCompleteData);
 
   expect(firestoreCallData[2].status.startTime).toEqual(
     firestoreCallData[1].status.startTime

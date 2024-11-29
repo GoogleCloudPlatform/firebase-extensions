@@ -1,11 +1,12 @@
 export default {
   vertex: {
-    model: 'gemini-pro',
+    model: 'gemini-1.0-pro',
   },
   googleAi: {
-    model: 'gemini-pro',
+    model: 'gemini-1.0-pro',
     apiKey: 'test-api-key',
   },
+  model: 'gemini-1.0-pro',
   location: 'us-central1',
   projectId: 'text-project-id',
   instanceId: 'text-instance-id',
@@ -18,7 +19,7 @@ export default {
   imageField: 'image',
   candidates: {
     field: 'candidates',
-    count: 1,
-    shouldIncludeCandidatesField: false,
+    count: 5,
+    shouldIncludeCandidatesField: true,
   },
 };

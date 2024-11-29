@@ -118,7 +118,8 @@ export const generateText = functions.firestore
           ...metadata,
           [responseField]: result.candidates[0],
           [config.candidates.field]: result.candidates,
-          'status.error': null,
+          'status.state': 'COMPLETED',
+          // 'status.error': null,
         });
       }
       return ref.update({
