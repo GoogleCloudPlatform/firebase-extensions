@@ -40,13 +40,15 @@ For Vertex AI, the list of models is [here](https://cloud.google.com/vertex-ai/d
 
 #### Multimodal Prompts
 
-Many of the Gemini models accept multimodal prompts. This extension allows for multimodal prompting with images using this model.
+Many of the Gemini models accept multimodal prompts. This extension allows for multimodal prompting with images using such models. Note that this feature is not supported for models such as `gemini-1.0-pro` which do not allow multimodal prompts.
 
-On installation you may pick an `image` field. The image field must be the Cloud Storage URL of an object (e.g `gs://my-bucket.appspot.com/filename.png`). This image will then be provided as part of the prompt to Gemini Pro Vision.
+On installation you may pick an `image` field. The image field must be the Cloud Storage URL of an object (e.g `gs://my-bucket.appspot.com/filename.png`). This image will then be provided as part of the prompt.
 
-Note that Google AI requires prompts to have both an image and text part, whereas Vertex AI allows gemini-pro-vision to be prompted with text only as well.
+##### Gemini Pro Vision (deprecated)
 
-If you have selected to use the Gemini Pro Vision model (deprecated) and have Google AI as a provider then any document handled by the extension must contain an image field.
+This extension has historically supported calls to the (now deprecated) Gemini Pro Vision model on Google AI and Vertex AI APIs.
+
+For the Gemini Pro Vision models Google AI requires prompts to have both an image and text part, whereas Vertex AI allows gemini-pro-vision to be prompted with text only as well. If you have selected to use the Gemini Pro Vision model (deprecated) and have Google AI as a provider then any document handled by the extension must contain an image field.
 
 The Gemini Pro Vision API has a limit on image sizes. For Google AI this limit is currently 1MB, and for Vertex AI this limit is 4MB. This extension compress and resize images that fall above this limit.
 
