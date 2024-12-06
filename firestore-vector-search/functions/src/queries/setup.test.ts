@@ -1,21 +1,164 @@
-import {createIndex} from './setup';
+import {createIndex, checkCreateIndexProgress} from './setup';
+import {firestoreAdminClient} from '../config';
+import * as functions from 'firebase-functions';
+
+// Mock firebase-functions
+jest.mock('firebase-functions', () => ({
+  logger: {
+    info: jest.fn(),
+  },
+}));
+
+// Mock firestoreAdminClient
+jest.mock('../config', () => ({
+  firestoreAdminClient: {
+    listIndexes: jest.fn(),
+    createIndex: jest.fn(),
+    getIndex: jest.fn(),
+  },
+}));
 
 describe('createIndex', () => {
   const testOptions = {
     collectionName: 'testCollection',
     dimension: 10,
-    projectId: 'pfr-cloudnext-demo-ihlt100',
+    projectId: 'test-project',
     fieldPath: 'testField',
-  }; // Ensure this is your test project ID
+  };
 
-  test('should successfully create an index', async () => {
-    // Note: This test will actually attempt to create an index.
-    // Ensure that your Firestore test project is configured to handle this.
-    await expect(createIndex(testOptions)).resolves.toBeDefined();
-
-    // Additional checks can be made here, for example, verifying the structure of the returned result
-    // However, since we're not mocking firestoreAdminClient, detailed response checks might be limited
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  // You can add more tests here to cover other scenarios, such as handling invalid options.
+  test('should create index when it does not exist', async () => {
+    // Mock listIndexes to return empty array (no existing indexes)
+    (firestoreAdminClient.listIndexes as jest.Mock).mockResolvedValue([[]]);
+
+    const mockIndexResult = {
+      name: 'projects/test-project/databases/(default)/collectionGroups/testCollection/indexes/123',
+      queryScope: 'COLLECTION',
+      fields: [
+        {
+          fieldPath: 'testField',
+          vectorConfig: {
+            dimension: 10,
+            flat: {},
+          },
+        },
+      ],
+    };
+
+    (firestoreAdminClient.createIndex as jest.Mock).mockResolvedValue(
+      mockIndexResult
+    );
+
+    await createIndex(testOptions);
+
+    expect(firestoreAdminClient.listIndexes).toHaveBeenCalledWith({
+      parent: `projects/${testOptions.projectId}/databases/(default)/collectionGroups/${testOptions.collectionName}`,
+    });
+
+    expect(firestoreAdminClient.createIndex).toHaveBeenCalledWith({
+      parent: `projects/${testOptions.projectId}/databases/(default)/collectionGroups/${testOptions.collectionName}`,
+      index: {
+        queryScope: 'COLLECTION',
+        fields: [
+          {
+            fieldPath: testOptions.fieldPath,
+            vectorConfig: {
+              dimension: testOptions.dimension,
+              flat: {},
+            },
+          },
+        ],
+      },
+    });
+
+    expect(functions.logger.info).toHaveBeenCalledWith(
+      expect.stringContaining('Index created:')
+    );
+  });
+
+  test('should skip index creation when index already exists', async () => {
+    // Mock listIndexes to return existing matching index
+    const existingIndex = {
+      name: `projects/${testOptions.projectId}/databases/(default)/collectionGroups/${testOptions.collectionName}/indexes/123`,
+      fields: [
+        {
+          fieldPath: testOptions.fieldPath,
+        },
+      ],
+    };
+
+    (firestoreAdminClient.listIndexes as jest.Mock).mockResolvedValue([
+      [existingIndex],
+    ]);
+
+    await createIndex(testOptions);
+
+    expect(firestoreAdminClient.listIndexes).toHaveBeenCalled();
+    expect(firestoreAdminClient.createIndex).not.toHaveBeenCalled();
+    expect(functions.logger.info).toHaveBeenCalledWith(
+      'Index already exists, skipping index creation'
+    );
+  });
+
+  test('should handle listIndexes error', async () => {
+    (firestoreAdminClient.listIndexes as jest.Mock).mockRejectedValue(
+      new Error('Failed to list indexes')
+    );
+
+    await expect(createIndex(testOptions)).rejects.toThrow(
+      'Failed to list indexes'
+    );
+    expect(firestoreAdminClient.createIndex).not.toHaveBeenCalled();
+  });
+
+  test('should handle createIndex error', async () => {
+    (firestoreAdminClient.listIndexes as jest.Mock).mockResolvedValue([[]]);
+    (firestoreAdminClient.createIndex as jest.Mock).mockRejectedValue(
+      new Error('Failed to create index')
+    );
+
+    await expect(createIndex(testOptions)).rejects.toThrow(
+      'Failed to create index'
+    );
+  });
+});
+
+describe('checkCreateIndexProgress', () => {
+  const testIndexName =
+    'projects/test-project/databases/(default)/collectionGroups/testCollection/indexes/123';
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('should return index status', async () => {
+    const mockIndexStatus = {
+      name: testIndexName,
+      state: 'READY',
+    };
+
+    (firestoreAdminClient.getIndex as jest.Mock).mockResolvedValue(
+      mockIndexStatus
+    );
+
+    const result = await checkCreateIndexProgress(testIndexName);
+
+    expect(firestoreAdminClient.getIndex).toHaveBeenCalledWith({
+      name: testIndexName,
+    });
+    expect(result).toEqual(mockIndexStatus);
+  });
+
+  test('should handle getIndex error', async () => {
+    (firestoreAdminClient.getIndex as jest.Mock).mockRejectedValue(
+      new Error('Failed to get index status')
+    );
+
+    await expect(checkCreateIndexProgress(testIndexName)).rejects.toThrow(
+      'Failed to get index status'
+    );
+  });
 });
