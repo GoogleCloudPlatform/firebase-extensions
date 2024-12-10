@@ -7,7 +7,7 @@ module.exports = {
   rootDir: './',
   globals: {
     'ts-jest': {
-      tsConfig: '<rootDir>/__tests__/tsconfig.json',
+      tsconfig: '<rootDir>/tsconfig.test.json', // Correct reference to test-specific config
     },
     fetch: global.fetch,
   },

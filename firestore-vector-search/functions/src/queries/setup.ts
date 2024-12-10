@@ -37,7 +37,7 @@ export async function createIndex(options: CreateIndexOptions) {
   });
 
   if (indexExists) {
-    functions.logger.info(`Index already exists, skipping index creation`);
+    functions.logger.info('Index already exists, skipping index creation');
     return;
   }
 

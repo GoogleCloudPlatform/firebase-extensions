@@ -10,6 +10,6 @@
     "strictNullChecks": true
   },
   "compileOnSave": true,
-  "include": ["src"],
-  "exclude": ["**/*.test.ts"]
+  "include": ["src", "__tests__/**/*.ts"], // Include test files here
+  "exclude": ["node_modules"]
 }

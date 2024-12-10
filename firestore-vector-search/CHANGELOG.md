@@ -1,3 +1,7 @@
+## Version 0.0.6
+
+refactor - use Firebase Genkit where possible
+
 ## Version 0.0.5
 
 fix - fix backfill and fix npm audit
