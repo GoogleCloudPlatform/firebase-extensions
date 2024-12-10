@@ -11,5 +11,5 @@
   },
   "compileOnSave": true,
   "include": ["src", "__tests__/**/*.ts"], // Include test files here
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "**/*.test.ts"]
 }
