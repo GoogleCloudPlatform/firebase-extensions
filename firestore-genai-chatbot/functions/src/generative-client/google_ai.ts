@@ -1,5 +1,5 @@
 import {DiscussionClient, Message} from './base_class';
-import {GoogleGenerativeAI, InputContent} from '@google/generative-ai';
+import {GoogleGenerativeAI} from '@google/generative-ai';
 import {logger} from 'firebase-functions/v1';
 import {SafetySetting} from '@google/generative-ai';
 
@@ -112,7 +112,7 @@ export class GeminiDiscussionClient extends DiscussionClient<
   }
 
   private messagesToApi(messages: Message[]) {
-    const out: InputContent[] = [];
+    const out: any[] = [];
     for (const message of messages) {
       if (!message.prompt || !message.response) {
         // logs.warnMissingPromptOrResponse(message.path!);

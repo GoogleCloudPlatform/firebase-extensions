@@ -31,6 +31,7 @@ export interface Config {
     model: string;
     apiKey?: string;
   };
+  model: string;
   context?: string;
   location: string;
   projectId: string;
@@ -87,6 +88,7 @@ const config: Config = {
     model: process.env.MODEL!,
     apiKey: process.env.API_KEY,
   },
+  model: process.env.MODEL!,
   context: process.env.CONTEXT,
   location: process.env.LOCATION!,
   projectId: process.env.PROJECT_ID!,
