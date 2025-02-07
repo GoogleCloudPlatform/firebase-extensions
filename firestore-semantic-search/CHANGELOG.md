@@ -1,3 +1,7 @@
+## Version 0.1.9
+
+fix - update asia-southeast (Singapore) location value
+
 ## Version 0.1.8
 
 docs - updates to POSTINSTALL

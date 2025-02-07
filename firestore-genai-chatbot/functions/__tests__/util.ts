@@ -27,6 +27,7 @@ export const expectToProcessCorrectly = (
   expect(firestoreCallData[2]).toEqual({
     ...message,
     response: mockResponse,
+    candidates: expect.any(Array),
     createTime: expect.any(Timestamp),
     status: {
       state: 'COMPLETED',
