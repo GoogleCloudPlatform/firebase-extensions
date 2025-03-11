@@ -1,3 +1,7 @@
+## Version 0.0.12
+
+- fix: change sort order for correct default behavior
+
 ## Version 0.0.11
 
 - refactor: use Firebase Genkit SDK to access Gemini API
