@@ -43,7 +43,7 @@ jobs:
           echo "dir=$(npm config get prefix)" >> "$GITHUB_OUTPUT"
 
       - name: Cache global dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ${{ steps.global-deps-setup.outputs.dir }}
           key:
