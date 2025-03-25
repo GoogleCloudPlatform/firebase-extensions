@@ -13,7 +13,7 @@
     "generate-readme": "firebase ext:info .. --markdown > ../README.md"
   },
   "engines": {
-    "node": "16"
+    "node": "20"
   },
   "main": "lib/index.js",
   "dependencies": {

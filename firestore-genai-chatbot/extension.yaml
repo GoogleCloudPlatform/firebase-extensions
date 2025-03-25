@@ -69,7 +69,7 @@ resources:
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
         resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION_NAME}/{messageId}
-      runtime: 'nodejs18'
+      runtime: nodejs20
 
 params:
   - param: GENERATIVE_AI_PROVIDER

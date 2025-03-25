@@ -33,7 +33,7 @@ resources:
       storage, or in firestore, or in both.
     properties:
       location: ${param:LOCATION}
-      runtime: nodejs16
+      runtime: nodejs20
       availableMemoryMb: 1024
       eventTrigger:
         eventType: google.storage.object.finalize

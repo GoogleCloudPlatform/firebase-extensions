@@ -90,7 +90,7 @@ resources:
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       timeout: 540s
       taskQueueTrigger: {}
 
@@ -101,7 +101,7 @@ resources:
     properties:
       availableMemoryMb: 1024
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       timeout: 540s
       taskQueueTrigger:
         retryConfig:
@@ -114,7 +114,7 @@ resources:
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       timeout: 540s
       taskQueueTrigger: {}
 
@@ -125,7 +125,7 @@ resources:
     properties:
       availableMemoryMb: 1024
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       timeout: 540s
       taskQueueTrigger:
         retryConfig:
@@ -139,7 +139,7 @@ resources:
       embeddings back to firestore
     properties:
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       availableMemoryMb: 512
       timeout: 540s
       eventTrigger:
@@ -154,7 +154,7 @@ resources:
       perform a vector search query.
     properties:
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       availableMemoryMb: 512
       timeout: 540s
       eventTrigger:
@@ -169,7 +169,7 @@ resources:
       location: ${LOCATION}
       httpsTrigger: {}
       availableMemoryMb: 512
-      runtime: nodejs18
+      runtime: nodejs20
 params:
   - param: EMBEDDING_PROVIDER
     label: LLM

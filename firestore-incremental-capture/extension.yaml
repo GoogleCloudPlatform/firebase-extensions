@@ -69,7 +69,7 @@ resources:
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       timeout: 540s
       taskQueueTrigger: {}
 
@@ -77,7 +77,7 @@ resources:
     type: firebaseextensions.v1beta.function
     description: Enqueues a task to sync data to BigQuery
     properties:
-      runtime: nodejs18
+      runtime: nodejs20
       location: ${LOCATION}
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
@@ -90,7 +90,7 @@ resources:
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       timeout: 540s
       taskQueueTrigger: {}
 
@@ -100,7 +100,7 @@ resources:
       Starts a new restoration task
     properties:
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       httpsTrigger: {}
 
   # TODO change to a Firestore trigger
@@ -110,7 +110,7 @@ resources:
       Exports data from storage to a pre-defined Firestore instance.
     properties:
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       availableMemoryMb: 1024
       taskQueueTrigger: {}
 
