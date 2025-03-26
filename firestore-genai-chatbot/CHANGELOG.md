@@ -1,3 +1,7 @@
+## Version 0.0.12
+
+- feat: use nodejs20 runtime and run npm audit fix
+
 ## Version 0.0.11
 
 - refactor: use Firebase Genkit SDK to access Gemini API
