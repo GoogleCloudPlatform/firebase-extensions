@@ -13,26 +13,53 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: ['18']
+        node: ['20']
     name: node.js_${{ matrix.node }}_test
     steps:
       - uses: actions/checkout@v3
-      - name: Setup node
+
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
-          cache: 'npm'
+          cache: npm
           cache-dependency-path: '**/package-lock.json'
-      - name: NPM INSTALL
-        run: npm i
-      - name: build emulator functions
-        run: cd _emulator/functions && npm i && npm run build & cd ../..
-      - name: Install firebase CLI
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build emulator functions
+        run: |
+          cd _emulator/functions
+          npm install
+
+      - name: Install Firebase CLI
         uses: nick-invision/retry@v1
         with:
           timeout_minutes: 10
           retry_wait_seconds: 60
           max_attempts: 3
-          command: npm i -g firebase-tools@11
+          command: npm install -g firebase-tools@13.35.1
+
+      - name: Reset emulator ports
+        run: npm run reset:emulator
+        working-directory: _emulator
+
+      - name: Start Firebase emulator in background
+        run: |
+          nohup firebase emulators:start --project=demo-gcp > emulator.log 2>&1 &
+          echo $! > emulator.pid
+        working-directory: _emulator
+
+      - name: Wait for emulator startup
+        run: sleep 30
+
       - name: Run tests
-        run: npm run test
+        run: lerna run test --concurrency 1
+
+      - name: Stop Firebase emulator
+        if: always()
+        run: |
+          if [ -f _emulator/emulator.pid ]; then
+            kill $(cat _emulator/emulator.pid) || true
+          fi
