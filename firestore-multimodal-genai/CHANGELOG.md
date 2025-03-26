@@ -1,3 +1,7 @@
+## Version 1.0.2
+
+- fix: bump to nodejs20 runtime in functions and run npm audit fix
+
 ## Version 1.0.1
 
 - refactor: add Genkit SDK dependency
