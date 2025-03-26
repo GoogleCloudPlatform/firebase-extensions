@@ -21,7 +21,9 @@ import {DocumentReference, FieldValue} from 'firebase-admin/firestore';
 import * as Mustache from 'mustache';
 import * as admin from 'firebase-admin';
 
-admin.initializeApp();
+admin.initializeApp({
+  projectId: config.projectId,
+});
 
 import {
   createErrorMessage,
