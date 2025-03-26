@@ -9,7 +9,7 @@ import {QuerySnapshot} from 'firebase-admin/firestore';
 import {expectToProcessCorrectly} from '../util';
 
 process.env.GCLOUD_PROJECT = 'demo-gcp';
-
+process.env.PROJECT_ID = 'demo-gcp';
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 
 // // We mock out the config here instead of setting environment variables directly
@@ -28,7 +28,7 @@ jest.mock('../../src/config', () => ({
     variableFields: ['instruction'],
     responseField: 'output',
     imageField: 'image',
-    projectId: 'demo-test',
+    projectId: 'demo-gcp',
     instanceId: 'demo-test',
     provider: 'vertex-ai',
     candidates: {

@@ -24,6 +24,7 @@ type WrappedGenerateText = WrappedFunction<
 
 // Configure test environment
 process.env.GCLOUD_PROJECT = 'demo-gcp';
+
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 
 // Mock configuration with image support
@@ -40,7 +41,7 @@ jest.mock('../../src/config', () => ({
     prompt: '{{ instruction }}',
     variableFields: ['instruction'],
     responseField: 'output',
-    projectId: 'demo-test',
+    projectId: 'demo-gcp',
     instanceId: 'demo-test',
     imageField: 'image',
     provider: 'google-ai',

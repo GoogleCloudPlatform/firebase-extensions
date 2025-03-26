@@ -37,7 +37,7 @@ jest.mock('../../src/config', () => ({
     prompt: '{{ instruction }}',
     variableFields: ['instruction'],
     responseField: 'output',
-    projectId: 'demo-test',
+    projectId: 'demo-gcp',
     instanceId: 'demo-test',
     provider: 'google-ai',
     candidates: {
