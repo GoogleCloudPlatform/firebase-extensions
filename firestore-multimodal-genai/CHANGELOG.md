@@ -2,6 +2,8 @@
 
 - fix: bump to nodejs20 runtime in functions and run npm audit fix
 
+- feat: add support for Gemini 2.0 generation models
+
 ## Version 1.0.1
 
 - refactor: add Genkit SDK dependency
