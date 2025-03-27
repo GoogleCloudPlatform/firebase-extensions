@@ -9,6 +9,9 @@
     "test": "jest",
     "generate-readme": "firebase ext:info .. --markdown > ../README.md"
   },
+  "engines": {
+    "node": "20"
+  },
   "main": "lib/index.js",
   "dependencies": {
     "@google-cloud/aiplatform": "^2.17.0",
