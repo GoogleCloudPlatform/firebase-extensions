@@ -15,8 +15,8 @@
  */
 
 import config from './config';
-import {logger} from 'firebase-functions';
-import {pubsub} from 'firebase-functions';
+import {logger} from 'firebase-functions/v1';
+import {pubsub} from 'firebase-functions/v1';
 
 export const obfuscatedConfig = Object.assign({}, config, {
   smtpConnectionUri: '<omitted>',
