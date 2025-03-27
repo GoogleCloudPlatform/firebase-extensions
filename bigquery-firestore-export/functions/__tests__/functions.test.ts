@@ -105,7 +105,7 @@ xdescribe('e2e testing', () => {
     });
   });
 
-  describe('processing messages', () => {
+  describe.skip('processing messages', () => {
     test('successfully processes a message', async () => {
       /** Set variables **/
       const collection = db.collection(config.firestoreCollection);
@@ -117,9 +117,9 @@ xdescribe('e2e testing', () => {
       const document = collection.doc(transfterConfigId);
       const runDoc = document.collection('runs').doc(runId);
 
-      //@ts-ignore
       const wrapped = wrap(functions.processMessages);
 
+      // @ts-ignore
       await wrapped({json: {name}});
 
       /** Get the document */
