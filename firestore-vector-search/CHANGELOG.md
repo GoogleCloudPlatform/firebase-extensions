@@ -1,3 +1,7 @@
+## Version 0.0.6
+
+fix - npm audit and bump node to node 20
+
 ## Version 0.0.5
 
 fix - fix backfill and fix npm audit

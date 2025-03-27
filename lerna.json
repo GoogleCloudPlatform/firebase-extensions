@@ -1,5 +1,6 @@
 {
   "packages": [
+    "firestore-vector-search/functions",
     "storage-label-images/functions",
     "storage-reverse-image-search/functions",
     "firestore-palm-chatbot/functions",
