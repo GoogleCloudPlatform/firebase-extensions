@@ -10,7 +10,8 @@
     "storage-transcode-videos/functions",
     "firestore-semantic-search/functions",
     "text-to-speech/functions",
-    "firestore-incremental-capture/functions"
+    "firestore-incremental-capture/functions",
+    "firestore-vector-search/functions"
   ],
   "version": "0.0.0",
   "npmClient": "npm"

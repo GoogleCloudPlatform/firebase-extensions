@@ -3,6 +3,9 @@
   "description": "Firebase Cloud Functions for the Firestore Vector Search in Firestore Extension",
   "main": "lib/src/index.js",
   "license": "Apache-2.0",
+  "engines": {
+    "node": "20"
+  },
   "scripts": {
     "prepare": "npm run build",
     "build": "npm run clean && npm run compile",
