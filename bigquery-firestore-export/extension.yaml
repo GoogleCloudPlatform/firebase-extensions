@@ -74,7 +74,7 @@ resources:
       Creates transfer config if doesn't exist yet.
     properties:
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       availableMemoryMb: 1024
       taskQueueTrigger: {}
 
