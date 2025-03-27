@@ -25,6 +25,32 @@ jobs:
           cache: npm
           cache-dependency-path: '**/package-lock.json'
 
+      - name: Cache Firebase emulators
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/firebase/emulators
+          key:
+            ${{ runner.os }}-firebase-emulators-${{
+            hashFiles('_emulator/firebase.json') }}
+          restore-keys: |
+            ${{ runner.os }}-firebase-emulators-
+
+      - name: Cache Firebase tools
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm/firebase-tools
+          key: ${{ runner.os }}-firebase-tools-13.35.1
+
+      - name: Cache Lerna packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-lerna-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-lerna-
+
       - name: Install dependencies
         run: npm install
 
