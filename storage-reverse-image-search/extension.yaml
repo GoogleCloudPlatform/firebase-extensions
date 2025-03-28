@@ -1,5 +1,5 @@
 name: storage-reverse-image-search
-version: 0.1.8
+version: 0.1.9
 specVersion: v1beta
 
 icon: icon.png
@@ -67,7 +67,7 @@ resources:
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       timeout: 540s
       taskQueueTrigger: {}
 
@@ -80,7 +80,7 @@ resources:
     properties:
       availableMemoryMb: 8192
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       timeout: 540s
       taskQueueTrigger:
         retryConfig:
@@ -95,7 +95,7 @@ resources:
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.update
         resource: projects/${param:PROJECT_ID}/databases/(default)/documents/_ext-${param:EXT_INSTANCE_ID}/tasks
@@ -108,7 +108,7 @@ resources:
     properties:
       location: ${LOCATION}
       buildConfig:
-        runtime: nodejs18
+        runtime: nodejs20
       serviceConfig:
         availableMemory: 512M
       eventTrigger:
@@ -128,7 +128,7 @@ resources:
     properties:
       location: ${LOCATION}
       buildConfig:
-        runtime: nodejs18
+        runtime: nodejs20
       serviceConfig:
         availableMemory: 512M
       eventTrigger:
@@ -148,7 +148,7 @@ resources:
       Engine index.
     properties:
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       availableMemoryMb: 8192
       timeout: 540s
       eventTrigger:
@@ -162,7 +162,7 @@ resources:
       It removes the image's datapoint from the Matching Engine index.
     properties:
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       availableMemoryMb: 8192
       timeout: 540s
       eventTrigger:
@@ -178,7 +178,7 @@ resources:
     properties:
       availableMemoryMb: 1024
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       timeout: 540s
       taskQueueTrigger: {}
 
@@ -189,7 +189,7 @@ resources:
     properties:
       availableMemoryMb: 8192
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       httpsTrigger: {}
 
 params:
