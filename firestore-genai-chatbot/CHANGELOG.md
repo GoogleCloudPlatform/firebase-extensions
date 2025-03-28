@@ -1,5 +1,7 @@
 ## Version 0.0.12
 
+- feat: support Gemini 2.0 models
+
 - feat: use nodejs20 runtime and run npm audit fix
 
 - chore: bump genkit version
