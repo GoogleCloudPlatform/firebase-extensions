@@ -1,3 +1,7 @@
+## Version 0.1.3
+
+fixed - bump to nodejs20 runtime in functions and run npm audit fix
+
 ## Version 0.1.2
 
 No changes.
