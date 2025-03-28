@@ -1,5 +1,5 @@
 name: firestore-genai-chatbot
-version: 0.0.11
+version: 0.0.12
 specVersion: v1beta
 
 icon: icon.png
@@ -69,7 +69,7 @@ resources:
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
         resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION_NAME}/{messageId}
-      runtime: 'nodejs18'
+      runtime: 'nodejs20'
 
 params:
   - param: GENERATIVE_AI_PROVIDER
@@ -108,7 +108,7 @@ params:
       [Google AI Gemini models](https://ai.google.dev/models/gemini)
     type: string
     required: true
-    default: gemini-1.0-pro
+    default: gemini-2.0-flash
     immutable: false
 
   - param: COLLECTION_NAME
