@@ -1,5 +1,5 @@
 # Compiled JavaScript files
-!lib/*.js
+lib/*.js
 **/*.js.map
 
 # Except the ESLint config file
@@ -10,3 +10,4 @@ typings/
 
 # Node.js dependency directory
 node_modules/
+
