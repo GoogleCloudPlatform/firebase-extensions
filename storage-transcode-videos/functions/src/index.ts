@@ -15,17 +15,16 @@
  */
 
 import * as path from 'path';
-import * as functions from 'firebase-functions';
-import * as videoTranscoder from '@google-cloud/video-transcoder';
+import * as functions from 'firebase-functions/v1';
+import {TranscoderServiceClient} from '@google-cloud/video-transcoder';
 import {google} from '@google-cloud/video-transcoder/build/protos/protos';
 
 import config from './config';
 import * as logs from './logs';
 import {shouldProcessStorageObject} from './utils';
-import ICreateJobRequest = google.cloud.video.transcoder.v1beta1.ICreateJobRequest;
+import ICreateJobRequest = google.cloud.video.transcoder.v1.ICreateJobRequest;
 
-const videoTranscoderServiceClient =
-  new videoTranscoder.TranscoderServiceClient();
+const videoTranscoderServiceClient = new TranscoderServiceClient();
 
 logs.init();
 
