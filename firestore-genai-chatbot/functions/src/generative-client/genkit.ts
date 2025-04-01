@@ -16,6 +16,7 @@ import vertexAI, {
   gemini10Pro as gemini10ProVertexAI,
   gemini15Flash as gemini15FlashVertexAI,
   gemini15Pro as gemini15ProVertexAI,
+  gemini20FlashLitePreview0205 as gemini20FlashLitePreview0205VertexAI,
   PluginOptions as PluginOptionsVertexAI,
 } from '@genkit-ai/vertexai';
 import type {Config} from '../config';
@@ -103,6 +104,7 @@ export class GenkitDiscussionClient extends DiscussionClient<
             gemini20FlashVertexAI,
             gemini20FlashLiteVertexAI,
             gemini20ProExp0205VertexAI,
+            gemini20FlashLitePreview0205VertexAI,
           ];
 
     const pluginName = provider === 'google-ai' ? 'googleai' : 'vertexai';
