@@ -1,3 +1,7 @@
+## Version 0.0.13
+
+- feat: support Gemini Flash Lite Preview on Vertex AI
+
 ## Version 0.0.12
 
 - feat: support Gemini 2.0 models
