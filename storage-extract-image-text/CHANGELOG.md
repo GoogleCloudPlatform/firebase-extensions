@@ -2,6 +2,8 @@
 
 fixed - bump to nodejs20 runtime in functions and run npm audit fix
 
+fixed - switch to storage.objectAdmin role
+
 ## Version 0.1.5
 
 docs - correct documentation to match extension behaviour

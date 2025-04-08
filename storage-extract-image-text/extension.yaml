@@ -159,7 +159,7 @@ params:
     default: basic
     required: true
 roles:
-  - role: storage.admin
+  - role: storage.objectAdmin
     reason: Allows the extension to write to your Cloud Storage.
   - role: datastore.user
     reason: Allows the extension to write to your Firestore Database instance.
