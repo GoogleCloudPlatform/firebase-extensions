@@ -1,5 +1,5 @@
 name: storage-extract-image-text
-version: 0.1.5
+version: 0.1.6
 specVersion: v1beta
 
 displayName: Extract Image Text with Cloud Vision AI
@@ -55,7 +55,7 @@ resources:
       eventTrigger:
         eventType: google.storage.object.finalize
         resource: projects/_/buckets/${param:IMG_BUCKET}
-      runtime: nodejs18
+      runtime: nodejs20
 
 params:
   - param: LOCATION
@@ -159,7 +159,7 @@ params:
     default: basic
     required: true
 roles:
-  - role: storage.admin
+  - role: storage.objectAdmin
     reason: Allows the extension to write to your Cloud Storage.
   - role: datastore.user
     reason: Allows the extension to write to your Firestore Database instance.

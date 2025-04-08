@@ -97,6 +97,6 @@ If you prefer to process every image uploaded to your Storage bucket, leave this
 
 This extension will operate with the following project IAM roles:
 
-* storage.admin (Reason: Allows the extension to write to your Cloud Storage.)
+* storage.objectAdmin (Reason: Allows the extension to write to your Cloud Storage.)
 
 * datastore.user (Reason: Allows the extension to write to your Firestore Database instance.)
