@@ -1,3 +1,7 @@
+## Version 0.1.10
+
+fix - bump to nodejs20 runtime in functions and run npm audit fix
+
 ## Version 0.1.9
 
 fix - update asia-southeast (Singapore) location value
