@@ -7,7 +7,11 @@ jest.mock('@google-cloud/bigquery-data-transfer', () => {
     v1: {
       DataTransferServiceClient: jest.fn().mockImplementation(() => {
         return {
-          getTransferConfig: jest.fn().mockImplementation(() => {
+          getTransferConfig: jest.fn().mockImplementation(request => {
+            // Conditional response based on the request name
+            if (request.name.includes('wrong-id')) {
+              return [null]; // Simulate returning null for wrong IDs
+            }
             return getTransferConfigResponse;
           }),
         };
@@ -107,10 +111,13 @@ describe('dts', () => {
     test('config not found', async () => {
       const wrongName =
         'projects/409146382768/locations/us/transferConfigs/wrong-id';
-      expect(
-        await dts.constructUpdateTransferConfigRequest(wrongName, baseConfig)
-      ).toThrowError('Transfer config not found');
+
+      // Correct way: wrap the function call in another function
+      await expect(async () => {
+        await dts.constructUpdateTransferConfigRequest(wrongName, baseConfig);
+      }).rejects.toThrow('Transfer config not found');
     });
+
     test('no change to the config', async () => {
       const testConfig = baseConfig;
       const expectedResponse = JSON.parse(JSON.stringify(baseResponse));

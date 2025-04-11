@@ -118,6 +118,7 @@ export const writeRunResultsToFirestore = async (
     .collection(`${config.firestoreCollection}/${transferConfigId}/runs`)
     .doc('latest')
     .get();
+
   const docUpdate = {
     runMetadata: message.json,
     latestRunId: runId,
@@ -188,25 +189,53 @@ export const handleMessage = async (
   }
 };
 
-function convertUnsupportedDataTypes(row: any) {
+/**
+ * Converts BigQuery data types to Firestore-compatible types
+ * @param row Object containing data to convert
+ * @returns Object with converted values
+ */
+function convertUnsupportedDataTypes(row: any): any {
+  if (row === null || typeof row !== 'object') {
+    return row;
+  }
+
+  const result = {...row};
+
+  /**
+   * Checks if a value is a BigQuery datetime-related type
+   */
+  function shouldConvertToTimestamp(
+    value: any
+  ): value is
+    | BigQueryTimestamp
+    | BigQueryDate
+    | BigQueryTime
+    | BigQueryDatetime {
+    return (
+      value instanceof BigQueryTimestamp ||
+      value instanceof BigQueryDate ||
+      value instanceof BigQueryTime ||
+      value instanceof BigQueryDatetime
+    );
+  }
+
   for (const [key, value] of Object.entries(row)) {
-    if (value instanceof BigQueryTimestamp) {
-      row[key] = admin.firestore.Timestamp.fromDate(new Date(value.value));
-    } else if (value instanceof BigQueryDate) {
-      row[key] = admin.firestore.Timestamp.fromDate(new Date(value.value));
-    } else if (value instanceof BigQueryTime) {
-      row[key] = admin.firestore.Timestamp.fromDate(new Date(value.value));
-    } else if (value instanceof BigQueryDatetime) {
-      row[key] = admin.firestore.Timestamp.fromDate(new Date(value.value));
+    if (value === null || typeof value !== 'object') continue;
+
+    if (shouldConvertToTimestamp(value)) {
+      // Convert all BigQuery datetime types to Firestore Timestamp
+      result[key] = admin.firestore.Timestamp.fromDate(new Date(value.value));
     } else if (value instanceof Date) {
-      row[key] = admin.firestore.Timestamp.fromDate(value);
+      result[key] = admin.firestore.Timestamp.fromDate(value);
     } else if (value instanceof Buffer) {
-      row[key] = new Uint8Array(value);
+      result[key] = new Uint8Array(value);
     } else if (value instanceof Geography) {
-      row[key] = value.value;
-    } else if (typeof value === 'object' && value !== null) {
-      row[key] = convertUnsupportedDataTypes(value);
+      result[key] = value.value;
+    } else if (typeof value === 'object') {
+      // Recursively convert nested objects
+      result[key] = convertUnsupportedDataTypes(value);
     }
   }
-  return row;
+
+  return result;
 }

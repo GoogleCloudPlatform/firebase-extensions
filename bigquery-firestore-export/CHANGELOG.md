@@ -1,3 +1,11 @@
+## Version 0.1.5
+
+chore - remove irrelevant dependencies
+
+feat - bump to nodejs20 runtime
+
+fix - bump dependencies to fix vulnerabilities
+
 ## Version 0.1.4
 
 Updated PREINSTALL for readability.
