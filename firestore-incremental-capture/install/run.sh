@@ -6,9 +6,11 @@ export GREEN='\033[0;32m'
 export YELLOW='\033[1;33m'
 export NC='\033[0m'
 export TICK="✓"
+export CROSS="✗"
 
-# Initialize an empty array to hold success messages
+# Initialize arrays to hold success and failure messages
 export SUCCESS_TASKS=()
+export FAILED_TASKS=()
 
 # Define variables at the top
 export PROJECT_ID=""
@@ -43,9 +45,9 @@ detect_default_bucket() {
 }
 
 # Call the detect function after PROJECT_ID is set
-# For example: export PROJECT_ID=$(gcloud config get-value project)
 detect_default_bucket
 
+# Source all component scripts
 source ./functions/download_restore_firestore.sh
 source ./functions/enable_pitr.sh
 source ./functions/setup_firestore.sh
@@ -53,8 +55,23 @@ source ./functions/setup_artifact_registry.sh
 source ./functions/setup_service_account.sh
 source ./functions/build_dataflow_template.sh
 
-# Print success messages
-echo -e "${GREEN}All steps completed successfully!${NC}"
-for TASK in "${SUCCESS_TASKS[@]}"; do
-  echo -e "$TASK"
-done
+# Print summary
+echo -e "\n${GREEN}Setup process completed.${NC}"
+
+if [ ${#SUCCESS_TASKS[@]} -gt 0 ]; then
+  echo -e "\n${GREEN}Successful operations:${NC}"
+  for TASK in "${SUCCESS_TASKS[@]}"; do
+    echo -e "$TASK"
+  done
+fi
+
+if [ ${#FAILED_TASKS[@]} -gt 0 ]; then
+  echo -e "\n${RED}Failed operations:${NC}"
+  for TASK in "${FAILED_TASKS[@]}"; do
+    echo -e "$TASK"
+  done
+  echo -e "\n${RED}Warning: Some operations failed. Please review the errors above.${NC}"
+  exit 1
+else
+  echo -e "\n${GREEN}All operations completed successfully!${NC}"
+fi
