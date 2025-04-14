@@ -2,6 +2,8 @@
 
 fixed: bump to nodejs20 runtime in functions and run npm audit fix
 
+fixed: support new default bucket suffix
+
 ## Version 0.0.6
 
 fixed - deployment, documentation and scripting updates
