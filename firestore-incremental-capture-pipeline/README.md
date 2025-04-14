@@ -2,6 +2,9 @@
 
 To debug this pipeline locally, use the `DirectRunner`:
 
+Note: If your Cloud Storage bucket was provisioned after September 30, 2024
+the default bucket name will be suffixed with `.firebasestorage.app` instead of `.appspot.com`
+
 ```bash
 mvn compile exec:java \
     -Dexec.mainClass=com.pipeline.RestorationPipeline \

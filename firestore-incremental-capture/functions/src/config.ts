@@ -14,12 +14,34 @@
  * limitations under the License.
  */
 
+import * as admin from 'firebase-admin';
+
+admin.initializeApp();
+
 const projectId = process.env.PROJECT_ID!;
-const bucketName = process.env.BUCKET_NAME || `${projectId}.appspot.com`;
 const instanceId = process.env.EXT_INSTANCE_ID!;
 const location = process.env.LOCATION!;
 const backupInstance = process.env.BACKUP_INSTANCE_ID!;
 const backupInstanceFullId = `projects/${projectId}/databases/${backupInstance}`;
+
+const getDefaultBucket = (): string => {
+  try {
+    // Try to get the default bucket from Firebase Admin
+    const defaultBucket = admin.storage().bucket().name;
+    console.log(`Using detected default bucket: ${defaultBucket}`);
+    return process.env.BUCKET_NAME || defaultBucket;
+  } catch (error) {
+    // Fallback to the environment variable or construct using project ID
+    console.log(
+      `Could not detect default bucket, using fallback: ${projectId}.appspot.com`
+    );
+    return process.env.BUCKET_NAME || `${projectId}.appspot.com`;
+  }
+};
+
+const bucketName = getDefaultBucket();
+
+export {admin}; // Export admin to use in other files
 
 export default {
   projectId,
