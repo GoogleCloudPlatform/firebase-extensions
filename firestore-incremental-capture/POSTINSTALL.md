@@ -92,7 +92,7 @@ gcloud auth configure-docker ${param:LOCATION}-docker.pkg.dev
 
 ## Triggering a restoration job
 
-You can trigger a restoration job by calling the `restoreFirestore` function [here](https://${LOCATION}-${POJECT_ID}.cloudfunctions.net/${EXT_INSTANCE_ID}).
+You can trigger a restoration job by calling the `restoreFirestore` function [here](https://${LOCATION}-${PROJECT_ID}.cloudfunctions.net/${EXT_INSTANCE_ID}).
 
 Here is an example that will run from one hour ago:
 
