@@ -14,34 +14,40 @@ export FAILED_TASKS=()
 
 # Define variables at the top
 export PROJECT_ID=""
-# Default fallback suffix (will be updated by detect_default_bucket)
-export DEFAULT_BUCKET_SUFFIX=".appspot.com"
+export BUCKET_NAME=""
 export DATABASE_ID=""
 export DATABASE_LOCATION="nam5"
 export LOCATION="us-central1"
 export EXT_INSTANCE_ID="firestore-incremental-capture"
 export JAR_PATH="restore-firestore.jar"
 
-# Detect default bucket suffix automatically
+# Detect default bucket automatically only if BUCKET_NAME is not set
 detect_default_bucket() {
-  echo "Detecting default storage bucket..."
-  
-  # Try to list buckets and check which suffix exists
-  local buckets=$(gcloud storage buckets list --project=$PROJECT_ID --format="value(name)")
-  
-  # Check for both possible bucket names
-  if echo "$buckets" | grep -q "$PROJECT_ID.appspot.com"; then
-    echo "Detected .appspot.com bucket (pre-September 2024)"
-    DEFAULT_BUCKET_SUFFIX=".appspot.com"
-  elif echo "$buckets" | grep -q "$PROJECT_ID.firebasestorage.app"; then
-    echo "Detected .firebasestorage.app bucket (post-September 2024)"
-    DEFAULT_BUCKET_SUFFIX=".firebasestorage.app"
-  else
-    echo -e "${YELLOW}Warning: Could not detect default bucket, using .firebasestorage.app as fallback${NC}"
-    DEFAULT_BUCKET_SUFFIX=".firebasestorage.app"
+  # Skip if BUCKET_NAME is already set
+  if [ -n "$BUCKET_NAME" ]; then
+    echo "Using user-specified bucket: $BUCKET_NAME"
+    return
   fi
   
-  echo "Using bucket: $PROJECT_ID$DEFAULT_BUCKET_SUFFIX"
+  echo "Detecting default storage bucket..."
+  
+  # Try to list buckets and check for default buckets
+  local buckets=$(gcloud storage buckets list --project=$PROJECT_ID --format="value(name)")
+  
+  # Check for both possible default bucket names
+  if echo "$buckets" | grep -q "$PROJECT_ID.appspot.com"; then
+    echo "Detected default bucket: $PROJECT_ID.appspot.com"
+    BUCKET_NAME="$PROJECT_ID.appspot.com"
+  elif echo "$buckets" | grep -q "$PROJECT_ID.firebasestorage.app"; then
+    echo "Detected default bucket: $PROJECT_ID.firebasestorage.app"
+    BUCKET_NAME="$PROJECT_ID.firebasestorage.app"
+  else
+    echo -e "${YELLOW}Warning: Could not detect default bucket, using fallback strategy${NC}"
+    # Use a fallback approach - newest default bucket format
+    BUCKET_NAME="$PROJECT_ID.firebasestorage.app"
+  fi
+  
+  echo "Using bucket: $BUCKET_NAME"
 }
 
 # Call the detect function after PROJECT_ID is set
