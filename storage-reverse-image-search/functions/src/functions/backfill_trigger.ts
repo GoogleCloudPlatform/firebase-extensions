@@ -23,6 +23,7 @@ import config from '../config';
 import * as utils from '../common/utils';
 import {File} from '@google-cloud/storage';
 import {BackfillStatus} from '../types/backfill_status';
+import {getFeatureVectors} from 'feature_vectors';
 
 export async function backfillTriggerHandler({
   forceCreateIndex,
@@ -37,6 +38,38 @@ export async function backfillTriggerHandler({
     return runtime.setProcessingState(
       'PROCESSING_WARNING',
       'Backfill is disabled, index setup will start with the first image is added.'
+    );
+  }
+
+  if (forceCreateIndex && object?.name) {
+    functions.logger.info(
+      `Forcing index creation via initial image upload: ${object.name}`
+    );
+
+    const featureVectors = await getFeatureVectors([object.name]);
+    if (!featureVectors || !featureVectors[0]) {
+      throw new Error('Failed to generate feature vector for initial image.');
+    }
+
+    const outputShape = featureVectors[0].length;
+
+    await admin.firestore().doc(config.metadataDoc).set(
+      {
+        outputShape,
+      },
+      {merge: true}
+    );
+
+    await admin.firestore().doc(config.tasksDoc).set(
+      {
+        status: BackfillStatus.DONE,
+      },
+      {merge: true}
+    );
+
+    return runtime.setProcessingState(
+      'PROCESSING_COMPLETE',
+      'Backfill is disabled but index creation was initiated with first image.'
     );
   }
 
