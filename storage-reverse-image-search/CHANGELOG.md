@@ -4,6 +4,8 @@ fix - bump to nodejs20 runtime in functions and run npm audit fix
 
 fix - if backfill is disabled, create index on first image upload
 
+fix - use a valid default MODEL_URL param
+
 ## Version 0.1.8
 
 fix - update default Gemini models

@@ -239,7 +239,7 @@ params:
     type: string
     required: true
     immutable: true
-    default: https://tfhub.dev/google/tfjs-model/imagenet/inception_resnet_v2/feature_vector/1/default/1
+    default: https://kaggle.com/models/google/inception-resnet-v2/TfJs/feature-vector/1
     validationRegex: ^https:\/\/.*$
     validationErrorMessage: Invalid URL
 
