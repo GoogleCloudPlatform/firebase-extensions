@@ -23,6 +23,7 @@ import config from '../config';
 import * as utils from '../common/utils';
 import {File} from '@google-cloud/storage';
 import {BackfillStatus} from '../types/backfill_status';
+import {getFeatureVectors} from '../common/feature_vectors';
 
 export async function backfillTriggerHandler({
   forceCreateIndex,
@@ -40,16 +41,48 @@ export async function backfillTriggerHandler({
     );
   }
 
+  if (forceCreateIndex && object?.name) {
+    functions.logger.info(
+      `Forcing index creation via initial image upload: ${object.name}`
+    );
+
+    const featureVectors = await getFeatureVectors([object.name]);
+    if (!featureVectors?.[0]?.length) {
+      throw new Error('Failed to generate feature vector for initial image.');
+    }
+
+    const outputShape = featureVectors[0].length;
+
+    await admin.firestore().doc(config.metadataDoc).set(
+      {
+        outputShape,
+      },
+      {merge: true}
+    );
+
+    await admin.firestore().doc(config.tasksDoc).set(
+      {
+        status: BackfillStatus.DONE,
+      },
+      {merge: true}
+    );
+
+    return runtime.setProcessingState(
+      'PROCESSING_COMPLETE',
+      'Backfill is disabled but index creation was initiated with first image.'
+    );
+  }
+
   const queue = getFunctions().taskQueue('backfillTask', config.instanceId);
   let writer = admin.firestore().batch();
 
   // Check if the bucket exists, if so, delete any files in it.
   // This might be a left-over from a previous installation.
   try {
-    const bucket = admin.storage().bucket(config.bucketName);
+    const bucket = await utils.getEmbeddingsBucket();
     await bucket.deleteFiles({prefix: 'datapoints', autoPaginate: false});
   } catch (error) {
-    functions.logger.error(error);
+    functions.logger.error('Failed to get or clean bucket:', error);
   }
 
   try {
