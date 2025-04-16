@@ -23,7 +23,7 @@ import config from '../config';
 import * as utils from '../common/utils';
 import {File} from '@google-cloud/storage';
 import {BackfillStatus} from '../types/backfill_status';
-import {getFeatureVectors} from 'feature_vectors';
+import {getFeatureVectors} from '../common/feature_vectors';
 
 export async function backfillTriggerHandler({
   forceCreateIndex,
@@ -47,7 +47,7 @@ export async function backfillTriggerHandler({
     );
 
     const featureVectors = await getFeatureVectors([object.name]);
-    if (!featureVectors || !featureVectors[0]) {
+    if (!featureVectors?.[0]?.length) {
       throw new Error('Failed to generate feature vector for initial image.');
     }
 
@@ -79,10 +79,10 @@ export async function backfillTriggerHandler({
   // Check if the bucket exists, if so, delete any files in it.
   // This might be a left-over from a previous installation.
   try {
-    const bucket = admin.storage().bucket(config.bucketName);
+    const bucket = await utils.getEmbeddingsBucket();
     await bucket.deleteFiles({prefix: 'datapoints', autoPaginate: false});
   } catch (error) {
-    functions.logger.error(error);
+    functions.logger.error('Failed to get or clean bucket:', error);
   }
 
   try {
