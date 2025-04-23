@@ -25,6 +25,7 @@ export default {
   // User-defined vars
   path: process.env.IMG_PATH,
   modelUrl: process.env.MODEL_URL!,
+  modelFromTFHub: process.env.MODEL_FROM_TF_HUB === 'true',
   imgBucket: process.env.IMG_BUCKET!,
   neighbors: parseInt(process.env.N_COUNT!),
   batchSize: parseInt(process.env.BATCH_SIZE!),
