@@ -97,7 +97,7 @@ export async function getFeatureVectors(
 
   // Lazy-load the model
   if (!model) {
-    const fromTFHub = config.modelUrl.includes('tfhub.dev');
+    const fromTFHub = config.modelFromTFHub;
     console.log(
       `Loading model from ${config.modelUrl} (fromTFHub=${fromTFHub})`
     );
