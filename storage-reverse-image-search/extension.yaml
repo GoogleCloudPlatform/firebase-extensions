@@ -239,9 +239,25 @@ params:
     type: string
     required: true
     immutable: true
-    default: https://kaggle.com/models/google/inception-resnet-v2/TfJs/feature-vector/1
+    default: https://storage.googleapis.com/tfjs-models/savedmodel/mobilenet_v2_1.0_224/model.json
     validationRegex: ^https:\/\/.*$
     validationErrorMessage: Invalid URL
+  
+  - param: MODEL_FROM_TF_HUB
+    label: Model from TF Hub?
+    description: >-
+      If true, your MODEL_URL will be treated as a TF Hub base path and
+      “/model.json?tfjs-format=file” will be appended for you.
+    type: select
+    required: true
+    immutable: true
+    default: false
+    options:
+      - label: Yes
+        value: true
+      - label: No
+        value: false
+
 
   - param: INPUT_SHAPE
     label: Model input shape
@@ -252,7 +268,7 @@ params:
     required: true
     immutable: true
     example: 224,224
-    default: 299,299
+    default: 224,224
     validationRegex: ^\d+,\d+$
     validationErrorMessage: Invalid input shape
 

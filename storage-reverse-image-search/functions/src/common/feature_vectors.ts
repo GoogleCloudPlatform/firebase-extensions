@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import * as tf from '@tensorflow/tfjs-node';
 import * as admin from 'firebase-admin';
 
@@ -21,104 +20,109 @@ import config from '../config';
 
 let model: tf.GraphModel;
 
+/** Detect base64 vs. GCS path */
 export function isBase64Image(image: string): boolean {
   return Buffer.from(image, 'base64').toString('base64') === image;
 }
 
 /**
- * Generates embeddings for a given array of sentences using Universal Sentence Encoder model.
- *
- * @param image path to image.
- * @param key the key of the text in the document.
- * @returns an array of arrays containing 512 numbers representing the embedding of the text.
+ * Loads a single image (base64 string or GCS path) into a
+ * [1, inputShape, inputShape, 3] normalized tensor.
  */
-export async function getFeatureVectors(images: string[]): Promise<any> {
+export async function _loadImageAsTensor(image: string): Promise<tf.Tensor4D> {
+  const buffer: Uint8Array = await (async () => {
+    if (isBase64Image(image)) {
+      return Buffer.from(image, 'base64');
+    } else {
+      const [downloaded] = await admin
+        .storage()
+        .bucket(config.imgBucket)
+        .file(image)
+        .download();
+      return downloaded;
+    }
+  })();
+
+  return tf.tidy(() => {
+    // decodeImage creates a 3D tensor
+    const decoded = tf.node.decodeImage(buffer, 3) as tf.Tensor3D;
+
+    // figure out how to center‐crop to square
+    const [h, w] = decoded.shape;
+    let box: [number, number, number, number];
+    if (w > h) {
+      // crop the left and right sides to make it square
+      const crop = (1 - h / w) / 2;
+      box = [0, crop, 1, 1 - crop];
+    } else {
+      // crop the top and bottom sides to make it square
+      const crop = (1 - w / h) / 2;
+      box = [crop, 0, 1 - crop, 1];
+    }
+
+    const batched = decoded.expandDims(0) as tf.Tensor4D; // [1,H,W,3]
+    const resized = tf.image.cropAndResize(
+      batched,
+      [box], // boxes: [1,4]
+      [0], // boxInd: [1]
+      [config.inputShape, config.inputShape]
+    ) as tf.Tensor4D; // [1,inputShape,inputShape,3]
+
+    // clean up the intermediates
+    decoded.dispose();
+    batched.dispose();
+
+    // return a normalized 4D tensor
+    return resized.div(255) as tf.Tensor4D;
+  });
+}
+
+/**
+ * Generates embeddings for a given array of images by
+ *  - lazy-loading the model once,
+ *  - decoding each image in its own tidy,
+ *  - batching the concat -> predict in another tidy,
+ *  - disposing only what’s no longer needed,
+ *  - and logging how many images you actually passed in.
+ */
+export async function getFeatureVectors(
+  images: string[],
+  batchSize = 32
+): Promise<number[][]> {
+  console.log(`→ getFeatureVectors called with ${images.length} images`);
+
   if (images.length === 0) {
     return [];
   }
 
+  // Lazy-load the model
   if (!model) {
     const fromTFHub = config.modelUrl.includes('tfhub.dev');
     console.log(
-      `Loading the model from ${config.modelUrl} 📦, fromTFHub: ${fromTFHub}`
+      `Loading model from ${config.modelUrl} (fromTFHub=${fromTFHub})`
     );
-    try {
-      model = await tf.loadGraphModel(
-        // This link should be public and points to a directory where the exported model.json and its weigths exist.
-        config.modelUrl,
-        {
-          fromTFHub: fromTFHub,
-        }
-      );
-    } catch (error) {
-      throw new Error(`Error loading the model: ${error}`);
-    }
+    model = await tf.loadGraphModel(config.modelUrl, {fromTFHub});
   }
 
-  const imagesT = (await Promise.all(
-    images.map(image => {
-      const img = _loadImageAsTensor(image);
-      return img as Promise<tf.Tensor>;
-    })
-  )) as tf.Tensor[];
-
-  const imageBatch = tf.concat(imagesT, 0);
-
-  const embeddings = model.predict(imageBatch) as tf.Tensor;
-
-  tf.dispose();
-
-  return embeddings.arraySync();
-}
-
-/**
- * Takes an image in a GCS bucket and returns its tensor.
- * The image is resized to 224x224 and normalized to [0, 1].
- *
- * @param imagePath the path to the image in a GCS bucket.
- */
-async function _loadImageAsTensor(image: string) {
-  let buffer: Uint8Array;
-
-  if (isBase64Image(image)) {
-    buffer = Buffer.from(image, 'base64');
-  } else {
-    const [download] = await admin
-      .storage()
-      .bucket(config.imgBucket)
-      .file(image)
-      .download();
-
-    buffer = download;
-  }
-
-  const decodedImage = tf.tidy(() => tf.node.decodeImage(buffer, 3));
-
-  const widthToHeight = decodedImage.shape[1] / decodedImage.shape[0];
-
-  let squareCrop: number[][];
-
-  if (widthToHeight > 1) {
-    const heightToWidth = decodedImage.shape[0] / decodedImage.shape[1];
-    const cropTop = (1 - heightToWidth) / 2;
-    const cropBottom = 1 - cropTop;
-    squareCrop = [[cropTop, 0, cropBottom, 1]];
-  } else {
-    const cropLeft = (1 - widthToHeight) / 2;
-    const cropRight = 1 - cropLeft;
-    squareCrop = [[0, cropLeft, 1, cropRight]];
-  }
-
-  const expandedImage = decodedImage.expandDims(0);
-
-  const crop = tf.tidy(() =>
-    tf.image.cropAndResize(
-      expandedImage.arraySync(),
-      squareCrop,
-      [0],
-      [config.inputShape, config.inputShape]
-    )
+  const preppedTensors: tf.Tensor4D[] = await Promise.all(
+    images.map(img => _loadImageAsTensor(img))
   );
 
-  return crop.div(255);
+  const allEmbeddings: number[][] = [];
+
+  for (let i = 0; i < preppedTensors.length; i += batchSize) {
+    const slice = preppedTensors.slice(i, i + batchSize);
+
+    const batchEmbeddings: number[][] = tf.tidy(() => {
+      const batch = tf.concat(slice, 0) as tf.Tensor4D;
+      const rawOut = model.predict(batch) as tf.Tensor;
+      return rawOut.arraySync() as number[][];
+    });
+
+    slice.forEach(t => t.dispose());
+
+    allEmbeddings.push(...batchEmbeddings);
+  }
+
+  return allEmbeddings;
 }

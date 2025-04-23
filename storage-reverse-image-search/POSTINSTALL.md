@@ -2,93 +2,121 @@
 
 Make sure you enabled data **read & write access in Cloud Audit Log** for Vertex AI API. The instructions to enable are as follows:
 
-- [Visit this page](https://console.cloud.google.com/iam-admin/audit?cloudshell=false) and ensure that you have selected the project you’d like to install this extension in, using the project picker.
-- Filter for “Vertex AI API” and click on the checkbox next to it. A new panel should appear on the right side of the page.
-- On the new panel, click on the checkboxes next to “Data Read” and “Data Write”, and click Save.
+- [Visit this page](https://console.cloud.google.com/iam-admin/audit?cloudshell=false) and ensure that you have selected the project you'd like to install this extension in, using the project picker.
+- Filter for "Vertex AI API" and click on the checkbox next to it. A new panel should appear on the right side of the page.
+- On the new panel, click on the checkboxes next to "Data Read" and "Data Write", and click Save.
 
 ## Try it out
 
 Once processing is complete, a Callable function will be available to the user to use for queries. Queries are just a string that will be matched against all data in the Index.
 
-Calling the function using the gcloud CLI:
+## Example client integration
 
-```bash
-curl -X POST \
--H "Content-Type: application/json" \
--H "Authorization: Bearer $(gcloud auth print-access-token)" \
--d '{"data": {"query": ["..."]} }' \
-https://${param:LOCATION}-${param:PROJECT_ID}.cloudfunctions.net/ext-${param:EXT_INSTANCE_ID}-queryIndex
+Now that you have an index with data in it, you can run reverse image search queries directly from your client application. Note that this Callable Function requires that you are signed in with a [Firebase Auth](https://firebase.google.com/docs/auth) user to call the Function from your client application. You can also use the `signInAnonymously` Auth SDK method if you do not want to enforce that users actually create their own accounts in Firebase Auth.
+
+```js
+import { initializeApp } from "firebase/app";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getFunctions, httpsCallable } from "firebase/functions";
+
+// Firebase project configuration
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+// Firebase Auth credentials
+const email = "user@example.com";
+const password = "password";
+
+// Query payload
+const queryData = {
+  query: [
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=", // base64 encoded image
+  ],
+};
+
+// Main function to authenticate and call Firebase extension
+async function callFunction() {
+  try {
+    console.log("Initializing Firebase...");
+    const app = initializeApp(firebaseConfig);
+
+    console.log("Authenticating user...");
+    const auth = getAuth(app);
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    console.log(`✅ Logged in as: ${userCredential.user.email}`);
+
+    console.log("Getting Cloud Function reference...");
+    const functions = getFunctions(app);
+    const search = httpsCallable(functions, `ext-${param:EXT_INSTANCE_ID}-queryIndex`);
+
+    console.log("Calling the search function with query data...");
+    const result = await search(queryData);
+    const { nearestNeighbors } = result.data.data;
+
+    console.log("✅ Function call successful.");
+    console.log("🔍 Nearest Neighbors Result:\n");
+
+    nearestNeighbors.forEach((entry, i) => {
+      console.log(`Result #${i + 1} - Query ID: ${entry.id}`);
+      entry.neighbors.forEach((neighbor, j) => {
+        const { datapointId } = neighbor.datapoint;
+        const distance = neighbor.distance.toFixed(2);
+        console.log(`  [${j + 1}] ${datapointId} (distance: ${distance})`);
+      });
+    });
+  } catch (error) {
+    console.error("❌ Error calling function:", error.message || error);
+  }
+}
+
+callFunction();
 ```
 
-Sample request body:
-
-Image data is base64 encoded.
+Sample response format:
 
 ```json
 {
   "data": {
-    "query": ["iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAY..."]
+    "nearestNeighbors": [
+      {
+        "id": "0",
+        "neighbors": [
+          {
+            "datapoint": {
+              "datapointId": "image1.png",
+              "crowdingTag": {
+                "crowdingAttribute": "0"
+              }
+            },
+            "distance": 0.40997931361198425
+          },
+          {
+            "datapoint": {
+              "datapointId": "image2.png",
+              "crowdingTag": {
+                "crowdingAttribute": "0"
+              }
+            },
+            "distance": 0.36510562896728516
+          }
+        ]
+      }
+    ]
   }
 }
 ```
 
-Sample response:
-
-```json
-{
-  "nearestNeighbors": [
-    {
-      "id": "0",
-      "neighbors": [
-        {
-          "datapoint": {
-            "datapointId": "image1.png",
-            "crowdingTag": {
-              "crowdingAttribute": "0"
-            }
-          },
-          "distance": 0.40997931361198425
-        },
-        {
-          "datapoint": {
-            "datapointId": "image2.png",
-            "crowdingTag": {
-              "crowdingAttribute": "0"
-            }
-          },
-          "distance": 0.36510562896728516
-        },
-        ...
-      ]
-    }
-  ]
-}
-
-```
-
-The response contains object paths to images in the `${param:IMG_BUCKET}` bucket which you declared while setting up the extension. The app should retrieve the actual objects using a client SDK. This ensures that the extension respects your bucket’s security rules.
-
-## Example client integration
-
-Now that you have an index with data in it, you can run reverse image search search queries directly from your client application. Note that this Callable Function is protected by App Check and requires that you are signed in with a [Firebase Auth](https://firebase.google.com/docs/auth) user to call the Function from your client application. You can also use the `signInAnonymously` Auth SDK method if you do not want to enforce that users actually create their own accounts in Firebase Auth.
-
-```js
-import firebase from "firebase";
-import { getFunctions, httpsCallable } from "firebase/functions";
-
-const functions = getFunctions();
-const search = httpsCallable(functions, `ext-${param:EXT_INSTANCE_ID}-queryIndex`);
-
-// run search
-await search({ query: searchQuery })
-  .then(async (result) => {
-    // get results
-    const { nearestNeighbours } = result.data;
-    const paths  = nearestNeighbours.neighbours.map($ => $.datapoint.datapointId);
-
-    // do something with the paths...
-});
-```
+The response contains object paths to images in the `${param:IMG_BUCKET}` bucket which you declared while setting up the extension. The app should retrieve the actual objects using a client SDK. This ensures that the extension respects your bucket's security rules.
 
 ### Error Handling
 

@@ -8,6 +8,12 @@ fix - use a valid default MODEL_URL param
 
 fix - safely get embeddings bucket
 
+fix - address memory leak issues in feature vector creation
+
+fix - add param for specifying whether model hosting is in TensorFlow Hub format
+
+docs - update docs to a working state with a new snippet
+
 ## Version 0.1.8
 
 fix - update default Gemini models
