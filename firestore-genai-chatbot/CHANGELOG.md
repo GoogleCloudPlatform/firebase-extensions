@@ -1,3 +1,9 @@
+# Version 0.0.14
+
+- feat: improve extension logging
+
+- feat: add Genkit monitoring
+
 ## Version 0.0.13
 
 - feat: support Gemini Flash Lite Preview on Vertex AI

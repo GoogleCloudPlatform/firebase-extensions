@@ -1,5 +1,5 @@
 name: firestore-genai-chatbot
-version: 0.0.13
+version: 0.0.14
 specVersion: v1beta
 
 icon: icon.png
@@ -58,6 +58,15 @@ roles:
     reason:
       Allows this extension to access the Vertex AI API if this provider is
       chosen.
+  - role: monitoring.metricWriter
+    reason:
+      Allows this extension to write metrics to Cloud Monitoring when Genkit monitoring is enabled.
+  - role: cloudtrace.agent
+    reason:
+      Allows this extension to write trace data to Cloud Trace when Genkit monitoring is enabled.
+  - role: logging.logWriter
+    reason:
+      Allows this extension to write logs to Cloud Logging when Genkit monitoring is enabled.
 
 resources:
   - name: generateMessage
@@ -297,6 +306,21 @@ params:
     description: >-
       If set to \"Yes\", discussion parameters may be overwritten by fields in
       the discussion collection.
+    type: select
+    options:
+      - label: Yes
+        value: yes
+      - label: No
+        value: no
+    default: no
+    required: true
+
+  - param: ENABLE_GENKIT_MONITORING
+    label: Enable Genkit Monitoring
+    description: >-
+      If set to "Yes", enables Genkit Monitoring for collecting and viewing real-time telemetry data.
+      This requires the Cloud Logging API, Cloud Trace API, and Cloud Monitoring API to be enabled,
+      and appropriate IAM roles to be configured. See the documentation for more details.
     type: select
     options:
       - label: Yes
