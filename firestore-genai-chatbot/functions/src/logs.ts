@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {logger} from 'firebase-functions';
+
 import {Config} from './config';
+import {logger} from './logger';
 
 export const init = (config: Config) => {
   const obfuscatedConfig = {
@@ -23,21 +24,19 @@ export const init = (config: Config) => {
   };
 
   logger.info(
-    `[firestore-palm-chatbot] Initialized with config: ${JSON.stringify(
-      obfuscatedConfig
-    )}`
+    `Initialized with config: ${JSON.stringify(obfuscatedConfig)}`
   );
 };
 
 export const warnMissingPromptOrResponse = (path: string) => {
   logger.warn(
-    `[firestore-palm-chatbot] Document '${path}' is missing either a prompt or response field, will not be included in history!`
+    `Document '${path}' is missing either a prompt or response field, will not be included in history!`
   );
 };
 
 export const missingField = (field: string, path: string) => {
   logger.info(
-    `[firestore-palm-chatbot] Missing ordering field '${field}' on document '${path}', setting to current timestamp.`
+    `Missing ordering field '${field}' on document '${path}', setting to current timestamp.`
   );
 };
 
@@ -47,7 +46,7 @@ export const receivedAPIResponse = (
   duration: number
 ) => {
   logger.info(
-    `[firestore-palm-chatbot] Received API response for document '${path}' in ${duration}ms.`,
+    `Received API response for document '${path}' in ${duration}ms.`,
     {historyLength: historyLength, duration}
   );
 };
@@ -56,13 +55,14 @@ export const errorCallingGLMAPI = (path: string, error: unknown) => {
   const message = error instanceof Error ? error.message : 'UNKNOWN ERROR';
 
   logger.error(
-    `[firestore-palm-chatbot] Error calling GLM API for document '${path}': ${message}`
+    `Error calling GLM API for document '${path}': ${message}`
   );
 };
+
 export const usingADC = () => {
-  logger.log('no API key provided, using application default credentials.');
+  logger.info('No API key provided, using application default credentials.');
 };
 
 export const usingAPIKey = () => {
-  logger.log('using API key provided.');
+  logger.info('Using API key provided.');
 };

@@ -29,7 +29,7 @@ import {
 } from 'genkit';
 import {ChatResponse, DiscussionClient, Message} from './base_class';
 import {GenkitPlugin} from 'genkit/plugin';
-import {logger} from 'firebase-functions/v1';
+import {logger} from '../logger';
 
 export class GenkitDiscussionClient extends DiscussionClient<
   Genkit,
