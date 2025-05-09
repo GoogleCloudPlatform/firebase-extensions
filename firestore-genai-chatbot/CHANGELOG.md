@@ -1,5 +1,7 @@
 # Version 0.0.14
 
+- feat: improve extension logging
+
 - feat: add Genkit monitoring
 
 ## Version 0.0.13

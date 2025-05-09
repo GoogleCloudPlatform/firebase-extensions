@@ -31,6 +31,9 @@ import {ChatResponse, DiscussionClient, Message} from './base_class';
 import {GenkitPlugin} from 'genkit/plugin';
 import {logger} from '../logger';
 import {enableFirebaseTelemetry} from '@genkit-ai/firebase';
+import {logger as genkitLogger} from 'genkit/logging';
+
+genkitLogger.setLogLevel('info');
 
 export class GenkitDiscussionClient extends DiscussionClient<
   Genkit,
