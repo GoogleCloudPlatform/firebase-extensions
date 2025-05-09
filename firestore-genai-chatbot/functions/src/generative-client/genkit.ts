@@ -30,6 +30,7 @@ import {
 import {ChatResponse, DiscussionClient, Message} from './base_class';
 import {GenkitPlugin} from 'genkit/plugin';
 import {logger} from '../logger';
+import {enableFirebaseTelemetry} from '@genkit-ai/firebase';
 
 export class GenkitDiscussionClient extends DiscussionClient<
   Genkit,
@@ -47,7 +48,7 @@ export class GenkitDiscussionClient extends DiscussionClient<
     this.provider = config.provider;
     this.pluginOptions = this.getPluginOptions(config);
     this.plugin = this.initializePlugin();
-    this.client = this.initializeGenkit();
+    this.client = this.initializeGenkit(config);
     this.generateOptions = this.createGenerateOptions(config);
   }
 
@@ -77,10 +78,21 @@ export class GenkitDiscussionClient extends DiscussionClient<
     throw new Error('Invalid provider.');
   }
 
-  private initializeGenkit(): Genkit {
-    return genkit({
+  private initializeGenkit(config: Config): Genkit {
+    const genkitConfig = {
       plugins: [this.plugin],
-    });
+    };
+
+    if (config.enableGenkitMonitoring) {
+      try {
+        enableFirebaseTelemetry();
+        logger.info('Genkit Monitoring enabled');
+      } catch (error) {
+        logger.error('Failed to enable Genkit Monitoring', error);
+      }
+    }
+
+    return genkit(genkitConfig);
   }
 
   static createModelReference(

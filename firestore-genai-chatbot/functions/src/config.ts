@@ -40,6 +40,7 @@ export interface Config {
   responseField: string;
   orderField: string;
   enableDiscussionOptionOverrides: boolean;
+  enableGenkitMonitoring: boolean;
   collectionName: string;
   temperature?: number;
   topP?: number;
@@ -49,6 +50,15 @@ export interface Config {
   safetySettings?: GoogleAISafetySetting[] | VertexSafetySetting[];
   provider: GenerativeAIProvider;
   maxOutputTokens?: number;
+}
+
+function validateRequiredEnvVars() {
+  const requiredVars = ['MODEL', 'LOCATION', 'PROJECT_ID', 'EXT_INSTANCE_ID'];
+  const missingVars = requiredVars.filter(varName => !process.env[varName]);
+  
+  if (missingVars.length > 0) {
+    throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`);
+  }
 }
 
 function getSafetySettings(): GoogleAISafetySetting[] | VertexSafetySetting[] {
@@ -70,15 +80,19 @@ function getSafetySettings(): GoogleAISafetySetting[] | VertexSafetySetting[] {
     }
   }
 
-  switch (process.env.GENERATIVE_AI_PROVIDER) {
-    case 'vertex-ai':
+  const provider = process.env.GENERATIVE_AI_PROVIDER || GenerativeAIProvider.GOOGLE_AI;
+  switch (provider) {
+    case GenerativeAIProvider.VERTEX_AI:
       return settings as VertexSafetySetting[];
-    case 'google-ai':
+    case GenerativeAIProvider.GOOGLE_AI:
       return settings as GoogleAISafetySetting[];
     default:
-      throw new Error('Invalid Provider');
+      throw new Error(`Invalid Provider: ${provider}`);
   }
 }
+
+// Validate required environment variables before creating config
+validateRequiredEnvVars();
 
 const config: Config = {
   vertex: {
@@ -102,6 +116,8 @@ const config: Config = {
   orderField: process.env.ORDER_FIELD || 'createTime',
   enableDiscussionOptionOverrides:
     process.env.ENABLE_DISCUSSION_OPTION_OVERRIDES === 'yes',
+  enableGenkitMonitoring:
+    process.env.ENABLE_GENKIT_MONITORING === 'yes',
   temperature: process.env.TEMPERATURE
     ? parseFloat(process.env.TEMPERATURE)
     : undefined,
