@@ -23,9 +23,7 @@ export const init = (config: Config) => {
     apiKey: '[REDACTED]',
   };
 
-  logger.info(
-    `Initialized with config: ${JSON.stringify(obfuscatedConfig)}`
-  );
+  logger.info(`Initialized with config: ${JSON.stringify(obfuscatedConfig)}`);
 };
 
 export const warnMissingPromptOrResponse = (path: string) => {
@@ -54,9 +52,7 @@ export const receivedAPIResponse = (
 export const errorCallingGLMAPI = (path: string, error: unknown) => {
   const message = error instanceof Error ? error.message : 'UNKNOWN ERROR';
 
-  logger.error(
-    `Error calling GLM API for document '${path}': ${message}`
-  );
+  logger.error(`Error calling GLM API for document '${path}': ${message}`);
 };
 
 export const usingADC = () => {

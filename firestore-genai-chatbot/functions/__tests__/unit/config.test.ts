@@ -41,22 +41,30 @@ describe('Config', () => {
   describe('Required Parameters', () => {
     it('should throw error when MODEL is not set', () => {
       delete process.env.MODEL;
-      expect(() => require('../../src/config')).toThrow(/Missing required environment variables: MODEL/);
+      expect(() => require('../../src/config')).toThrow(
+        /Missing required environment variables: MODEL/
+      );
     });
 
     it('should throw error when LOCATION is not set', () => {
       delete process.env.LOCATION;
-      expect(() => require('../../src/config')).toThrow(/Missing required environment variables: LOCATION/);
+      expect(() => require('../../src/config')).toThrow(
+        /Missing required environment variables: LOCATION/
+      );
     });
 
     it('should throw error when PROJECT_ID is not set', () => {
       delete process.env.PROJECT_ID;
-      expect(() => require('../../src/config')).toThrow(/Missing required environment variables: PROJECT_ID/);
+      expect(() => require('../../src/config')).toThrow(
+        /Missing required environment variables: PROJECT_ID/
+      );
     });
 
     it('should throw error when EXT_INSTANCE_ID is not set', () => {
       delete process.env.EXT_INSTANCE_ID;
-      expect(() => require('../../src/config')).toThrow(/Missing required environment variables: EXT_INSTANCE_ID/);
+      expect(() => require('../../src/config')).toThrow(
+        /Missing required environment variables: EXT_INSTANCE_ID/
+      );
     });
   });
 
@@ -68,7 +76,9 @@ describe('Config', () => {
       delete process.env.ORDER_FIELD;
 
       const {default: config} = require('../../src/config');
-      expect(config.collectionName).toBe('users/{uid}/discussions/{discussionId}/messages');
+      expect(config.collectionName).toBe(
+        'users/{uid}/discussions/{discussionId}/messages'
+      );
       expect(config.promptField).toBe('prompt');
       expect(config.responseField).toBe('response');
       expect(config.orderField).toBe('createTime');
@@ -86,13 +96,19 @@ describe('Config', () => {
   describe('Provider Configuration', () => {
     it('should default to google-ai provider', () => {
       delete process.env.GENERATIVE_AI_PROVIDER;
-      const {default: config, GenerativeAIProvider} = require('../../src/config');
+      const {
+        default: config,
+        GenerativeAIProvider,
+      } = require('../../src/config');
       expect(config.provider).toBe(GenerativeAIProvider.GOOGLE_AI);
     });
 
     it('should accept vertex-ai provider', () => {
       process.env.GENERATIVE_AI_PROVIDER = 'vertex-ai';
-      const {default: config, GenerativeAIProvider} = require('../../src/config');
+      const {
+        default: config,
+        GenerativeAIProvider,
+      } = require('../../src/config');
       expect(config.provider).toBe(GenerativeAIProvider.VERTEX_AI);
     });
 
@@ -170,8 +186,12 @@ describe('Config', () => {
       process.env.HARM_CATEGORY_DANGEROUS_CONTENT = 'BLOCK_LOW_AND_ABOVE';
       const {default: config} = require('../../src/config');
       expect(config.safetySettings).toHaveLength(2);
-      expect(config.safetySettings?.[0].category).toBe('HARM_CATEGORY_HATE_SPEECH');
-      expect(config.safetySettings?.[0].threshold).toBe('BLOCK_MEDIUM_AND_ABOVE');
+      expect(config.safetySettings?.[0].category).toBe(
+        'HARM_CATEGORY_HATE_SPEECH'
+      );
+      expect(config.safetySettings?.[0].threshold).toBe(
+        'BLOCK_MEDIUM_AND_ABOVE'
+      );
     });
 
     it('should parse safety settings for vertex-ai provider', () => {
@@ -180,8 +200,12 @@ describe('Config', () => {
       process.env.HARM_CATEGORY_DANGEROUS_CONTENT = 'BLOCK_LOW_AND_ABOVE';
       const {default: config} = require('../../src/config');
       expect(config.safetySettings).toHaveLength(2);
-      expect(config.safetySettings?.[0].category).toBe('HARM_CATEGORY_HATE_SPEECH');
-      expect(config.safetySettings?.[0].threshold).toBe('BLOCK_MEDIUM_AND_ABOVE');
+      expect(config.safetySettings?.[0].category).toBe(
+        'HARM_CATEGORY_HATE_SPEECH'
+      );
+      expect(config.safetySettings?.[0].threshold).toBe(
+        'BLOCK_MEDIUM_AND_ABOVE'
+      );
     });
 
     it('should return empty array when no safety settings are provided', () => {

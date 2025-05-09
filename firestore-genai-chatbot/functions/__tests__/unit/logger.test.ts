@@ -165,7 +165,7 @@ describe('Logger', () => {
   describe('Log Level Hierarchy', () => {
     it('should respect log level hierarchy', () => {
       logger.setLogLevel(LogLevel.WARN);
-      
+
       logger.debug('debug message');
       logger.info('info message');
       logger.warn('warn message');
@@ -179,7 +179,7 @@ describe('Logger', () => {
 
     it('should allow all levels when set to DEBUG', () => {
       logger.setLogLevel(LogLevel.DEBUG);
-      
+
       logger.debug('debug message');
       logger.info('info message');
       logger.warn('warn message');
