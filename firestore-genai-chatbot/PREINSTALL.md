@@ -20,7 +20,7 @@ Message documents might look like this:
 
 ```
 {
-  prompt: “What is the best museum to visit in Barcelona, Spain?”
+  prompt: "What is the best museum to visit in Barcelona, Spain?"
 }
 ```
 
@@ -48,10 +48,21 @@ Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/fi
 
 Changing the state field of a completed document's status from `COMPLETED` to anything else will retrigger the extension for that document.
 
+### Genkit Monitoring
+
+This extension supports Genkit monitoring, which provides detailed insights into the performance and behavior of your chatbot. When enabled, Genkit monitoring will:
+
+- Track model response times and latency
+- Monitor token usage and costs
+- Provide visibility into model behavior and safety settings
+- Help identify potential issues or optimization opportunities
+
+To enable Genkit monitoring, set the `Enable Genkit Monitoring` configuration parameter to `yes` during installation. Note that enabling this feature may incur additional costs depending on your usage.
+
 ## Billing
 
 To install an extension, your project must be on the Blaze (pay as you go) plan. You will be charged a small amount (typically around $0.01/month) for the Firebase resources required by this extension (even if it is not used).
-This extension uses other Firebase and Google Cloud Platform services, which have associated charges if you exceed the service’s no-cost tier:
+This extension uses other Firebase and Google Cloud Platform services, which have associated charges if you exceed the service's no-cost tier:
 
 - Cloud Firestore
 - Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))

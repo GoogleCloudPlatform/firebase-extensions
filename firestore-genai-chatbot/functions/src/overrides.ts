@@ -1,5 +1,6 @@
 import {DocumentSnapshot} from 'firebase-admin/firestore';
 import {z} from 'zod';
+import {logger} from './logger';
 
 const intSchema = z.union([
   z.string().transform(arg => parseInt(arg) || undefined),
@@ -25,7 +26,7 @@ export function extractOverrides(
   try {
     return overridesSchema.parse(data);
   } catch (e) {
-    console.error(e);
+    logger.error('Error parsing overrides from parent doc', e);
     throw new Error('Error parsing overrides from parent doc.');
   }
 }
