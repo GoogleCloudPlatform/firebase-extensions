@@ -1,4 +1,4 @@
-# Version 0.0.14
+## Version 0.0.14
 
 - feat: improve extension logging
 
