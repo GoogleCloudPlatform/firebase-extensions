@@ -1,22 +1,6 @@
-import {createIndex, checkCreateIndexProgress} from './setup';
-import {firestoreAdminClient} from '../config';
+import {createIndex, checkCreateIndexProgress} from '../../src/queries/setup';
+import {firestoreAdminClient} from '../../src/config';
 import * as functions from 'firebase-functions';
-
-// Mock firebase-functions
-jest.mock('firebase-functions', () => ({
-  logger: {
-    info: jest.fn(),
-  },
-}));
-
-// Mock firestoreAdminClient
-jest.mock('../config', () => ({
-  firestoreAdminClient: {
-    listIndexes: jest.fn(),
-    createIndex: jest.fn(),
-    getIndex: jest.fn(),
-  },
-}));
 
 describe('createIndex', () => {
   const testOptions = {

@@ -10,12 +10,6 @@ jest.mock('@google/generative-ai', () => ({
   })),
 }));
 
-jest.mock('../../src/config', () => ({
-  config: {
-    geminiApiKey: 'test-api-key',
-  },
-}));
-
 import {GeminiAITextEmbedClient} from '../../src/embeddings/client/text/gemini';
 import {GoogleGenerativeAI} from '@google/generative-ai';
 

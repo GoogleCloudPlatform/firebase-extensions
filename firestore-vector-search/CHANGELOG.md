@@ -1,3 +1,7 @@
+## Version 0.0.8
+
+refactor - move tests out of src
+
 ## Version 0.0.7
 
 fix - bump to nodejs20 runtime in functions and run npm audit fix
