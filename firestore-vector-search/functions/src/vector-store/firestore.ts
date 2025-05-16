@@ -2,8 +2,8 @@ import {Query, VectorQuery} from '@google-cloud/firestore';
 import * as admin from 'firebase-admin';
 import {Prefilter} from '../queries/util';
 import {VectorStoreClient} from './base_class';
-import {FirebaseFirestoreError} from 'firebase-admin/firestore'
-import { HttpsError } from 'firebase-functions/https'
+import {FirebaseFirestoreError} from 'firebase-admin/firestore';
+import {HttpsError} from 'firebase-functions/https';
 
 export class FirestoreVectorStoreClient extends VectorStoreClient {
   firestore: admin.firestore.Firestore;
@@ -70,14 +70,17 @@ export class FirestoreVectorStoreClient extends VectorStoreClient {
           'invalid-argument',
           context
             ? `Invalid operator in query: ${context}`
-            : `Invalid operator in Firestore query`
+            : 'Invalid operator in Firestore query'
         );
       }
 
       return new HttpsError('unknown', error.message);
     }
 
-    return new HttpsError('unknown', 'An unexpected error occurred performing your query');
+    return new HttpsError(
+      'unknown',
+      'An unexpected error occurred performing your query'
+    );
   }
 
   async query(
@@ -86,7 +89,7 @@ export class FirestoreVectorStoreClient extends VectorStoreClient {
     prefilters: Prefilter[],
     limit: number,
     outputField: string
-  ): Promise<{ ids: string[] }> {
+  ): Promise<{ids: string[]}> {
     try {
       const collectionRef = this.firestore.collection(collection);
       let q: Query | VectorQuery = collectionRef;
@@ -96,7 +99,10 @@ export class FirestoreVectorStoreClient extends VectorStoreClient {
           try {
             q = q.where(p.field, p.operator, p.value);
           } catch (filterError) {
-            throw this.toHttpsError(filterError, `${p.operator} for ${p.field}`);
+            throw this.toHttpsError(
+              filterError,
+              `${p.operator} for ${p.field}`
+            );
           }
         }
       }
