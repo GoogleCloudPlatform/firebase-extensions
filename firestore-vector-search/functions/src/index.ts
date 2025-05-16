@@ -15,7 +15,7 @@
  */
 
 import {config} from './config';
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 import {
   FirestoreBackfillOptions,
   firestoreProcessBackfillTask,
