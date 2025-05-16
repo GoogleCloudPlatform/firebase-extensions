@@ -17,33 +17,68 @@ export class FirestoreVectorStoreClient extends VectorStoreClient {
     this.distanceMeasure = distanceMeasure;
   }
 
-  // Converts thrown error: any to an HttpsError for the function to throw
+  // Converts thrown Firestore or general errors into structured HttpsError objects
   private toHttpsError(error: any, context?: string): HttpsError {
-
     if (error instanceof HttpsError) {
-      return error
+      return error;
     }
 
-    // convert firestore errors to functions errors for our function to throw
     if (error instanceof FirebaseFirestoreError) {
-      switch(error.code) {
-        case 'firestore/invalid-argument':
-          return new HttpsError('invalid-argument', context || error.message)
-          // TODO: other cases
+      const message = context || error.message;
+
+      switch (error.code) {
+        case 'cancelled':
+          return new HttpsError('cancelled', message);
+        case 'unknown':
+          return new HttpsError('unknown', message);
+        case 'invalid-argument':
+          return new HttpsError('invalid-argument', message);
+        case 'deadline-exceeded':
+          return new HttpsError('deadline-exceeded', message);
+        case 'not-found':
+          return new HttpsError('not-found', message);
+        case 'already-exists':
+          return new HttpsError('already-exists', message);
+        case 'permission-denied':
+          return new HttpsError('permission-denied', message);
+        case 'resource-exhausted':
+          return new HttpsError('resource-exhausted', message);
+        case 'failed-precondition':
+          return new HttpsError('failed-precondition', message);
+        case 'aborted':
+          return new HttpsError('aborted', message);
+        case 'out-of-range':
+          return new HttpsError('out-of-range', message);
+        case 'unimplemented':
+          return new HttpsError('unimplemented', message);
+        case 'internal':
+          return new HttpsError('internal', message);
+        case 'unavailable':
+          return new HttpsError('unavailable', message);
+        case 'data-loss':
+          return new HttpsError('data-loss', message);
+        case 'unauthenticated':
+          return new HttpsError('unauthenticated', message);
+        default:
+          return new HttpsError('unknown', message);
       }
     }
 
     if (error instanceof Error) {
-      // TODO: maybe improve this check
-      if (error.message.includes('opStr')) {
-        return new HttpsError('invalid-argument', context ? `Invalid operator in query: ${context}` : `Invalid operator in query`)
+      if (error.message.toLowerCase().includes('opstr')) {
+        return new HttpsError(
+          'invalid-argument',
+          context
+            ? `Invalid operator in query: ${context}`
+            : `Invalid operator in Firestore query`
+        );
       }
+
+      return new HttpsError('unknown', error.message);
     }
 
-    return new HttpsError('unknown', 'An unexpected error occured performing your query')
-
+    return new HttpsError('unknown', 'An unexpected error occurred performing your query');
   }
-
 
   async query(
     query: number[],
@@ -51,34 +86,34 @@ export class FirestoreVectorStoreClient extends VectorStoreClient {
     prefilters: Prefilter[],
     limit: number,
     outputField: string
-  ): Promise<{ids: string[]}> {
+  ): Promise<{ ids: string[] }> {
     try {
-    const collectionRef = this.firestore.collection(collection);
-    
-    let q: Query | VectorQuery = collectionRef;
-    
-    if (prefilters.length > 0) {
-      for (const p of prefilters) {
-        try {
-          q = q.where(p.field, p.operator, p.value);
-        } catch (filterError) {
-            throw this.toHttpsError(filterError, `${p.operator} for ${p.field}`)
+      const collectionRef = this.firestore.collection(collection);
+      let q: Query | VectorQuery = collectionRef;
+
+      if (prefilters.length > 0) {
+        for (const p of prefilters) {
+          try {
+            q = q.where(p.field, p.operator, p.value);
+          } catch (filterError) {
+            throw this.toHttpsError(filterError, `${p.operator} for ${p.field}`);
+          }
         }
       }
-    }
-    try {
-      q = q.findNearest(outputField, query, {
-        limit,
-        distanceMeasure: this.distanceMeasure,
-      });
-    } catch (findNearestError) {
-      this.toHttpsError(findNearestError)
-    }
+
+      try {
+        q = q.findNearest(outputField, query, {
+          limit,
+          distanceMeasure: this.distanceMeasure,
+        });
+      } catch (findNearestError) {
+        throw this.toHttpsError(findNearestError);
+      }
+
       const result = await q.get();
       return {ids: result.docs.map(doc => doc.ref.id)};
     } catch (error) {
-      throw this.toHttpsError(error)
-    }   
+      throw this.toHttpsError(error);
+    }
   }
 }
-
