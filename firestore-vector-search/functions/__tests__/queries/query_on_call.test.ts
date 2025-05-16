@@ -1,42 +1,7 @@
-import {handleQueryCall} from './query_on_call';
-import {embeddingClient} from '../embeddings/client';
-import {textVectorStoreClient} from '../vector-store';
-import {config} from '../config';
-
-// Mock firebase-functions
-jest.mock('firebase-functions', () => ({
-  https: {
-    HttpsError: jest.fn().mockImplementation((code, message, details) => ({
-      code,
-      message,
-      details,
-    })),
-  },
-}));
-
-// Mock embeddings client
-jest.mock('../embeddings/client', () => ({
-  embeddingClient: {
-    initialize: jest.fn(),
-    getSingleEmbedding: jest.fn(),
-  },
-}));
-
-// Mock vector store client
-jest.mock('../vector-store', () => ({
-  textVectorStoreClient: {
-    query: jest.fn(),
-  },
-}));
-
-// Mock config
-jest.mock('../config', () => ({
-  config: {
-    defaultQueryLimit: 10,
-    collectionName: 'test-collection',
-    outputField: 'content',
-  },
-}));
+import {handleQueryCall} from '../../src/queries/query_on_call';
+import {embeddingClient} from '../../src/embeddings/client';
+import {textVectorStoreClient} from '../../src/vector-store';
+import {config} from '../../src/config';
 
 describe('handleQueryCall', () => {
   let mockContext: {auth: any};
