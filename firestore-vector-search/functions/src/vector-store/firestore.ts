@@ -26,7 +26,17 @@ export class FirestoreVectorStoreClient extends VectorStoreClient {
     if (error instanceof FirebaseFirestoreError) {
       const message = context || error.message;
 
-      switch (error.code) {
+      const codeWithPrefix = error.code; // is of the form firestore/code
+
+      const [prefix, code] = codeWithPrefix.split('/'); // just code
+
+      if (prefix !== 'firestore') {
+        return new HttpsError('unknown', error.message);
+      }
+
+      return new HttpsError(code as HttpsError['code'], message);
+
+      switch (code) {
         case 'cancelled':
           return new HttpsError('cancelled', message);
         case 'unknown':

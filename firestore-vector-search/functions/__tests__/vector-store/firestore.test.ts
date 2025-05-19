@@ -4,6 +4,19 @@ import {Prefilter} from '../../src/queries/util';
 import {FirebaseFirestoreError} from 'firebase-admin/firestore';
 import {FirestoreVectorStoreClient} from '../../src/vector-store/firestore';
 
+class FakeFirebaseFirestoreError extends Error {
+  code: string;
+
+  constructor(code: string, message: string) {
+    super(message);
+    this.code = `firestore/${code}`;
+    this.name = 'FirebaseFirestoreError';
+
+    // we need this to make sure it passes instanceof check
+    Object.setPrototypeOf(this, FirebaseFirestoreError.prototype);
+  }
+}
+
 jest.mock('firebase-admin', () => ({
   firestore: jest.fn().mockReturnValue({
     collection: jest.fn().mockReturnThis(),
@@ -69,5 +82,31 @@ describe('firestoreVectorStore', () => {
       {limit: mockLimit, distanceMeasure: 'COSINE'}
     );
     expect(result).toEqual({ids: ['doc-1', 'doc-2']});
+  });
+
+  test('should transform Firestore error to HttpsError', async () => {
+    const error = new FakeFirebaseFirestoreError(
+      'permission-denied',
+      'Permission denied.'
+    );
+
+    mockFirestore.collection = jest.fn().mockImplementation(() => {
+      throw error;
+    });
+
+    try {
+      await client.query(
+        mockQuery,
+        'test-collection',
+        mockPrefilters,
+        mockLimit,
+        mockOutputField
+      );
+    } catch (err) {
+      console.log('err', err);
+      expect(err).toBeInstanceOf(HttpsError);
+      expect(err.code).toBe('permission-denied');
+      expect(err.message).toBe('Permission denied.');
+    }
   });
 });
