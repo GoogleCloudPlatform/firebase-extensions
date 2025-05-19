@@ -1,3 +1,7 @@
+## Version 0.1.7
+
+feature - add include path param for filtering in trigger
+
 ## Version 0.1.6
 
 fixed - bump to nodejs20 runtime in functions and run npm audit fix
