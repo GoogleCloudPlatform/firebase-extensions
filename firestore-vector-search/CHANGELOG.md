@@ -1,5 +1,7 @@
 ## Version 0.0.8
 
+fix - replaced validation of prefilters with handling errors raised from firestore
+
 refactor - move tests out of src
 
 ## Version 0.0.7

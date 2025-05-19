@@ -3,7 +3,7 @@ import * as admin from 'firebase-admin';
 import {Prefilter} from '../queries/util';
 import {VectorStoreClient} from './base_class';
 import {FirebaseFirestoreError} from 'firebase-admin/firestore';
-import {HttpsError} from 'firebase-functions/https';
+import {HttpsError, FunctionsErrorCode} from 'firebase-functions/https';
 
 export class FirestoreVectorStoreClient extends VectorStoreClient {
   firestore: admin.firestore.Firestore;
@@ -26,52 +26,38 @@ export class FirestoreVectorStoreClient extends VectorStoreClient {
     if (error instanceof FirebaseFirestoreError) {
       const message = context || error.message;
 
-      const codeWithPrefix = error.code; // is of the form firestore/code
+      // the code will be of the form firestore/code
+      const codeWithPrefix = error.code;
 
       const [prefix, code] = codeWithPrefix.split('/'); // just code
 
+      // check if the prefix is firestore anyway
       if (prefix !== 'firestore') {
-        return new HttpsError('unknown', error.message);
+        return new HttpsError('unknown', message);
       }
 
-      return new HttpsError(code as HttpsError['code'], message);
+      const ALLOWED_ERROR_CODES = new Set<FunctionsErrorCode>([
+        'cancelled',
+        'unknown',
+        'invalid-argument',
+        'deadline-exceeded',
+        'not-found',
+        'already-exists',
+        'permission-denied',
+        'resource-exhausted',
+        'aborted',
+        'out-of-range',
+        'unimplemented',
+        'internal',
+        'unavailable',
+        'data-loss',
+        'unauthenticated',
+      ]);
 
-      switch (code) {
-        case 'cancelled':
-          return new HttpsError('cancelled', message);
-        case 'unknown':
-          return new HttpsError('unknown', message);
-        case 'invalid-argument':
-          return new HttpsError('invalid-argument', message);
-        case 'deadline-exceeded':
-          return new HttpsError('deadline-exceeded', message);
-        case 'not-found':
-          return new HttpsError('not-found', message);
-        case 'already-exists':
-          return new HttpsError('already-exists', message);
-        case 'permission-denied':
-          return new HttpsError('permission-denied', message);
-        case 'resource-exhausted':
-          return new HttpsError('resource-exhausted', message);
-        case 'failed-precondition':
-          return new HttpsError('failed-precondition', message);
-        case 'aborted':
-          return new HttpsError('aborted', message);
-        case 'out-of-range':
-          return new HttpsError('out-of-range', message);
-        case 'unimplemented':
-          return new HttpsError('unimplemented', message);
-        case 'internal':
-          return new HttpsError('internal', message);
-        case 'unavailable':
-          return new HttpsError('unavailable', message);
-        case 'data-loss':
-          return new HttpsError('data-loss', message);
-        case 'unauthenticated':
-          return new HttpsError('unauthenticated', message);
-        default:
-          return new HttpsError('unknown', message);
+      if (ALLOWED_ERROR_CODES.has(code as FunctionsErrorCode)) {
+        return new HttpsError(code as FunctionsErrorCode, message);
       }
+      return new HttpsError('unknown', message, {firestoreCode: error.code});
     }
 
     if (error instanceof Error) {

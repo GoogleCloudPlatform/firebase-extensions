@@ -103,18 +103,4 @@ describe('parseQuerySchema', () => {
     const data = {query: 'example query', limit: false};
     expect(() => parseQuerySchema(data)).toThrow(z.ZodError);
   });
-
-  test('should throw an error if prefilters have invalid operator', () => {
-    const data = {
-      query: 'example query',
-      prefilters: [
-        {
-          field: 'test',
-          operator: 'invalid' as any,
-          value: 'value',
-        },
-      ],
-    };
-    expect(() => parseQuerySchema(data)).toThrow(z.ZodError);
-  });
 });

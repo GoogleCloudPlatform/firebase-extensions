@@ -1,4 +1,3 @@
-import {WhereFilterOp} from '@google-cloud/firestore';
 import {z} from 'zod';
 
 export const prefilterSchema = z.record(z.any());
