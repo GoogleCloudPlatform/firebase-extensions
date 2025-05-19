@@ -1,4 +1,4 @@
-import {parseLimit, parseQuerySchema} from './util';
+import {parseLimit, parseQuerySchema} from '../../src/queries/util';
 import {z} from 'zod';
 
 describe('parseLimit', () => {
