@@ -3,7 +3,7 @@ import {z} from 'zod';
 
 export const prefilterSchema = z.record(z.any());
 
-export type Prefilter = z.infer<typeof prefilterSchema>
+export type Prefilter = z.infer<typeof prefilterSchema>;
 
 export const parseLimit = (limit: unknown) => {
   if (typeof limit !== 'string' && typeof limit !== 'number') {
@@ -40,4 +40,3 @@ export interface parsedRequest {
 export const parseQuerySchema = (data: unknown): parsedRequest => {
   return querySchema.parse(data);
 };
-
