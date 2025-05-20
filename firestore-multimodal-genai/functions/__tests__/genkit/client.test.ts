@@ -65,6 +65,7 @@ describe('GenkitGenerativeClient', () => {
     ],
     bucketName: 'test-bucket',
     imageField: 'image',
+    enableGenkitMonitoring: true,
   };
 
   const mockGenerateResponse = {
@@ -250,6 +251,7 @@ describe('GenkitGenerativeClient.shouldUseGenkitClient', () => {
     ],
     bucketName: 'test-bucket',
     imageField: 'image',
+    enableGenkitMonitoring: true,
   };
 
   beforeEach(() => {
