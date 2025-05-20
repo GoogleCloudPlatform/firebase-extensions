@@ -52,7 +52,7 @@ export interface Config {
   safetySettings?: GoogleAISafetySetting[] | VertexSafetySetting[];
   bucketName?: string;
   imageField: string;
-  enableGenkitMonitoring: boolean;
+  enableGenkitMonitoring?: boolean;
 }
 
 function getSafetySettings(): GoogleAISafetySetting[] | VertexSafetySetting[] {
