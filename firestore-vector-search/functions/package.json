@@ -1,7 +1,7 @@
 {
   "name": "firestore-vector-search",
   "description": "Firebase Cloud Functions for the Firestore Vector Search in Firestore Extension",
-  "main": "lib/src/index.js",
+  "main": "lib/index.js",
   "license": "Apache-2.0",
   "engines": {
     "node": "20"
