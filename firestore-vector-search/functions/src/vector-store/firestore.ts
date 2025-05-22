@@ -2,6 +2,8 @@ import {Query, VectorQuery} from '@google-cloud/firestore';
 import * as admin from 'firebase-admin';
 import {Prefilter} from '../queries/util';
 import {VectorStoreClient} from './base_class';
+import {FirebaseFirestoreError} from 'firebase-admin/firestore';
+import {HttpsError, FunctionsErrorCode} from 'firebase-functions/https';
 
 export class FirestoreVectorStoreClient extends VectorStoreClient {
   firestore: admin.firestore.Firestore;
@@ -14,6 +16,69 @@ export class FirestoreVectorStoreClient extends VectorStoreClient {
     this.firestore = firestore;
     this.distanceMeasure = distanceMeasure;
   }
+
+  // Converts thrown Firestore or general errors into structured HttpsError objects
+  private toHttpsError(error: any, context?: string): HttpsError {
+    if (error instanceof HttpsError) {
+      return error;
+    }
+
+    if (error instanceof FirebaseFirestoreError) {
+      const message = context || error.message;
+
+      // the code will be of the form firestore/code
+      const codeWithPrefix = error.code;
+
+      const [prefix, code] = codeWithPrefix.split('/'); // just code
+
+      // check if the prefix is firestore anyway
+      if (prefix !== 'firestore') {
+        return new HttpsError('unknown', message);
+      }
+
+      const ALLOWED_ERROR_CODES = new Set<FunctionsErrorCode>([
+        'cancelled',
+        'unknown',
+        'invalid-argument',
+        'deadline-exceeded',
+        'not-found',
+        'already-exists',
+        'permission-denied',
+        'resource-exhausted',
+        'aborted',
+        'out-of-range',
+        'unimplemented',
+        'internal',
+        'unavailable',
+        'data-loss',
+        'unauthenticated',
+      ]);
+
+      if (ALLOWED_ERROR_CODES.has(code as FunctionsErrorCode)) {
+        return new HttpsError(code as FunctionsErrorCode, message);
+      }
+      return new HttpsError('unknown', message, {firestoreCode: error.code});
+    }
+
+    if (error instanceof Error) {
+      if (error.message.toLowerCase().includes('opstr')) {
+        return new HttpsError(
+          'invalid-argument',
+          context
+            ? `Invalid operator in query: ${context}`
+            : 'Invalid operator in Firestore query'
+        );
+      }
+
+      return new HttpsError('unknown', error.message);
+    }
+
+    return new HttpsError(
+      'unknown',
+      'An unexpected error occurred performing your query'
+    );
+  }
+
   async query(
     query: number[],
     collection: string,
@@ -21,23 +86,36 @@ export class FirestoreVectorStoreClient extends VectorStoreClient {
     limit: number,
     outputField: string
   ): Promise<{ids: string[]}> {
-    const col = this.firestore.collection(collection);
+    try {
+      const collectionRef = this.firestore.collection(collection);
+      let q: Query | VectorQuery = collectionRef;
 
-    let q: Query | VectorQuery = col;
-
-    if (prefilters.length > 0) {
-      for (const p of prefilters) {
-        q = q.where(p.field, p.operator, p.value);
+      if (prefilters.length > 0) {
+        for (const p of prefilters) {
+          try {
+            q = q.where(p.field, p.operator, p.value);
+          } catch (filterError) {
+            throw this.toHttpsError(
+              filterError,
+              `${p.operator} for ${p.field}`
+            );
+          }
+        }
       }
+
+      try {
+        q = q.findNearest(outputField, query, {
+          limit,
+          distanceMeasure: this.distanceMeasure,
+        });
+      } catch (findNearestError) {
+        throw this.toHttpsError(findNearestError);
+      }
+
+      const result = await q.get();
+      return {ids: result.docs.map(doc => doc.ref.id)};
+    } catch (error) {
+      throw this.toHttpsError(error);
     }
-
-    q = q.findNearest(outputField, query, {
-      limit,
-      distanceMeasure: this.distanceMeasure,
-    });
-
-    const result = await q.get();
-
-    return {ids: result.docs.map(doc => doc.ref.id)};
   }
 }

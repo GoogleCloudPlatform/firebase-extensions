@@ -1,24 +1,8 @@
-import {WhereFilterOp} from '@google-cloud/firestore';
 import {z} from 'zod';
 
-const operatorSchema = z.enum([
-  '<',
-  '<=',
-  '==',
-  '!=',
-  '>=',
-  '>',
-  'array-contains',
-  'in',
-  'not-in',
-  'array-contains-any',
-]);
+export const prefilterSchema = z.record(z.any());
 
-export const prefilterSchema = z.object({
-  field: z.string(),
-  operator: operatorSchema,
-  value: z.string(),
-});
+export type Prefilter = z.infer<typeof prefilterSchema>;
 
 export const parseLimit = (limit: unknown) => {
   if (typeof limit !== 'string' && typeof limit !== 'number') {
@@ -55,9 +39,3 @@ export interface parsedRequest {
 export const parseQuerySchema = (data: unknown): parsedRequest => {
   return querySchema.parse(data);
 };
-
-export interface Prefilter {
-  field: string;
-  operator: WhereFilterOp;
-  value: any;
-}

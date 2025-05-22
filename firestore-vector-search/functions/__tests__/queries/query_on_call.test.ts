@@ -131,28 +131,6 @@ describe('handleQueryCall', () => {
     expect(embeddingClient.initialize).not.toHaveBeenCalled();
   });
 
-  test('should throw invalid-argument error for invalid prefilter operator', async () => {
-    const data = {
-      query: 'test query',
-      prefilters: [
-        {
-          field: 'category',
-          operator: 'invalid-op' as any,
-          value: 'test',
-        },
-      ],
-    };
-
-    await expect(handleQueryCall(data, mockContext)).rejects.toEqual(
-      expect.objectContaining({
-        code: 'invalid-argument',
-        message: 'The function was called with an invalid argument',
-      })
-    );
-
-    expect(embeddingClient.initialize).not.toHaveBeenCalled();
-  });
-
   test('should include ZodError details in invalid-argument error', async () => {
     const data = {}; // Missing required query field
 
