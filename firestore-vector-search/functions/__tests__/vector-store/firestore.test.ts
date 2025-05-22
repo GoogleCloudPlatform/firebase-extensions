@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin';
-import {HttpsError} from 'firebase-functions/https';
+import {HttpsError} from 'firebase-functions/v1/https';
 import {Prefilter} from '../../src/queries/util';
 import {FirebaseFirestoreError} from 'firebase-admin/firestore';
 import {FirestoreVectorStoreClient} from '../../src/vector-store/firestore';
