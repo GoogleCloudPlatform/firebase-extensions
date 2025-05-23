@@ -23,6 +23,19 @@ type WrappedGenerateText = WrappedFunction<
 process.env.GCLOUD_PROJECT = 'demo-gcp';
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 
+// Mock Firebase Functions logger
+const mockFunctionsLoggerError = jest.fn();
+
+jest.mock('firebase-functions', () => ({
+  ...jest.requireActual('firebase-functions'),
+  logger: {
+    error: (x: any) => mockFunctionsLoggerError(x),
+    log: jest.fn(),
+    warn: jest.fn(),
+    info: jest.fn(),
+  }
+}));
+
 // Mock configuration
 jest.mock('../../src/config', () => ({
   default: {
@@ -157,16 +170,32 @@ describe('Generate Text Function Tests', () => {
 
       await simulateFunctionTrigger(ref);
       await expectNoProcessing();
+
+      expect(mockFunctionsLoggerError).toHaveBeenCalledTimes(1);
+      expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
+        expect.stringContaining('[firestore-multimodal-genai] Error calling Gemini API for document \'generate/')
+      );
+      expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
+        expect.stringContaining('Error substituting handlebar variables into prompt. Does your document contain the field "instruction"?')
+      );
     });
 
     test('should not process when prompt field is empty', async () => {
       const ref = await admin
         .firestore()
         .collection(collectionName)
-        .add({prompt: ''});
+        .add({instruction: ''});
 
       await simulateFunctionTrigger(ref);
       await expectNoProcessing();
+
+      expect(mockFunctionsLoggerError).toHaveBeenCalledTimes(1);
+      expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
+        expect.stringContaining('[firestore-multimodal-genai] Error calling Gemini API for document \'generate/')
+      );
+      expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
+        expect.stringContaining('Error substituting handlebar variables into prompt. Does your document contain the field "instruction"?')
+      );
     });
 
     test('should error when prompt field is not a string', async () => {
@@ -192,6 +221,14 @@ describe('Generate Text Function Tests', () => {
           error: expect.stringContaining('All variable fields must be strings'),
         },
       });
+
+      expect(mockFunctionsLoggerError).toHaveBeenCalledTimes(1);
+      expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
+        expect.stringContaining('[firestore-multimodal-genai] Error calling Gemini API for document \'generate/')
+      );
+      expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
+        expect.stringContaining('Error substituting variable "instruction" variables into prompt. All variable fields must be strings')
+      );
     });
   });
 
@@ -241,6 +278,8 @@ describe('Generate Text Function Tests', () => {
           topP: undefined,
         },
       });
+
+      expect(mockFunctionsLoggerError).not.toHaveBeenCalled();
     });
 
     test('should process message without createTime', async () => {
@@ -271,6 +310,8 @@ describe('Generate Text Function Tests', () => {
         model: config.googleAi.model,
       });
       expect(mockGenerativeAI.generateContent).toHaveBeenCalledTimes(1);
+
+      expect(mockFunctionsLoggerError).not.toHaveBeenCalled();
     });
   });
 });

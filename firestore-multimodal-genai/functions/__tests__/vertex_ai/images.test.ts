@@ -26,7 +26,6 @@ jest.mock('../../src/config', () => ({
     collectionName: 'generate',
     location: 'us-central1',
     prompt: '{{ instruction }}',
-    variableFields: ['instruction'],
     responseField: 'output',
     imageField: 'image',
     projectId: 'demo-gcp',
@@ -51,6 +50,19 @@ jest.mock('../../src/generative-client/image_utils', () => ({
 const mockGetClient = jest.fn();
 const mockGetModel = jest.fn();
 const mockGenerateContentStream = jest.fn();
+
+const mockFunctionsLoggerError = jest.fn();
+
+jest.mock('firebase-functions', () => ({
+  ...jest.requireActual('firebase-functions'),
+  logger: {
+    error: (x: any) => {
+      return mockFunctionsLoggerError(x)},
+    log: jest.fn(),
+    warn: jest.fn(),
+    info: jest.fn(),
+  }
+}));
 
 jest.mock('@google-cloud/vertexai', () => {
   return {
@@ -160,9 +172,9 @@ describe('generateMessage SDK directly', () => {
     jest.clearAllMocks();
   });
 
-  test('should not run if the prompt field is not set', async () => {
+  test('should not run if the instruction field is not set', async () => {
     const notMessage = {
-      notPrompt: 'hello chat bison',
+      notInstruction: 'hello Gemini',
     };
     // Make a write to the collection. This won't trigger our wrapped function as it isn't deployed to the emulator.
     const ref = await admin
@@ -173,11 +185,20 @@ describe('generateMessage SDK directly', () => {
     await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
 
     await expectNoOp();
+    expect(mockFunctionsLoggerError).toHaveBeenCalledTimes(1)
+
+    expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
+      expect.stringContaining('[firestore-multimodal-genai] Error calling Gemini API for document \'generate/')
+    );
+    expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
+      expect.stringContaining('Error substituting handlebar variables into prompt. Does your document contain the field "instruction"?')
+    );
+
   });
 
-  test('should not run if the prompt field is empty', async () => {
+  test('should not run if the instruction field is empty', async () => {
     const notMessage = {
-      prompt: '',
+      instruction: '',
     };
 
     const ref = await admin
@@ -188,6 +209,16 @@ describe('generateMessage SDK directly', () => {
     await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
 
     await expectNoOp();
+
+    expect(mockFunctionsLoggerError).toHaveBeenCalledTimes(1)
+    expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
+      expect.stringContaining('[firestore-multimodal-genai] Error calling Gemini API for document \'generate/')
+    );
+
+    // TODO: this error message could be specific to passing in an empty string?
+    expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
+      expect.stringContaining('Error substituting handlebar variables into prompt. Does your document contain the field "instruction"?')
+    );
   });
 
   test('should not run if the prompt field is not a string', async () => {
@@ -231,6 +262,15 @@ describe('generateMessage SDK directly', () => {
         completeTime: expect.any(Timestamp),
       },
     });
+
+    expect(mockFunctionsLoggerError).toHaveBeenCalledTimes(1);
+
+    expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
+      expect.stringContaining('[firestore-multimodal-genai] Error calling Gemini API for document \'generate/')
+    );
+    expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
+      expect.stringContaining('Error substituting variable "instruction" variables into prompt. All variable fields must be strings')
+    );
 
     await expectNoOp();
   });
@@ -283,6 +323,7 @@ describe('generateMessage SDK directly', () => {
         maxOutputTokens: undefined,
       },
     });
+    expect(mockFunctionsLoggerError).not.toHaveBeenCalled()
   });
 
   test('should run when not given createTime', async () => {
@@ -348,6 +389,7 @@ describe('generateMessage SDK directly', () => {
       },
       safetySettings: undefined,
     });
+    expect(mockFunctionsLoggerError).not.toHaveBeenCalled()
   });
 });
 
