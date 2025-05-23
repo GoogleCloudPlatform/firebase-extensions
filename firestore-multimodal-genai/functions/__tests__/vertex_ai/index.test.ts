@@ -21,7 +21,7 @@ jest.mock('firebase-functions', () => ({
     log: jest.fn(),
     warn: jest.fn(),
     info: jest.fn(),
-  }
+  },
 }));
 
 // // We mock out the config here instead of setting environment variables directly
@@ -178,10 +178,14 @@ describe('generateMessage SDK directly', () => {
 
     expect(mockFunctionsLoggerError).toHaveBeenCalledTimes(1);
     expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
-      expect.stringContaining('[firestore-multimodal-genai] Error calling Gemini API for document \'generate/')
+      expect.stringContaining(
+        "[firestore-multimodal-genai] Error calling Gemini API for document 'generate/"
+      )
     );
     expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
-      expect.stringContaining('Error substituting handlebar variables into prompt. Does your document contain the field "instruction"?')
+      expect.stringContaining(
+        'Error substituting handlebar variables into prompt. Does your document contain the field "instruction"?'
+      )
     );
   });
 
@@ -201,10 +205,14 @@ describe('generateMessage SDK directly', () => {
 
     expect(mockFunctionsLoggerError).toHaveBeenCalledTimes(1);
     expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
-      expect.stringContaining('[firestore-multimodal-genai] Error calling Gemini API for document \'generate/')
+      expect.stringContaining(
+        "[firestore-multimodal-genai] Error calling Gemini API for document 'generate/"
+      )
     );
     expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
-      expect.stringContaining('Error substituting handlebar variables into prompt. Does your document contain the field "instruction"?')
+      expect.stringContaining(
+        'Error substituting handlebar variables into prompt. Does your document contain the field "instruction"?'
+      )
     );
   });
 
@@ -252,10 +260,14 @@ describe('generateMessage SDK directly', () => {
 
     expect(mockFunctionsLoggerError).toHaveBeenCalledTimes(1);
     expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
-      expect.stringContaining('[firestore-multimodal-genai] Error calling Gemini API for document \'generate/')
+      expect.stringContaining(
+        "[firestore-multimodal-genai] Error calling Gemini API for document 'generate/"
+      )
     );
     expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
-      expect.stringContaining('Error substituting variable "instruction" variables into prompt. All variable fields must be strings')
+      expect.stringContaining(
+        'Error substituting variable "instruction" variables into prompt. All variable fields must be strings'
+      )
     );
 
     await expectNoOp();

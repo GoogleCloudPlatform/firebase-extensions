@@ -229,11 +229,13 @@ describe('Generate Text Function Tests', () => {
 
       expect(mockFunctionsLoggerError).toHaveBeenCalledTimes(1);
       expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
-        expect.stringContaining("[firestore-multimodal-genai] Error calling Gemini API for document \'generate/"
+        expect.stringContaining(
+          "[firestore-multimodal-genai] Error calling Gemini API for document 'generate/"
         )
       );
       expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
-        expect.stringContaining('Error substituting handlebar variables into prompt. Does your document contain the field "instruction"?'
+        expect.stringContaining(
+          'Error substituting handlebar variables into prompt. Does your document contain the field "instruction"?'
         )
       );
     });
@@ -249,11 +251,13 @@ describe('Generate Text Function Tests', () => {
 
       expect(mockFunctionsLoggerError).toHaveBeenCalledTimes(1);
       expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
-        expect.stringContaining("[firestore-multimodal-genai] Error calling Gemini API for document \'generate/"
+        expect.stringContaining(
+          "[firestore-multimodal-genai] Error calling Gemini API for document 'generate/"
         )
       );
       expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
-        expect.stringContaining('Error substituting handlebar variables into prompt. Does your document contain the field "instruction"?'
+        expect.stringContaining(
+          'Error substituting handlebar variables into prompt. Does your document contain the field "instruction"?'
         )
       );
     });
@@ -283,11 +287,13 @@ describe('Generate Text Function Tests', () => {
 
       expect(mockFunctionsLoggerError).toHaveBeenCalledTimes(1);
       expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
-        expect.stringContaining('[firestore-multimodal-genai] Error calling Gemini API for document \'generate/'
+        expect.stringContaining(
+          "[firestore-multimodal-genai] Error calling Gemini API for document 'generate/"
         )
       );
       expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
-        expect.stringContaining('Error substituting variable "instruction" variables into prompt. All variable fields must be strings'
+        expect.stringContaining(
+          'Error substituting variable "instruction" variables into prompt. All variable fields must be strings'
         )
       );
     });
@@ -318,11 +324,14 @@ describe('Generate Text Function Tests', () => {
 
       expect(mockFunctionsLoggerError).toHaveBeenCalledTimes(1);
       expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
-        expect.stringContaining('[firestore-multimodal-genai] Error calling Gemini API for document \'generate/'
+        expect.stringContaining(
+          "[firestore-multimodal-genai] Error calling Gemini API for document 'generate/"
         )
       );
       expect(mockFunctionsLoggerError).toHaveBeenCalledWith(
-        expect.stringContaining('Vision model selected, but missing Image Field')
+        expect.stringContaining(
+          'Vision model selected, but missing Image Field'
+        )
       );
     });
   });
@@ -356,7 +365,7 @@ describe('Generate Text Function Tests', () => {
 
       expectToProcessCorrectly(firestoreCallData, message, 'test response', 2);
       verifyApiCalls(message.instruction, imageMock);
-      
+
       expect(mockFunctionsLoggerError).not.toHaveBeenCalled();
     });
 
@@ -384,7 +393,7 @@ describe('Generate Text Function Tests', () => {
 
       expectToProcessCorrectly(firestoreCallData, message, 'test response', 2);
       verifyApiCalls(message.instruction, imageMock);
-      
+
       expect(mockFunctionsLoggerError).not.toHaveBeenCalled();
     });
   });
