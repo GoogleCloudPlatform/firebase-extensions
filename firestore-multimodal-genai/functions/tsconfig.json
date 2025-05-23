@@ -8,8 +8,12 @@
     "sourceMap": true,
     "strict": true,
     "target": "es2017",
-    "types": ["node", "jest"]
+    "types": ["node", "jest"],
+    "strictNullChecks": true,
+    "typeRoots": ["./node_modules/@types"]
   },
   "compileOnSave": true,
-  "include": ["."]
+ "include": ["src", "./__tests__", "__tests__/utils.test.ts"],
+  "exclude": ["node_modules"]
 }
+  
