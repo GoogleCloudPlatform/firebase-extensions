@@ -13,7 +13,7 @@
     "typeRoots": ["./node_modules/@types"]
   },
   "compileOnSave": true,
- "include": ["src", "./__tests__", "__tests__/utils.test.ts"],
+ "include": ["src", "./__tests__"],
   "exclude": ["node_modules"]
 }
   

@@ -1,4 +1,4 @@
-import {extractFields, extractHandlebarsVariables} from '../src/utils'; 
+import {extractFields, extractHandlebarsVariables} from '../src/utils';
 
 describe('extractFields', () => {
   const testObj = {
