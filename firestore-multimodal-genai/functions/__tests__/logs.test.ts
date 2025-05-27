@@ -1,4 +1,4 @@
-import * as logFunctions from '../src/logs'; // Adjust the path to where your functions are located
+import * as logFunctions from '../src/logs';
 import {logger} from 'firebase-functions';
 import config from '../src/__mocks__/config';
 
