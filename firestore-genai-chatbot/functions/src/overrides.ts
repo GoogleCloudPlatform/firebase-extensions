@@ -10,12 +10,12 @@ const floatSchema = z.union([z.string().transform(parseFloat), z.number()]);
 const overridesSchema = z.object({
   context: z.string().optional(),
   model: z.string().optional(),
+  responseMimeType: z.string().optional(),
   topK: intSchema.optional(),
   candidateCount: intSchema.optional(),
   maxOutputTokens: intSchema.optional(),
   topP: floatSchema.optional(),
   temperature: floatSchema.optional(),
-  responseMimeType: z.string().optional(),
 });
 
 export function extractOverrides(

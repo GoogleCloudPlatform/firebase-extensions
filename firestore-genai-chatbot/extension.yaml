@@ -299,11 +299,11 @@ params:
       should be formatted.
     type: select
     options:
-      - label: Text
+      - label: text/plain
         value: text/plain
-      - label: HTML
+      - label: text/html
         value: text/html
-      - label: JSON
+      - label: application/json
         value: application/json
     default: text/plain
     required: false
