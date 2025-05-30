@@ -110,6 +110,11 @@ export interface GenerateMessageOptions {
    * Controls the length of the response, if possible.
    */
   maxOutputTokens?: number;
+
+  /**
+   * Allows specification of the format of the response.
+   */
+  responseMimeType?: string;
 }
 
 export interface GenerateMessageResponse {

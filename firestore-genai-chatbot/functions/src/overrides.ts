@@ -15,6 +15,7 @@ const overridesSchema = z.object({
   maxOutputTokens: intSchema.optional(),
   topP: floatSchema.optional(),
   temperature: floatSchema.optional(),
+  responseMimeType: z.string().optional(),
 });
 
 export function extractOverrides(

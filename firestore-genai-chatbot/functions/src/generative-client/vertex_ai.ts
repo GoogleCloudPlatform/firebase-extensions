@@ -21,6 +21,7 @@ interface GeminiChatOptions {
   location: string;
   context?: string;
   safetySettings?: VertexSafetySetting[];
+  responseMimeType?: string;
 }
 
 type ApiMessage = {
@@ -86,6 +87,7 @@ export class VertexDiscussionClient extends DiscussionClient<
         temperature: options.temperature,
         candidateCount: options.candidateCount,
         maxOutputTokens: options.maxOutputTokens,
+        responseMimeType: options.responseMimeType,
       },
       safetySettings: options.safetySettings,
     };

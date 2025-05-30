@@ -292,6 +292,22 @@ params:
     required: false
     immutable: false
 
+  - param: VERTEX_RESPONSE_MIME_TYPE
+    label: Vertex Response MIME Type
+    description: >-
+      The MIME type of the response. This is used to determine how the response
+      should be formatted.
+    type: select
+    options:
+      - label: Text
+        value: text/plain
+      - label: HTML
+        value: text/html
+      - label: JSON
+        value: application/json
+    default: text/plain
+    required: false
+
   - param: ENABLE_DISCUSSION_OPTION_OVERRIDES
     label: Enable per document overrides.
     description: >-

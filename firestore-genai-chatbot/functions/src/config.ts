@@ -26,6 +26,7 @@ export enum GenerativeAIProvider {
 export interface Config {
   vertex: {
     model: string;
+    responseMimeType?: string;
   };
   googleAi: {
     model: string;
@@ -83,6 +84,7 @@ function getSafetySettings(): GoogleAISafetySetting[] | VertexSafetySetting[] {
 const config: Config = {
   vertex: {
     model: process.env.MODEL!,
+    responseMimeType: process.env.VERTEX_RESPONSE_MIME_TYPE,
   },
   googleAi: {
     model: process.env.MODEL!,
