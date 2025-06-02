@@ -1,5 +1,5 @@
 import {DiscussionClient, Message} from './base_class';
-import {logger} from 'firebase-functions/v1';
+import {logger} from '../logger';
 import {
   VertexAI,
   GenerateContentRequest,
@@ -101,7 +101,7 @@ export class VertexDiscussionClient extends DiscussionClient<
       result = aggregatedResponse;
       // result = await chatSession.sendMessage(latestApiMessage.parts[0].text);
     } catch (e) {
-      logger.error(e);
+      logger.error('Failed to generate response', e);
       // TODO: the error message provided exposes the API key, so we should handle this/ get the Gemini team to fix it their side.
       throw new Error(
         'Failed to generate response, see function logs for more details.'

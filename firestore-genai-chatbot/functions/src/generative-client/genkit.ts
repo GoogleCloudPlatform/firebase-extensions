@@ -1,4 +1,7 @@
 import {
+  gemini20Flash as gemini20FlashGoogleAI,
+  gemini20FlashLite as gemini20FlashLiteGoogleAI,
+  gemini20ProExp0205 as gemini20ProExp0205GoogleAI,
   gemini10Pro as gemini10ProGoogleAI,
   gemini15Flash as gemini15FlashGoogleAI,
   gemini15Pro as gemini15ProGoogleAI,
@@ -7,9 +10,13 @@ import {
 } from '@genkit-ai/googleai';
 
 import vertexAI, {
+  gemini20Flash as gemini20FlashVertexAI,
+  gemini20FlashLite as gemini20FlashLiteVertexAI,
+  gemini20ProExp0205 as gemini20ProExp0205VertexAI,
   gemini10Pro as gemini10ProVertexAI,
   gemini15Flash as gemini15FlashVertexAI,
   gemini15Pro as gemini15ProVertexAI,
+  gemini20FlashLitePreview0205 as gemini20FlashLitePreview0205VertexAI,
   PluginOptions as PluginOptionsVertexAI,
 } from '@genkit-ai/vertexai';
 import type {Config} from '../config';
@@ -22,7 +29,11 @@ import {
 } from 'genkit';
 import {ChatResponse, DiscussionClient, Message} from './base_class';
 import {GenkitPlugin} from 'genkit/plugin';
-import {logger} from 'firebase-functions/v1';
+import {logger} from '../logger';
+import {enableFirebaseTelemetry} from '@genkit-ai/firebase';
+import {logger as genkitLogger} from 'genkit/logging';
+
+genkitLogger.setLogLevel('info');
 
 export class GenkitDiscussionClient extends DiscussionClient<
   Genkit,
@@ -40,7 +51,7 @@ export class GenkitDiscussionClient extends DiscussionClient<
     this.provider = config.provider;
     this.pluginOptions = this.getPluginOptions(config);
     this.plugin = this.initializePlugin();
-    this.client = this.initializeGenkit();
+    this.client = this.initializeGenkit(config);
     this.generateOptions = this.createGenerateOptions(config);
   }
 
@@ -70,10 +81,21 @@ export class GenkitDiscussionClient extends DiscussionClient<
     throw new Error('Invalid provider.');
   }
 
-  private initializeGenkit(): Genkit {
-    return genkit({
+  private initializeGenkit(config: Config): Genkit {
+    const genkitConfig = {
       plugins: [this.plugin],
-    });
+    };
+
+    if (config.enableGenkitMonitoring) {
+      try {
+        enableFirebaseTelemetry();
+        logger.info('Genkit Monitoring enabled');
+      } catch (error) {
+        logger.error('Failed to enable Genkit Monitoring', error);
+      }
+    }
+
+    return genkit(genkitConfig);
   }
 
   static createModelReference(
@@ -82,8 +104,23 @@ export class GenkitDiscussionClient extends DiscussionClient<
   ): ModelReference<any> {
     const modelReferences =
       provider === 'google-ai'
-        ? [gemini10ProGoogleAI, gemini15FlashGoogleAI, gemini15ProGoogleAI]
-        : [gemini10ProVertexAI, gemini15FlashVertexAI, gemini15ProVertexAI];
+        ? [
+            gemini10ProGoogleAI,
+            gemini15FlashGoogleAI,
+            gemini15ProGoogleAI,
+            gemini20FlashGoogleAI,
+            gemini20FlashLiteGoogleAI,
+            gemini20ProExp0205GoogleAI,
+          ]
+        : [
+            gemini10ProVertexAI,
+            gemini15FlashVertexAI,
+            gemini15ProVertexAI,
+            gemini20FlashVertexAI,
+            gemini20FlashLiteVertexAI,
+            gemini20ProExp0205VertexAI,
+            gemini20FlashLitePreview0205VertexAI,
+          ];
 
     const pluginName = provider === 'google-ai' ? 'googleai' : 'vertexai';
 

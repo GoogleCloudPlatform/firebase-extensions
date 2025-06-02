@@ -1,3 +1,13 @@
+## Version 0.0.8
+
+fix - replaced validation of prefilters with handling errors raised from firestore
+
+refactor - move tests out of src
+
+## Version 0.0.7
+
+fix - bump to nodejs20 runtime in functions and run npm audit fix
+
 ## Version 0.0.6
 
 refactor - use Firebase Genkit where possible

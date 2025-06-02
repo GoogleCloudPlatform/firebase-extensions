@@ -2,6 +2,8 @@
 
 fix - update asia-southeast (Singapore) location value
 
+fix - bump to nodejs20 runtime in functions and run npm audit fix
+
 ## Version 0.1.8
 
 docs - updates to POSTINSTALL

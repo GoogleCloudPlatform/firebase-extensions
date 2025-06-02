@@ -1,17 +1,17 @@
 const packageJson = require('./package.json');
 
 module.exports = {
-  name: packageJson.name,
-  testEnvironment: 'node',
   displayName: packageJson.name,
+  testEnvironment: 'node',
   rootDir: './',
-  globals: {
-    'ts-jest': {
-      tsconfig: '<rootDir>/tsconfig.test.json', // Correct reference to test-specific config
-    },
-    fetch: global.fetch,
+  transform: {
+    '^.+\\.ts$': [
+      'ts-jest',
+      {
+        tsconfig: '<rootDir>/tsconfig.json',
+      },
+    ],
   },
-  preset: 'ts-jest',
   setupFiles: ['<rootDir>/__tests__/jest.setup.ts'],
   testMatch: ['**/*.test.ts'],
   moduleNameMapper: {

@@ -1,6 +1,26 @@
-## Version 0.0.12
+## Version 0.0.15
 
 - feat: add responseMimeType parameter to Vertex AI provider
+
+## Version 0.0.14
+
+- feat: improve extension logging
+
+- feat: add Genkit monitoring
+
+## Version 0.0.13
+
+- feat: support Gemini Flash Lite Preview on Vertex AI
+
+## Version 0.0.12
+
+- feat: support Gemini 2.0 models
+
+- feat: use nodejs20 runtime and run npm audit fix
+
+- chore: bump genkit version
+
+- fix: change sort order for correct default behavior
 
 ## Version 0.0.11
 

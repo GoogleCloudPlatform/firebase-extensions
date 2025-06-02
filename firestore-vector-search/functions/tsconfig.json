@@ -7,9 +7,11 @@
     "sourceMap": false,
     "outDir": "lib",
     "skipLibCheck": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "types": ["node", "jest"],
+    "typeRoots": ["./node_modules/@types"]
   },
   "compileOnSave": true,
-  "include": ["src", "__tests__/**/*.ts"], // Include test files here
-  "exclude": ["node_modules", "**/*.test.ts"]
+  "include": ["src", "./__tests__"],
+  "exclude": ["node_modules"]
 }

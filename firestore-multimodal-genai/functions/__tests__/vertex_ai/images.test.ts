@@ -10,7 +10,7 @@ import {expectToProcessCorrectly} from '../util';
 import {imageMock} from '../fixtures/imageMock';
 
 process.env.GCLOUD_PROJECT = 'demo-gcp';
-
+process.env.PROJECT_ID = 'demo-gcp';
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 
 // // We mock out the config here instead of setting environment variables directly
@@ -29,8 +29,8 @@ jest.mock('../../src/config', () => ({
     variableFields: ['instruction'],
     responseField: 'output',
     imageField: 'image',
-    projectId: 'demo-test',
-    instanceId: 'demo-test',
+    projectId: 'demo-gcp',
+    instanceId: 'demo-gcp',
     provider: 'vertex-ai',
     candidates: {
       field: 'candidates',

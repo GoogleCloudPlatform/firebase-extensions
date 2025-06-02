@@ -14,7 +14,7 @@ This extension is subject to [BigQuery write throughput limitations and availabi
 
 ## Additional Setup
 
-Before installing this extension, you’ll need to
+Before this extension can run restoration jobs from BigQuery to Firestore, you’ll need to:
 
 - [Set up Cloud Firestore in your Firebase project](https://firebase.google.com/docs/firestore/quickstart).
 - [Enable PiTR in your Firestore database instance](https://firebase.google.com/docs/firestore/use-pitr)
@@ -29,6 +29,8 @@ Before installing this extension, you’ll need to
 ```
 
 (Note that this extension currently only works on database instances in `firestore-native` mode).
+
+Further instructions are provided upon installation.
 
 ### Billing
 

@@ -81,6 +81,8 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * TF Model URL: The URL to the TF model exported to JSON with weights. The URL must be public and points to a directory with `model.json` and `**.bin` files. Check https://www.tensorflow.org/js/guide/save_load for more details.
 
+* Model from TF Hub?: If true, your MODEL_URL will be treated as a TF Hub base path and “/model.json?tfjs-format=file” will be appended for you.
+
 * Model input shape: The input shape of the model. For example, if the model expects 224x224 images, the input shape is `224,244`.
 
 * Distance measure type: The distance measure used in nearest neighbor search. The default is dot product.  [Read more about distance measures here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#distance-measure-type).

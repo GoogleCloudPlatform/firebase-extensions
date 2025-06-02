@@ -1,5 +1,5 @@
 name: storage-reverse-image-search
-version: 0.1.8
+version: 0.1.9
 specVersion: v1beta
 
 icon: icon.png
@@ -67,7 +67,7 @@ resources:
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       timeout: 540s
       taskQueueTrigger: {}
 
@@ -80,7 +80,7 @@ resources:
     properties:
       availableMemoryMb: 8192
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       timeout: 540s
       taskQueueTrigger:
         retryConfig:
@@ -95,7 +95,7 @@ resources:
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.update
         resource: projects/${param:PROJECT_ID}/databases/(default)/documents/_ext-${param:EXT_INSTANCE_ID}/tasks
@@ -108,7 +108,7 @@ resources:
     properties:
       location: ${LOCATION}
       buildConfig:
-        runtime: nodejs18
+        runtime: nodejs20
       serviceConfig:
         availableMemory: 512M
       eventTrigger:
@@ -128,7 +128,7 @@ resources:
     properties:
       location: ${LOCATION}
       buildConfig:
-        runtime: nodejs18
+        runtime: nodejs20
       serviceConfig:
         availableMemory: 512M
       eventTrigger:
@@ -148,7 +148,7 @@ resources:
       Engine index.
     properties:
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       availableMemoryMb: 8192
       timeout: 540s
       eventTrigger:
@@ -162,7 +162,7 @@ resources:
       It removes the image's datapoint from the Matching Engine index.
     properties:
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       availableMemoryMb: 8192
       timeout: 540s
       eventTrigger:
@@ -178,7 +178,7 @@ resources:
     properties:
       availableMemoryMb: 1024
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       timeout: 540s
       taskQueueTrigger: {}
 
@@ -189,7 +189,7 @@ resources:
     properties:
       availableMemoryMb: 8192
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       httpsTrigger: {}
 
 params:
@@ -239,9 +239,25 @@ params:
     type: string
     required: true
     immutable: true
-    default: https://tfhub.dev/google/tfjs-model/imagenet/inception_resnet_v2/feature_vector/1/default/1
+    default: https://storage.googleapis.com/tfjs-models/savedmodel/mobilenet_v2_1.0_224/model.json
     validationRegex: ^https:\/\/.*$
     validationErrorMessage: Invalid URL
+  
+  - param: MODEL_FROM_TF_HUB
+    label: Model from TF Hub?
+    description: >-
+      If true, your MODEL_URL will be treated as a TF Hub base path and
+      “/model.json?tfjs-format=file” will be appended for you.
+    type: select
+    required: true
+    immutable: true
+    default: false
+    options:
+      - label: Yes
+        value: true
+      - label: No
+        value: false
+
 
   - param: INPUT_SHAPE
     label: Model input shape
@@ -252,7 +268,7 @@ params:
     required: true
     immutable: true
     example: 224,224
-    default: 299,299
+    default: 224,224
     validationRegex: ^\d+,\d+$
     validationErrorMessage: Invalid input shape
 

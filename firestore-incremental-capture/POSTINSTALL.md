@@ -78,7 +78,7 @@ gcloud auth configure-docker ${param:LOCATION}-docker.pkg.dev
    ```
 
 7. Download the JAR file for the Dataflow Flex Template [here](https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-incremental-capture-pipeline/target/restore-firestore.jar).
-8. Run the following command to build the Dataflow Flex Template:
+8. Run the following command to build the Dataflow Flex Template. Note that Cloud Storage buckets provisioned after September 30th 2024 are suffixed by `.firebasestorage.app` rather than `.appspot.com` and you should change the following command accordingly:
 
 ```bash
   gcloud dataflow flex-template build gs://${param:PROJECT_ID}.appspot.com/${param:EXT_INSTANCE_ID}-dataflow-restore \
@@ -92,7 +92,7 @@ gcloud auth configure-docker ${param:LOCATION}-docker.pkg.dev
 
 ## Triggering a restoration job
 
-You can trigger a restoration job by calling the `restoreFirestore` function [here](https://${LOCATION}-${POJECT_ID}.cloudfunctions.net/${EXT_INSTANCE_ID}).
+You can trigger a restoration job by calling the `restoreFirestore` function [here](https://${LOCATION}-${PROJECT_ID}.cloudfunctions.net/${EXT_INSTANCE_ID}).
 
 Here is an example that will run from one hour ago:
 

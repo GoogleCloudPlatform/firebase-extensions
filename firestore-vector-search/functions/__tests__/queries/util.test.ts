@@ -1,4 +1,4 @@
-import {parseLimit, parseQuerySchema} from './util';
+import {parseLimit, parseQuerySchema} from '../../src/queries/util';
 import {z} from 'zod';
 
 describe('parseLimit', () => {
@@ -101,20 +101,6 @@ describe('parseQuerySchema', () => {
 
   test('should throw an error if limit is neither a string nor a number', () => {
     const data = {query: 'example query', limit: false};
-    expect(() => parseQuerySchema(data)).toThrow(z.ZodError);
-  });
-
-  test('should throw an error if prefilters have invalid operator', () => {
-    const data = {
-      query: 'example query',
-      prefilters: [
-        {
-          field: 'test',
-          operator: 'invalid' as any,
-          value: 'value',
-        },
-      ],
-    };
     expect(() => parseQuerySchema(data)).toThrow(z.ZodError);
   });
 });

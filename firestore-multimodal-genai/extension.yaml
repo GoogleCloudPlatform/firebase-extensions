@@ -1,5 +1,5 @@
 name: firestore-multimodal-genai
-version: 1.0.1
+version: 1.0.2
 specVersion: v1beta
 
 icon: icon.png
@@ -71,7 +71,7 @@ resources:
     properties:
       location: ${LOCATION}
       httpsTrigger: {}
-      runtime: nodejs18
+      runtime: nodejs20
 
   - name: generateText
     type: firebaseextensions.v1beta.function
@@ -84,7 +84,7 @@ resources:
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
         resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION_NAME}/{summaryId}
-      runtime: 'nodejs18'
+      runtime: nodejs20
 
 params:
   - param: GENERATIVE_AI_PROVIDER
@@ -113,7 +113,7 @@ params:
       [Google AI Gemini models](https://ai.google.dev/models/gemini)
     type: string
     required: true
-    default: gemini-1.0-pro
+    default: gemini-2.0-flash
     immutable: false
 
   - param: API_KEY

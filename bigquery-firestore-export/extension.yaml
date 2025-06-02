@@ -13,7 +13,7 @@
 # limitations under the License.
 
 name: bigquery-firestore-export
-version: 0.1.4
+version: 0.1.5
 specVersion: v1beta
 
 displayName: Export BigQuery to Firestore
@@ -64,6 +64,7 @@ resources:
     type: firebaseextensions.v1beta.function
     properties:
       location: ${LOCATION}
+      runtime: nodejs20
       eventTrigger:
         eventType: google.pubsub.topic.publish
         resource: projects/${PROJECT_ID}/topics/ext-${EXT_INSTANCE_ID}-processMessages
@@ -74,7 +75,7 @@ resources:
       Creates transfer config if doesn't exist yet.
     properties:
       location: ${LOCATION}
-      runtime: nodejs18
+      runtime: nodejs20
       availableMemoryMb: 1024
       taskQueueTrigger: {}
 

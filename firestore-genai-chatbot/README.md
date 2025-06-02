@@ -28,7 +28,7 @@ Message documents might look like this:
 
 ```
 {
-  prompt: “What is the best museum to visit in Barcelona, Spain?”
+  prompt: "What is the best museum to visit in Barcelona, Spain?"
 }
 ```
 
@@ -56,10 +56,21 @@ Ensure you have a [Cloud Firestore database](https://firebase.google.com/docs/fi
 
 Changing the state field of a completed document's status from `COMPLETED` to anything else will retrigger the extension for that document.
 
+### Genkit Monitoring
+
+This extension supports Genkit monitoring, which provides detailed insights into the performance and behavior of your chatbot. When enabled, Genkit monitoring will:
+
+- Track model response times and latency
+- Monitor token usage and costs
+- Provide visibility into model behavior and safety settings
+- Help identify potential issues or optimization opportunities
+
+To enable Genkit monitoring, set the `Enable Genkit Monitoring` configuration parameter to `yes` during installation. Note that enabling this feature may incur additional costs depending on your usage.
+
 ## Billing
 
 To install an extension, your project must be on the Blaze (pay as you go) plan. You will be charged a small amount (typically around $0.01/month) for the Firebase resources required by this extension (even if it is not used).
-This extension uses other Firebase and Google Cloud Platform services, which have associated charges if you exceed the service’s no-cost tier:
+This extension uses other Firebase and Google Cloud Platform services, which have associated charges if you exceed the service's no-cost tier:
 
 - Cloud Firestore
 - Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
@@ -107,6 +118,8 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Enable per document overrides.: If set to \"Yes\", discussion parameters may be overwritten by fields in the discussion collection.
 
+* Enable Genkit Monitoring: If set to "Yes", enables Genkit Monitoring for collecting and viewing real-time telemetry data. This requires the Cloud Logging API, Cloud Trace API, and Cloud Monitoring API to be enabled, and appropriate IAM roles to be configured. See the documentation for more details.
+
 * Hate Speech Threshold: Threshold for hate speech content. Specify what probability level of hate speech content is blocked by the Gemini provider.
 
 * Dangerous Content Threshold: Threshold for dangerous content. Specify what probability level of dangerous content is blocked by the Gemini provider.
@@ -138,3 +151,9 @@ This extension will operate with the following project IAM roles:
 * datastore.user (Reason: Allows this extension to access Cloud Firestore to read and process added messages.)
 
 * aiplatform.user (Reason: Allows this extension to access the Vertex AI API if this provider is chosen.)
+
+* monitoring.metricWriter (Reason: Allows this extension to write metrics to Cloud Monitoring when Genkit monitoring is enabled.)
+
+* cloudtrace.agent (Reason: Allows this extension to write trace data to Cloud Trace when Genkit monitoring is enabled.)
+
+* logging.logWriter (Reason: Allows this extension to write logs to Cloud Logging when Genkit monitoring is enabled.)
