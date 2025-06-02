@@ -1,3 +1,7 @@
+## Version 0.0.12
+
+- feat: add responseMimeType parameter to Vertex AI provider
+
 ## Version 0.0.11
 
 - refactor: use Firebase Genkit SDK to access Gemini API
