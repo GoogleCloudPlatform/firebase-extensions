@@ -26,7 +26,6 @@ export enum GenerativeAIProvider {
 export interface Config {
   vertex: {
     model: string;
-    responseMimeType?: string;
   };
   googleAi: {
     model: string;
@@ -48,6 +47,7 @@ export interface Config {
   topK?: number;
   candidateCount?: number;
   candidatesField?: string;
+  responseMimeType?: string;
   safetySettings?: GoogleAISafetySetting[] | VertexSafetySetting[];
   provider: GenerativeAIProvider;
   maxOutputTokens?: number;
@@ -101,7 +101,6 @@ validateRequiredEnvVars();
 const config: Config = {
   vertex: {
     model: process.env.MODEL!,
-    responseMimeType: process.env.VERTEX_RESPONSE_MIME_TYPE,
   },
   googleAi: {
     model: process.env.MODEL!,
@@ -131,6 +130,7 @@ const config: Config = {
     ? parseInt(process.env.CANDIDATE_COUNT)
     : 1,
   candidatesField: process.env.CANDIDATES_FIELD || 'candidates',
+  responseMimeType: process.env.RESPONSE_MIME_TYPE,
   safetySettings: getSafetySettings(),
   provider:
     (process.env.GENERATIVE_AI_PROVIDER as GenerativeAIProvider) ||

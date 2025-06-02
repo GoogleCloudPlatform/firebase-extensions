@@ -1,6 +1,6 @@
 ## Version 0.0.15
 
-- feat: add responseMimeType parameter to Vertex AI provider
+- feat: add `responseMimeType` parameter
 
 ## Version 0.0.14
 

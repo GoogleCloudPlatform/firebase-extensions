@@ -15,6 +15,7 @@ interface GeminiChatOptions {
   location: string;
   context?: string;
   safetySettings: SafetySetting[];
+  responseMimeType?: string;
 }
 
 type ApiMessage = {
@@ -80,6 +81,7 @@ export class GeminiDiscussionClient extends DiscussionClient<
         temperature: options.temperature,
         maxOutputTokens: options.maxOutputTokens,
         candidateCount: options.candidateCount,
+        responseMimeType: options.responseMimeType,
       },
       safetySettings: options.safetySettings,
     });

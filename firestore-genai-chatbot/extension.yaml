@@ -301,8 +301,8 @@ params:
     required: false
     immutable: false
 
-  - param: VERTEX_RESPONSE_MIME_TYPE
-    label: Vertex Response MIME Type
+  - param: RESPONSE_MIME_TYPE
+    label: Response MIME Type
     description: >-
       The MIME type of the response. This is used to determine how the response
       should be formatted.

@@ -151,7 +151,7 @@ export class GenkitDiscussionClient extends DiscussionClient<
         temperature: config.temperature,
         maxOutputTokens: config.maxOutputTokens,
         safetySettings: config.safetySettings,
-        responseMimeType: config.vertex.responseMimeType,
+        responseMimeType: config.responseMimeType,
       },
     };
   }

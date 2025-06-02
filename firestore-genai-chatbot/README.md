@@ -114,7 +114,7 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Candidates field: The field in the message document into which to put the other candidate responses if the candidate count parameter is greater than one.
 
-* Vertex Response MIME Type: The MIME type of the response. This is used to determine how the response should be formatted.
+* Response MIME Type: The MIME type of the response. This is used to determine how the response should be formatted.
 
 * Enable per document overrides.: If set to \"Yes\", discussion parameters may be overwritten by fields in the discussion collection.
 
