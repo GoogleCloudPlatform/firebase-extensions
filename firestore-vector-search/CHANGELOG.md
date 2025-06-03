@@ -1,3 +1,7 @@
+## Version 0.0.9
+
+docs - fix typo in PREINSTALL and README
+
 ## Version 0.0.8
 
 fix - replaced validation of prefilters with handling errors raised from firestore
