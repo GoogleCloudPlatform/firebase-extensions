@@ -151,7 +151,11 @@ export class GenkitDiscussionClient extends DiscussionClient<
         temperature: config.temperature,
         maxOutputTokens: config.maxOutputTokens,
         safetySettings: config.safetySettings,
-        responseMimeType: config.responseMimeType,
+      },
+      output: {
+        contentType: config.responseMimeType || 'text/plain',
+        format: config.responseMimeType === 'application/json' ? 'json' : 'text',
+        constrained: true
       },
     };
   }
@@ -185,7 +189,7 @@ export class GenkitDiscussionClient extends DiscussionClient<
     });
 
     return {
-      response: llmResponse.text,
+      response: this.generateOptions.output?.contentType === "application/json" && llmResponse.output ? JSON.stringify(llmResponse.output) : llmResponse.text,
       candidates: [llmResponse.text],
       history,
     };

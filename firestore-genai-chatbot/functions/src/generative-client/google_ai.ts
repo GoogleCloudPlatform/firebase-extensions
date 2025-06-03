@@ -88,7 +88,8 @@ export class GeminiDiscussionClient extends DiscussionClient<
 
     let result;
     try {
-      result = await chatSession.sendMessage(latestApiMessage.parts[0].text);
+      const input = latestApiMessage.parts[0].text
+      result = await chatSession.sendMessage(input);
     } catch (e) {
       logger.error('Failed to generate response', e);
       // TODO: the error message provided exposes the API key, so we should handle this/ get the Gemini team to fix it their side.
