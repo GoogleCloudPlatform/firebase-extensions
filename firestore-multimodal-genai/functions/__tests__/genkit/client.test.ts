@@ -9,6 +9,17 @@ import {HarmBlockThreshold, HarmCategory} from '@google/generative-ai';
 // Mock the genkit library
 jest.mock('genkit', () => ({
   genkit: jest.fn().mockReturnValue({generate: jest.fn()}),
+  isDevEnv: jest.fn().mockReturnValue(true),
+  getCurrentEnv: jest.fn().mockReturnValue('development'),
+}));
+
+jest.mock('@genkit-ai/google-cloud', () => ({
+  configureGcpPlugin: jest.fn().mockReturnValue({name: 'google-cloud'}),
+  enableGoogleCloudTelemetry: jest.fn(),
+}));
+
+jest.mock('@genkit-ai/firebase', () => ({
+  enableFirebaseTelemetry: jest.fn(),
 }));
 
 jest.mock('@genkit-ai/googleai', () => ({

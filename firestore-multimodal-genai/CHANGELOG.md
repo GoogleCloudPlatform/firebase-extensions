@@ -2,7 +2,7 @@
 
 - chore: clean up tests
 
-- feat: add genkit ai monitoring to firestore-multimodal-genai extension
+- feat: add genkit ai monitoring
 
 ## Version 1.0.2
 
