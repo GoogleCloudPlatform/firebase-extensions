@@ -1,3 +1,5 @@
+## Version 1.0.3
+- chore: clean up firestore-multimodal-genai tests
 ## Version 1.0.2
 
 - fix: bump to nodejs20 runtime in functions and run npm audit fix

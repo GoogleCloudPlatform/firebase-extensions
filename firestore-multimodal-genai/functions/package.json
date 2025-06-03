@@ -2,7 +2,7 @@
   "name": "firestore-multimodal-genai",
   "scripts": {
     "lint": "eslint \"src/**/*\"",
-    "lint:fix": "eslint \"src/**/*\" --fix",
+    "lint:fix": "eslint \"src/**/*\" \"__tests__/**/*\" --fix",
     "build": "tsc -p tsconfig.build.json",
     "build:watch": "tsc -p tsconfig.build.json --watch",
     "generate-readme": "firebase ext:info .. --markdown > ../README.md",

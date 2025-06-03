@@ -1,14 +1,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import {compressImageBuffer, extractBucketName} from './image_utils';
+import {
+  compressImageBuffer,
+  extractBucketName,
+} from '../src/generative-client/image_utils';
 describe('compressImageBuffer', () => {
   test('should compress large image', async () => {
     // get image fixture
 
-    const imagePath = path.posix.join(
-      __dirname,
-      '../../__tests__/fixtures/large-image.jpg'
-    );
+    const imagePath = path.posix.join(__dirname, './fixtures/large-image.jpg');
 
     const imageBuffer = fs.readFileSync(imagePath);
 
