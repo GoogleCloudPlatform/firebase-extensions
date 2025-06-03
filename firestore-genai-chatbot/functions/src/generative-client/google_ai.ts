@@ -88,7 +88,7 @@ export class GeminiDiscussionClient extends DiscussionClient<
 
     let result;
     try {
-      const input = latestApiMessage.parts[0].text
+      const input = latestApiMessage.parts[0].text;
       result = await chatSession.sendMessage(input);
     } catch (e) {
       logger.error('Failed to generate response', e);
