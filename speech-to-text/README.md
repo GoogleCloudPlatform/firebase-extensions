@@ -70,6 +70,9 @@ If you're not sure, just use the default.
 * Enable automatic punctuation: Should the transcription algorithm attempt to add punctuation to the transcription? For details, see [the documentation](https://cloud.google.com/speech-to-text/docs/automatic-punctuation)
 
 
+* Path prefix to process: Only audio files uploaded to this path prefix will be processed.  For example, if set to 'location/thisone', only files in that directory  will be transcribed. Leave empty to process all files.
+
+
 
 
 **Cloud Functions:**

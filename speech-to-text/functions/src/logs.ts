@@ -59,7 +59,9 @@ export const contentTypeInvalid = (contentType: string) => {
 };
 
 export const pathNotMatching = (filePath: string, includePath: string) => {
-  logger.log(`Skipping file '${filePath}' as it doesn't match include path '${includePath}'`);
+  logger.log(
+    `Skipping file '${filePath}' as it doesn't match include path '${includePath}'`
+  );
 };
 
 export const downloaded = (remotePath: string, localPath: string) => {

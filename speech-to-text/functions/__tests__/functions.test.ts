@@ -9,8 +9,6 @@ import {
 import {EventContextOptions} from 'firebase-functions-test/lib/v1';
 import * as admin from 'firebase-admin';
 
-import config from '../src/config';
-
 process.env.FIREBASE_STORAGE_EMULATOR_HOST = '127.0.0.1:9199';
 process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 process.env.FIREBASE_FIRESTORE_EMULATOR_ADDRESS = '127.0.0.1:8080';
@@ -267,7 +265,9 @@ describe('Firestore integration', () => {
     await new Promise(resolve => setTimeout(resolve, 5000));
 
     /** Get the new document */
-    const collection = db.collection(config.collectionPath!);
+    const collection = db.collection(
+      require('../src/config').default.collectionPath!
+    );
     const doc = await collection
       .where('fileName', '==', 'test.wav')
       .limit(1)
@@ -283,6 +283,7 @@ describe('Firestore integration', () => {
 
   test('Should not write the result to Firestore when not configured', async () => {
     /** set collection path to null */
+    const config = require('../src/config').default;
     config.collectionPath = '';
 
     // Arrange: create a valid storage object and mock a failed transcribe result
@@ -309,8 +310,12 @@ describe('Firestore integration', () => {
     const fn = testEnv.wrap(transcribeAudio);
     await fn(object);
 
-    await db.listCollections().then(collections => {
-      expect(collections.length).toBe(0);
-    });
+    // Wait for any async operations to complete
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    // Check that no collections were created
+    const collections = await db.listCollections();
+    console.log(collections.map(c => c.id));
+    expect(collections.length).toBe(0);
   });
 });

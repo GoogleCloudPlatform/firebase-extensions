@@ -64,7 +64,7 @@ jest.mock('firebase-admin', () => ({
   })),
   firestore: jest.fn(() => ({
     collection: jest.fn(() => ({
-      add: jest.fn().mockResolvedValue({ id: 'test-doc-id' }),
+      add: jest.fn().mockResolvedValue({id: 'test-doc-id'}),
       doc: jest.fn(() => ({
         set: jest.fn().mockResolvedValue({}),
         update: jest.fn().mockResolvedValue({}),
@@ -153,4 +153,4 @@ describe('Path filtering', () => {
     // Cleanup: restore original includePath
     config.includePath = originalIncludePath;
   });
-}); 
+});
