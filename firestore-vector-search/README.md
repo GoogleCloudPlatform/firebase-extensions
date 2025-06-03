@@ -8,7 +8,7 @@
 
 **Details**: Use this extension to automatically embed and query your Firestore documents with the new vector search feature!
 
-When you install this collection you specify a collection and a document field name. Adding or updating a document with this field triggers this extension to calculate a vector embedding for the document.
+When you install this extension you specify a collection and a document field name. Adding or updating a document with this field triggers this extension to calculate a vector embedding for the document.
 
 This vector embedding is written back to the same document, and the document is indexed in the vector store, ready to be queried against.
 
