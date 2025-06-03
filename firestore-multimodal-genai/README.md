@@ -140,6 +140,8 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Candidates field: The field in the message document into which to put the other candidate responses if the candidate count parameter is greater than one.
 
+* Response MIME Type: The MIME type of the response. This is used to determine how the response should be interpreted. For example, if you set this to 'application/json', the response will be treated as JSON.
+
 * Hate Speech Threshold: Threshold for hate speech content. Specify what probability level of hate speech content is blocked by the Gemini provider.
 
 * Dangerous Content Threshold: Threshold for dangerous content. Specify what probability level of dangerous content is blocked by the Gemini provider.

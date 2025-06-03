@@ -56,6 +56,7 @@ export class VertexLanguageClient extends GenerativeClient<any, VertexAI> {
         temperature: options.temperature,
         candidateCount: options.candidateCount,
         maxOutputTokens: options.maxOutputTokens,
+        responseMimeType: options.responseMimeType,
       },
       safetySettings: options.safetySettings,
     };
