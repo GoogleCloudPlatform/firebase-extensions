@@ -1,11 +1,8 @@
-  {
-    "preset": "ts-jest",
-    "testEnvironment": "node",
-    "verbose": true,
-    "testMatch": [
-      "/**/*.test.ts"
-    ],
-    "testPathIgnorePatterns": [
-      "__tests__/util.ts"
-    ]
-  }
+{
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "verbose": true,
+  "testMatch": ["/**/*.test.ts"],
+  "testPathIgnorePatterns": ["__tests__/util.ts"],
+  "transformIgnorePatterns": ["node_modules/(?!(@genkit-ai|genkit)/)"]
+}

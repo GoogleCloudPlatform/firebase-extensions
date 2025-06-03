@@ -148,6 +148,8 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Sexual Content Threshold: Threshold for sexually explicit content. Specify what probability level of sexual content is blocked by the Gemini provider.
 
+* Enable Genkit Monitoring: If set to "Yes", enables Genkit Monitoring for collecting and viewing real-time telemetry data. This requires the Cloud Logging API, Cloud Trace API, and Cloud Monitoring API to be enabled, and appropriate IAM roles to be configured. See the documentation for more details.
+
 
 
 **Cloud Functions:**
@@ -175,3 +177,9 @@ This extension will operate with the following project IAM roles:
 * storage.objectAdmin (Reason: Allows the extension to read from your Cloud Storage.)
 
 * aiplatform.user (Reason: Allows this extension to access the Gemini family of genai models via Vertex AI if this provider is chosen.)
+
+* monitoring.metricWriter Allows this extension to write metrics to Cloud Monitoring when Genkit monitoring is enabled.
+
+* cloudtrace.agent (Reason: Allows this extension to write trace data to Cloud Trace when Genkit monitoring is enabled.)
+
+* logging.logWriter (Reason: Allows this extension to write logs to Cloud Logging when Genkit monitoring is enabled.)

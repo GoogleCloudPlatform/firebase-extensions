@@ -1,5 +1,9 @@
 ## Version 1.0.3
-- chore: clean up firestore-multimodal-genai tests
+
+- chore: clean up tests
+
+- feat: add genkit ai monitoring
+
 ## Version 1.0.2
 
 - fix: bump to nodejs20 runtime in functions and run npm audit fix
