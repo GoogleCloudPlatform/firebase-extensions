@@ -291,6 +291,16 @@ params:
     required: false
     immutable: false
 
+  - param: RESPONSE_MIME_TYPE
+    label: Response MIME Type
+    description: >-
+      The MIME type of the response. This is used to determine how the response
+      should be interpreted. For example, if you set this to 'application/json',
+      the response will be treated as JSON.
+    type: string
+    default: text/plain
+    required: false
+
   # - param: RAG_HOOK_URL
   #   label: Custom RAG Hook URL
   #   description: >-

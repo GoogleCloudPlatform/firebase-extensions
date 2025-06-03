@@ -161,6 +161,7 @@ export class GenkitGenerativeClient extends GenerativeClient<
         temperature: config.temperature,
         maxOutputTokens: config.maxOutputTokens,
         safetySettings: config.safetySettings,
+        responseMimeType: config.responseMimeType,
       },
     };
   }

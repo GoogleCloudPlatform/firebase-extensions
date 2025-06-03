@@ -47,6 +47,7 @@ export interface Config {
   };
   maxOutputTokens?: number;
   maxOutputTokensVertex?: number;
+  responseMimeType?: string;
   provider: string;
   apiKey?: string;
   safetySettings?: GoogleAISafetySetting[] | VertexSafetySetting[];
@@ -120,6 +121,7 @@ export default {
   topP: process.env.TOP_P ? parseFloat(process.env.TOP_P) : undefined,
   topK: process.env.TOP_K ? parseInt(process.env.TOP_K) : undefined,
   candidates,
+  responseMimeType: process.env.RESPONSE_MIME_TYPE || 'text/plain',
   provider: process.env.GENERATIVE_AI_PROVIDER,
   maxOutputTokensVertex: process.env.MAX_OUTPUT_TOKENS
     ? parseInt(process.env.MAX_OUTPUT_TOKENS)
