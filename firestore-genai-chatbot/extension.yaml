@@ -1,5 +1,5 @@
 name: firestore-genai-chatbot
-version: 0.0.14
+version: 0.0.15
 specVersion: v1beta
 
 icon: icon.png
@@ -300,6 +300,21 @@ params:
     default: candidates
     required: false
     immutable: false
+
+  - param: RESPONSE_MIME_TYPE
+    label: Response MIME Type
+    description: >-
+      The MIME type of the response. This is used to determine how the response
+      should be interpreted. For example, if you set this to 'application/json',
+      the response will be treated as JSON.
+    type: select
+    options:
+      - label: text/plain
+        value: text/plain
+      - label: application/json
+        value: application/json
+    default: text/plain
+    required: false
 
   - param: ENABLE_DISCUSSION_OPTION_OVERRIDES
     label: Enable per document overrides.

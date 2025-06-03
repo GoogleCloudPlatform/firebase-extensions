@@ -114,6 +114,8 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Candidates field: The field in the message document into which to put the other candidate responses if the candidate count parameter is greater than one.
 
+* Response MIME Type: The MIME type of the response. This is used to determine how the response should be interpreted. For example, if you set this to 'application/json', the response will be treated as JSON.
+
 * Enable per document overrides.: If set to \"Yes\", discussion parameters may be overwritten by fields in the discussion collection.
 
 * Enable Genkit Monitoring: If set to "Yes", enables Genkit Monitoring for collecting and viewing real-time telemetry data. This requires the Cloud Logging API, Cloud Trace API, and Cloud Monitoring API to be enabled, and appropriate IAM roles to be configured. See the documentation for more details.

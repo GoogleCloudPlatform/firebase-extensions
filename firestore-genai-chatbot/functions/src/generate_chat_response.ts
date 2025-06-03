@@ -20,6 +20,7 @@ export const generateChatResponse = async (
     context: config.context,
     maxOutputTokens: config.maxOutputTokens,
     safetySettings: config.safetySettings || [],
+    responseMimeType: config.responseMimeType,
   };
 
   if (config.enableDiscussionOptionOverrides) {

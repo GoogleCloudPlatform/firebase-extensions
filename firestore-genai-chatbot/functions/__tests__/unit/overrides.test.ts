@@ -19,12 +19,14 @@ describe('extractOverrides function', () => {
   test('should correctly extract string fields', () => {
     mockDocSnap['context'] = 'testContext';
     mockDocSnap['model'] = 'testModel';
+    mockDocSnap['responseMimeType'] = 'text/plain';
 
     const overrides = extractOverrides(mockDocSnap);
 
     expect(overrides).toEqual({
       context: 'testContext',
       model: 'testModel',
+      responseMimeType: 'text/plain',
     });
   });
 

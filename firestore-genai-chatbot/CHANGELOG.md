@@ -1,3 +1,7 @@
+## Version 0.0.15
+
+- feat: add `responseMimeType` parameter
+
 ## Version 0.0.14
 
 - feat: improve extension logging

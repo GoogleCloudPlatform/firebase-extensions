@@ -47,6 +47,7 @@ export interface Config {
   topK?: number;
   candidateCount?: number;
   candidatesField?: string;
+  responseMimeType?: string;
   safetySettings?: GoogleAISafetySetting[] | VertexSafetySetting[];
   provider: GenerativeAIProvider;
   maxOutputTokens?: number;
@@ -129,6 +130,7 @@ const config: Config = {
     ? parseInt(process.env.CANDIDATE_COUNT)
     : 1,
   candidatesField: process.env.CANDIDATES_FIELD || 'candidates',
+  responseMimeType: process.env.RESPONSE_MIME_TYPE,
   safetySettings: getSafetySettings(),
   provider:
     (process.env.GENERATIVE_AI_PROVIDER as GenerativeAIProvider) ||
