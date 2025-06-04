@@ -24,4 +24,5 @@ export default {
   outputStoragePath: process.env.OUTPUT_STORAGE_PATH,
   collectionPath: process.env.COLLECTION_PATH,
   enableAutomaticPunctuation,
+  includePath: process.env.INCLUDE_PATH,
 };
