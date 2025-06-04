@@ -1,3 +1,7 @@
+## Version 1.0.4
+
+- chore: ensure consistent naming convention for Genkit Monitoring
+
 ## Version 1.0.3
 
 - chore: clean up tests
