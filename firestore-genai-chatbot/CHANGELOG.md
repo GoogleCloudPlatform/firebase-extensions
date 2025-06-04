@@ -1,3 +1,7 @@
+## Version 0.0.15
+
+- chore: ensure consistent naming convention for Genkit Monitoring
+
 ## Version 0.0.14
 
 - feat: improve extension logging

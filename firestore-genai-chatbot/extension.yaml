@@ -1,5 +1,5 @@
 name: firestore-genai-chatbot
-version: 0.0.14
+version: 0.0.15
 specVersion: v1beta
 
 icon: icon.png
@@ -60,13 +60,13 @@ roles:
       chosen.
   - role: monitoring.metricWriter
     reason:
-      Allows this extension to write metrics to Cloud Monitoring when Genkit monitoring is enabled.
+      Allows this extension to write metrics to Cloud Monitoring when Genkit Monitoring is enabled.
   - role: cloudtrace.agent
     reason:
-      Allows this extension to write trace data to Cloud Trace when Genkit monitoring is enabled.
+      Allows this extension to write trace data to Cloud Trace when Genkit Monitoring is enabled.
   - role: logging.logWriter
     reason:
-      Allows this extension to write logs to Cloud Logging when Genkit monitoring is enabled.
+      Allows this extension to write logs to Cloud Logging when Genkit Monitoring is enabled.
 
 resources:
   - name: generateMessage
