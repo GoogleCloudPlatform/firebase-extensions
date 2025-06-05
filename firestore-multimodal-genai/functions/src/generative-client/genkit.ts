@@ -161,7 +161,11 @@ export class GenkitGenerativeClient extends GenerativeClient<
         temperature: config.temperature,
         maxOutputTokens: config.maxOutputTokens,
         safetySettings: config.safetySettings,
-        responseMimeType: config.responseMimeType,
+      },
+      output: {
+        contentType: config.responseMimeType || 'text/plain',
+        format: config.responseMimeType === 'text/plain' ? 'text' : 'json',
+        constrained: true,
       },
     };
   }

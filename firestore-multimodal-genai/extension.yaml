@@ -297,7 +297,12 @@ params:
       The MIME type of the response. This is used to determine how the response
       should be interpreted. For example, if you set this to 'application/json',
       the response will be treated as JSON.
-    type: string
+    type: select
+    options:
+      - label: Default (text/plain)
+        value: text/plain
+      - label: JSON (application/json)
+        value: application/json
     default: text/plain
     required: false
 
