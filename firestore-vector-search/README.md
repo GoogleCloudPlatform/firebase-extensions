@@ -113,6 +113,8 @@ To install an extension, your project must be on the [Blaze (pay as you go) plan
 
 * aiplatform.googleapis.com (Reason: This extension uses the Vertex AI multimodal model for embedding images, if configured to do so.)
 
+* storage-component.googleapis.com (Reason: Needed to use Cloud Storage)
+
 
 
 **Access Required**:
