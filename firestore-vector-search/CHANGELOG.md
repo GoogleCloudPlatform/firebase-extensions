@@ -1,3 +1,6 @@
+## Version 0.0.10
+feat: enable Cloud Storage API
+
 ## Version 0.0.9
 
 docs - fix typo in PREINSTALL and README
