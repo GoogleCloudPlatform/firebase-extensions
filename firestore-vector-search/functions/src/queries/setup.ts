@@ -1,5 +1,5 @@
 import {firestoreAdminClient} from '../config';
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 
 interface CreateIndexOptions {
   collectionName: string;

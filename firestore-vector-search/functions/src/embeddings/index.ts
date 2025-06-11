@@ -5,7 +5,7 @@ import {
 } from '@invertase/firebase-extension-utilities';
 import {DocumentData, FieldValue} from '@google-cloud/firestore';
 import {embeddingClient} from './client';
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 
 const embed = async input => {
   await embeddingClient.initialize();

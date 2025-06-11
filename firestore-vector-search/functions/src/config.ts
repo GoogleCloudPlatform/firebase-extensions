@@ -1,5 +1,6 @@
-import * as admin from 'firebase-admin';
+import * as admin from 'firebase-admin/app';
 import * as Firestore from '@google-cloud/firestore';
+
 admin.initializeApp();
 
 export const enum EmbeddingProvider {

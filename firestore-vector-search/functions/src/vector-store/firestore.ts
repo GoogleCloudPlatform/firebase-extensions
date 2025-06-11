@@ -3,7 +3,7 @@ import * as admin from 'firebase-admin';
 import {Prefilter} from '../queries/util';
 import {VectorStoreClient} from './base_class';
 import {FirebaseFirestoreError} from 'firebase-admin/firestore';
-import {HttpsError, FunctionsErrorCode} from 'firebase-functions/https';
+import {HttpsError, FunctionsErrorCode} from 'firebase-functions/v1/https';
 
 export class FirestoreVectorStoreClient extends VectorStoreClient {
   firestore: admin.firestore.Firestore;
