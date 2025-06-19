@@ -57,7 +57,9 @@ export class FirestoreVectorStoreClient extends VectorStoreClient {
       if (ALLOWED_ERROR_CODES.has(code as https.FunctionsErrorCode)) {
         return new https.HttpsError(code as https.FunctionsErrorCode, message);
       }
-      return new https.HttpsError('unknown', message, {firestoreCode: error.code});
+      return new https.HttpsError('unknown', message, {
+        firestoreCode: error.code,
+      });
     }
 
     if (error instanceof Error) {
