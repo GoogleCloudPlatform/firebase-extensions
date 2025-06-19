@@ -1,5 +1,6 @@
 // Mock firebase-functions
-jest.mock('firebase-functions', () => ({
+jest.mock('firebase-functions/v1', () => ({
+  ...jest.requireActual('firebase-functions/v1'),
   logger: {
     info: jest.fn(),
     error: jest.fn(),
