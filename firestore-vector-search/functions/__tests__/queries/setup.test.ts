@@ -1,6 +1,6 @@
 import {createIndex, checkCreateIndexProgress} from '../../src/queries/setup';
 import {firestoreAdminClient} from '../../src/config';
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 
 describe('createIndex', () => {
   const testOptions = {

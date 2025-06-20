@@ -1,5 +1,5 @@
 import {config} from '../config';
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 import {embeddingClient} from '../embeddings/client';
 import {textVectorStoreClient} from '../vector-store';
 import {parseQuerySchema, parseLimit, Prefilter, parsedRequest} from './util';

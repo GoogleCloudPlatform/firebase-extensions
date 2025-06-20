@@ -20,7 +20,7 @@ import {
 } from '@invertase/firebase-extension-utilities';
 import {embeddingClient} from '../embeddings/client';
 import {textVectorStoreClient} from '../vector-store';
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 import {Prefilter, prefilterSchema} from './util';
 import {z} from 'zod';
 
