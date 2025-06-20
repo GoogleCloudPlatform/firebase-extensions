@@ -1,5 +1,5 @@
 import * as admin from 'firebase-admin';
-import {HttpsError} from 'firebase-functions/v1/https';
+import {https} from 'firebase-functions/v1';
 import {Prefilter} from '../../src/queries/util';
 import {FirebaseFirestoreError} from 'firebase-admin/firestore';
 import {FirestoreVectorStoreClient} from '../../src/vector-store/firestore';
@@ -104,7 +104,7 @@ describe('firestoreVectorStore', () => {
       );
     } catch (err) {
       console.log('err', err);
-      // expect(err).toBeInstanceOf(HttpsError);
+      expect(err).toBeInstanceOf(https.HttpsError);
       expect(err.code).toBe('permission-denied');
       expect(err.message).toBe('Permission denied.');
     }

@@ -6,13 +6,6 @@ jest.mock('firebase-functions/v1', () => ({
     error: jest.fn(),
     warn: jest.fn(),
   },
-  https: {
-    HttpsError: jest.fn().mockImplementation((code, message, details) => ({
-      code,
-      message,
-      details,
-    })),
-  },
 }));
 
 // Mock embeddings client
