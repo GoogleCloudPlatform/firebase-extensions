@@ -1,5 +1,5 @@
 name: speech-to-text
-version: 0.1.6
+version: 0.1.7
 specVersion: v1beta
 
 displayName: Transcribe Speech to Text
@@ -143,6 +143,15 @@ params:
       - label: Disabled
         value: false
     default: true
+
+  - param: INCLUDE_PATH
+    label: Path prefix to process
+    description: >
+      Only audio files uploaded to this path prefix will be processed. 
+      For example, if set to 'location/thisone', only files in that directory 
+      will be transcribed. Leave empty to process all files.
+    example: location/thisone
+    required: false
 
 roles:
   - role: storage.objectAdmin
