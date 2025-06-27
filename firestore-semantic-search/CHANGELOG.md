@@ -1,3 +1,7 @@
+## Version 0.1.10
+
+fix - add enforceAppCheck to queryIndex function (#686)
+
 ## Version 0.1.9
 
 fix - update asia-southeast (Singapore) location value
