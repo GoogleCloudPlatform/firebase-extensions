@@ -25,7 +25,7 @@ module.exports = {
       '<rootDir>/node_modules/firebase-admin/lib/firestore',
     'firebase-admin/functions':
       '<rootDir>/node_modules/firebase-admin/lib/functions',
-    'firebase-functions/v2': '<rootDir>/node_modules/firebase-functions/lib/v2',
+    'firebase-functions/v1': '<rootDir>/node_modules/firebase-functions/lib/v1',
     'firebase-admin/extensions':
       '<rootDir>/node_modules/firebase-admin/lib/extensions',
   },
