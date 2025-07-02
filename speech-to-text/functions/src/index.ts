@@ -61,6 +61,13 @@ export const transcribeAudio = functions.storage
       return;
     }
 
+    /** Check if the file path matches the include path */
+    if (config.includePath && !object.name.startsWith(config.includePath)) {
+      // We don't want to log this, as it's a common occurence
+      // logs.pathNotMatching(object.name, config.includePath);
+      return;
+    }
+
     /** Start tracking progress in Firestore, if configured */
     if (object.metadata && object.metadata.isTranscodeOutput === 'true') {
       logs.audioAlreadyProcessed();

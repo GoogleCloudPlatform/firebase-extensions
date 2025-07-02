@@ -58,6 +58,12 @@ export const contentTypeInvalid = (contentType: string) => {
   logger.log(`File of type '${contentType}' is not an audio file`);
 };
 
+export const pathNotMatching = (filePath: string, includePath: string) => {
+  logger.log(
+    `Skipping file '${filePath}' as it doesn't match include path '${includePath}'`
+  );
+};
+
 export const downloaded = (remotePath: string, localPath: string) => {
   logger.log(`Downloaded file: '${remotePath}' to '${localPath}'`);
 };
