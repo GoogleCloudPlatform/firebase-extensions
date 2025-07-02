@@ -2,6 +2,8 @@
 
 docs - fix typo in PREINSTALL and README
 
+feat: enable Cloud Storage API
+
 ## Version 0.0.8
 
 fix - replaced validation of prefilters with handling errors raised from firestore
