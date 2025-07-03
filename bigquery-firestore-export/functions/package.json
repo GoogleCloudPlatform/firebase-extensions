@@ -25,7 +25,7 @@
     "firebase-functions": "^6.3.2",
     "lodash.mapvalues": "^4.6.0",
     "rimraf": "^2.6.3",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.3"
   },
   "devDependencies": {
     "@google-cloud/pubsub": "^4.10.0",
