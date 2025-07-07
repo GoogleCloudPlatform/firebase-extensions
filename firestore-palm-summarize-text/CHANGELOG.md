@@ -1,3 +1,6 @@
+## Version 0.1.12
+chore: update and audit packages
+
 ## Version 0.1.11
 
 feat - support latest PaLM models
