@@ -1,3 +1,7 @@
+## Version 0.0.3
+
+chore: update and audit packages
+
 ## Version 0.0.2
 
 - fix: npm audit and bump node to node 20
