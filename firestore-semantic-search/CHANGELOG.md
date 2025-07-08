@@ -1,3 +1,7 @@
+## Version 0.1.10
+
+chore: update and audit packages
+
 ## Version 0.1.9
 
 fix - update asia-southeast (Singapore) location value
