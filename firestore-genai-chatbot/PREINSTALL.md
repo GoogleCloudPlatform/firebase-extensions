@@ -59,6 +59,12 @@ This extension supports Genkit monitoring, which provides detailed insights into
 
 To enable Genkit monitoring, set the `Enable Genkit Monitoring` configuration parameter to `yes` during installation. Note that enabling this feature may incur additional costs depending on your usage.
 
+### Conversational AI with Genkit
+
+This extension leverages the [Genkit SDK](http://genkit.dev/) to enable conversational AI features powered by Gemini models from Google AI and Vertex AI. Genkit handles model selection, chat history formatting, prompt construction, and response generation. This allows you to easily build and customize Firestore-backed AI chatbots.
+
+For more information about Genkit, visit the Genkit documentation at [genkit.dev](http://genkit.dev/).
+
 ## Billing
 
 To install an extension, your project must be on the Blaze (pay as you go) plan. You will be charged a small amount (typically around $0.01/month) for the Firebase resources required by this extension (even if it is not used).
