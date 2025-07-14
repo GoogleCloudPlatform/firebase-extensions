@@ -1,3 +1,7 @@
+## Version 0.1.10
+
+chore: update and audit packages
+
 ## Version 0.1.9
 
 fix - bump to nodejs20 runtime in functions and run npm audit fix
