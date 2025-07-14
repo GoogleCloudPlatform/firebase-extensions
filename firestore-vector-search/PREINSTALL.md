@@ -26,6 +26,12 @@ Before installing this extension, make sure that you've [set up a Cloud Firestor
 
 This product or feature is subject to the "Pre-GA Offerings Terms" in the General Service Terms section of the [Service Specific Terms](https://cloud.google.com/terms/service-terms#1). Pre-GA products and features are available "as is" and might have limited support. For more information, see the [launch stage descriptions](https://cloud.google.com/products?hl=en#product-launch-stages).
 
+### AI-powered vector search with Genkit
+
+This extension leverages the [Genkit SDK](https://genkit.dev) to generate vector embeddings for your Firestore documents using Gemini models from Google AI and Vertex AI. Genkit streamlines embedding generation, index management, and querying—enabling scalable, efficient semantic search directly integrated with Firestore.
+
+For more details, visit the [Genkit documentation](https://genkit.dev).
+
 ### Billing
 
 To install an extension, your project must be on the [Blaze (pay as you go) plan](https://firebase.google.com/pricing)
