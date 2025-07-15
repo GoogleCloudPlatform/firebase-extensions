@@ -1,3 +1,7 @@
+## Version 0.0.16
+
+- feat: Add support for Gemini 2.5 models
+
 ## Version 0.0.15
 
 - chore: ensure consistent naming convention for Genkit Monitoring

@@ -5,6 +5,9 @@ import {
   gemini10Pro as gemini10ProGoogleAI,
   gemini15Flash as gemini15FlashGoogleAI,
   gemini15Pro as gemini15ProGoogleAI,
+  gemini25FlashPreview0417 as gemini25FlashPreview0417GoogleAI,
+  gemini25ProExp0325 as gemini25ProExp0325GoogleAI,
+  gemini25ProPreview0325 as gemini25ProPreview0325GoogleAI,
   googleAI,
   PluginOptions as PluginOptionsGoogleAI,
 } from '@genkit-ai/googleai';
@@ -17,6 +20,9 @@ import vertexAI, {
   gemini15Flash as gemini15FlashVertexAI,
   gemini15Pro as gemini15ProVertexAI,
   gemini20FlashLitePreview0205 as gemini20FlashLitePreview0205VertexAI,
+  gemini25FlashPreview0417 as gemini25FlashPreview0417VertexAI,
+  gemini25ProExp0325 as gemini25ProExp0325VertexAI,
+  gemini25ProPreview0325 as gemini25ProPreview0325VertexAI,
   PluginOptions as PluginOptionsVertexAI,
 } from '@genkit-ai/vertexai';
 import type {Config} from '../config';
@@ -111,6 +117,9 @@ export class GenkitDiscussionClient extends DiscussionClient<
             gemini20FlashGoogleAI,
             gemini20FlashLiteGoogleAI,
             gemini20ProExp0205GoogleAI,
+            gemini25FlashPreview0417GoogleAI,
+            gemini25ProExp0325GoogleAI,
+            gemini25ProPreview0325GoogleAI,
           ]
         : [
             gemini10ProVertexAI,
@@ -120,6 +129,9 @@ export class GenkitDiscussionClient extends DiscussionClient<
             gemini20FlashLiteVertexAI,
             gemini20ProExp0205VertexAI,
             gemini20FlashLitePreview0205VertexAI,
+            gemini25FlashPreview0417VertexAI,
+            gemini25ProExp0325VertexAI,
+            gemini25ProPreview0325VertexAI, 
           ];
 
     const pluginName = provider === 'google-ai' ? 'googleai' : 'vertexai';
