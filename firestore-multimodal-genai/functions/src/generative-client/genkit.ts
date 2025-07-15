@@ -19,6 +19,9 @@ import {
   gemini10Pro as gemini10ProGoogleAI,
   gemini15Flash as gemini15FlashGoogleAI,
   gemini15Pro as gemini15ProGoogleAI,
+  gemini25FlashPreview0417 as gemini25FlashPreview0417GoogleAI,
+  gemini25ProExp0325 as gemini25ProExp0325GoogleAI,
+  gemini25ProPreview0325 as gemini25ProPreview0325GoogleAI,
 } from '@genkit-ai/googleai';
 import {
   vertexAI,
@@ -31,6 +34,9 @@ import {
   gemini10Pro as gemini10ProVertexAI,
   gemini15Flash as gemini15FlashVertexAI,
   gemini15Pro as gemini15ProVertexAI,
+  gemini25FlashPreview0417 as gemini25FlashPreview0417VertexAI,
+  gemini25ProExp0325 as gemini25ProExp0325VertexAI,
+  gemini25ProPreview0325 as gemini25ProPreview0325VertexAI,
 } from '@genkit-ai/vertexai';
 import {getImageBase64} from './image_utils';
 import type {Config} from '../config';
@@ -126,6 +132,9 @@ export class GenkitGenerativeClient extends GenerativeClient<
             gemini20FlashLiteGoogleAI,
             gemini20FlashExpGoogleAI,
             gemini20ProExp0205GoogleAI,
+            gemini25FlashPreview0417GoogleAI,
+            gemini25ProExp0325GoogleAI,
+            gemini25ProPreview0325GoogleAI,
           ]
         : [
             gemini10ProVertexAI,
@@ -136,6 +145,9 @@ export class GenkitGenerativeClient extends GenerativeClient<
             gemini20ProExp0205VertexAI,
             gemini20Flash001VertexAI,
             gemini20FlashLitePreview0205VertexAI,
+            gemini25FlashPreview0417VertexAI,
+            gemini25ProExp0325VertexAI,
+            gemini25ProPreview0325VertexAI,
           ];
 
     const pluginName = provider === 'google-ai' ? 'googleai' : 'vertexai';
