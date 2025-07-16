@@ -6,6 +6,8 @@ feat: enable Cloud Storage API
 
 fix: bump utilities package
 
+chore: update and audit packages
+
 ## Version 0.0.8
 
 fix - replaced validation of prefilters with handling errors raised from firestore
