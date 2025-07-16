@@ -1,7 +1,3 @@
-## Version 0.0.10
-
-chore: update and audit packages
-
 ## Version 0.0.9
 
 docs - fix typo in PREINSTALL and README
@@ -9,6 +5,8 @@ docs - fix typo in PREINSTALL and README
 feat: enable Cloud Storage API
 
 fix: bump utilities package
+
+chore: update and audit packages
 
 ## Version 0.0.8
 
