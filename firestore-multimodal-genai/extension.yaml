@@ -1,5 +1,5 @@
 name: firestore-multimodal-genai
-version: 1.0.4
+version: 1.0.5
 specVersion: v1beta
 
 icon: icon.png
@@ -64,7 +64,7 @@ roles:
       Vertex AI if this provider is chosen.
 
   - role: monitoring.metricWriter
-      Allows this extension to write metrics to Cloud Monitoring when Genkit Monitoring is enabled.
+    reason: Allows this extension to write metrics to Cloud Monitoring when Genkit Monitoring is enabled.
 
   - role: cloudtrace.agent
     reason:

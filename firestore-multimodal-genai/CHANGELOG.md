@@ -1,3 +1,7 @@
+## Version 1.0.5
+
+- Add missing Metric Monitoring role reason
+
 ## Version 1.0.4
 
 - chore: ensure consistent naming convention for Genkit Monitoring
