@@ -131,7 +131,7 @@ describe('GenkitEmbedClient', () => {
     });
 
     test('should return a single embedding for an input', async () => {
-      mockEmbed.mockResolvedValueOnce([7, 8, 9]); // Changed to return array directly
+      mockEmbed.mockResolvedValueOnce([{embedding: [7, 8, 9]}]); // Changed to return array directly
 
       const input = 'input1';
       const embedding = await embedClient.getSingleEmbedding(input);

@@ -54,18 +54,18 @@ export class GenkitEmbedClient {
   }
 
   async getEmbeddings(inputs: string[]): Promise<number[][]> {
-    const embeddings = await this.client.embedMany({
+    const embeddingResults = await this.client.embedMany({
       embedder: this.embedder,
       content: inputs,
     });
-    return embeddings.map(result => result.embedding);
+    return embeddingResults.map(result => result.embedding);
   }
 
   async getSingleEmbedding(input: string): Promise<number[]> {
-    const embedding = await this.client.embed({
+    const embeddingResults = await this.client.embed({
       embedder: this.embedder,
       content: input,
     });
-    return embedding[0].embedding;
+    return embeddingResults[0].embedding;
   }
 }

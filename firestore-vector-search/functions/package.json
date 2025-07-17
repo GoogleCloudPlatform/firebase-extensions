@@ -23,7 +23,6 @@
     "@google-cloud/firestore": "^7.6.0",
     "@google-cloud/pubsub": "^4.0.7",
     "@google-cloud/vertexai": "^0.1.3",
-    "@google/generative-ai": "^0.24.1",
     "@invertase/firebase-extension-utilities": "^0.1.3",
     "faiss-node": "^0.5.1",
     "firebase-admin": "^13.4.0",
