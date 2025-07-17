@@ -41,7 +41,7 @@ export class GeminiAITextEmbedClient extends EmbedClient {
   }
 
   async getEmbeddings(batch: string[]) {
-    const model = this.client.getGenerativeModel({model: 'embedding-001'});
+    const model = this.client.getGenerativeModel({model: 'gemini-embedding-001'});
 
     const requests = batch.map(text => ({
       content: {

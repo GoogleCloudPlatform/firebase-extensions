@@ -3,7 +3,7 @@ import {config} from '../../config';
 import {GenkitPlugin} from 'genkit/plugin';
 import {
   googleAI,
-  textEmbeddingGecko001 as textEmbeddingGecko001GoogleAI,
+  textEmbedding004 as textEmbedding004Google,
 } from '@genkit-ai/googleai';
 import {
   textEmbedding004 as textEmbedding004Vertex,
@@ -37,7 +37,7 @@ export class GenkitEmbedClient {
       ];
     }
     if (this.provider === 'googleai') {
-      this.embedder = textEmbeddingGecko001GoogleAI;
+      this.embedder = textEmbedding004Google;
       plugins = [
         googleAI({
           apiKey: config.geminiApiKey,
@@ -53,19 +53,19 @@ export class GenkitEmbedClient {
     // optional to implement this as it might not be needed.
   }
 
-  async getEmbeddings(_inputs: string[]): Promise<number[][]> {
+  async getEmbeddings(inputs: string[]): Promise<number[][]> {
     const embeddings = await this.client.embedMany({
-      embedder: textEmbedding004Vertex,
-      content: _inputs,
+      embedder: this.embedder,
+      content: inputs,
     });
     return embeddings.map(result => result.embedding);
   }
 
   async getSingleEmbedding(input: string): Promise<number[]> {
-    const embedding = this.client.embed({
+    const embedding = await this.client.embed({
       embedder: this.embedder,
       content: input,
     });
-    return embedding;
+    return embedding[0].embedding;
   }
 }
