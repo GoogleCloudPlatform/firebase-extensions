@@ -131,7 +131,7 @@ export class GenkitDiscussionClient extends DiscussionClient<
             gemini20FlashLitePreview0205VertexAI,
             gemini25FlashPreview0417VertexAI,
             gemini25ProExp0325VertexAI,
-            gemini25ProPreview0325VertexAI, 
+            gemini25ProPreview0325VertexAI,
           ];
 
     const pluginName = provider === 'google-ai' ? 'googleai' : 'vertexai';
