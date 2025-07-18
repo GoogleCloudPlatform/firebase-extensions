@@ -17,12 +17,12 @@ process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 jest.mock('../../src/config', () => ({
   default: {
     googleAi: {
-      model: 'gemini-1.0-pro',
+      model: 'gemini-2.5-pro',
     },
     vertex: {
-      model: 'gemini-1.0-pro',
+      model: 'gemini-2.5-pro',
     },
-    model: 'gemini-1.0-pro',
+    model: 'gemini-2.5-pro',
     collectionName: 'generate',
     location: 'us-central1',
     prompt: '{{ instruction }}',
