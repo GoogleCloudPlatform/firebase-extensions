@@ -24,14 +24,14 @@ jest.mock('@genkit-ai/firebase', () => ({
 
 jest.mock('@genkit-ai/googleai', () => ({
   googleAI: jest.fn().mockReturnValue({name: 'googleai'}),
-  gemini10Pro: {name: 'googleai/gemini-1.0-pro', withVersion: jest.fn()},
+  gemini25Pro: {name: 'googleai/gemini-2.5-pro', withVersion: jest.fn()},
   gemini15Flash: {name: 'googleai/gemini-1.5-flash', withVersion: jest.fn()},
   gemini15Pro: {name: 'googleai/gemini-1.5-pro', withVersion: jest.fn()},
 }));
 
 jest.mock('@genkit-ai/vertexai', () => ({
   vertexAI: jest.fn().mockReturnValue({name: 'vertexai'}),
-  gemini10Pro: {name: 'vertexai/gemini-1.0-pro', withVersion: jest.fn()},
+  gemini25Pro: {name: 'vertexai/gemini-2.5-pro', withVersion: jest.fn()},
   gemini15Flash: {name: 'vertexai/gemini-1.5-flash', withVersion: jest.fn()},
   gemini15Pro: {name: 'vertexai/gemini-1.5-pro', withVersion: jest.fn()},
 }));
