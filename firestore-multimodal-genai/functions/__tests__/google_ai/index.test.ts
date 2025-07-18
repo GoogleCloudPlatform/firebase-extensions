@@ -40,11 +40,11 @@ jest.mock('firebase-functions', () => ({
 jest.mock('../../src/config', () => ({
   default: {
     googleAi: {
-      model: 'gemini-1.0-pro',
+      model: 'gemini-2.5-pro',
       apiKey: 'test-api-key',
     },
-    vertex: {model: 'gemini-1.0-pro'},
-    model: 'gemini-1.0-pro',
+    vertex: {model: 'gemini-2.5-pro'},
+    model: 'gemini-2.5-pro',
     collectionName: 'generate',
     location: 'us-central1',
     prompt: '{{ instruction }}',

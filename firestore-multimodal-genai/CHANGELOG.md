@@ -1,3 +1,9 @@
+## Version 1.0.5
+
+- feat: Add support for Gemini 2.5 models
+
+- fix: remove deprecated Gemini models (gemini10ProGoogleAI, gemini10ProVertexAI, gemini20FlashExpGoogleAI, gemini20ProExp0205GoogleAI, gemini20ProExp0205VertexAI, gemini20FlashLitePreview0205VertexAI)
+
 ## Version 1.0.4
 
 - chore: ensure consistent naming convention for Genkit Monitoring

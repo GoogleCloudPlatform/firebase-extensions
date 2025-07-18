@@ -11,26 +11,25 @@ import {GenkitPlugin} from 'genkit/plugin';
 import {
   googleAI,
   PluginOptions as PluginOptionsGoogleAI,
-  gemini15Flash8b as gemini15Flash8bGoogleAI,
   gemini20Flash as gemini20FlashGoogleAI,
   gemini20FlashLite as gemini20FlashLiteGoogleAI,
-  gemini20FlashExp as gemini20FlashExpGoogleAI,
-  gemini20ProExp0205 as gemini20ProExp0205GoogleAI,
-  gemini10Pro as gemini10ProGoogleAI,
   gemini15Flash as gemini15FlashGoogleAI,
   gemini15Pro as gemini15ProGoogleAI,
+  gemini25FlashPreview0417 as gemini25FlashPreview0417GoogleAI,
+  gemini25ProExp0325 as gemini25ProExp0325GoogleAI,
+  gemini25ProPreview0325 as gemini25ProPreview0325GoogleAI,
 } from '@genkit-ai/googleai';
 import {
   vertexAI,
   PluginOptions as PluginOptionsVertexAI,
   gemini20Flash as gemini20FlashVertexAI,
   gemini20FlashLite as gemini20FlashLiteVertexAI,
-  gemini20ProExp0205 as gemini20ProExp0205VertexAI,
   gemini20Flash001 as gemini20Flash001VertexAI,
-  gemini20FlashLitePreview0205 as gemini20FlashLitePreview0205VertexAI,
-  gemini10Pro as gemini10ProVertexAI,
   gemini15Flash as gemini15FlashVertexAI,
   gemini15Pro as gemini15ProVertexAI,
+  gemini25FlashPreview0417 as gemini25FlashPreview0417VertexAI,
+  gemini25ProExp0325 as gemini25ProExp0325VertexAI,
+  gemini25ProPreview0325 as gemini25ProPreview0325VertexAI,
 } from '@genkit-ai/vertexai';
 import {getImageBase64} from './image_utils';
 import type {Config} from '../config';
@@ -119,23 +118,23 @@ export class GenkitGenerativeClient extends GenerativeClient<
     const modelReferences =
       provider === 'google-ai'
         ? [
-            gemini10ProGoogleAI,
             gemini15FlashGoogleAI,
             gemini15ProGoogleAI,
             gemini20FlashGoogleAI,
             gemini20FlashLiteGoogleAI,
-            gemini20FlashExpGoogleAI,
-            gemini20ProExp0205GoogleAI,
+            gemini25FlashPreview0417GoogleAI,
+            gemini25ProExp0325GoogleAI,
+            gemini25ProPreview0325GoogleAI,
           ]
         : [
-            gemini10ProVertexAI,
             gemini15FlashVertexAI,
             gemini15ProVertexAI,
             gemini20FlashVertexAI,
             gemini20FlashLiteVertexAI,
-            gemini20ProExp0205VertexAI,
             gemini20Flash001VertexAI,
-            gemini20FlashLitePreview0205VertexAI,
+            gemini25FlashPreview0417VertexAI,
+            gemini25ProExp0325VertexAI,
+            gemini25ProPreview0325VertexAI,
           ];
 
     const pluginName = provider === 'google-ai' ? 'googleai' : 'vertexai';
