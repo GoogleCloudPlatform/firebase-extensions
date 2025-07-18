@@ -1,8 +1,6 @@
 import {
   gemini20Flash as gemini20FlashGoogleAI,
   gemini20FlashLite as gemini20FlashLiteGoogleAI,
-  gemini20ProExp0205 as gemini20ProExp0205GoogleAI,
-  gemini10Pro as gemini10ProGoogleAI,
   gemini15Flash as gemini15FlashGoogleAI,
   gemini15Pro as gemini15ProGoogleAI,
   gemini25FlashPreview0417 as gemini25FlashPreview0417GoogleAI,
@@ -15,11 +13,8 @@ import {
 import vertexAI, {
   gemini20Flash as gemini20FlashVertexAI,
   gemini20FlashLite as gemini20FlashLiteVertexAI,
-  gemini20ProExp0205 as gemini20ProExp0205VertexAI,
-  gemini10Pro as gemini10ProVertexAI,
   gemini15Flash as gemini15FlashVertexAI,
   gemini15Pro as gemini15ProVertexAI,
-  gemini20FlashLitePreview0205 as gemini20FlashLitePreview0205VertexAI,
   gemini25FlashPreview0417 as gemini25FlashPreview0417VertexAI,
   gemini25ProExp0325 as gemini25ProExp0325VertexAI,
   gemini25ProPreview0325 as gemini25ProPreview0325VertexAI,
@@ -111,24 +106,19 @@ export class GenkitDiscussionClient extends DiscussionClient<
     const modelReferences =
       provider === 'google-ai'
         ? [
-            gemini10ProGoogleAI,
             gemini15FlashGoogleAI,
             gemini15ProGoogleAI,
             gemini20FlashGoogleAI,
             gemini20FlashLiteGoogleAI,
-            gemini20ProExp0205GoogleAI,
             gemini25FlashPreview0417GoogleAI,
             gemini25ProExp0325GoogleAI,
             gemini25ProPreview0325GoogleAI,
           ]
         : [
-            gemini10ProVertexAI,
             gemini15FlashVertexAI,
             gemini15ProVertexAI,
             gemini20FlashVertexAI,
             gemini20FlashLiteVertexAI,
-            gemini20ProExp0205VertexAI,
-            gemini20FlashLitePreview0205VertexAI,
             gemini25FlashPreview0417VertexAI,
             gemini25ProExp0325VertexAI,
             gemini25ProPreview0325VertexAI,
