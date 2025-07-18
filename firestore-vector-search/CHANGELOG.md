@@ -6,6 +6,10 @@ feat: enable Cloud Storage API
 
 fix: bump utilities package
 
+feat: update embedding model from text-embedding-001 to text-embedding-004 for Gemini provider
+
+fix: backfill for embedding with Gemini provider
+
 ## Version 0.0.8
 
 fix - replaced validation of prefilters with handling errors raised from firestore
