@@ -3,9 +3,6 @@ import {
   gemini20FlashLite as gemini20FlashLiteGoogleAI,
   gemini15Flash as gemini15FlashGoogleAI,
   gemini15Pro as gemini15ProGoogleAI,
-  gemini25FlashPreview0417 as gemini25FlashPreview0417GoogleAI,
-  gemini25ProExp0325 as gemini25ProExp0325GoogleAI,
-  gemini25ProPreview0325 as gemini25ProPreview0325GoogleAI,
   googleAI,
   PluginOptions as PluginOptionsGoogleAI,
 } from '@genkit-ai/googleai';
@@ -15,9 +12,6 @@ import vertexAI, {
   gemini20FlashLite as gemini20FlashLiteVertexAI,
   gemini15Flash as gemini15FlashVertexAI,
   gemini15Pro as gemini15ProVertexAI,
-  gemini25FlashPreview0417 as gemini25FlashPreview0417VertexAI,
-  gemini25ProExp0325 as gemini25ProExp0325VertexAI,
-  gemini25ProPreview0325 as gemini25ProPreview0325VertexAI,
   PluginOptions as PluginOptionsVertexAI,
 } from '@genkit-ai/vertexai';
 import type {Config} from '../config';
@@ -110,18 +104,16 @@ export class GenkitDiscussionClient extends DiscussionClient<
             gemini15ProGoogleAI,
             gemini20FlashGoogleAI,
             gemini20FlashLiteGoogleAI,
-            gemini25FlashPreview0417GoogleAI,
-            gemini25ProExp0325GoogleAI,
-            gemini25ProPreview0325GoogleAI,
+            googleAI.model('gemini-2.5-flash'),
+            googleAI.model('gemini-2.5-pro'),
           ]
         : [
             gemini15FlashVertexAI,
             gemini15ProVertexAI,
             gemini20FlashVertexAI,
             gemini20FlashLiteVertexAI,
-            gemini25FlashPreview0417VertexAI,
-            gemini25ProExp0325VertexAI,
-            gemini25ProPreview0325VertexAI,
+            vertexAI.model('gemini-2.5-flash'),
+            vertexAI.model('gemini-2.5-pro'),
           ];
 
     const pluginName = provider === 'google-ai' ? 'googleai' : 'vertexai';
