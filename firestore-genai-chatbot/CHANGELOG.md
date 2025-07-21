@@ -2,6 +2,8 @@
 
 - feat: Add support for Gemini 2.5 models
 
+- chore: update and audit packages
+
 ## Version 0.0.15
 
 - chore: ensure consistent naming convention for Genkit Monitoring
