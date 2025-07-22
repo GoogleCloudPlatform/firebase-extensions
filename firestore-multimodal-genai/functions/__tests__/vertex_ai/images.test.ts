@@ -1,3 +1,8 @@
+// Set environment variables for Firebase emulator
+process.env.FIREBASE_AUTH_EMULATOR_HOST = '127.0.0.1:9099';
+process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
+process.env.GCLOUD_PROJECT = 'demo-gcp';
+
 import * as firebaseFunctionsTest from 'firebase-functions-test';
 import * as admin from 'firebase-admin';
 import config from '../../src/config';
@@ -17,12 +22,12 @@ process.env.FIRESTORE_EMULATOR_HOST = '127.0.0.1:8080';
 jest.mock('../../src/config', () => ({
   default: {
     googleAi: {
-      model: 'gemini-1.0-pro',
+      model: 'gemini-2.5-pro',
     },
     vertex: {
-      model: 'gemini-1.0-pro',
+      model: 'gemini-2.5-pro',
     },
-    model: 'gemini-1.0-pro',
+    model: 'gemini-2.5-pro',
     collectionName: 'generate',
     location: 'us-central1',
     prompt: '{{ instruction }}',

@@ -22,19 +22,54 @@ jest.mock('@genkit-ai/firebase', () => ({
   enableFirebaseTelemetry: jest.fn(),
 }));
 
-jest.mock('@genkit-ai/googleai', () => ({
-  googleAI: jest.fn().mockReturnValue({name: 'googleai'}),
-  gemini10Pro: {name: 'googleai/gemini-1.0-pro', withVersion: jest.fn()},
-  gemini15Flash: {name: 'googleai/gemini-1.5-flash', withVersion: jest.fn()},
-  gemini15Pro: {name: 'googleai/gemini-1.5-pro', withVersion: jest.fn()},
-}));
+jest.mock('@genkit-ai/googleai', () => {
+  // use Object.assign because callable and has properties
+  const googleAIMock = Object.assign(
+    jest.fn(() => ({name: 'googleai'})),
+    {
+      model: jest.fn((modelName: string) => ({
+        name: `googleai/${modelName}`,
+        withVersion: jest.fn(),
+      })),
+    }
+  );
+  return {
+    googleAI: googleAIMock,
+    gemini20Flash: {name: 'googleai/gemini-2.0-flash', withVersion: jest.fn()},
+    gemini20FlashLite: {
+      name: 'googleai/gemini-2.0-flash-lite',
+      withVersion: jest.fn(),
+    },
+    gemini15Flash: {name: 'googleai/gemini-1.5-flash', withVersion: jest.fn()},
+    gemini15Pro: {name: 'googleai/gemini-1.5-pro', withVersion: jest.fn()},
+  };
+});
 
-jest.mock('@genkit-ai/vertexai', () => ({
-  vertexAI: jest.fn().mockReturnValue({name: 'vertexai'}),
-  gemini10Pro: {name: 'vertexai/gemini-1.0-pro', withVersion: jest.fn()},
-  gemini15Flash: {name: 'vertexai/gemini-1.5-flash', withVersion: jest.fn()},
-  gemini15Pro: {name: 'vertexai/gemini-1.5-pro', withVersion: jest.fn()},
-}));
+jest.mock('@genkit-ai/vertexai', () => {
+  const vertexAIMock = Object.assign(
+    jest.fn(() => ({name: 'vertexai'})),
+    {
+      model: jest.fn((modelName: string) => ({
+        name: `vertexai/${modelName}`,
+        withVersion: jest.fn(),
+      })),
+    }
+  );
+  return {
+    vertexAI: vertexAIMock,
+    gemini20Flash: {name: 'vertexai/gemini-2.0-flash', withVersion: jest.fn()},
+    gemini20FlashLite: {
+      name: 'vertexai/gemini-2.0-flash-lite',
+      withVersion: jest.fn(),
+    },
+    gemini20Flash001: {
+      name: 'vertexai/gemini-2.0-flash-001',
+      withVersion: jest.fn(),
+    },
+    gemini15Flash: {name: 'vertexai/gemini-1.5-flash', withVersion: jest.fn()},
+    gemini15Pro: {name: 'vertexai/gemini-1.5-pro', withVersion: jest.fn()},
+  };
+});
 
 jest.mock('../../src/generative-client/image_utils.ts', () => ({
   getImageBase64: jest.fn(() => Promise.resolve('base64EncodedImage')),

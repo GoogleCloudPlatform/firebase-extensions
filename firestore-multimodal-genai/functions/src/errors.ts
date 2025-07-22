@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {GoogleError} from 'google-gax';
 import * as functions from 'firebase-functions';
 
 export const missingVariableError = (field: string) =>
@@ -26,12 +25,14 @@ export const variableTypeError = (field: string) =>
     `Error substituting variable "${field}" variables into prompt. All variable fields must be strings`
   );
 
-interface GoogleErrorWithReason extends GoogleError {
+interface GoogleErrorWithReason extends Error {
   reason: string;
 }
 
 function isGoogleErrorWithReason(e: Error): e is GoogleErrorWithReason {
-  return (e as GoogleErrorWithReason).reason !== undefined;
+  return (
+    'reason' in e && typeof (e as GoogleErrorWithReason).reason === 'string'
+  );
 }
 
 enum GoogleErrorReason {
