@@ -10,7 +10,8 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "generate-readme": "firebase ext:info .. --markdown > ../README.md"
+    "generate-readme": "firebase ext:info .. --markdown > ../README.md",
+    "publish-from-main": "firebase ext:dev:upload googlecloud/firestore-incremental-capture --repo=https://github.com/googlecloudplatform/firebase-extensions --root=firestore-incremental-capture --ref=main --project pub-ext-gcloud"
   },
   "engines": {
     "node": "20"
