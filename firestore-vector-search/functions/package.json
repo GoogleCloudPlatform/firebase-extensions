@@ -13,7 +13,8 @@
     "clean": "rimraf lib",
     "compile": "tsc -p tsconfig.build.json",
     "test": "jest",
-    "generate-readme": "firebase ext:info .. --markdown > ../README.md"
+    "generate-readme": "firebase ext:info .. --markdown > ../README.md",
+    "publish-from-main": "firebase ext:dev:upload googlecloud/firestore-vector-search --repo=https://github.com/googlecloudplatform/firebase-extensions --root=firestore-vector-search --ref=main --project pub-ext-gcloud"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.14.1",

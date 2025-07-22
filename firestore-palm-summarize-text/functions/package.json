@@ -6,7 +6,8 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "test": "jest --runInBand",
-    "generate-readme": "firebase ext:info .. --markdown > ../README.md"
+    "generate-readme": "firebase ext:info .. --markdown > ../README.md",
+    "publish-from-main": "firebase ext:dev:upload googlecloud/firestore-palm-summarize-text --repo=https://github.com/googlecloudplatform/firebase-extensions --root=firestore-palm-summarize-text --ref=main --project pub-ext-gcloud"
   },
   "main": "lib/index.js",
   "dependencies": {

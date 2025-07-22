@@ -11,7 +11,8 @@
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
     "test": "jest",
-    "generate-readme": "firebase ext:info .. --markdown > ../README.md"
+    "generate-readme": "firebase ext:info .. --markdown > ../README.md",
+    "publish-from-main": "firebase ext:dev:upload googlecloud/storage-label-videos --repo=https://github.com/googlecloudplatform/firebase-extensions --root=storage-label-videos --ref=main --project pub-ext-gcloud"
   },
   "engines": {
     "node": "20"

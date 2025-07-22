@@ -7,7 +7,8 @@
     "build:watch": "tsc --watch",
     "mocha": "mocha '**/*.spec.ts'",
     "test": "jest",
-    "generate-readme": "firebase ext:info .. --markdown > ../README.md"
+    "generate-readme": "firebase ext:info .. --markdown > ../README.md",
+    "publish-from-main": "firebase ext:dev:upload googlecloud/storage-reverse-image-search --repo=https://github.com/googlecloudplatform/firebase-extensions --root=storage-reverse-image-search --ref=main --project pub-ext-gcloud"
   },
   "engines": {
     "node": "20"
