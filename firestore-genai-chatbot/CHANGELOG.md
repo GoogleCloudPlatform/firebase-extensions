@@ -1,6 +1,8 @@
 ## Version 0.0.16
 
-chore: update and audit packages
+- feat: Add support for Gemini 2.5 models
+
+- chore: update and audit packages
 
 ## Version 0.0.15
 

@@ -10,7 +10,8 @@
     "clean": "rimraf lib",
     "compile": "tsc",
     "test": "jest",
-    "generate-readme": "firebase ext:info .. --markdown > ../README.md"
+    "generate-readme": "firebase ext:info .. --markdown > ../README.md",
+    "publish-from-main": "firebase ext:dev:upload googlecloud/text-to-speech --repo=https://github.com/googlecloudplatform/firebase-extensions --root=text-to-speech --ref=main --project pub-ext-gcloud"
   },
   "dependencies": {
     "@google-cloud/tasks": "4.0.0",

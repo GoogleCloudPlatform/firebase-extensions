@@ -10,7 +10,8 @@
     "test": "jest",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "generate-readme": "firebase ext:info .. --markdown > ../README.md"
+    "generate-readme": "firebase ext:info .. --markdown > ../README.md",
+    "publish-from-main": "firebase ext:dev:upload googlecloud/speech-to-text --repo=https://github.com/googlecloudplatform/firebase-extensions --root=speech-to-text --ref=main --project pub-ext-gcloud"
   },
   "engines": {
     "node": "20"

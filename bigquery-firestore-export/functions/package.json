@@ -12,7 +12,8 @@
     "test": "jest --runInBand",
     "test:local": "concurrently \"npm run local:emulator\" \"jest\"",
     "test:watch": "concurrently \"npm run local:emulator\" \"jest --watch\"",
-    "generate-readme": "firebase ext:info .. --markdown > ../README.md"
+    "generate-readme": "firebase ext:info .. --markdown > ../README.md",
+    "publish-from-main": "firebase ext:dev:upload googlecloud/bigquery-firestore-export --repo=https://github.com/googlecloudplatform/firebase-extensions --root=bigquery-firestore-export --ref=main --project pub-ext-gcloud"
   },
   "keywords": [],
   "author": "",
