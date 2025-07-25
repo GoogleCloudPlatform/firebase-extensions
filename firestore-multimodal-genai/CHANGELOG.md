@@ -1,5 +1,7 @@
 ## Version 1.0.5
 
+- Add missing Metric Monitoring role reason
+
 - feat: Add support for Gemini 2.5 models
 
 - fix: remove deprecated Gemini models (gemini10ProGoogleAI, gemini10ProVertexAI, gemini20FlashExpGoogleAI, gemini20ProExp0205GoogleAI, gemini20ProExp0205VertexAI, gemini20FlashLitePreview0205VertexAI)

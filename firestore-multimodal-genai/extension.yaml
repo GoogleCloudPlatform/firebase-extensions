@@ -64,7 +64,7 @@ roles:
       Vertex AI if this provider is chosen.
 
   - role: monitoring.metricWriter
-      Allows this extension to write metrics to Cloud Monitoring when Genkit Monitoring is enabled.
+    reason: Allows this extension to write metrics to Cloud Monitoring when Genkit Monitoring is enabled.
 
   - role: cloudtrace.agent
     reason:
