@@ -1,3 +1,7 @@
+## Version 1.0.6
+
+- feat: add Gemini 2.5 Flash Lite
+
 ## Version 1.0.5
 
 - Add missing Metric Monitoring role reason
