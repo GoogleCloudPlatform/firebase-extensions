@@ -1,3 +1,7 @@
+## Version 0.0.16
+
+- feat: add support for Gemini 2.5 Flash Lite
+
 ## Version 0.0.15
 
 - feat: Add support for Gemini 2.5 models
