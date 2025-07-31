@@ -11,6 +11,7 @@ import {GenkitPlugin} from 'genkit/plugin';
 import {
   googleAI,
   PluginOptions as PluginOptionsGoogleAI,
+  gemini25FlashLite as gemini25FlashLiteGoogleAI,
   gemini20Flash as gemini20FlashGoogleAI,
   gemini20FlashLite as gemini20FlashLiteGoogleAI,
   gemini15Flash as gemini15FlashGoogleAI,
@@ -19,6 +20,7 @@ import {
 import {
   vertexAI,
   PluginOptions as PluginOptionsVertexAI,
+  gemini25FlashLite as gemini25FlashLiteVertexAI,
   gemini20Flash as gemini20FlashVertexAI,
   gemini20FlashLite as gemini20FlashLiteVertexAI,
   gemini20Flash001 as gemini20Flash001VertexAI,
@@ -116,6 +118,7 @@ export class GenkitGenerativeClient extends GenerativeClient<
             gemini15ProGoogleAI,
             gemini20FlashGoogleAI,
             gemini20FlashLiteGoogleAI,
+            gemini25FlashLiteGoogleAI,
             googleAI.model('gemini-2.5-flash'),
             googleAI.model('gemini-2.5-pro'),
           ]
@@ -125,6 +128,7 @@ export class GenkitGenerativeClient extends GenerativeClient<
             gemini20FlashVertexAI,
             gemini20FlashLiteVertexAI,
             gemini20Flash001VertexAI,
+            gemini25FlashLiteVertexAI,
             vertexAI.model('gemini-2.5-flash'),
             vertexAI.model('gemini-2.5-pro'),
           ];
