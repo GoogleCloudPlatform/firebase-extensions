@@ -1,24 +1,14 @@
-## Version 1.0.6
-
-- feat: add Gemini 2.5 Flash Lite
-
-## Version 1.0.5
-
-- Add missing Metric Monitoring role reason
-
-- feat: Add support for Gemini 2.5 models
-
-- fix: remove deprecated Gemini models (gemini10ProGoogleAI, gemini10ProVertexAI, gemini20FlashExpGoogleAI, gemini20ProExp0205GoogleAI, gemini20ProExp0205VertexAI, gemini20FlashLitePreview0205VertexAI)
-
-## Version 1.0.4
-
-- chore: ensure consistent naming convention for Genkit Monitoring
-
 ## Version 1.0.3
 
-- chore: clean up tests
-
 - feat: add genkit ai monitoring
+
+- feat: add missing Metric Monitoring role reason
+
+- feat: Add support for Gemini 2.5 models (Flash Lite, Flash, and Pro)
+
+- fix: remove deprecated Gemini models (Gemini 1.0 Pro, Gemini 2.0 Flash Experimental, Gemini 2.0 Pro Experimental, Gemini 2.0 Flash Lite Preview)
+
+- chore: clean up tests
 
 ## Version 1.0.2
 
