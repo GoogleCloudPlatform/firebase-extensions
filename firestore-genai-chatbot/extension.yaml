@@ -373,7 +373,7 @@ params:
     immutable: false
 
   - param: HARM_CATEGORY_HARASSMENT
-    label: harassment Content Threshold
+    label: Harassment Content Threshold
     description: >-
       Threshold for harassment content. Specify what probability level of
       harassment content is blocked by the Gemini provider.
