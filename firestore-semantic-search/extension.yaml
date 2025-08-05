@@ -652,6 +652,14 @@ params:
     required: true
     immutable: true
 
+  - param: ENFORCE_APP_CHECK
+    label: Enforce App Check
+    description: >-
+      Enforce App Check for the extension's functions.
+    type: boolean
+    default: false # False to avoid breaking changes
+    required: false
+
 lifecycleEvents:
   onInstall:
     function: backfillTrigger
