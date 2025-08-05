@@ -1,4 +1,5 @@
 import {
+  gemini25FlashLite as gemini25FlashLiteGoogleAI,
   gemini20Flash as gemini20FlashGoogleAI,
   gemini20FlashLite as gemini20FlashLiteGoogleAI,
   gemini15Flash as gemini15FlashGoogleAI,
@@ -8,6 +9,7 @@ import {
 } from '@genkit-ai/googleai';
 
 import vertexAI, {
+  gemini25FlashLite as gemini25FlashLiteVertexAI,
   gemini20Flash as gemini20FlashVertexAI,
   gemini20FlashLite as gemini20FlashLiteVertexAI,
   gemini15Flash as gemini15FlashVertexAI,
@@ -104,6 +106,7 @@ export class GenkitDiscussionClient extends DiscussionClient<
             gemini15ProGoogleAI,
             gemini20FlashGoogleAI,
             gemini20FlashLiteGoogleAI,
+            gemini25FlashLiteGoogleAI,
             googleAI.model('gemini-2.5-flash'),
             googleAI.model('gemini-2.5-pro'),
           ]
@@ -112,6 +115,7 @@ export class GenkitDiscussionClient extends DiscussionClient<
             gemini15ProVertexAI,
             gemini20FlashVertexAI,
             gemini20FlashLiteVertexAI,
+            gemini25FlashLiteVertexAI,
             vertexAI.model('gemini-2.5-flash'),
             vertexAI.model('gemini-2.5-pro'),
           ];
