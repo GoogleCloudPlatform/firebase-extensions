@@ -97,6 +97,12 @@ This extension will update the state of a document that is being processed withi
 
 Changing the state field of a completed document's status from `COMPLETED` to anything else will retrigger the extension for that document.
 
+### Generative AI tasks powered by Genkit
+
+This extension leverages the [Genkit SDK](http://genkit.dev/) to power generative AI tasks using Gemini models from Google AI and Vertex AI. Genkit streamlines model selection, prompt construction, and response generation.
+
+For more information about Genkit, visit the Genkit documentation at [genkit.dev](http://genkit.dev/).
+
 ## Billing
 
 To install an extension, your project must be on the Blaze (pay as you go) plan. You will be charged a small amount (typically around $0.01/month) for the Firebase resources required by this extension (even if it is not used).
@@ -178,8 +184,8 @@ This extension will operate with the following project IAM roles:
 
 * aiplatform.user (Reason: Allows this extension to access the Gemini family of genai models via Vertex AI if this provider is chosen.)
 
-* monitoring.metricWriter Allows this extension to write metrics to Cloud Monitoring when Genkit monitoring is enabled.
+* monitoring.metricWriter (Reason: Allows this extension to write metrics to Cloud Monitoring when Genkit Monitoring is enabled.)
 
-* cloudtrace.agent (Reason: Allows this extension to write trace data to Cloud Trace when Genkit monitoring is enabled.)
+* cloudtrace.agent (Reason: Allows this extension to write trace data to Cloud Trace when Genkit Monitoring is enabled.)
 
-* logging.logWriter (Reason: Allows this extension to write logs to Cloud Logging when Genkit monitoring is enabled.)
+* logging.logWriter (Reason: Allows this extension to write logs to Cloud Logging when Genkit Monitoring is enabled.)

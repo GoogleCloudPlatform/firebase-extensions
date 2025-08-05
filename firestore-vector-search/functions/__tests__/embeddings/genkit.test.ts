@@ -3,7 +3,7 @@ jest.resetModules();
 // Mocking `@genkit-ai/googleai` and `@genkit-ai/vertexai`
 jest.mock('@genkit-ai/googleai', () => ({
   googleAI: jest.fn(),
-  textEmbeddingGecko001: 'gecko-001-model',
+  textEmbedding004: 'text-embedding-004-model',
 }));
 
 jest.mock('@genkit-ai/vertexai', () => ({
@@ -40,8 +40,8 @@ describe('GenkitEmbedClient', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    mockVertexAI = vertexAI as jest.Mock;
-    mockGoogleAI = googleAI as jest.Mock;
+    mockVertexAI = vertexAI as unknown as jest.Mock;
+    mockGoogleAI = googleAI as unknown as jest.Mock;
   });
 
   describe('constructor', () => {
@@ -70,7 +70,7 @@ describe('GenkitEmbedClient', () => {
       });
 
       expect(embedClient.provider).toBe('googleai');
-      expect(embedClient.embedder).toBe('gecko-001-model');
+      expect(embedClient.embedder).toBe('text-embedding-004-model');
       expect(mockGoogleAI).toHaveBeenCalledWith({
         apiKey: 'test-api-key',
       });
@@ -131,7 +131,7 @@ describe('GenkitEmbedClient', () => {
     });
 
     test('should return a single embedding for an input', async () => {
-      mockEmbed.mockResolvedValueOnce([7, 8, 9]); // Changed to return array directly
+      mockEmbed.mockResolvedValueOnce([{embedding: [7, 8, 9]}]); // Changed to return array directly
 
       const input = 'input1';
       const embedding = await embedClient.getSingleEmbedding(input);

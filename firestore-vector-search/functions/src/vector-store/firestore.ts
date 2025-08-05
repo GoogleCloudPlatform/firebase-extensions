@@ -3,7 +3,7 @@ import * as admin from 'firebase-admin';
 import {Prefilter} from '../queries/util';
 import {VectorStoreClient} from './base_class';
 import {FirebaseFirestoreError} from 'firebase-admin/firestore';
-import {HttpsError, FunctionsErrorCode} from 'firebase-functions/https';
+import {https} from 'firebase-functions/v1';
 
 export class FirestoreVectorStoreClient extends VectorStoreClient {
   firestore: admin.firestore.Firestore;
@@ -18,8 +18,8 @@ export class FirestoreVectorStoreClient extends VectorStoreClient {
   }
 
   // Converts thrown Firestore or general errors into structured HttpsError objects
-  private toHttpsError(error: any, context?: string): HttpsError {
-    if (error instanceof HttpsError) {
+  private toHttpsError(error: any, context?: string): https.HttpsError {
+    if (error instanceof https.HttpsError) {
       return error;
     }
 
@@ -33,10 +33,10 @@ export class FirestoreVectorStoreClient extends VectorStoreClient {
 
       // check if the prefix is firestore anyway
       if (prefix !== 'firestore') {
-        return new HttpsError('unknown', message);
+        return new https.HttpsError('unknown', message);
       }
 
-      const ALLOWED_ERROR_CODES = new Set<FunctionsErrorCode>([
+      const ALLOWED_ERROR_CODES = new Set<https.FunctionsErrorCode>([
         'cancelled',
         'unknown',
         'invalid-argument',
@@ -54,15 +54,17 @@ export class FirestoreVectorStoreClient extends VectorStoreClient {
         'unauthenticated',
       ]);
 
-      if (ALLOWED_ERROR_CODES.has(code as FunctionsErrorCode)) {
-        return new HttpsError(code as FunctionsErrorCode, message);
+      if (ALLOWED_ERROR_CODES.has(code as https.FunctionsErrorCode)) {
+        return new https.HttpsError(code as https.FunctionsErrorCode, message);
       }
-      return new HttpsError('unknown', message, {firestoreCode: error.code});
+      return new https.HttpsError('unknown', message, {
+        firestoreCode: error.code,
+      });
     }
 
     if (error instanceof Error) {
       if (error.message.toLowerCase().includes('opstr')) {
-        return new HttpsError(
+        return new https.HttpsError(
           'invalid-argument',
           context
             ? `Invalid operator in query: ${context}`
@@ -70,10 +72,10 @@ export class FirestoreVectorStoreClient extends VectorStoreClient {
         );
       }
 
-      return new HttpsError('unknown', error.message);
+      return new https.HttpsError('unknown', error.message);
     }
 
-    return new HttpsError(
+    return new https.HttpsError(
       'unknown',
       'An unexpected error occurred performing your query'
     );

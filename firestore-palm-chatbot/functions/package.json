@@ -6,7 +6,8 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "generate-readme": "firebase ext:info .. --markdown > ../README.md",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "publish-from-main": "firebase ext:dev:upload googlecloud/firestore-palm-chatbot --repo=https://github.com/googlecloudplatform/firebase-extensions --root=firestore-palm-chatbot --ref=main --project pub-ext-gcloud"
   },
   "main": "lib/index.js",
   "dependencies": {

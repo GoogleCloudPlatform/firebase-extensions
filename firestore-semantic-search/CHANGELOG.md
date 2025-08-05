@@ -1,6 +1,8 @@
 ## Version 0.1.10
 
-fix - add enforceAppCheck to queryIndex function (#686)
+feat - add enforceAppCheck param for queryIndex function (#686)
+
+chore: update and audit packages
 
 ## Version 0.1.9
 

@@ -7,27 +7,28 @@
     "build:watch": "tsc --watch",
     "local:emulator": "cd ../../_emulator && firebase emulators:start -P demo-test",
     "test": "jest",
-    "generate-readme": "firebase ext:info .. --markdown > ../README.md"
+    "generate-readme": "firebase ext:info .. --markdown > ../README.md",
+    "publish-from-main": "firebase ext:dev:upload googlecloud/firestore-semantic-search --repo=https://github.com/googlecloudplatform/firebase-extensions --root=firestore-semantic-search --ref=main --project pub-ext-gcloud"
   },
   "engines": {
     "node": "20"
   },
   "main": "lib/index.js",
   "dependencies": {
-    "@google-cloud/aiplatform": "^4.1.0",
+    "@google-cloud/aiplatform": "^4.2.0",
     "@google-cloud/logging": "^11.2.0",
-    "@google-cloud/resource-manager": "^6.0.1",
-    "@google-cloud/storage": "^7.7.0",
-    "@google-cloud/vpc-access": "^4.0.1",
-    "@google/generative-ai": "^0.3.0",
+    "@google-cloud/resource-manager": "^6.1.0",
+    "@google-cloud/storage": "^7.16.0",
+    "@google-cloud/vpc-access": "^4.1.0",
+    "@google/generative-ai": "^0.24.1",
     "@tensorflow-models/universal-sentence-encoder": "^1.3.3",
     "@tensorflow/tfjs-node": "^4.22.0",
-    "@tensorflow/tfjs-node-gpu": "^4.2.0",
-    "@types/fs-extra": "^11.0.1",
-    "axios": "^1.3.5",
+    "@tensorflow/tfjs-node-gpu": "^4.22.0",
+    "@types/fs-extra": "^11.0.4",
+    "axios": "^1.10.0",
     "firebase-admin": "^12.2.0",
     "firebase-functions": "^4.3.1",
-    "fs-extra": "^11.1.1",
+    "fs-extra": "^11.3.0",
     "google-auth-library": "^8.8.0",
     "googleapis": "^114.0.0",
     "typescript": "^4.9.0"
@@ -39,10 +40,10 @@
     "dotenv": "^16.0.3",
     "eslint": "^8.15.1",
     "eslint-config-google": "^0.14.0",
-    "eslint-plugin-import": "^2.26.0",
-    "firebase-functions-test": "^3.1.0",
+    "eslint-plugin-import": "^2.32.0",
+    "firebase-functions-test": "^3.4.1",
     "jest": "^29.5.0",
-    "ts-jest": "^29.1.0"
+    "ts-jest": "^29.4.0"
   },
   "files": [
     "lib"

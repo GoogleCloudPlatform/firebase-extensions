@@ -63,6 +63,9 @@ apis:
       This extension uses the Vertex AI multimodal model for embedding images,
       if configured to do so.
 
+  - apiName: storage-component.googleapis.com
+    reason: Needed to use Cloud Storage
+
 roles:
   - role: datastore.user
     reason: Allows the extension to write embeddings to Cloud Firestore.
