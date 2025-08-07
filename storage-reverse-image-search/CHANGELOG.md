@@ -1,6 +1,6 @@
 ## Version 0.1.11
 
-chore: Upute Vertex Machine Engine to Vector Search
+chore: Update Vertex Matching Engine to Vector Search
 
 ## Version 0.1.10
 
