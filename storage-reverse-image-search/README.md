@@ -123,7 +123,7 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * **datapointWriteTask:** A task-triggered function that gets called when a new Image is created or updated but the index isn't ready. It generates embeddings for the image and updates the Vector Search index.
 
-* **queryIndex:** A function that queries the Vector Search index.
+* **queryIndex:** A function that queries the Vertex Vector Search index.
 
 
 
@@ -137,7 +137,7 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 **APIs Used**:
 
-* aiplatform.googleapis.com (Reason: Powers Vertex Vector Search)
+* aiplatform.googleapis.com (Reason: Powers Vector Search)
 
 * eventarc.googleapis.com (Reason: Powers all events and triggers)
 
@@ -157,4 +157,4 @@ This extension will operate with the following project IAM roles:
 
 * storage.admin (Reason: This extension requires write access to Cloud Storage to create a bucket and upload embeddings files to it as part of the backfill.)
 
-* aiplatform.user (Reason: This extension requires access to Vertex AI to create, update and query a Vertex Vector Search index.)
+* aiplatform.user (Reason: This extension requires access to Vertex AI to create, update and query a Vector Search index.)
