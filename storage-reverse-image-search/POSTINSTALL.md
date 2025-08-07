@@ -124,7 +124,7 @@ If there are any errors during the query process, the extension will log the err
 
 ## Uninstalling the Extension
 
-The extension does not delete or undeploy the Matching Engine Index automatically when you uninstall the extension. Vertex AI charges by node hour when hosting a Matching Engine Index, so your project will continue to incur costs until you manually undeploy the index. Instructions for undeploying an index are available [here](https://cloud.google.com/vertex-ai/docs/matching-engine/deploy-index-public#undeploy-index).
+The extension does not delete or undeploy the Vector Search Index automatically when you uninstall the extension. Vertex AI charges by node hour when hosting a Vector Search Index, so your project will continue to incur costs until you manually undeploy the index. Instructions for undeploying an index are available [here](https://cloud.google.com/vertex-ai/docs/vector-search/deploy-index-public#undeploy-index).
 
 ## Monitoring
 

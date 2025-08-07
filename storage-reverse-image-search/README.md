@@ -2,13 +2,13 @@
 
 **Author**: Firebase (**[https://firebase.google.com](https://firebase.google.com)**)
 
-**Description**: Search for similar images in Cloud Storage with Vertex AI Matching Engine.
+**Description**: Search for similar images in Cloud Storage with Vector Search.
 
 
 
-**Details**: > ⚠️ The Vertex [Matching Engine public endpoints](https://cloud.google.com/vertex-ai/docs/matching-engine/deploy-index-public) are currently in public preview.
+**Details**: 
 
-This extension adds reverse image search to your Firebase application using Vertex AI’s [Matching Engine](https://cloud.google.com/vertex-ai/docs/matching-engine/overview) and Cloud Storage. Reverse image search relies on first generating feature vector representations of your original images which are stored in a Matching Engine index. Once these feature vectors are indexed, the Matching Engine can be used to calculate similar images to an original image from a large dataset of candidate images, based on vector distance measures.
+This extension adds reverse image search to your Firebase application using Vertex AI’s [Vector Search](https://cloud.google.com/vertex-ai/docs/vector-search/overview) and Cloud Storage. Reverse image search relies on first generating feature vector representations of your original images which are stored in a Vector Search index. Once these feature vectors are indexed, Vector Search can be used to calculate similar images to an original image from a large dataset of candidate images, based on vector distance measures.
 
 On installation, you will need to specify a Cloud Storage **bucket** and **files path** for indexing.
 
@@ -59,12 +59,12 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 - Cloud Storage
 - Cloud Run
 - Cloud EventArc
-- [Vertex AI](https://cloud.google.com/vertex-ai/pricing#matchingengine)
+- [Vertex AI](https://cloud.google.com/vertex-ai/pricing#vector-search)
 - Cloud Functions (See [FAQs](https://firebase.google.com/support/faq#extensions-pricing))
 
 [Learn more about Firebase billing](https://firebase.google.com/pricing).
 
-> ⚠️ The extension does not delete the Matching Engine Index automatically when you uninstall the extension. Vertex AI charges by node hour when hosting a Matching Engine Index, so your project will continue to incur costs until you manually undeploy the index. Instructions for undeploying an index are available [here](https://cloud.google.com/vertex-ai/docs/matching-engine/deploy-index-public#undeploy-index). You can [read more about Matching Engine pricing here](https://www.google.com/url?q=https://cloud.google.com/vertex-ai/pricing%23matchingengine&sa=D&source=docs&ust=1683194254385742&usg=AOvVaw1kYFVKa8gdagrau70Vzk6G).
+> ⚠️ The extension does not delete the Vector Search Index automatically when you uninstall the extension. Vertex AI charges by node hour when hosting a Vector Search Index, so your project will continue to incur costs until you manually undeploy the index. Instructions for undeploying an index are available [here](https://cloud.google.com/vertex-ai/docs/vector-search/deploy-index-public#undeploy-index). You can [read more about Vector Search pricing here](https://cloud.google.com/vertex-ai/pricing#vector-search).
 
 
 
@@ -85,15 +85,15 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Model input shape: The input shape of the model. For example, if the model expects 224x224 images, the input shape is `224,244`.
 
-* Distance measure type: The distance measure used in nearest neighbor search. The default is dot product.  [Read more about distance measures here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#distance-measure-type).
+* Distance measure type: The distance measure used in nearest neighbor search. The default is dot product.  [Read more about distance measures here](https://cloud.google.com/vertex-ai/docs/vector-search/configuring-indexes#distance-measure-type).
 
-* Algorithm config: The configuration with regard to the algorithms used for efficient search. [Read more about algorithm config here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#tree-ah-config).
+* Algorithm config: The configuration with regard to the algorithms used for efficient search. [Read more about algorithm config here](https://cloud.google.com/vertex-ai/docs/vector-search/configuring-indexes#tree-ah-config).
 
-* Approximate number of neighbors: The approximate number of neighbors to return in the response. [Read more about this parameter here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#nearest-neighbor-search-config).
+* Approximate number of neighbors: The approximate number of neighbors to return in the response. [Read more about this parameter here](https://cloud.google.com/vertex-ai/docs/vector-search/configuring-indexes#nearest-neighbor-search-config).
 
 * Batch size: The batch size used to generate feature vectors for existing images. The larger the batch size, the more time and memory are required. Do not set a size larger than 64.
 
-* Shard size: The size of the shard, which correlates to the machine type used. [Read more about shards config here](https://cloud.google.com/vertex-ai/docs/matching-engine/create-manage-index#create-index).
+* Shard size: The size of the shard, which correlates to the machine type used. [Read more about shards config here](https://cloud.google.com/vertex-ai/docs/vector-search/create-manage-index#create-index).
 
 * Machine type: The type of machine that is deployed for the index endpoint. [Read more about machine types config here](https://cloud.google.com/vertex-ai/docs/predictions/configure-compute#g2-series).
 
@@ -111,19 +111,19 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 **Cloud Functions:**
 
-* **backfillTrigger:** Sets up the Vertex Matching Engine index.
+* **backfillTrigger:** Sets up the Vector Search index.
 
-* **backfillTask:** A task-triggered function that gets called before a Vertex Matching Engine index is created. It backfills embeddings for all images in the specified Cloud Storage path.
+* **backfillTask:** A task-triggered function that gets called before a Vector Search index is created. It backfills embeddings for all images in the specified Cloud Storage path.
 
 * **createIndexTrigger:** An event-triggered function that gets called when a special metadata document updated. It checks the status of the backfill every time, and once it's done it will trigger index creation.
 
-* **streamUpdateDatapoint:** An event-triggered function that gets called when a new Image is created or updated. It generates embeddings for the image and updates the Matching Engine index.
+* **streamUpdateDatapoint:** An event-triggered function that gets called when a new Image is created or updated. It generates embeddings for the image and updates the Vector Search index.
 
-* **streamRemoveDatapoint:** An event-triggered function that gets called when a new Image is deleted. It removes the image's datapoint from the Matching Engine index.
+* **streamRemoveDatapoint:** An event-triggered function that gets called when a new Image is deleted. It removes the image's datapoint from the Vector Search index.
 
-* **datapointWriteTask:** A task-triggered function that gets called when a new Image is created or updated but the index isn't ready. It generates embeddings for the image and updates the Matching Engine index.
+* **datapointWriteTask:** A task-triggered function that gets called when a new Image is created or updated but the index isn't ready. It generates embeddings for the image and updates the Vector Search index.
 
-* **queryIndex:** A function that queries the Vertex Matching Engine index.
+* **queryIndex:** A function that queries the Vertex Vector Search index.
 
 
 
@@ -137,7 +137,7 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 **APIs Used**:
 
-* aiplatform.googleapis.com (Reason: Powers Vertex Matching Engine)
+* aiplatform.googleapis.com (Reason: Powers Vector Search)
 
 * eventarc.googleapis.com (Reason: Powers all events and triggers)
 
@@ -157,4 +157,4 @@ This extension will operate with the following project IAM roles:
 
 * storage.admin (Reason: This extension requires write access to Cloud Storage to create a bucket and upload embeddings files to it as part of the backfill.)
 
-* aiplatform.user (Reason: This extension requires access to Vertex AI to create, update and query a Vertex Matching Engine index.)
+* aiplatform.user (Reason: This extension requires access to Vertex AI to create, update and query a Vector Search index.)
