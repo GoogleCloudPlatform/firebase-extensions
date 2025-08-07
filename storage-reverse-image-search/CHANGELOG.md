@@ -1,3 +1,7 @@
+## Version 0.1.11
+
+chore: Upute Vertex Machine Engine to Vector Search
+
 ## Version 0.1.10
 
 chore: update and audit packages
