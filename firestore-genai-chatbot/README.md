@@ -128,7 +128,7 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Dangerous Content Threshold: Threshold for dangerous content. Specify what probability level of dangerous content is blocked by the Gemini provider.
 
-* harassment Content Threshold: Threshold for harassment content. Specify what probability level of harassment content is blocked by the Gemini provider.
+* Harassment Content Threshold: Threshold for harassment content. Specify what probability level of harassment content is blocked by the Gemini provider.
 
 * Sexual Content Threshold: Threshold for sexually explicit content. Specify what probability level of sexual content is blocked by the Gemini provider.
 
