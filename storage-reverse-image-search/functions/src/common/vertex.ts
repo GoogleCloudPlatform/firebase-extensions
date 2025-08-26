@@ -68,7 +68,7 @@ export async function createIndex(
               treeAhConfig: {
                 structValue: {
                   fields: {
-                    // TODO mais - add treeAHConfig https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#tree-ah-config
+                    // TODO mais - add treeAHConfig https://cloud.google.com/vertex-ai/docs/vector-search/configuring-indexes#tree-ah-config
                   },
                 },
               },

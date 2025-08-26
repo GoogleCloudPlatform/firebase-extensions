@@ -1,5 +1,5 @@
 name: storage-reverse-image-search
-version: 0.1.10
+version: 0.1.11
 specVersion: v1beta
 
 icon: icon.png
@@ -10,7 +10,7 @@ tags:
 displayName: Reverse Image Search with Vertex AI
 
 description: >-
-  Search for similar images in Cloud Storage with Vertex AI Matching Engine.
+  Search for similar images in Cloud Storage with Vector Search.
 
 license: Apache-2.0 # https://spdx.org/licenses/
 sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/storage-reverse-image-search
@@ -30,7 +30,7 @@ billingRequired: true
 apis:
   - apiName: aiplatform.googleapis.com
     reason: >-
-      Powers Vertex Matching Engine
+      Powers Vector Search
 
   - apiName: eventarc.googleapis.com
     reason: >-
@@ -57,13 +57,13 @@ roles:
   - role: aiplatform.user
     reason: >-
       This extension requires access to Vertex AI to create, update and query a
-      Vertex Matching Engine index.
+      Vector Search index.
 
 resources:
   - name: backfillTrigger
     type: firebaseextensions.v1beta.function
     description: >-
-      Sets up the Vertex Matching Engine index.
+      Sets up the Vector Search index.
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
@@ -74,7 +74,7 @@ resources:
   - name: backfillTask
     type: firebaseextensions.v1beta.function
     description: >-
-      A task-triggered function that gets called before a Vertex Matching Engine
+      A task-triggered function that gets called before a Vector Search
       index is created. It backfills embeddings for all images in the specified
       Cloud Storage path.
     properties:
@@ -103,7 +103,7 @@ resources:
   - name: onIndexCreated
     type: firebaseextensions.v1beta.v2function
     description: >-
-      An event-triggered function that gets called when a Vertex Matching Engine
+      An event-triggered function that gets called when a Vector Search
       index is created.
     properties:
       location: ${LOCATION}
@@ -123,7 +123,7 @@ resources:
   - name: onIndexDeployed
     type: firebaseextensions.v1beta.v2function
     description: >-
-      An event-triggered function that gets called when a Vertex Matching Engine
+      An event-triggered function that gets called when a Vector Search
       index is deployed.
     properties:
       location: ${LOCATION}
@@ -144,8 +144,8 @@ resources:
     type: firebaseextensions.v1beta.function
     description: >-
       An event-triggered function that gets called when a new Image is created
-      or updated. It generates embeddings for the image and updates the Matching
-      Engine index.
+      or updated. It generates embeddings for the image and updates the Vector
+      Search index.
     properties:
       location: ${LOCATION}
       runtime: nodejs20
@@ -159,7 +159,7 @@ resources:
     type: firebaseextensions.v1beta.function
     description: >-
       An event-triggered function that gets called when a new Image is deleted.
-      It removes the image's datapoint from the Matching Engine index.
+      It removes the image's datapoint from the Vector Search index.
     properties:
       location: ${LOCATION}
       runtime: nodejs20
@@ -174,7 +174,7 @@ resources:
     description: >-
       A task-triggered function that gets called when a new Image is created or
       updated but the index isn't ready. It generates embeddings for the image
-      and updates the Matching Engine index.
+      and updates the Vector Search index.
     properties:
       availableMemoryMb: 1024
       location: ${LOCATION}
@@ -185,7 +185,7 @@ resources:
   - name: queryIndex
     type: firebaseextensions.v1beta.function
     description: >-
-      A function that queries the Vertex Matching Engine index.
+      A function that queries the Vertex Vector Search index.
     properties:
       availableMemoryMb: 8192
       location: ${LOCATION}
@@ -277,7 +277,7 @@ params:
     description: >-
       The distance measure used in nearest neighbor search. The default is dot
       product.  [Read more about distance measures
-      here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#distance-measure-type).
+      here](https://cloud.google.com/vertex-ai/docs/vector-search/configuring-indexes#distance-measure-type).
     type: select
     required: true
     default: DOT_PRODUCT_DISTANCE
@@ -296,7 +296,7 @@ params:
     description: >-
       The configuration with regard to the algorithms used for efficient search.
       [Read more about algorithm config
-      here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#tree-ah-config).
+      here](https://cloud.google.com/vertex-ai/docs/vector-search/configuring-indexes#tree-ah-config).
     type: select
     required: true
     default: bruteForceConfig
@@ -311,7 +311,7 @@ params:
     description: >-
       The approximate number of neighbors to return in the response. [Read more
       about this parameter
-      here](https://cloud.google.com/vertex-ai/docs/matching-engine/configuring-indexes#nearest-neighbor-search-config).
+      here](https://cloud.google.com/vertex-ai/docs/vector-search/configuring-indexes#nearest-neighbor-search-config).
     default: 100
     required: true
     immutable: true
@@ -337,7 +337,7 @@ params:
     description: >-
       The size of the shard, which correlates to the machine type used. [Read
       more about shards config
-      here](https://cloud.google.com/vertex-ai/docs/matching-engine/create-manage-index#create-index).
+      here](https://cloud.google.com/vertex-ai/docs/vector-search/create-manage-index#create-index).
     type: select
     required: true
     immutable: true
