@@ -1,3 +1,9 @@
+## Version 0.1.6
+
+fix - handle empty partitioning values in reconfiguration correctly
+
+refactor - improve type safety and test coverage
+
 ## Version 0.1.5
 
 chore - remove irrelevant dependencies
