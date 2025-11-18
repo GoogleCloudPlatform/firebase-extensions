@@ -1,3 +1,7 @@
+## Version 0.1.11
+
+docs: fix incorrect App Check claim in POSTINSTALL documentation
+
 ## Version 0.1.10
 
 chore: update and audit packages

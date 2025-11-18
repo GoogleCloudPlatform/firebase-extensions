@@ -64,7 +64,7 @@ The response contains** only document IDs**, not the full data, since the extens
 
 ## Example client integration
 
-Now that you have an index with data in it, you can run text similarity search queries directly from your client application. Note that this Callable Function is protected by App Check and requires that you are signed in with a [Firebase Auth](https://firebase.google.com/docs/auth) call the Function from your client application.
+Now that you have an index with data in it, you can run text similarity search queries directly from your client application. Note that this Callable Function requires that you are signed in with [Firebase Auth](https://firebase.google.com/docs/auth) to call the Function from your client application.
 
 ```js
 import firebase from "firebase";
