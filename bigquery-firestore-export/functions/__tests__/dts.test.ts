@@ -2,20 +2,81 @@ import {Config} from '../src/types';
 import * as dts from '../src/dts';
 import {getTransferConfigResponse} from './fixtures/transferConfigResonse';
 
+jest.mock('../src/config', () => {
+  return {
+    default: {
+      location: 'us-central1',
+      bigqueryDatasetLocation: 'us',
+      displayName: 'Transactions Rollup',
+      datasetId: 'destination_dataset_id',
+      tableName: 'transactions',
+      queryString: 'Select * from `test-project.transaction_data.transactions`',
+      partitioningField: '',
+      schedule: 'every 15 minutes',
+      pubSubTopic: 'transfer_runs',
+      firestoreCollection: 'transferConfigs',
+      instanceId: 'firestore-bigquery-scheduler',
+      projectId: 'test',
+    },
+  };
+});
+
+const mockGetTransferConfig = jest.fn();
+const mockCreateTransferConfig = jest.fn();
+const mockUpdateTransferConfig = jest.fn();
+
 jest.mock('@google-cloud/bigquery-data-transfer', () => {
   return {
     v1: {
       DataTransferServiceClient: jest.fn().mockImplementation(() => {
         return {
-          getTransferConfig: jest.fn().mockImplementation(request => {
-            // Conditional response based on the request name
-            if (request.name.includes('wrong-id')) {
-              return [null]; // Simulate returning null for wrong IDs
+          getTransferConfig: mockGetTransferConfig.mockImplementation(
+            request => {
+              // Conditional response based on the request name
+              if (request.name.includes('wrong-id')) {
+                return [null]; // Simulate returning null for wrong IDs
+              }
+              if (request.name.includes('api-error')) {
+                throw new Error('API Error');
+              }
+              return getTransferConfigResponse;
             }
-            return getTransferConfigResponse;
-          }),
+          ),
+          createTransferConfig: mockCreateTransferConfig.mockImplementation(
+            () => {
+              return [
+                {
+                  name: 'projects/test/locations/us/transferConfigs/new-config-id',
+                },
+              ];
+            }
+          ),
+          updateTransferConfig: mockUpdateTransferConfig.mockImplementation(
+            () => {
+              return [
+                {
+                  name: 'projects/test/locations/us/transferConfigs/updated-config-id',
+                },
+              ];
+            }
+          ),
         };
       }),
+    },
+    protos: {
+      google: {
+        cloud: {
+          bigquery: {
+            datatransfer: {
+              v1: {
+                UpdateTransferConfigRequest: {
+                  fromObject: jest.fn().mockImplementation(obj => obj),
+                },
+              },
+            },
+          },
+        },
+      },
     },
   };
 });
@@ -210,6 +271,78 @@ describe('dts', () => {
       expect(
         result.transferConfig.params.fields.partitioning_field.stringValue
       ).toBe(''); // Should remain empty string, not undefined
+    });
+  });
+
+  describe('getTransferConfig', () => {
+    beforeEach(() => {
+      mockGetTransferConfig.mockClear();
+    });
+
+    test('returns transfer config when found', async () => {
+      const result = await dts.getTransferConfig(baseResponse.name);
+
+      expect(result).toEqual(getTransferConfigResponse[0]);
+      expect(mockGetTransferConfig).toHaveBeenCalledWith({
+        name: baseResponse.name,
+      });
+    });
+
+    test('returns null when API throws error', async () => {
+      const result = await dts.getTransferConfig(
+        'projects/test/locations/us/transferConfigs/api-error'
+      );
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe('createTransferConfig', () => {
+    beforeEach(() => {
+      mockCreateTransferConfig.mockClear();
+    });
+
+    test('successfully creates transfer config and returns response', async () => {
+      const result = await dts.createTransferConfig();
+
+      expect(result).toEqual({
+        name: 'projects/test/locations/us/transferConfigs/new-config-id',
+      });
+      expect(mockCreateTransferConfig).toHaveBeenCalled();
+    });
+  });
+
+  describe('updateTransferConfig', () => {
+    beforeEach(() => {
+      mockUpdateTransferConfig.mockClear();
+      mockGetTransferConfig.mockClear();
+    });
+
+    test('successfully updates transfer config and returns response', async () => {
+      const result = await dts.updateTransferConfig(baseResponse.name);
+
+      expect(result).toEqual({
+        name: 'projects/test/locations/us/transferConfigs/updated-config-id',
+      });
+      expect(mockUpdateTransferConfig).toHaveBeenCalled();
+    });
+
+    test('returns null when transfer config not found', async () => {
+      const result = await dts.updateTransferConfig(
+        'projects/test/locations/us/transferConfigs/wrong-id'
+      );
+
+      expect(result).toBeNull();
+    });
+
+    test('returns null when API throws error', async () => {
+      mockUpdateTransferConfig.mockImplementationOnce(() => {
+        throw new Error('Update API Error');
+      });
+
+      const result = await dts.updateTransferConfig(baseResponse.name);
+
+      expect(result).toBeNull();
     });
   });
 });

@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import * as logs from './logs';
 import config from './config';
 import * as helper from './helper';
 import * as dts from './dts';
+import {TransferRunMessage} from './types';
 
 logs.init();
 
@@ -134,7 +135,7 @@ export const processMessages = functions.pubsub
 
 export const processMessagesHttp = functions.https.onRequest(
   async (req, res) => {
-    const message = req.body;
+    const message = req.body as TransferRunMessage;
     await helper.handleMessage(db, config, message);
     res.send('OK');
   }

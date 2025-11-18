@@ -1,4 +1,9 @@
-export const message = (transferConfigId: string, runId: string) => {
+import {TransferRunMessage} from '../../src/types';
+
+export const message = (
+  transferConfigId: string,
+  runId: string
+): TransferRunMessage => {
   return {
     json: {
       dataSourceId: 'scheduled_query',
