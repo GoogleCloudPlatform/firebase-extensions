@@ -169,5 +169,47 @@ describe('dts', () => {
         )
       ).toEqual(expectedResponse);
     });
+
+    test('empty partitioning field should not cause params update when only schedule changes', async () => {
+      // This test reproduces the bug from issue #2544
+      // When partitioningField is empty/undefined and schedule changes,
+      // the update should not include partitioning_field in params
+      const testConfig = Object.assign({}, baseConfig);
+      testConfig.schedule = 'every 24 hours';
+      testConfig.partitioningField = ''; // Empty, same as existing
+
+      const result = await dts.constructUpdateTransferConfigRequest(
+        baseResponse.name,
+        testConfig
+      );
+
+      // Should only update schedule, not params
+      expect(result.updateMask.paths).toEqual(['schedule']);
+      // partitioning_field should remain unchanged (empty string)
+      expect(
+        result.transferConfig.params.fields.partitioning_field.stringValue
+      ).toBe('');
+    });
+
+    test('undefined partitioning field should not include partitioning_field in update', async () => {
+      // This test reproduces the exact bug from issue #2544
+      // When partitioningField is undefined (not set in config) and other params change,
+      // the update should not set partitioning_field to undefined
+      const testConfig = Object.assign({}, baseConfig);
+      testConfig.queryString = 'SELECT * from newtable';
+      testConfig.partitioningField = undefined as unknown as string; // Simulates unset config
+
+      const result = await dts.constructUpdateTransferConfigRequest(
+        baseResponse.name,
+        testConfig
+      );
+
+      // Should update params for query change
+      expect(result.updateMask.paths).toContain('params');
+      // But partitioning_field should NOT be set to undefined - it should keep the existing value
+      expect(
+        result.transferConfig.params.fields.partitioning_field.stringValue
+      ).toBe(''); // Should remain empty string, not undefined
+    });
   });
 });

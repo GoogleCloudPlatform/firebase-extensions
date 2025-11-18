@@ -106,14 +106,21 @@ export const constructUpdateTransferConfigRequest = async (
       destinationTableNameTemplate;
   }
 
-  if (
-    config.partitioningField !==
-    //TODO - what if null or undefined?
-    transferConfig.params!.fields!.partitioning_field.stringValue
-  ) {
-    updateMask.push('params');
-    updatedConfig.params.fields.partitioning_field.stringValue =
-      config.partitioningField;
+  // Only update partitioning_field if it has a non-empty value
+  // BigQuery Data Transfer API rejects empty/undefined values for this parameter on update
+  const existingPartitioningField =
+    transferConfig.params!.fields!.partitioning_field?.stringValue || '';
+  const newPartitioningField = config.partitioningField || '';
+
+  if (newPartitioningField !== existingPartitioningField) {
+    // Only include in update if the new value is non-empty
+    if (newPartitioningField) {
+      updateMask.push('params');
+      updatedConfig.params.fields.partitioning_field.stringValue =
+        newPartitioningField;
+    }
+    // If new value is empty and old value was non-empty, we can't clear it via API
+    // This is a limitation of the BigQuery Data Transfer API
   }
 
   if (config.schedule !== transferConfig.schedule) {
