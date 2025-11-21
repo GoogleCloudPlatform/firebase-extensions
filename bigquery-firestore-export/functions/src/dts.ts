@@ -39,7 +39,10 @@ export const getTransferConfig = async (transferConfigName: string) => {
   }
 };
 
-export const createTransferConfigRequest = (config: Config) => {
+export const createTransferConfigRequest = (
+  config: Config,
+  serviceAccountEmail?: string
+) => {
   const params = {
     query: config.queryString,
     destination_table_name_template: `${config.tableName}_{run_time|"%H%M%S"}`,
@@ -65,14 +68,17 @@ export const createTransferConfigRequest = (config: Config) => {
       }
     }
   );
-  const transferConfig = {
-    destinationDatasetId: config.datasetId,
-    displayName: config.displayName,
-    dataSourceId: 'scheduled_query',
-    params: {fields: transferConfigParams},
-    schedule: config.schedule,
-    notificationPubsubTopic: `projects/${config.projectId}/topics/${config.pubSubTopic}`,
-  };
+  const transferConfig: bigqueryDataTransfer.protos.google.cloud.bigquery.datatransfer.v1.ITransferConfig =
+    {
+      destinationDatasetId: config.datasetId,
+      displayName: config.displayName,
+      dataSourceId: 'scheduled_query',
+      params: {fields: transferConfigParams},
+      schedule: config.schedule,
+      notificationPubsubTopic: `projects/${config.projectId}/topics/${config.pubSubTopic}`,
+      ...(serviceAccountEmail && {serviceAccountName: serviceAccountEmail}),
+    };
+
   // Instantiates a client
   const request = {
     parent: `projects/${config.projectId}`,
@@ -81,12 +87,12 @@ export const createTransferConfigRequest = (config: Config) => {
   return request;
 };
 
-export const createTransferConfig = async () => {
+export const createTransferConfig = async (serviceAccountEmail?: string) => {
   const datatransferClient =
     new bigqueryDataTransfer.v1.DataTransferServiceClient({
       projectId: config.projectId,
     });
-  const request = createTransferConfigRequest(config);
+  const request = createTransferConfigRequest(config, serviceAccountEmail);
   // Run request
 
   // TODO: Should we be converting it?
@@ -100,7 +106,8 @@ export const createTransferConfig = async () => {
 
 export const constructUpdateTransferConfigRequest = async (
   transferConfigName: string,
-  config: Config
+  config: Config,
+  serviceAccountEmail?: string
 ) => {
   const transferConfig = await getTransferConfig(transferConfigName);
 
@@ -149,6 +156,15 @@ export const constructUpdateTransferConfigRequest = async (
     updatedConfig.schedule = config.schedule;
   }
 
+  // Ensure service account is set if provided and different from existing
+  if (serviceAccountEmail) {
+    const existingServiceAccount = (transferConfig as any).serviceAccountName;
+    if (existingServiceAccount !== serviceAccountEmail) {
+      updateMask.push('serviceAccountName');
+      updatedConfig.serviceAccountName = serviceAccountEmail;
+    }
+  }
+
   const request = {
     transferConfig: updatedConfig,
     updateMask: {paths: updateMask},
@@ -158,7 +174,10 @@ export const constructUpdateTransferConfigRequest = async (
   return request;
 };
 
-export const updateTransferConfig = async (transferConfigName: string) => {
+export const updateTransferConfig = async (
+  transferConfigName: string,
+  serviceAccountEmail?: string
+) => {
   try {
     const datatransferClient =
       new bigqueryDataTransfer.v1.DataTransferServiceClient({
@@ -166,7 +185,8 @@ export const updateTransferConfig = async (transferConfigName: string) => {
       });
     const request = await constructUpdateTransferConfigRequest(
       transferConfigName,
-      config
+      config,
+      serviceAccountEmail
     );
 
     // Run request

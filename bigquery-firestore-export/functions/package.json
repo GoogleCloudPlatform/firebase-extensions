@@ -12,6 +12,9 @@
     "test": "jest --runInBand",
     "test:local": "concurrently \"npm run local:emulator\" \"jest\"",
     "test:watch": "concurrently \"npm run local:emulator\" \"jest --watch\"",
+    "test:e2e": "NODE_OPTIONS='--experimental-vm-modules' jest --config=jest.e2e.config.js --runInBand",
+    "test:e2e:local": "NODE_OPTIONS='--experimental-vm-modules' npm run test:e2e -- --setupFiles=./__tests__/e2e/setup.local.ts",
+    "test:e2e:ci": "NODE_OPTIONS='--experimental-vm-modules' npm run test:e2e -- --setupFiles=./__tests__/e2e/setup.ci.ts",
     "generate-readme": "firebase ext:info .. --markdown > ../README.md",
     "publish-from-main": "firebase ext:dev:upload googlecloud/bigquery-firestore-export --repo=https://github.com/googlecloudplatform/firebase-extensions --root=bigquery-firestore-export --ref=main --project pub-ext-gcloud"
   },

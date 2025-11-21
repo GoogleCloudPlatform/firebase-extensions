@@ -45,12 +45,14 @@ export const upsertTransferConfig = functions.tasks
       // Ensure the latest transfer config object is stored in Firestore.
       // If Firestore already contains an extension instance matching this config ID, the extension
       // will overwrite the existing config with the latest config from the API
-      const transferConfig = await dts.getTransferConfig(config.transferConfigName);
+      const transferConfig = await dts.getTransferConfig(
+        config.transferConfigName
+      );
 
       if (!transferConfig) {
         await runtime.setProcessingState(
           'PROCESSING_COMPLETE',
-          `Transfer Config Name was provided, but the transfer config could not be retrieved from BigQuery.`
+          'Transfer Config Name was provided, but the transfer config could not be retrieved from BigQuery.'
         );
         return;
       }
@@ -84,12 +86,17 @@ export const upsertTransferConfig = functions.tasks
         const splitName = transferConfigName.split('/');
         const transferConfigId = splitName[splitName.length - 1];
 
-        const response = await dts.updateTransferConfig(transferConfigName);
+        // Construct extension service account email
+        // Format: ext-{instanceId}@{projectId}.iam.gserviceaccount.com
+        const serviceAccountEmail = `ext-${config.instanceId}@${config.projectId}.iam.gserviceaccount.com`;
+
+        const response = await dts.updateTransferConfig(
+          transferConfigName,
+          serviceAccountEmail
+        );
 
         if (response) {
-          const updatedConfig = await dts.getTransferConfig(
-            transferConfigName
-          );
+          const updatedConfig = await dts.getTransferConfig(transferConfigName);
 
           if (!updatedConfig) {
             await runtime.setProcessingState(
@@ -121,7 +128,12 @@ export const upsertTransferConfig = functions.tasks
 
         return;
       } else {
-        const transferConfig = await dts.createTransferConfig();
+        // Construct extension service account email
+        // Format: ext-{instanceId}@{projectId}.iam.gserviceaccount.com
+        const serviceAccountEmail = `ext-${config.instanceId}@${config.projectId}.iam.gserviceaccount.com`;
+
+        const transferConfig =
+          await dts.createTransferConfig(serviceAccountEmail);
         const splitName = transferConfig.name.split('/');
         const transferConfigId = splitName[splitName.length - 1];
 

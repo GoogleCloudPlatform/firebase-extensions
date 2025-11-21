@@ -34,8 +34,6 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-const actualBigQuery = jest.requireActual('@google-cloud/bigquery');
-
 jest.mock('@google-cloud/bigquery', () => {
   const actual = jest.requireActual('@google-cloud/bigquery');
   return {
