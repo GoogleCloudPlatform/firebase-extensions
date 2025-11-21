@@ -26,7 +26,9 @@ import * as functions from 'firebase-functions';
 export const getTransferConfig = async (transferConfigName: string) => {
   try {
     const datatransferClient =
-      new bigqueryDataTransfer.v1.DataTransferServiceClient();
+      new bigqueryDataTransfer.v1.DataTransferServiceClient({
+        projectId: config.projectId,
+      });
     const request = {name: transferConfigName};
     const response = await datatransferClient.getTransferConfig(request);
 
@@ -81,7 +83,9 @@ export const createTransferConfigRequest = (config: Config) => {
 
 export const createTransferConfig = async () => {
   const datatransferClient =
-    new bigqueryDataTransfer.v1.DataTransferServiceClient();
+    new bigqueryDataTransfer.v1.DataTransferServiceClient({
+      projectId: config.projectId,
+    });
   const request = createTransferConfigRequest(config);
   // Run request
 
@@ -157,7 +161,9 @@ export const constructUpdateTransferConfigRequest = async (
 export const updateTransferConfig = async (transferConfigName: string) => {
   try {
     const datatransferClient =
-      new bigqueryDataTransfer.v1.DataTransferServiceClient();
+      new bigqueryDataTransfer.v1.DataTransferServiceClient({
+        projectId: config.projectId,
+      });
     const request = await constructUpdateTransferConfigRequest(
       transferConfigName,
       config

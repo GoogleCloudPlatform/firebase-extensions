@@ -45,7 +45,15 @@ export const upsertTransferConfig = functions.tasks
       // Ensure the latest transfer config object is stored in Firestore.
       // If Firestore already contains an extension instance matching this config ID, the extension
       // will overwrite the existing config with the latest config from the API
-      const transferConfig = dts.getTransferConfig(config.transferConfigName);
+      const transferConfig = await dts.getTransferConfig(config.transferConfigName);
+
+      if (!transferConfig) {
+        await runtime.setProcessingState(
+          'PROCESSING_COMPLETE',
+          `Transfer Config Name was provided, but the transfer config could not be retrieved from BigQuery.`
+        );
+        return;
+      }
 
       await db
         .collection(config.firestoreCollection)
@@ -79,9 +87,17 @@ export const upsertTransferConfig = functions.tasks
         const response = await dts.updateTransferConfig(transferConfigName);
 
         if (response) {
-          const updatedConfig = dts.getTransferConfig(
-            config.transferConfigName
+          const updatedConfig = await dts.getTransferConfig(
+            transferConfigName
           );
+
+          if (!updatedConfig) {
+            await runtime.setProcessingState(
+              'PROCESSING_COMPLETE',
+              'Transfer Config was updated, but the updated config could not be retrieved from BigQuery.'
+            );
+            return;
+          }
 
           await db
             .collection(config.firestoreCollection)
