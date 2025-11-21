@@ -109,6 +109,7 @@ export class GenkitDiscussionClient extends DiscussionClient<
             gemini25FlashLiteGoogleAI,
             googleAI.model('gemini-2.5-flash'),
             googleAI.model('gemini-2.5-pro'),
+            googleAI.model('gemini-3-pro-preview')
           ]
         : [
             gemini15FlashVertexAI,
@@ -118,6 +119,7 @@ export class GenkitDiscussionClient extends DiscussionClient<
             gemini25FlashLiteVertexAI,
             vertexAI.model('gemini-2.5-flash'),
             vertexAI.model('gemini-2.5-pro'),
+            vertexAI.model('gemini-3-pro-preview')
           ];
 
     const pluginName = provider === 'google-ai' ? 'googleai' : 'vertexai';
