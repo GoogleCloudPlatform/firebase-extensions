@@ -1,3 +1,7 @@
+## Version 0.0.17
+
+- feat: add support for Gemini 3 Pro models (gemini-3-pro-preview, gemini-3-pro-image-preview)
+
 ## Version 0.0.16
 
 - feat: add support for Gemini 2.5 Flash Lite
