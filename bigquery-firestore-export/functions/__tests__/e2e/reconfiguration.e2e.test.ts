@@ -35,8 +35,47 @@ import {
   cleanupTestResources,
   createMockConfig,
   verifyUpdateMask,
+  invokeUpsertTransferConfig,
+  createMockPubsubMessage,
+  setTestConfig,
 } from './utils.e2e';
 import * as dts from '../../src/dts';
+
+// Mock the config module to use test config
+jest.mock('../../src/config', () => {
+  const utils = require('./utils.e2e');
+  return {
+    default: new Proxy(
+      {},
+      {
+        get: (_target, prop) => {
+          // Use test config if set, otherwise fallback to actual config
+          if (utils.currentTestConfig && prop in utils.currentTestConfig) {
+            return utils.currentTestConfig[prop];
+          }
+          // Fallback - this shouldn't happen in our tests
+          const actualConfig = jest.requireActual('../../src/config').default;
+          return actualConfig[prop];
+        },
+      }
+    ),
+  };
+});
+
+// Mock getExtensions
+jest.mock('firebase-admin/extensions', () => {
+  return {
+    getExtensions: jest.fn(() => {
+      return {
+        runtime: jest.fn(() => {
+          return {
+            setProcessingState: jest.fn().mockResolvedValue(undefined),
+          };
+        }),
+      };
+    }),
+  };
+});
 
 // Test resource names
 let testResources: ReturnType<typeof generateTestResourceNames>;
@@ -1191,5 +1230,128 @@ describe('BigQuery-Firestore Export E2E Reconfiguration Tests', () => {
       // Clean up second config
       await deleteTestTransferConfig(transferConfig2.name);
     }, 60000);
+  });
+
+  describe('Extension Integration Flow', () => {
+    test('should create, update, and process messages via extension flow', async () => {
+      // Setup
+      await createTestDataset(testResources.datasetId);
+      await createTestTable(testResources.datasetId, testResources.tableName);
+      await createTestTopic(testResources.topicName);
+
+      const initialQuery = `SELECT id, name FROM \`${e2eConfig.projectId}.${testResources.datasetId}.${testResources.tableName}\``;
+
+      // Step 1: Create config via extension
+      const createConfig = createMockConfig(testResources, {
+        queryString: initialQuery,
+        schedule: e2eConfig.testSchedule,
+      });
+
+      await invokeUpsertTransferConfig(createConfig);
+
+      // Step 2: Verify config exists in Firestore with correct extInstanceId
+      const savedConfig = await getTransferConfigFromFirestore(
+        testResources.collectionPath,
+        e2eConfig.testInstanceId
+      );
+
+      expect(savedConfig).toBeDefined();
+      expect(savedConfig.extInstanceId).toBe(e2eConfig.testInstanceId);
+      expect(savedConfig.params.fields.query.stringValue).toBe(initialQuery);
+
+      transferConfigName = savedConfig.name;
+      const transferConfigId = transferConfigName.split('/').pop();
+
+      // Step 3: Verify config exists in BigQuery via DTS API
+      const bigQueryConfig = await dts.getTransferConfig(transferConfigName);
+      expect(bigQueryConfig).toBeDefined();
+      expect(bigQueryConfig?.name).toBe(transferConfigName);
+
+      // Step 4: Update config via extension (change query and schedule)
+      const updatedQuery = `SELECT * FROM \`${e2eConfig.projectId}.${testResources.datasetId}.${testResources.tableName}\` WHERE value > 100`;
+      const updatedSchedule = 'every 30 minutes';
+
+      const updateConfig = createMockConfig(testResources, {
+        queryString: updatedQuery,
+        schedule: updatedSchedule,
+      });
+
+      await invokeUpsertTransferConfig(updateConfig);
+
+      // Step 5: Verify update is written back to Firestore with extInstanceId preserved
+      const updatedSavedConfig = await getTransferConfigFromFirestore(
+        testResources.collectionPath,
+        e2eConfig.testInstanceId
+      );
+
+      expect(updatedSavedConfig).toBeDefined();
+      expect(updatedSavedConfig.extInstanceId).toBe(e2eConfig.testInstanceId);
+      expect(updatedSavedConfig.params.fields.query.stringValue).toBe(
+        updatedQuery
+      );
+      expect(updatedSavedConfig.schedule).toBe(updatedSchedule);
+
+      // Step 6: Verify update in BigQuery
+      const updatedBigQueryConfig =
+        await dts.getTransferConfig(transferConfigName);
+      expect(updatedBigQueryConfig).toBeDefined();
+      expect(updatedBigQueryConfig?.params?.fields?.query?.stringValue).toBe(
+        updatedQuery
+      );
+      expect(updatedBigQueryConfig?.schedule).toBe(updatedSchedule);
+
+      // Step 7: Create mock pubsub message and test handleMessage
+      // Use 'FAILED' state to avoid BigQuery query (which would require actual data)
+      // The key test is that handleMessage doesn't throw the association error
+      const runId = `test-run-${Date.now()}`;
+      const mockMessage = createMockPubsubMessage(
+        transferConfigName,
+        runId,
+        'FAILED',
+        {
+          destinationDatasetId: testResources.datasetId,
+          tableName: testResources.tableName,
+        }
+      );
+
+      // Step 8: Call handleMessage directly to verify it can process the message
+      // This should NOT throw the "not associated with extension instance" error
+      // Note: transferConfigAssociatedWithExtension uses the module's config,
+      // so we need to set the test config for the mock
+      const testConfig = createMockConfig(testResources);
+
+      // Set the test config so the mock will use it
+      setTestConfig(testConfig);
+
+      // Clear module cache to reload helper with mocked config
+      const helperPath = require.resolve('../../src/helper');
+      delete require.cache[helperPath];
+
+      try {
+        const {handleMessage} = await import('../../src/helper');
+
+        // handleMessage should succeed because the config is in Firestore with correct extInstanceId
+        // The association check happens first, before any BigQuery queries
+        await expect(
+          handleMessage(firestore, testConfig, mockMessage)
+        ).resolves.not.toThrow();
+      } finally {
+        // Clear test config
+        setTestConfig(null as any);
+        // Clear module cache again
+        delete require.cache[helperPath];
+      }
+
+      // Step 9: Verify that handleMessage created the run document in Firestore
+      const runDoc = await firestore
+        .collection(`${testResources.collectionPath}/${transferConfigId}/runs`)
+        .doc(runId)
+        .get();
+
+      expect(runDoc.exists).toBe(true);
+      const runData = runDoc.data();
+      expect(runData?.runMetadata).toBeDefined();
+      expect(runData?.runMetadata.state).toBe('FAILED');
+    }, 120000);
   });
 });

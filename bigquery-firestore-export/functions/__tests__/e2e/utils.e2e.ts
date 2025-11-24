@@ -20,6 +20,7 @@ import * as admin from 'firebase-admin';
 import {PubSub} from '@google-cloud/pubsub';
 import {e2eConfig, generateTestResourceNames} from './config.e2e';
 import {Config} from '../../src/types';
+import * as firebaseFunctionsTest from 'firebase-functions-test';
 
 // Initialize clients
 let bigquery: BigQuery;
@@ -465,4 +466,124 @@ export const verifyUpdateMask = (
 ): void => {
   const actualPaths = updateRequest.updateMask?.paths || [];
   expect(actualPaths.sort()).toEqual(expectedPaths.sort());
+};
+
+// Store the current test config for mocking - exported so mocks can access it
+export let currentTestConfig: Config | null = null;
+
+/**
+ * Set the config to be used by mocked modules
+ */
+export const setTestConfig = (config: Config) => {
+  currentTestConfig = config;
+};
+
+/**
+ * Invoke the extension's upsertTransferConfig function
+ * Uses firebase-functions-test to wrap and call the Cloud Function
+ */
+export const invokeUpsertTransferConfig = async (
+  config: Config
+): Promise<void> => {
+  // Validate required config values
+  if (!config.firestoreCollection || config.firestoreCollection.trim() === '') {
+    throw new Error(
+      `firestoreCollection is required in config but was not provided or is empty. Got: "${config.firestoreCollection}"`
+    );
+  }
+  if (!config.queryString) {
+    throw new Error(
+      `queryString is required in config but was not provided. Got: "${config.queryString}"`
+    );
+  }
+  if (!config.tableName) {
+    throw new Error(
+      `tableName is required in config but was not provided. Got: "${config.tableName}"`
+    );
+  }
+  if (!config.datasetId) {
+    throw new Error(
+      `datasetId is required in config but was not provided. Got: "${config.datasetId}"`
+    );
+  }
+
+  // Set the test config for the mock to use
+  setTestConfig(config);
+
+  // Initialize firebase-functions-test
+  const testEnv = firebaseFunctionsTest({
+    projectId: config.projectId,
+  });
+
+  try {
+    // Delete existing Firebase Admin app if it exists to prevent double initialization
+    if (admin.apps.length > 0) {
+      const defaultApp = admin.app();
+      await defaultApp.delete();
+    }
+
+    // Clear module cache to ensure mocks are used
+    const indexPath = require.resolve('../../src/index');
+    delete require.cache[indexPath];
+
+    // Import and wrap the function (mocks are set up at test file level)
+    const indexModule = require('../../src/index');
+    const wrapped = testEnv.wrap(indexModule.upsertTransferConfig);
+
+    // Call the wrapped function
+    await wrapped({data: {}});
+  } finally {
+    // Cleanup test environment
+    testEnv.cleanup();
+    // Clear test config
+    currentTestConfig = null;
+  }
+};
+
+/**
+ * Create a mock PubSub message for testing handleMessage
+ */
+export const createMockPubsubMessage = (
+  transferConfigName: string,
+  runId: string,
+  state:
+    | 'SUCCEEDED'
+    | 'FAILED'
+    | 'CANCELLED'
+    | 'PENDING'
+    | 'RUNNING' = 'SUCCEEDED',
+  options: {
+    destinationDatasetId?: string;
+    tableName?: string;
+    runTime?: string;
+  } = {}
+): any => {
+  const datasetId = options.destinationDatasetId || 'test-dataset';
+  const tableName = options.tableName || 'test_table';
+  const runTime = options.runTime || new Date().toISOString();
+
+  return {
+    json: {
+      name: `${transferConfigName}/runs/${runId}`,
+      runTime,
+      state,
+      destinationDatasetId: datasetId,
+      dataSourceId: 'scheduled_query',
+      schedule: 'every 15 minutes',
+      scheduleTime: runTime,
+      startTime: runTime,
+      endTime: runTime,
+      updateTime: runTime,
+      userId: 'test-user',
+      notificationPubsubTopic: `projects/${e2eConfig.projectId}/topics/test-topic`,
+      params: {
+        destination_table_name_template: `${tableName}_{run_time|"%H%M%S"}`,
+        partitioning_field: '',
+        query: `SELECT * FROM \`${e2eConfig.projectId}.${datasetId}.${tableName}\``,
+        write_disposition: 'WRITE_TRUNCATE',
+      },
+      emailPreferences: {},
+      errorStatus: state === 'FAILED' ? {message: 'Test error'} : {},
+    },
+  };
 };

@@ -39,10 +39,7 @@ export const getTransferConfig = async (transferConfigName: string) => {
   }
 };
 
-export const createTransferConfigRequest = (
-  config: Config,
-  serviceAccountEmail?: string
-) => {
+export const createTransferConfigRequest = (config: Config) => {
   const params = {
     query: config.queryString,
     destination_table_name_template: `${config.tableName}_{run_time|"%H%M%S"}`,
@@ -76,7 +73,6 @@ export const createTransferConfigRequest = (
       params: {fields: transferConfigParams},
       schedule: config.schedule,
       notificationPubsubTopic: `projects/${config.projectId}/topics/${config.pubSubTopic}`,
-      ...(serviceAccountEmail && {serviceAccountName: serviceAccountEmail}),
     };
 
   // Instantiates a client
@@ -87,12 +83,12 @@ export const createTransferConfigRequest = (
   return request;
 };
 
-export const createTransferConfig = async (serviceAccountEmail?: string) => {
+export const createTransferConfig = async () => {
   const datatransferClient =
     new bigqueryDataTransfer.v1.DataTransferServiceClient({
       projectId: config.projectId,
     });
-  const request = createTransferConfigRequest(config, serviceAccountEmail);
+  const request = createTransferConfigRequest(config);
   // Run request
 
   // TODO: Should we be converting it?
@@ -106,8 +102,7 @@ export const createTransferConfig = async (serviceAccountEmail?: string) => {
 
 export const constructUpdateTransferConfigRequest = async (
   transferConfigName: string,
-  config: Config,
-  serviceAccountEmail?: string
+  config: Config
 ) => {
   const transferConfig = await getTransferConfig(transferConfigName);
 
@@ -156,15 +151,6 @@ export const constructUpdateTransferConfigRequest = async (
     updatedConfig.schedule = config.schedule;
   }
 
-  // Ensure service account is set if provided and different from existing
-  if (serviceAccountEmail) {
-    const existingServiceAccount = (transferConfig as any).serviceAccountName;
-    if (existingServiceAccount !== serviceAccountEmail) {
-      updateMask.push('serviceAccountName');
-      updatedConfig.serviceAccountName = serviceAccountEmail;
-    }
-  }
-
   const request = {
     transferConfig: updatedConfig,
     updateMask: {paths: updateMask},
@@ -174,10 +160,7 @@ export const constructUpdateTransferConfigRequest = async (
   return request;
 };
 
-export const updateTransferConfig = async (
-  transferConfigName: string,
-  serviceAccountEmail?: string
-) => {
+export const updateTransferConfig = async (transferConfigName: string) => {
   try {
     const datatransferClient =
       new bigqueryDataTransfer.v1.DataTransferServiceClient({
@@ -185,8 +168,7 @@ export const updateTransferConfig = async (
       });
     const request = await constructUpdateTransferConfigRequest(
       transferConfigName,
-      config,
-      serviceAccountEmail
+      config
     );
 
     // Run request

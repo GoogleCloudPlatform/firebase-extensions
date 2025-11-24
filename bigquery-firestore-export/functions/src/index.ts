@@ -86,14 +86,7 @@ export const upsertTransferConfig = functions.tasks
         const splitName = transferConfigName.split('/');
         const transferConfigId = splitName[splitName.length - 1];
 
-        // Construct extension service account email
-        // Format: ext-{instanceId}@{projectId}.iam.gserviceaccount.com
-        const serviceAccountEmail = `ext-${config.instanceId}@${config.projectId}.iam.gserviceaccount.com`;
-
-        const response = await dts.updateTransferConfig(
-          transferConfigName,
-          serviceAccountEmail
-        );
+        const response = await dts.updateTransferConfig(transferConfigName);
 
         if (response) {
           const updatedConfig = await dts.getTransferConfig(transferConfigName);
@@ -128,12 +121,7 @@ export const upsertTransferConfig = functions.tasks
 
         return;
       } else {
-        // Construct extension service account email
-        // Format: ext-{instanceId}@{projectId}.iam.gserviceaccount.com
-        const serviceAccountEmail = `ext-${config.instanceId}@${config.projectId}.iam.gserviceaccount.com`;
-
-        const transferConfig =
-          await dts.createTransferConfig(serviceAccountEmail);
+        const transferConfig = await dts.createTransferConfig();
         const splitName = transferConfig.name.split('/');
         const transferConfigId = splitName[splitName.length - 1];
 
