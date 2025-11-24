@@ -63,9 +63,6 @@ roles:
       Allows this extension to access the Gemini family of genai models via
       Vertex AI if this provider is chosen.
 
-  - role: monitoring.metricWriter
-    reason: Allows this extension to write metrics to Cloud Monitoring when Genkit Monitoring is enabled.
-
   - role: cloudtrace.agent
     reason:
       Allows this extension to write trace data to Cloud Trace when Genkit Monitoring is enabled.
@@ -113,6 +110,21 @@ params:
         value: vertex-ai
     required: true
     default: google-ai
+    immutable: false
+
+  - param: VERTEX_AI_PROVIDER_LOCATION
+    label: Vertex AI Gemini API Provider Location
+    description: >-
+      If you are not using Vertex AI as your provider, this parameter can be skipped.
+      If you are using Vertex AI as your provider, this parameter is required and is used to specify the location of the Vertex AI Gemini API provider.
+    type: select
+    options:
+      - label: Global
+        value: global
+      - label: Regional
+        value: regional
+    required: false
+    default: global
     immutable: false
 
   - param: MODEL

@@ -48,6 +48,7 @@ export interface Config {
   maxOutputTokens?: number;
   maxOutputTokensVertex?: number;
   provider: string;
+  vertexProviderLocation: string;
   apiKey?: string;
   safetySettings?: GoogleAISafetySetting[] | VertexSafetySetting[];
   bucketName?: string;
@@ -122,6 +123,7 @@ export default {
   topK: process.env.TOP_K ? parseInt(process.env.TOP_K) : undefined,
   candidates,
   provider: process.env.GENERATIVE_AI_PROVIDER,
+  vertexProviderLocation: process.env.VERTEX_AI_PROVIDER_LOCATION,
   maxOutputTokensVertex: process.env.MAX_OUTPUT_TOKENS
     ? parseInt(process.env.MAX_OUTPUT_TOKENS)
     : 1024,

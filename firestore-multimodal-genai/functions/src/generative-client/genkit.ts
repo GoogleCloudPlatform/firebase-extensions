@@ -74,8 +74,14 @@ export class GenkitGenerativeClient extends GenerativeClient<
       };
       return pluginConfig;
     }
+
+    const isVertexAndGlobal =
+      config.provider === 'vertex-ai' &&
+      config.vertexProviderLocation === 'global';
+
     const pluginConfig: PluginOptionsVertexAI = {
-      location: config.location,
+      // Only uses global location for Vertex AI (and when not set to regional)
+      location: isVertexAndGlobal ? 'global' : config.location,
     };
     return pluginConfig;
   }
@@ -121,6 +127,7 @@ export class GenkitGenerativeClient extends GenerativeClient<
             gemini25FlashLiteGoogleAI,
             googleAI.model('gemini-2.5-flash'),
             googleAI.model('gemini-2.5-pro'),
+            googleAI.model('gemini-3-pro-preview'),
           ]
         : [
             gemini15FlashVertexAI,
@@ -131,6 +138,7 @@ export class GenkitGenerativeClient extends GenerativeClient<
             gemini25FlashLiteVertexAI,
             vertexAI.model('gemini-2.5-flash'),
             vertexAI.model('gemini-2.5-pro'),
+            vertexAI.model('gemini-3-pro-preview'),
           ];
 
     const pluginName = provider === 'google-ai' ? 'googleai' : 'vertexai';
