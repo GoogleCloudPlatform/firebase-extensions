@@ -139,6 +139,10 @@ export const constructUpdateTransferConfigRequest = async (
     // Only include in update if the new value is non-empty
     if (newPartitioningField) {
       updateMask.push('params');
+      // Initialize partitioning_field if it doesn't exist (e.g., config created without it)
+      if (!updatedConfig.params.fields.partitioning_field) {
+        updatedConfig.params.fields.partitioning_field = {};
+      }
       updatedConfig.params.fields.partitioning_field.stringValue =
         newPartitioningField;
     }

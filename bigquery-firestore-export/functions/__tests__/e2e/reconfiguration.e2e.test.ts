@@ -534,6 +534,71 @@ describe('BigQuery-Firestore Export E2E Reconfiguration Tests', () => {
         'updated_at'
       );
     }, 60000);
+
+    test('should add partitioning when field does not exist in original config', async () => {
+      // This tests the bug fix where partitioning_field doesn't exist in the original config
+      // The extension should initialize the field before setting its value
+      // Setup
+      await createTestDataset(testResources.datasetId);
+      await createTestTable(testResources.datasetId, testResources.tableName);
+      await createTestTopic(testResources.topicName);
+
+      const queryString = `SELECT * FROM \`${e2eConfig.projectId}.${testResources.datasetId}.${testResources.tableName}\``;
+
+      // Create config without partitioning (not passing partitioningField parameter)
+      const transferConfig = await createTestTransferConfig(
+        testResources.transferConfigDisplayName,
+        testResources.datasetId,
+        testResources.tableName,
+        queryString,
+        e2eConfig.testSchedule,
+        testResources.topicName
+        // Note: partitioningField is intentionally omitted
+      );
+
+      transferConfigName = transferConfig.name;
+
+      // Verify original config doesn't have partitioning_field or it's undefined/empty
+      // BigQuery API may return it as undefined or with empty string value
+      const originalPartitioningField =
+        transferConfig.params?.fields?.partitioning_field?.stringValue;
+      expect(originalPartitioningField).toBeFalsy(); // Should be undefined or empty
+
+      // Test using extension's constructUpdateTransferConfigRequest to verify it handles missing field
+      const mockConfig = createMockConfig(testResources, {
+        queryString,
+        partitioningField: 'timestamp', // Adding partitioning
+        schedule: e2eConfig.testSchedule,
+      });
+
+      // This should not throw an error even if partitioning_field doesn't exist
+      const updateRequest = await dts.constructUpdateTransferConfigRequest(
+        transferConfigName,
+        mockConfig
+      );
+
+      // Verify update mask includes params
+      expect(updateRequest.updateMask.paths).toContain('params');
+
+      // Verify partitioning_field is properly initialized and set
+      expect(
+        updateRequest.transferConfig.params.fields.partitioning_field
+      ).toBeDefined();
+      expect(
+        updateRequest.transferConfig.params.fields.partitioning_field
+          .stringValue
+      ).toBe('timestamp');
+
+      // Actually perform the update to verify it works end-to-end
+      const updatedConfig = await updateTestTransferConfig(transferConfigName, {
+        partitioningField: 'timestamp',
+      });
+
+      // Verify the update was successful
+      expect(updatedConfig.params.fields.partitioning_field?.stringValue).toBe(
+        'timestamp'
+      );
+    }, 60000);
   });
 
   describe('Multiple Sequential Reconfigurations', () => {
