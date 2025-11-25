@@ -63,7 +63,7 @@ export class GenkitDiscussionClient extends DiscussionClient<
       return pluginConfig;
     }
     const pluginConfig: PluginOptionsVertexAI = {
-      location: config.location,
+      location: config.vertex.modelLocation || config.location,
     };
     return pluginConfig;
   }

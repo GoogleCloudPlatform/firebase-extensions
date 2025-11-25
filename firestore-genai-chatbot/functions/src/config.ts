@@ -26,6 +26,7 @@ export enum GenerativeAIProvider {
 export interface Config {
   vertex: {
     model: string;
+    modelLocation?: string;
   };
   googleAi: {
     model: string;
@@ -100,6 +101,7 @@ validateRequiredEnvVars();
 const config: Config = {
   vertex: {
     model: process.env.MODEL!,
+    modelLocation: process.env.VERTEX_AI_MODEL_LOCATION,
   },
   googleAi: {
     model: process.env.MODEL!,
