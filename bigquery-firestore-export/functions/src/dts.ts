@@ -23,6 +23,12 @@ import {Config} from './types';
 
 import * as functions from 'firebase-functions';
 
+// Error message constants for partitioning field removal
+export const PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX =
+  'Cannot remove partitioning_field from an existing transfer config';
+export const PARTITIONING_FIELD_REMOVAL_ERROR =
+  'Cannot remove partitioning_field from an existing transfer config. The BigQuery Data Transfer API does not support clearing this parameter once it has been set. To change partitioning, you must create a new transfer config with the desired partitioning settings.';
+
 export const getTransferConfig = async (transferConfigName: string) => {
   try {
     const datatransferClient =
@@ -145,9 +151,15 @@ export const constructUpdateTransferConfigRequest = async (
       }
       updatedConfig.params.fields.partitioning_field.stringValue =
         newPartitioningField;
+    } else {
+      // If new value is empty and old value was non-empty, throw error
+      // The BigQuery Data Transfer API does not support clearing this parameter
+      logs.partitioningFieldRemovalAttempted(
+        transferConfigName,
+        existingPartitioningField
+      );
+      throw new Error(PARTITIONING_FIELD_REMOVAL_ERROR);
     }
-    // If new value is empty and old value was non-empty, we can't clear it via API
-    // This is a limitation of the BigQuery Data Transfer API
   }
 
   if (config.schedule !== transferConfig.schedule) {
@@ -186,6 +198,13 @@ export const updateTransferConfig = async (transferConfigName: string) => {
     logs.transferConfigUpdated(transferConfigName);
     return response[0];
   } catch (e) {
+    // Re-throw partitioning removal errors so they can be handled specifically
+    if (
+      e instanceof Error &&
+      e.message.includes(PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX)
+    ) {
+      throw e;
+    }
     functions.logger.error(`Error updating transfer config: ${e}`);
     return null;
   }

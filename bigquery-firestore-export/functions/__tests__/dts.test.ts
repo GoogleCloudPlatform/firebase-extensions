@@ -1,5 +1,6 @@
 import {Config} from '../src/types';
 import * as dts from '../src/dts';
+import {PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX} from '../src/dts';
 import {getTransferConfigResponse} from './fixtures/transferConfigResonse';
 
 jest.mock('../src/config', () => {
@@ -252,10 +253,9 @@ describe('dts', () => {
       ).toBe('');
     });
 
-    test('undefined partitioning field should not include partitioning_field in update', async () => {
-      // This test reproduces the exact bug from issue #2544
-      // When partitioningField is undefined (not set in config) and other params change,
-      // the update should not set partitioning_field to undefined
+    test('undefined partitioning field should not include partitioning_field in update when existing is empty', async () => {
+      // When partitioningField is undefined (not set in config) and existing is empty,
+      // the update should proceed normally without error
       const testConfig = Object.assign({}, baseConfig);
       testConfig.queryString = 'SELECT * from newtable';
       testConfig.partitioningField = undefined as unknown as string; // Simulates unset config
@@ -271,6 +271,26 @@ describe('dts', () => {
       expect(
         result.transferConfig.params.fields.partitioning_field.stringValue
       ).toBe(''); // Should remain empty string, not undefined
+    });
+
+    test('should throw error when attempting to clear non-empty partitioning field', async () => {
+      // Create a response with a non-empty partitioning field
+      const responseWithPartitioning = JSON.parse(JSON.stringify(baseResponse));
+      responseWithPartitioning.transferConfig.params.fields.partitioning_field.stringValue =
+        'timestamp';
+
+      // Mock getTransferConfig to return config with partitioning
+      mockGetTransferConfig.mockReturnValueOnce([
+        responseWithPartitioning.transferConfig,
+      ]);
+
+      const testConfig = Object.assign({}, baseConfig);
+      testConfig.partitioningField = ''; // Trying to clear partitioning
+
+      // Should throw error when attempting to clear partitioning
+      await expect(
+        dts.constructUpdateTransferConfigRequest(baseResponse.name, testConfig)
+      ).rejects.toThrow(PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX);
     });
   });
 

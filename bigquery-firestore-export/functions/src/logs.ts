@@ -107,3 +107,12 @@ export function pubsubMessageHandled(message: pubsub.Message) {
     `Pubsub message successfully handled: ${JSON.stringify(message, null, 2)}`
   );
 }
+
+export function partitioningFieldRemovalAttempted(
+  transferConfigName: string,
+  existingField: string
+) {
+  logger.warn(
+    `Attempted to remove partitioning_field '${existingField}' from transfer config '${transferConfigName}'. This operation is not supported by the BigQuery Data Transfer API.`
+  );
+}

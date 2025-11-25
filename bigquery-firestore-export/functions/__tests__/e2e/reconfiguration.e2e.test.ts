@@ -40,6 +40,7 @@ import {
   setTestConfig,
 } from './utils.e2e';
 import * as dts from '../../src/dts';
+import {PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX} from '../../src/dts';
 
 // Mock the config module to use test config
 jest.mock('../../src/config', () => {
@@ -418,10 +419,9 @@ describe('BigQuery-Firestore Export E2E Reconfiguration Tests', () => {
       );
     }, 60000);
 
-    test('should handle empty partitioning field correctly', async () => {
-      // This tests the bug fix for issue #2544
-      // BigQuery Data Transfer API rejects empty/undefined values for partitioning_field on update
-      // The extension should not attempt to clear partitioning_field when the new value is empty
+    test('should throw error when attempting to clear partitioning field', async () => {
+      // This tests that the extension blocks attempts to clear partitioning_field
+      // BigQuery Data Transfer API does not support clearing this parameter once set
       // Setup
       await createTestDataset(testResources.datasetId);
       await createTestTable(testResources.datasetId, testResources.tableName);
@@ -454,39 +454,23 @@ describe('BigQuery-Firestore Export E2E Reconfiguration Tests', () => {
         schedule: e2eConfig.testSchedule,
       });
 
-      // Test the constructUpdateTransferConfigRequest function
-      const updateRequest = await dts.constructUpdateTransferConfigRequest(
-        transferConfigName,
-        mockConfig
-      );
+      // Test the constructUpdateTransferConfigRequest function should throw error
+      await expect(
+        dts.constructUpdateTransferConfigRequest(transferConfigName, mockConfig)
+      ).rejects.toThrow(PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX);
 
-      // Verify that when trying to clear partitioning field, it's not included in the update
-      // The update mask should NOT include 'params' if only partitioning field changed (and it's being cleared)
-      // OR if params is in the mask for other reasons, partitioning_field should remain unchanged
-      const existingPartitioningField =
-        transferConfig.params.fields.partitioning_field?.stringValue;
-
-      // If update mask includes params, verify partitioning_field is not being cleared
-      if (updateRequest.updateMask.paths.includes('params')) {
-        // Partitioning field should either not be in the update, or should match existing value
-        const updatedPartitioningField =
-          updateRequest.transferConfig.params.fields.partitioning_field
-            ?.stringValue;
-        if (updatedPartitioningField !== undefined) {
-          expect(updatedPartitioningField).toBe(existingPartitioningField);
-        }
-      } else {
-        // If params is not in update mask, that's correct - we can't clear partitioning via API
-        // This documents the BigQuery API limitation
-        expect(updateRequest.updateMask.paths).not.toContain('params');
-      }
-
-      // Verify the partitioning field in the update request matches the existing value (not cleared)
-      const finalPartitioningField =
-        updateRequest.transferConfig.params.fields.partitioning_field
-          ?.stringValue;
-      if (finalPartitioningField !== undefined) {
-        expect(finalPartitioningField).toBe(existingPartitioningField);
+      // Verify error message is descriptive
+      try {
+        await dts.constructUpdateTransferConfigRequest(
+          transferConfigName,
+          mockConfig
+        );
+        fail('Expected error to be thrown');
+      } catch (error: any) {
+        expect(error.message).toContain(
+          'BigQuery Data Transfer API does not support clearing this parameter'
+        );
+        expect(error.message).toContain('create a new transfer config');
       }
     }, 60000);
 
@@ -598,6 +582,58 @@ describe('BigQuery-Firestore Export E2E Reconfiguration Tests', () => {
       expect(updatedConfig.params.fields.partitioning_field?.stringValue).toBe(
         'timestamp'
       );
+    }, 60000);
+
+    test('should propagate error when attempting to clear partitioning via extension logic', async () => {
+      // This tests end-to-end error handling when attempting to clear partitioning
+      // Setup
+      await createTestDataset(testResources.datasetId);
+      await createTestTable(testResources.datasetId, testResources.tableName);
+      await createTestTopic(testResources.topicName);
+
+      const queryString = `SELECT * FROM \`${e2eConfig.projectId}.${testResources.datasetId}.${testResources.tableName}\``;
+
+      // Create with partitioning field
+      const transferConfig = await createTestTransferConfig(
+        testResources.transferConfigDisplayName,
+        testResources.datasetId,
+        testResources.tableName,
+        queryString,
+        e2eConfig.testSchedule,
+        testResources.topicName,
+        'timestamp'
+      );
+
+      transferConfigName = transferConfig.name;
+
+      // Verify initial config has partitioning field
+      expect(transferConfig.params.fields.partitioning_field?.stringValue).toBe(
+        'timestamp'
+      );
+
+      // Attempt to clear partitioning via extension's constructUpdateTransferConfigRequest
+      const mockConfig = createMockConfig(testResources, {
+        queryString,
+        partitioningField: '', // Trying to clear
+        schedule: e2eConfig.testSchedule,
+      });
+
+      // Verify the extension's function throws the error
+      await expect(
+        dts.constructUpdateTransferConfigRequest(transferConfigName, mockConfig)
+      ).rejects.toThrow(PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX);
+
+      // Verify the config still has the original partitioning field (unchanged)
+      const [currentConfig] =
+        await new (require('@google-cloud/bigquery-data-transfer').v1.DataTransferServiceClient)(
+          {
+            projectId: e2eConfig.projectId,
+          }
+        ).getTransferConfig({name: transferConfigName});
+
+      expect(
+        currentConfig.params?.fields?.partitioning_field?.stringValue
+      ).toBe('timestamp');
     }, 60000);
   });
 
