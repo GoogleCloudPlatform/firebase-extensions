@@ -101,40 +101,13 @@ export class GenkitGenerativeClient extends GenerativeClient<
     model: string,
     provider: string
   ): ModelReference<any> | null {
-    const modelReferences =
-      provider === 'google-ai'
-        ? [
-            googleAI.model('gemini-1.5-flash'),
-            googleAI.model('gemini-1.5-pro'),
-            googleAI.model('gemini-2.0-flash'),
-            googleAI.model('gemini-2.0-flash-lite'),
-            googleAI.model('gemini-2.5-flash-lite'),
-            googleAI.model('gemini-2.5-flash'),
-            googleAI.model('gemini-2.5-pro'),
-            googleAI.model('gemini-3-pro-preview'),
-          ]
-        : [
-            vertexAI.model('gemini-1.5-flash'),
-            vertexAI.model('gemini-1.5-pro'),
-            vertexAI.model('gemini-2.0-flash'),
-            vertexAI.model('gemini-2.0-flash-lite'),
-            vertexAI.model('gemini-2.0-flash-001'),
-            vertexAI.model('gemini-2.5-flash-lite'),
-            vertexAI.model('gemini-2.5-flash'),
-            vertexAI.model('gemini-2.5-pro'),
-            vertexAI.model('gemini-3-pro-preview'),
-          ];
-
-    const pluginName = provider === 'google-ai' ? 'googleai' : 'vertexai';
-
-    for (const modelReference of modelReferences) {
-      if (modelReference.name === `${pluginName}/${model}`) {
-        return modelReference;
-      }
-      if (modelReference.info?.versions?.includes(model)) {
-        return modelReference.withVersion(model);
-      }
+    if (provider === 'google-ai') {
+      return googleAI.model(model);
     }
+    if (provider === 'vertex-ai') {
+      return vertexAI.model(model);
+    }
+
     return null;
   }
 
