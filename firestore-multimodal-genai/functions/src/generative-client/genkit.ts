@@ -13,7 +13,7 @@ import {
   googleAI,
   GoogleAIPluginOptions,
 } from '@genkit-ai/google-genai';
-import { VertexPluginOptions } from '@genkit-ai/google-genai/lib/vertexai';
+import {VertexPluginOptions} from '@genkit-ai/google-genai/lib/vertexai';
 import {getImageBase64} from './image_utils';
 import type {Config} from '../config';
 import {enableFirebaseTelemetry} from '@genkit-ai/firebase';
@@ -62,8 +62,7 @@ export class GenkitGenerativeClient extends GenerativeClient<
       return pluginConfig;
     }
 
-    const isGlobal =
-      config.vertexProviderLocation === 'global';
+    const isGlobal = config.vertexProviderLocation === 'global';
 
     const pluginConfig: VertexPluginOptions = {
       location: isGlobal ? 'global' : config.location,
