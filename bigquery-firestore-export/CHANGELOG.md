@@ -2,7 +2,9 @@
 
 fix - handle empty partitioning values in reconfiguration correctly
 
-refactor - improve type safety and test coverage
+refactor - improve type safety
+
+test - add e2e test coverage
 
 ## Version 0.1.5
 
