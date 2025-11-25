@@ -1,15 +1,40 @@
+/**
+ * Copyright 2025 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import config from './config';
 import * as bigqueryDataTransfer from '@google-cloud/bigquery-data-transfer';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const mapValues = require('lodash.mapvalues');
 import * as logs from './logs';
 import {Config} from './types';
 
 import * as functions from 'firebase-functions';
 
+// Error message constants for partitioning field removal
+export const PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX =
+  'Cannot remove partitioning_field from an existing transfer config';
+export const PARTITIONING_FIELD_REMOVAL_ERROR =
+  'Cannot remove partitioning_field from an existing transfer config. The BigQuery Data Transfer API does not support clearing this parameter once it has been set. To change partitioning, you must create a new transfer config with the desired partitioning settings.';
+
 export const getTransferConfig = async (transferConfigName: string) => {
   try {
     const datatransferClient =
-      new bigqueryDataTransfer.v1.DataTransferServiceClient();
+      new bigqueryDataTransfer.v1.DataTransferServiceClient({
+        projectId: config.projectId,
+      });
     const request = {name: transferConfigName};
     const response = await datatransferClient.getTransferConfig(request);
 
@@ -29,7 +54,7 @@ export const createTransferConfigRequest = (config: Config) => {
   };
   const transferConfigParams = mapValues(
     params,
-    (value: boolean | number | string | unknown) => {
+    (value: boolean | number | string) => {
       const error = Error(
         `not implemented transfer config parameter type ${typeof value}`
       );
@@ -46,14 +71,16 @@ export const createTransferConfigRequest = (config: Config) => {
       }
     }
   );
-  const transferConfig = {
-    destinationDatasetId: config.datasetId,
-    displayName: config.displayName,
-    dataSourceId: 'scheduled_query',
-    params: {fields: transferConfigParams},
-    schedule: config.schedule,
-    notificationPubsubTopic: `projects/${config.projectId}/topics/${config.pubSubTopic}`,
-  };
+  const transferConfig: bigqueryDataTransfer.protos.google.cloud.bigquery.datatransfer.v1.ITransferConfig =
+    {
+      destinationDatasetId: config.datasetId,
+      displayName: config.displayName,
+      dataSourceId: 'scheduled_query',
+      params: {fields: transferConfigParams},
+      schedule: config.schedule,
+      notificationPubsubTopic: `projects/${config.projectId}/topics/${config.pubSubTopic}`,
+    };
+
   // Instantiates a client
   const request = {
     parent: `projects/${config.projectId}`,
@@ -64,7 +91,9 @@ export const createTransferConfigRequest = (config: Config) => {
 
 export const createTransferConfig = async () => {
   const datatransferClient =
-    new bigqueryDataTransfer.v1.DataTransferServiceClient();
+    new bigqueryDataTransfer.v1.DataTransferServiceClient({
+      projectId: config.projectId,
+    });
   const request = createTransferConfigRequest(config);
   // Run request
 
@@ -106,14 +135,31 @@ export const constructUpdateTransferConfigRequest = async (
       destinationTableNameTemplate;
   }
 
-  if (
-    config.partitioningField !==
-    //TODO - what if null or undefined?
-    transferConfig.params!.fields!.partitioning_field.stringValue
-  ) {
-    updateMask.push('params');
-    updatedConfig.params.fields.partitioning_field.stringValue =
-      config.partitioningField;
+  // Only update partitioning_field if it has a non-empty value
+  // BigQuery Data Transfer API rejects empty/undefined values for this parameter on update
+  const existingPartitioningField =
+    transferConfig.params!.fields!.partitioning_field?.stringValue || '';
+  const newPartitioningField = config.partitioningField || '';
+
+  if (newPartitioningField !== existingPartitioningField) {
+    // Only include in update if the new value is non-empty
+    if (newPartitioningField) {
+      updateMask.push('params');
+      // Initialize partitioning_field if it doesn't exist (e.g., config created without it)
+      if (!updatedConfig.params.fields.partitioning_field) {
+        updatedConfig.params.fields.partitioning_field = {};
+      }
+      updatedConfig.params.fields.partitioning_field.stringValue =
+        newPartitioningField;
+    } else {
+      // If new value is empty and old value was non-empty, throw error
+      // The BigQuery Data Transfer API does not support clearing this parameter
+      logs.partitioningFieldRemovalAttempted(
+        transferConfigName,
+        existingPartitioningField
+      );
+      throw new Error(PARTITIONING_FIELD_REMOVAL_ERROR);
+    }
   }
 
   if (config.schedule !== transferConfig.schedule) {
@@ -133,7 +179,9 @@ export const constructUpdateTransferConfigRequest = async (
 export const updateTransferConfig = async (transferConfigName: string) => {
   try {
     const datatransferClient =
-      new bigqueryDataTransfer.v1.DataTransferServiceClient();
+      new bigqueryDataTransfer.v1.DataTransferServiceClient({
+        projectId: config.projectId,
+      });
     const request = await constructUpdateTransferConfigRequest(
       transferConfigName,
       config
@@ -150,6 +198,13 @@ export const updateTransferConfig = async (transferConfigName: string) => {
     logs.transferConfigUpdated(transferConfigName);
     return response[0];
   } catch (e) {
+    // Re-throw partitioning removal errors so they can be handled specifically
+    if (
+      e instanceof Error &&
+      e.message.includes(PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX)
+    ) {
+      throw e;
+    }
     functions.logger.error(`Error updating transfer config: ${e}`);
     return null;
   }

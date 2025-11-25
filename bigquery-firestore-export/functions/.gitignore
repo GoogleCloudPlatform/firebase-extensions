@@ -4,3 +4,4 @@ lib
 */.DS_Store
 */**/.DS_Store
 */coverage/
+__tests__/e2e/.env.e2e.test

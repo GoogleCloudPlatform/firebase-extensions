@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -105,5 +105,14 @@ export function pubsubMessage(message: pubsub.Message) {
 export function pubsubMessageHandled(message: pubsub.Message) {
   logger.log(
     `Pubsub message successfully handled: ${JSON.stringify(message, null, 2)}`
+  );
+}
+
+export function partitioningFieldRemovalAttempted(
+  transferConfigName: string,
+  existingField: string
+) {
+  logger.warn(
+    `Attempted to remove partitioning_field '${existingField}' from transfer config '${transferConfigName}'. This operation is not supported by the BigQuery Data Transfer API.`
   );
 }

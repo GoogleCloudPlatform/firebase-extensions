@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@ import * as logs from './logs';
 import config from './config';
 import * as helper from './helper';
 import * as dts from './dts';
+import {PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX} from './dts';
+import {TransferRunMessage} from './types';
 
 logs.init();
 
@@ -44,7 +46,17 @@ export const upsertTransferConfig = functions.tasks
       // Ensure the latest transfer config object is stored in Firestore.
       // If Firestore already contains an extension instance matching this config ID, the extension
       // will overwrite the existing config with the latest config from the API
-      const transferConfig = dts.getTransferConfig(config.transferConfigName);
+      const transferConfig = await dts.getTransferConfig(
+        config.transferConfigName
+      );
+
+      if (!transferConfig) {
+        await runtime.setProcessingState(
+          'PROCESSING_COMPLETE',
+          'Transfer Config Name was provided, but the transfer config could not be retrieved from BigQuery.'
+        );
+        return;
+      }
 
       await db
         .collection(config.firestoreCollection)
@@ -75,34 +87,57 @@ export const upsertTransferConfig = functions.tasks
         const splitName = transferConfigName.split('/');
         const transferConfigId = splitName[splitName.length - 1];
 
-        const response = await dts.updateTransferConfig(transferConfigName);
+        try {
+          const response = await dts.updateTransferConfig(transferConfigName);
 
-        if (response) {
-          const updatedConfig = dts.getTransferConfig(
-            config.transferConfigName
-          );
+          if (response) {
+            const updatedConfig =
+              await dts.getTransferConfig(transferConfigName);
 
-          await db
-            .collection(config.firestoreCollection)
-            .doc(transferConfigId)
-            .set({
-              extInstanceId: config.instanceId,
-              ...updatedConfig,
-            });
+            if (!updatedConfig) {
+              await runtime.setProcessingState(
+                'PROCESSING_COMPLETE',
+                'Transfer Config was updated, but the updated config could not be retrieved from BigQuery.'
+              );
+              return;
+            }
+
+            await db
+              .collection(config.firestoreCollection)
+              .doc(transferConfigId)
+              .set({
+                extInstanceId: config.instanceId,
+                ...updatedConfig,
+              });
+
+            await runtime.setProcessingState(
+              'PROCESSING_COMPLETE',
+              'Transfer Config Name was not provided to the extension, and an existing Transfer Config found. Transfer Config object was successfully updated in BQ and Firestore.'
+            );
+            return;
+          }
 
           await runtime.setProcessingState(
             'PROCESSING_COMPLETE',
-            'Transfer Config Name was not provided to the extension, and an existing Transfer Config found. Transfer Config object was successfully updated in BQ and Firestore.'
+            `An existing Transfer Config name found in ${config.firestoreCollection}, but the associated Transfer Config does not exist.`
           );
+
           return;
+        } catch (error) {
+          // Handle partitioning removal error specifically
+          if (
+            error instanceof Error &&
+            error.message.includes(PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX)
+          ) {
+            await runtime.setProcessingState(
+              'PROCESSING_COMPLETE',
+              error.message
+            );
+            return;
+          }
+          // Re-throw other errors
+          throw error;
         }
-
-        await runtime.setProcessingState(
-          'PROCESSING_COMPLETE',
-          `An existing Transfer Config name found in ${config.firestoreCollection}, but the associated Transfer Config does not exist.`
-        );
-
-        return;
       } else {
         const transferConfig = await dts.createTransferConfig();
         const splitName = transferConfig.name.split('/');
@@ -134,7 +169,7 @@ export const processMessages = functions.pubsub
 
 export const processMessagesHttp = functions.https.onRequest(
   async (req, res) => {
-    const message = req.body;
+    const message = req.body as TransferRunMessage;
     await helper.handleMessage(db, config, message);
     res.send('OK');
   }

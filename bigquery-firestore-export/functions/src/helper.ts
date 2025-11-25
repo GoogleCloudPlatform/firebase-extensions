@@ -1,5 +1,21 @@
+/**
+ * Copyright 2025 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* eslint-disable node/no-unsupported-features/es-builtins */
-import {Config} from './types';
+import {Config, TransferRunMessage, BigQueryRow, FirestoreRow} from './types';
 import * as admin from 'firebase-admin';
 import * as logs from './logs';
 import {
@@ -42,7 +58,7 @@ export const getBigqueryResults = async (
 // Runs a SELECT * query on target tableName and writes results to corresponding firestore collection
 export const writeRunResultsToFirestore = async (
   db: admin.firestore.Firestore,
-  message
+  message: TransferRunMessage
 ) => {
   const name = message.json.name;
   const splitName = name.split('/');
@@ -157,7 +173,7 @@ export const transferConfigAssociatedWithExtension = async (
 export const handleMessage = async (
   db: admin.firestore.Firestore,
   config: Config,
-  message
+  message: TransferRunMessage
 ) => {
   const name = message.json.name;
   const splitName = name.split('/');
@@ -194,18 +210,25 @@ export const handleMessage = async (
  * @param row Object containing data to convert
  * @returns Object with converted values
  */
-function convertUnsupportedDataTypes(row: any): any {
+export function convertUnsupportedDataTypes(row: null): null;
+export function convertUnsupportedDataTypes(row: string): string;
+export function convertUnsupportedDataTypes(row: number): number;
+export function convertUnsupportedDataTypes(row: boolean): boolean;
+export function convertUnsupportedDataTypes(row: BigQueryRow): FirestoreRow;
+export function convertUnsupportedDataTypes(
+  row: BigQueryRow | null | string | number | boolean
+): FirestoreRow | null | string | number | boolean {
   if (row === null || typeof row !== 'object') {
-    return row;
+    return row as string | number | boolean | null;
   }
 
-  const result = {...row};
+  const result = {...row} as FirestoreRow;
 
   /**
    * Checks if a value is a BigQuery datetime-related type
    */
   function shouldConvertToTimestamp(
-    value: any
+    value: unknown
   ): value is
     | BigQueryTimestamp
     | BigQueryDate
@@ -233,7 +256,7 @@ function convertUnsupportedDataTypes(row: any): any {
       result[key] = value.value;
     } else if (typeof value === 'object') {
       // Recursively convert nested objects
-      result[key] = convertUnsupportedDataTypes(value);
+      result[key] = convertUnsupportedDataTypes(value as BigQueryRow);
     }
   }
 
