@@ -12,8 +12,7 @@
   "main": "lib/index.js",
   "dependencies": {
     "@genkit-ai/firebase": "^1.24.0",
-    "@genkit-ai/googleai": "^1.24.0",
-    "@genkit-ai/vertexai": "^1.24.0",
+    "@genkit-ai/google-genai": "^1.24.0",
     "@google-ai/generativelanguage": "^2.3.0",
     "@google-cloud/aiplatform": "^3.19.0",
     "@google-cloud/vertexai": "^1.1.0",
