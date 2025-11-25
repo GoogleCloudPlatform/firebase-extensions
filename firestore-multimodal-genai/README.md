@@ -186,8 +186,6 @@ This extension will operate with the following project IAM roles:
 
 * aiplatform.user (Reason: Allows this extension to access the Gemini family of genai models via Vertex AI if this provider is chosen.)
 
-* monitoring.metricWriter (Reason: Allows this extension to write metrics to Cloud Monitoring when Genkit Monitoring is enabled.)
-
 * cloudtrace.agent (Reason: Allows this extension to write trace data to Cloud Trace when Genkit Monitoring is enabled.)
 
 * logging.logWriter (Reason: Allows this extension to write logs to Cloud Logging when Genkit Monitoring is enabled.)
