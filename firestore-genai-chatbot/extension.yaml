@@ -79,6 +79,7 @@ resources:
         eventType: providers/cloud.firestore/eventTypes/document.write
         resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION_NAME}/{messageId}
       runtime: 'nodejs20'
+      timeout: 540s
 
 params:
   - param: GENERATIVE_AI_PROVIDER
