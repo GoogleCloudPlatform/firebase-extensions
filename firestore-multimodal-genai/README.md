@@ -122,7 +122,7 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Gemini API Provider: This extension makes use of the Gemini family of large language models. Currently the extension supports the Google AI Gemini API (for developers) and the Vertex AI Gemini API. Learn more about the differences between the Google AI and Vertex AI Gemini APIs here.
 
-* Vertex AI Gemini API Provider Location: If you are not using Vertex AI as your provider, this parameter can be skipped. If you are using Vertex AI as your provider, this parameter is required and is used to specify the location of the Vertex AI Gemini API provider.
+* Vertex AI Gemini API Provider Location: If you are not using Vertex AI as your provider, this parameter can be skipped. If you are using Vertex AI as your provider, this parameter is required and is used to specify the location of the Vertex AI Gemini API provider. Note: Any models in preview on Vertex AI will require this parameter to be set to 'global'.
 
 * Gemini model: Input the name of the Gemini model you would like to use. To view available models for each provider, see: [Vertex AI Gemini models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models), [Google AI Gemini models](https://ai.google.dev/models/gemini)
 

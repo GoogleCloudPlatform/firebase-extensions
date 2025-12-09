@@ -120,6 +120,7 @@ params:
     description: >-
       If you are not using Vertex AI as your provider, this parameter can be skipped.
       If you are using Vertex AI as your provider, this parameter is required and is used to specify the location of the Vertex AI Gemini API provider.
+      Note: Any models in preview on Vertex AI will require this parameter to be set to 'global'.
     type: select
     options:
       - label: Global
