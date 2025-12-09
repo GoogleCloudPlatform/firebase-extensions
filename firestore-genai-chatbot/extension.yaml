@@ -1,5 +1,5 @@
 name: firestore-genai-chatbot
-version: 0.0.16
+version: 0.0.17
 specVersion: v1beta
 
 icon: icon.png
@@ -79,6 +79,7 @@ resources:
         eventType: providers/cloud.firestore/eventTypes/document.write
         resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION_NAME}/{messageId}
       runtime: 'nodejs20'
+      timeout: 540s
 
 params:
   - param: GENERATIVE_AI_PROVIDER
@@ -114,10 +115,81 @@ params:
       Input the name of the Gemini model you would like to use. To view
       available models for each provider, see: [Vertex AI Gemini
       models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models),
-      [Google AI Gemini models](https://ai.google.dev/models/gemini)
+      [Google AI Gemini models](https://ai.google.dev/models/gemini).
+      Note: Any models in preview on Vertex AI will require Vertex AI Model Location to be set to 'global'.
     type: string
     required: true
     default: gemini-2.0-flash
+    immutable: false
+
+  - param: VERTEX_AI_MODEL_LOCATION
+    label: Vertex AI Model Location
+    description: >-
+      The location of the Vertex AI model. If left undefined, the extension will default to the Cloud Function location (LOCATION parameter).
+      Note: Any models in preview on Vertex AI will require this parameter to be set to 'global'.
+    type: select
+    options:
+      - label: Global
+        value: global
+      - label: Columbus, Ohio (us-east5)
+        value: us-east5
+      - label: Dallas, Texas (us-south1)
+        value: us-south1
+      - label: Iowa (us-central1)
+        value: us-central1
+      - label: Las Vegas, Nevada (us-west4)
+        value: us-west4
+      - label: Moncks Corner, South Carolina (us-east1)
+        value: us-east1
+      - label: Northern Virginia (us-east4)
+        value: us-east4
+      - label: Oregon (us-west1)
+        value: us-west1
+      - label: Montréal (northamerica-northeast1)
+        value: northamerica-northeast1
+      - label: São Paulo, Brazil (southamerica-east1)
+        value: southamerica-east1
+      - label: Netherlands (europe-west4)
+        value: europe-west4
+      - label: Paris, France (europe-west9)
+        value: europe-west9
+      - label: London, United Kingdom (europe-west2)
+        value: europe-west2
+      - label: Frankfurt, Germany (europe-west3)
+        value: europe-west3
+      - label: Belgium (europe-west1)
+        value: europe-west1
+      - label: Zürich, Switzerland (europe-west6)
+        value: europe-west6
+      - label: Madrid, Spain (europe-southwest1)
+        value: europe-southwest1
+      - label: Milan, Italy (europe-west8)
+        value: europe-west8
+      - label: Finland (europe-north1)
+        value: europe-north1
+      - label: Warsaw, Poland (europe-central2)
+        value: europe-central2
+      - label: Tokyo, Japan (asia-northeast1)
+        value: asia-northeast1
+      - label: Sydney, Australia (australia-southeast1)
+        value: australia-southeast1
+      - label: Singapore (asia-southeast1)
+        value: asia-southeast1
+      - label: Seoul, Korea (asia-northeast3)
+        value: asia-northeast3
+      - label: Taiwan (asia-east1)
+        value: asia-east1
+      - label: Hong Kong, China (asia-east2)
+        value: asia-east2
+      - label: Mumbai, India (asia-south1)
+        value: asia-south1
+      - label: Dammam, Saudi Arabia (me-central2)
+        value: me-central2
+      - label: Doha, Qatar (me-central1)
+        value: me-central1
+      - label: Tel Aviv, Israel (me-west1)
+        value: me-west1
+    required: false
     immutable: false
 
   - param: COLLECTION_NAME
