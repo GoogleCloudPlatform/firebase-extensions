@@ -1,8 +1,6 @@
 ## Version 1.0.3
 
-- feat: add genkit ai monitoring
-
-- feat: add missing Metric Monitoring role reason
+- feat: Add support for Gemini 3 preview models
 
 - feat: Add support for Gemini 2.5 models (Flash Lite, Flash, and Pro)
 
