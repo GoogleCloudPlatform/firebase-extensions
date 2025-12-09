@@ -14,6 +14,7 @@ export default {
   prompt: 'test prompt',
   responseField: 'output',
   provider: 'vertex-ai',
+  vertexProviderLocation: 'regional',
   apiKey: process.env.API_KEY,
   bucketName: 'demo-gcp.appspot.com',
   imageField: 'image',

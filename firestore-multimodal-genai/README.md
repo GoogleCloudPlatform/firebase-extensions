@@ -122,6 +122,8 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Gemini API Provider: This extension makes use of the Gemini family of large language models. Currently the extension supports the Google AI Gemini API (for developers) and the Vertex AI Gemini API. Learn more about the differences between the Google AI and Vertex AI Gemini APIs here.
 
+* Vertex AI Gemini API Provider Location: If you are not using Vertex AI as your provider, this parameter can be skipped. If you are using Vertex AI as your provider, this parameter is required and is used to specify the location of the Vertex AI Gemini API provider. Note: Any models in preview on Vertex AI will require this parameter to be set to 'global'.
+
 * Gemini model: Input the name of the Gemini model you would like to use. To view available models for each provider, see: [Vertex AI Gemini models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models), [Google AI Gemini models](https://ai.google.dev/models/gemini)
 
 * Google AI API Key: If you have selected Google AI as your provider, then this parameteris required. If you have instead selected Vertex AI, then this parameter is not required, and application default credentials will be used.
@@ -154,8 +156,6 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Sexual Content Threshold: Threshold for sexually explicit content. Specify what probability level of sexual content is blocked by the Gemini provider.
 
-* Enable Genkit Monitoring: If set to "Yes", enables Genkit Monitoring for collecting and viewing real-time telemetry data. This requires the Cloud Logging API, Cloud Trace API, and Cloud Monitoring API to be enabled, and appropriate IAM roles to be configured. See the documentation for more details.
-
 
 
 **Cloud Functions:**
@@ -183,9 +183,3 @@ This extension will operate with the following project IAM roles:
 * storage.objectAdmin (Reason: Allows the extension to read from your Cloud Storage.)
 
 * aiplatform.user (Reason: Allows this extension to access the Gemini family of genai models via Vertex AI if this provider is chosen.)
-
-* monitoring.metricWriter (Reason: Allows this extension to write metrics to Cloud Monitoring when Genkit Monitoring is enabled.)
-
-* cloudtrace.agent (Reason: Allows this extension to write trace data to Cloud Trace when Genkit Monitoring is enabled.)
-
-* logging.logWriter (Reason: Allows this extension to write logs to Cloud Logging when Genkit Monitoring is enabled.)

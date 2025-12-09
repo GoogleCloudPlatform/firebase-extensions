@@ -1,8 +1,7 @@
 import {GenkitGenerativeClient} from '../../src/generative-client/genkit';
 import {logger} from 'firebase-functions/v1';
 import {GenerateResponse, genkit} from 'genkit';
-import {googleAI} from '@genkit-ai/googleai';
-import {vertexAI} from '@genkit-ai/vertexai';
+import {googleAI, vertexAI} from '@genkit-ai/google-genai';
 import {Config} from '../../src/config.js';
 import {HarmBlockThreshold, HarmCategory} from '@google/generative-ai';
 
@@ -18,17 +17,26 @@ jest.mock('@genkit-ai/google-cloud', () => ({
   enableGoogleCloudTelemetry: jest.fn(),
 }));
 
-jest.mock('@genkit-ai/firebase', () => ({
-  enableFirebaseTelemetry: jest.fn(),
-}));
+// jest.mock('@genkit-ai/firebase', () => ({
+//   enableFirebaseTelemetry: jest.fn(),
+// }));
 
-jest.mock('@genkit-ai/googleai', () => {
+jest.mock('@genkit-ai/google-genai', () => {
   // use Object.assign because callable and has properties
   const googleAIMock = Object.assign(
     jest.fn(() => ({name: 'googleai'})),
     {
       model: jest.fn((modelName: string) => ({
         name: `googleai/${modelName}`,
+        withVersion: jest.fn(),
+      })),
+    }
+  );
+  const vertexAIMock = Object.assign(
+    jest.fn(() => ({name: 'vertexai'})),
+    {
+      model: jest.fn((modelName: string) => ({
+        name: `vertexai/${modelName}`,
         withVersion: jest.fn(),
       })),
     }
@@ -40,28 +48,8 @@ jest.mock('@genkit-ai/googleai', () => {
       name: 'googleai/gemini-2.0-flash-lite',
       withVersion: jest.fn(),
     },
-    gemini15Flash: {name: 'googleai/gemini-1.5-flash', withVersion: jest.fn()},
-    gemini15Pro: {name: 'googleai/gemini-1.5-pro', withVersion: jest.fn()},
-  };
-});
 
-jest.mock('@genkit-ai/vertexai', () => {
-  const vertexAIMock = Object.assign(
-    jest.fn(() => ({name: 'vertexai'})),
-    {
-      model: jest.fn((modelName: string) => ({
-        name: `vertexai/${modelName}`,
-        withVersion: jest.fn(),
-      })),
-    }
-  );
-  return {
     vertexAI: vertexAIMock,
-    gemini20Flash: {name: 'vertexai/gemini-2.0-flash', withVersion: jest.fn()},
-    gemini20FlashLite: {
-      name: 'vertexai/gemini-2.0-flash-lite',
-      withVersion: jest.fn(),
-    },
     gemini20Flash001: {
       name: 'vertexai/gemini-2.0-flash-001',
       withVersion: jest.fn(),
@@ -102,6 +90,7 @@ describe('GenkitGenerativeClient', () => {
     maxOutputTokens: 256,
     maxOutputTokensVertex: 1024,
     provider: 'google-ai',
+    vertexProviderLocation: 'regional',
     apiKey: 'test-api-key',
     safetySettings: [
       {
@@ -111,7 +100,7 @@ describe('GenkitGenerativeClient', () => {
     ],
     bucketName: 'test-bucket',
     imageField: 'image',
-    enableGenkitMonitoring: true,
+    // enableGenkitMonitoring: true,
   };
 
   const mockGenerateResponse = {
@@ -288,6 +277,7 @@ describe('GenkitGenerativeClient.shouldUseGenkitClient', () => {
     maxOutputTokens: 256,
     maxOutputTokensVertex: 1024,
     provider: 'google-ai',
+    vertexProviderLocation: 'regional',
     apiKey: 'test-api-key',
     safetySettings: [
       {
@@ -297,7 +287,7 @@ describe('GenkitGenerativeClient.shouldUseGenkitClient', () => {
     ],
     bucketName: 'test-bucket',
     imageField: 'image',
-    enableGenkitMonitoring: true,
+    // enableGenkitMonitoring: true,
   };
 
   beforeEach(() => {

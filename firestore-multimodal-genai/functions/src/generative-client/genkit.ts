@@ -7,29 +7,16 @@ import {
   type Genkit,
   type ModelReference,
 } from 'genkit';
-import {GenkitPlugin} from 'genkit/plugin';
-import {
-  googleAI,
-  PluginOptions as PluginOptionsGoogleAI,
-  gemini25FlashLite as gemini25FlashLiteGoogleAI,
-  gemini20Flash as gemini20FlashGoogleAI,
-  gemini20FlashLite as gemini20FlashLiteGoogleAI,
-  gemini15Flash as gemini15FlashGoogleAI,
-  gemini15Pro as gemini15ProGoogleAI,
-} from '@genkit-ai/googleai';
+import {GenkitPluginV2} from 'genkit/plugin';
 import {
   vertexAI,
-  PluginOptions as PluginOptionsVertexAI,
-  gemini25FlashLite as gemini25FlashLiteVertexAI,
-  gemini20Flash as gemini20FlashVertexAI,
-  gemini20FlashLite as gemini20FlashLiteVertexAI,
-  gemini20Flash001 as gemini20Flash001VertexAI,
-  gemini15Flash as gemini15FlashVertexAI,
-  gemini15Pro as gemini15ProVertexAI,
-} from '@genkit-ai/vertexai';
+  googleAI,
+  GoogleAIPluginOptions,
+} from '@genkit-ai/google-genai';
+import {VertexPluginOptions} from '@genkit-ai/google-genai/lib/vertexai';
 import {getImageBase64} from './image_utils';
 import type {Config} from '../config';
-import {enableFirebaseTelemetry} from '@genkit-ai/firebase';
+// import {enableFirebaseTelemetry} from '@genkit-ai/firebase';
 
 export class GenkitGenerativeClient extends GenerativeClient<
   GenerateOptions,
@@ -37,8 +24,8 @@ export class GenkitGenerativeClient extends GenerativeClient<
 > {
   private provider: string;
   private generateOptions: GenerateOptions;
-  private pluginOptions: PluginOptionsGoogleAI | PluginOptionsVertexAI;
-  private plugin: GenkitPlugin;
+  private pluginOptions: VertexPluginOptions | GoogleAIPluginOptions;
+  private plugin: GenkitPluginV2;
   client: Genkit;
 
   constructor(config: Config) {
@@ -69,23 +56,26 @@ export class GenkitGenerativeClient extends GenerativeClient<
       if (!config.googleAi.apiKey) {
         throw new Error('API key required for Google AI.');
       }
-      const pluginConfig: PluginOptionsGoogleAI = {
+      const pluginConfig: GoogleAIPluginOptions = {
         apiKey: config.googleAi.apiKey,
       };
       return pluginConfig;
     }
-    const pluginConfig: PluginOptionsVertexAI = {
-      location: config.location,
+
+    const isGlobal = config.vertexProviderLocation === 'global';
+
+    const pluginConfig: VertexPluginOptions = {
+      location: isGlobal ? 'global' : config.location,
     };
     return pluginConfig;
   }
 
-  private initializePlugin(): GenkitPlugin {
+  private initializePlugin(): GenkitPluginV2 {
     if (this.provider === 'google-ai') {
-      return googleAI(this.pluginOptions as PluginOptionsGoogleAI);
+      return googleAI(this.pluginOptions);
     }
     if (this.provider === 'vertex-ai') {
-      return vertexAI(this.pluginOptions as PluginOptionsVertexAI);
+      return vertexAI(this.pluginOptions);
     }
     throw new Error('Invalid provider specified.');
   }
@@ -95,14 +85,14 @@ export class GenkitGenerativeClient extends GenerativeClient<
       plugins: [this.plugin],
     };
 
-    if (config.enableGenkitMonitoring) {
-      try {
-        enableFirebaseTelemetry();
-        logger.info('Genkit Monitoring enabled');
-      } catch (error) {
-        logger.error('Failed to enable Genkit Monitoring', error);
-      }
-    }
+    // if (config.enableGenkitMonitoring) {
+    //   try {
+    //     enableFirebaseTelemetry();
+    //     logger.info('Genkit Monitoring enabled');
+    //   } catch (error) {
+    //     logger.error('Failed to enable Genkit Monitoring', error);
+    //   }
+    // }
 
     return genkit(genkitConfig);
   }
@@ -114,23 +104,25 @@ export class GenkitGenerativeClient extends GenerativeClient<
     const modelReferences =
       provider === 'google-ai'
         ? [
-            gemini15FlashGoogleAI,
-            gemini15ProGoogleAI,
-            gemini20FlashGoogleAI,
-            gemini20FlashLiteGoogleAI,
-            gemini25FlashLiteGoogleAI,
+            googleAI.model('gemini-1.5-flash'),
+            googleAI.model('gemini-1.5-pro'),
+            googleAI.model('gemini-2.0-flash'),
+            googleAI.model('gemini-2.0-flash-lite'),
+            googleAI.model('gemini-2.5-flash-lite'),
             googleAI.model('gemini-2.5-flash'),
             googleAI.model('gemini-2.5-pro'),
+            googleAI.model('gemini-3-pro-preview'),
           ]
         : [
-            gemini15FlashVertexAI,
-            gemini15ProVertexAI,
-            gemini20FlashVertexAI,
-            gemini20FlashLiteVertexAI,
-            gemini20Flash001VertexAI,
-            gemini25FlashLiteVertexAI,
+            vertexAI.model('gemini-1.5-flash'),
+            vertexAI.model('gemini-1.5-pro'),
+            vertexAI.model('gemini-2.0-flash'),
+            vertexAI.model('gemini-2.0-flash-lite'),
+            vertexAI.model('gemini-2.0-flash-001'),
+            vertexAI.model('gemini-2.5-flash-lite'),
             vertexAI.model('gemini-2.5-flash'),
             vertexAI.model('gemini-2.5-pro'),
+            vertexAI.model('gemini-3-pro-preview'),
           ];
 
     const pluginName = provider === 'google-ai' ? 'googleai' : 'vertexai';
