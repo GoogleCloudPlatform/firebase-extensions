@@ -16,7 +16,7 @@ import {
 import {VertexPluginOptions} from '@genkit-ai/google-genai/lib/vertexai';
 import {getImageBase64} from './image_utils';
 import type {Config} from '../config';
-import {enableFirebaseTelemetry} from '@genkit-ai/firebase';
+// import {enableFirebaseTelemetry} from '@genkit-ai/firebase';
 
 export class GenkitGenerativeClient extends GenerativeClient<
   GenerateOptions,
@@ -85,14 +85,14 @@ export class GenkitGenerativeClient extends GenerativeClient<
       plugins: [this.plugin],
     };
 
-    if (config.enableGenkitMonitoring) {
-      try {
-        enableFirebaseTelemetry();
-        logger.info('Genkit Monitoring enabled');
-      } catch (error) {
-        logger.error('Failed to enable Genkit Monitoring', error);
-      }
-    }
+    // if (config.enableGenkitMonitoring) {
+    //   try {
+    //     enableFirebaseTelemetry();
+    //     logger.info('Genkit Monitoring enabled');
+    //   } catch (error) {
+    //     logger.error('Failed to enable Genkit Monitoring', error);
+    //   }
+    // }
 
     return genkit(genkitConfig);
   }

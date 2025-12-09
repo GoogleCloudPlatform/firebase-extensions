@@ -17,9 +17,9 @@ jest.mock('@genkit-ai/google-cloud', () => ({
   enableGoogleCloudTelemetry: jest.fn(),
 }));
 
-jest.mock('@genkit-ai/firebase', () => ({
-  enableFirebaseTelemetry: jest.fn(),
-}));
+// jest.mock('@genkit-ai/firebase', () => ({
+//   enableFirebaseTelemetry: jest.fn(),
+// }));
 
 jest.mock('@genkit-ai/google-genai', () => {
   // use Object.assign because callable and has properties
@@ -100,7 +100,7 @@ describe('GenkitGenerativeClient', () => {
     ],
     bucketName: 'test-bucket',
     imageField: 'image',
-    enableGenkitMonitoring: true,
+    // enableGenkitMonitoring: true,
   };
 
   const mockGenerateResponse = {
@@ -287,7 +287,7 @@ describe('GenkitGenerativeClient.shouldUseGenkitClient', () => {
     ],
     bucketName: 'test-bucket',
     imageField: 'image',
-    enableGenkitMonitoring: true,
+    // enableGenkitMonitoring: true,
   };
 
   beforeEach(() => {
