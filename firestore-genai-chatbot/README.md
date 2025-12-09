@@ -94,7 +94,9 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Google AI API Key: If you have selected Google AI as your provider, then this parameteris required. If you have instead selected Vertex AI, then this parameter is not required, and application default credentials will be used.
 
-* Gemini model: Input the name of the Gemini model you would like to use. To view available models for each provider, see: [Vertex AI Gemini models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models), [Google AI Gemini models](https://ai.google.dev/models/gemini)
+* Gemini model: Input the name of the Gemini model you would like to use. To view available models for each provider, see: [Vertex AI Gemini models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models), [Google AI Gemini models](https://ai.google.dev/models/gemini). Note: Any models in preview on Vertex AI will require Vertex AI Model Location to be set to 'global'.
+
+* Vertex AI Model Location: The location of the Vertex AI model. If left undefined, the extension will default to the Cloud Function location (LOCATION parameter). Note: Any models in preview on Vertex AI will require this parameter to be set to 'global'.
 
 * Firestore Collection Path: Used to store conversation history represented as documents. This extension will listen to the specified collection(s) for new message documents.
 
