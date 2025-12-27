@@ -48,4 +48,5 @@ export default {
   metadataDoc: `_ext-${process.env.EXT_INSTANCE_ID!}/metadata`,
   dimension: process.env.EMBEDDING_METHOD === 'use' ? 512 : 768,
   bucketName: `${process.env.PROJECT_ID!}-ext-${process.env.EXT_INSTANCE_ID!}`,
+  enforceAppCheck: process.env.ENFORCE_APP_CHECK == 'true',
 };
