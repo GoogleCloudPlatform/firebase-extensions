@@ -20,7 +20,7 @@ if curl -L -o restore-firestore.jar "https://github.com/GoogleCloudPlatform/fire
     
     # Alternative 2: Try checking Google Cloud Storage
     echo -e "${YELLOW}Trying to download from Cloud Storage...${NC}"
-    if gsutil cp gs://firebase-preview-drop/extension-builds/firestore-incremental-capture/restore-firestore.jar ./restore-firestore.jar 2>/dev/null; then
+    if gcloud storage cp gs://firebase-preview-drop/extension-builds/firestore-incremental-capture/restore-firestore.jar ./restore-firestore.jar 2>/dev/null; then
       echo -e "${GREEN}JAR file downloaded successfully from Cloud Storage.${NC}"
       SUCCESS_TASKS+=("${GREEN}${TICK} Successfully downloaded assets.")
       exit 0
