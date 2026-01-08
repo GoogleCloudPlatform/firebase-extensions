@@ -23,3 +23,7 @@ export const pubsubMessageHandled = jest.fn();
 export const partitioningFieldRemovalAttempted = jest.fn();
 export const latestDocUpdateSkipped = jest.fn();
 export const handlingNonSuccessRun = jest.fn();
+export const invalidResourceName = jest.fn();
+export const bigqueryQueryFailed = jest.fn();
+export const transferConfigNotFound = jest.fn();
+export const getTransferConfigFailed = jest.fn();

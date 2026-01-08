@@ -28,6 +28,76 @@ import {
 } from '@google-cloud/bigquery';
 import config from './config';
 
+/** Parsed components from a transfer run resource name */
+export interface ParsedTransferRunName {
+  projectId: string;
+  location: string;
+  transferConfigId: string;
+  runId: string;
+}
+
+/** Parsed components from a transfer config resource name */
+export interface ParsedTransferConfigName {
+  projectId: string;
+  location: string;
+  transferConfigId: string;
+}
+
+// Regex for transfer run name: projects/{projectId}/locations/{location}/transferConfigs/{configId}/runs/{runId}
+const TRANSFER_RUN_NAME_REGEX =
+  /^projects\/([^/]+)\/locations\/([^/]+)\/transferConfigs\/([^/]+)\/runs\/([^/]+)$/;
+
+// Regex for transfer config name: projects/{projectId}/locations/{location}/transferConfigs/{configId}
+const TRANSFER_CONFIG_NAME_REGEX =
+  /^projects\/([^/]+)\/locations\/([^/]+)\/transferConfigs\/([^/]+)$/;
+
+/**
+ * Parses a transfer run resource name and extracts its components.
+ * @param name The full resource name (e.g., projects/123/locations/us/transferConfigs/abc/runs/xyz)
+ * @returns Parsed components
+ * @throws Error if the name format is invalid
+ */
+export function parseTransferRunName(name: string): ParsedTransferRunName {
+  const match = name.match(TRANSFER_RUN_NAME_REGEX);
+  if (!match) {
+    const error = new Error(
+      `Invalid transfer run name format: "${name}". Expected format: projects/{projectId}/locations/{location}/transferConfigs/{configId}/runs/{runId}`
+    );
+    logs.invalidResourceName(name, 'transfer run');
+    throw error;
+  }
+  return {
+    projectId: match[1],
+    location: match[2],
+    transferConfigId: match[3],
+    runId: match[4],
+  };
+}
+
+/**
+ * Parses a transfer config resource name and extracts its components.
+ * @param name The full resource name (e.g., projects/123/locations/us/transferConfigs/abc)
+ * @returns Parsed components
+ * @throws Error if the name format is invalid
+ */
+export function parseTransferConfigName(
+  name: string
+): ParsedTransferConfigName {
+  const match = name.match(TRANSFER_CONFIG_NAME_REGEX);
+  if (!match) {
+    const error = new Error(
+      `Invalid transfer config name format: "${name}". Expected format: projects/{projectId}/locations/{location}/transferConfigs/{configId}`
+    );
+    logs.invalidResourceName(name, 'transfer config');
+    throw error;
+  }
+  return {
+    projectId: match[1],
+    location: match[2],
+    transferConfigId: match[3],
+  };
+}
+
 /**
  * Updates the "latest" run document in Firestore for a transfer config.
  * Uses a transaction to prevent race conditions from concurrent Pub/Sub messages.
@@ -94,7 +164,6 @@ export const getBigqueryResults = async (
   datasetId: string,
   tableName: string
 ) => {
-  // Run select * query from tableName
   const query = `SELECT * FROM \`${projectId}.${datasetId}.${tableName}\``;
   const bigquery = new BigQuery();
   const options = {
@@ -102,16 +171,23 @@ export const getBigqueryResults = async (
     // Location must match that of the dataset(s) referenced in the query.
     location: config.bigqueryDatasetLocation,
   };
-  // Run the query as a job
 
-  const [job] = await bigquery.createQueryJob(options);
+  try {
+    const [job] = await bigquery.createQueryJob(options);
+    logs.bigqueryJobStarted(job.id);
 
-  logs.bigqueryJobStarted(job.id);
-
-  // Wait for the query to finish
-  const [rows] = await job.getQueryResults();
-  logs.bigqueryResultsRowCount(transferConfigId, runId, rows.length);
-  return rows;
+    const [rows] = await job.getQueryResults();
+    logs.bigqueryResultsRowCount(transferConfigId, runId, rows.length);
+    return rows;
+  } catch (error) {
+    logs.bigqueryQueryFailed(
+      transferConfigId,
+      runId,
+      tableName,
+      error instanceof Error ? error : new Error(String(error))
+    );
+    throw error;
+  }
 };
 
 // Runs a SELECT * query on target tableName and writes results to corresponding firestore collection
@@ -119,10 +195,7 @@ export const writeRunResultsToFirestore = async (
   db: admin.firestore.Firestore,
   message: TransferRunMessage
 ) => {
-  const name = message.json.name;
-  const splitName = name.split('/');
-  const transferConfigId = splitName[splitName.length - 3];
-  const runId = splitName[splitName.length - 1];
+  const {transferConfigId, runId} = parseTransferRunName(message.json.name);
   const runTime = new Date(message.json.runTime);
   const hourStr = String(runTime.getUTCHours()).padStart(2, '0');
   const minuteStr = String(runTime.getUTCMinutes()).padStart(2, '0');
@@ -215,9 +288,7 @@ export const handleMessage = async (
   config: Config,
   message: TransferRunMessage
 ) => {
-  const name = message.json.name;
-  const splitName = name.split('/');
-  const transferConfigId = splitName[splitName.length - 3];
+  const {transferConfigId, runId} = parseTransferRunName(message.json.name);
 
   const hasValidConfig = await transferConfigAssociatedWithExtension(
     db,
@@ -231,8 +302,6 @@ export const handleMessage = async (
     logs.error(error);
     throw error;
   }
-
-  const runId = splitName[splitName.length - 1];
   if (message.json.state === 'SUCCEEDED') {
     await writeRunResultsToFirestore(db, message);
   } else {

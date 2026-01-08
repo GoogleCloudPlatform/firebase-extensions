@@ -136,3 +136,31 @@ export function handlingNonSuccessRun(
     `Handling non-success run for transfer config '${transferConfigId}', run '${runId}' with state '${state}'.`
   );
 }
+
+export function invalidResourceName(name: string, resourceType: string) {
+  logger.error(`Invalid ${resourceType} resource name format: "${name}"`);
+}
+
+export function bigqueryQueryFailed(
+  transferConfigId: string,
+  runId: string,
+  tableName: string,
+  error: Error
+) {
+  logger.error(
+    `BigQuery query failed for transfer config '${transferConfigId}', run '${runId}', table '${tableName}': ${error.message}`
+  );
+}
+
+export function transferConfigNotFound(transferConfigName: string) {
+  logger.log(`Transfer config not found: '${transferConfigName}'`);
+}
+
+export function getTransferConfigFailed(
+  transferConfigName: string,
+  error: Error
+) {
+  logger.error(
+    `Failed to get transfer config '${transferConfigName}': ${error.message}`
+  );
+}

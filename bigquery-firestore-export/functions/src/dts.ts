@@ -23,25 +23,55 @@ import {Config} from './types';
 
 import * as functions from 'firebase-functions';
 
+/** gRPC status code for NOT_FOUND */
+const GRPC_NOT_FOUND = 5;
+
+/**
+ * Type guard to check if an error is a gRPC NOT_FOUND error.
+ */
+function isNotFoundError(e: unknown): boolean {
+  return (
+    typeof e === 'object' &&
+    e !== null &&
+    'code' in e &&
+    e.code === GRPC_NOT_FOUND
+  );
+}
+
 // Error message constants for partitioning field removal
 export const PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX =
   'Cannot remove partitioning_field from an existing transfer config';
 export const PARTITIONING_FIELD_REMOVAL_ERROR =
   'Cannot remove partitioning_field from an existing transfer config. The BigQuery Data Transfer API does not support clearing this parameter once it has been set. To change partitioning, you must create a new transfer config with the desired partitioning settings.';
 
+/**
+ * Retrieves a transfer config by name.
+ * @param transferConfigName The full resource name of the transfer config
+ * @returns The transfer config, or null if not found
+ * @throws Error if the API call fails for reasons other than "not found"
+ */
 export const getTransferConfig = async (transferConfigName: string) => {
-  try {
-    const datatransferClient =
-      new bigqueryDataTransfer.v1.DataTransferServiceClient({
-        projectId: config.projectId,
-      });
-    const request = {name: transferConfigName};
-    const response = await datatransferClient.getTransferConfig(request);
+  const datatransferClient =
+    new bigqueryDataTransfer.v1.DataTransferServiceClient({
+      projectId: config.projectId,
+    });
+  const request = {name: transferConfigName};
 
+  try {
+    const response = await datatransferClient.getTransferConfig(request);
     return response[0];
   } catch (e) {
-    functions.logger.error(`Failed to get transfer config: ${e}`);
-    return null;
+    // Check if this is a "not found" error (gRPC status code 5)
+    if (isNotFoundError(e)) {
+      logs.transferConfigNotFound(transferConfigName);
+      return null;
+    }
+    // For all other errors, log and re-throw so callers can handle appropriately
+    logs.getTransferConfigFailed(
+      transferConfigName,
+      e instanceof Error ? e : new Error(String(e))
+    );
+    throw e;
   }
 };
 

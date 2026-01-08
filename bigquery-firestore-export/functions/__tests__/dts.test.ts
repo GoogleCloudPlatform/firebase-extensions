@@ -44,7 +44,14 @@ jest.mock('@google-cloud/bigquery-data-transfer', () => {
               if (request.name.includes('wrong-id')) {
                 return [null]; // Simulate returning null for wrong IDs
               }
+              if (request.name.includes('not-found')) {
+                // Simulate gRPC NOT_FOUND error (code 5)
+                const error = new Error('Transfer config not found');
+                (error as Error & {code: number}).code = 5;
+                throw error;
+              }
               if (request.name.includes('api-error')) {
+                // Simulate a generic API error (should be re-thrown)
                 throw new Error('API Error');
               }
               return getTransferConfigResponse;
@@ -321,12 +328,20 @@ describe('dts', () => {
       });
     });
 
-    test('returns null when API throws error', async () => {
+    test('returns null when config not found (gRPC NOT_FOUND)', async () => {
       const result = await dts.getTransferConfig(
-        'projects/test/locations/us/transferConfigs/api-error'
+        'projects/test/locations/us/transferConfigs/not-found'
       );
 
       expect(result).toBeNull();
+    });
+
+    test('throws error for non-NOT_FOUND API errors', async () => {
+      await expect(
+        dts.getTransferConfig(
+          'projects/test/locations/us/transferConfigs/api-error'
+        )
+      ).rejects.toThrow('API Error');
     });
   });
 
