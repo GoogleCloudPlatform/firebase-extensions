@@ -30,40 +30,61 @@ import config from './config';
 
 /**
  * Updates the "latest" run document in Firestore for a transfer config.
- * Updates if: no doc exists, doc is corrupted/incomplete, or current run is newer.
+ * Uses a transaction to prevent race conditions from concurrent Pub/Sub messages.
+ * Updates if: no doc exists, doc is corrupted/incomplete, current run is newer,
+ * or same run is being refreshed (handles Pub/Sub redelivery).
  * @param db Firestore database instance
  * @param transferConfigId The transfer config ID
  * @param runId The run ID
  * @param message The transfer run message
- * @param rowCounts Optional row counts (only available for successful runs)
+ * @param rowCounts Row counts - explicit zeros for failed runs, actual counts for success
  */
 export const updateLatestRunDocument = async (
   db: admin.firestore.Firestore,
   transferConfigId: string,
   runId: string,
   message: TransferRunMessage,
-  rowCounts?: {failedRowCount: number; totalRowCount: number}
+  rowCounts: {failedRowCount: number; totalRowCount: number}
 ) => {
   const latestRef = db
     .collection(`${config.firestoreCollection}/${transferConfigId}/runs`)
     .doc('latest');
 
-  const latest = await latestRef.get();
   const runTime = new Date(message.json.runTime);
 
   const docUpdate = {
     runMetadata: message.json,
     latestRunId: runId,
-    ...(rowCounts || {}),
+    ...rowCounts,
   };
 
-  const latestData = latest.data();
-  const existingRunTime = latestData?.runMetadata?.runTime;
+  await db.runTransaction(async transaction => {
+    const latest = await transaction.get(latestRef);
+    const latestData = latest.data();
+    const existingRunTime = latestData?.runMetadata?.runTime;
+    const existingRunId = latestData?.latestRunId;
 
-  // Update if: no doc exists, doc is corrupted/incomplete, or current run is newer
-  if (!latestData || !existingRunTime || new Date(existingRunTime) < runTime) {
-    await latestRef.set(docUpdate);
-  }
+    // Update if:
+    // 1. No doc exists
+    // 2. Doc is corrupted/incomplete (missing runTime)
+    // 3. Current run is newer
+    // 4. Same run is being refreshed (handles Pub/Sub redelivery with updated data)
+    const shouldUpdate =
+      !latestData ||
+      !existingRunTime ||
+      new Date(existingRunTime) < runTime ||
+      existingRunId === runId;
+
+    if (shouldUpdate) {
+      transaction.set(latestRef, docUpdate);
+    } else {
+      logs.latestDocUpdateSkipped(
+        transferConfigId,
+        runId,
+        `existing run is newer (${existingRunTime} >= ${message.json.runTime})`
+      );
+    }
+  });
 };
 
 export const getBigqueryResults = async (
@@ -155,23 +176,26 @@ export const writeRunResultsToFirestore = async (
   const failedRowCount = rowLength - succeededRowCount;
   logs.runResultsWrittenToFirestore(runId, succeededRowCount, rows.length);
 
-  // @TODO: Update run docs in a single transaction
+  const rowCounts = {failedRowCount, totalRowCount: rows.length};
 
-  // Update the run document in Firestore with metadata about the transfer run and number of sucecssful writes.
+  // Update the run document in Firestore with metadata about the transfer run and number of successful writes.
   await db
     .collection(`${config.firestoreCollection}/${transferConfigId}/runs`)
     .doc(runId)
     .set({
       runMetadata: message.json,
-      failedRowCount,
-      totalRowCount: rows.length,
+      ...rowCounts,
     });
 
-  // Update the latest run document in Firestore for this transfer config as well.
-  await updateLatestRunDocument(db, transferConfigId, runId, message, {
-    failedRowCount,
-    totalRowCount: rows.length,
-  });
+  // Update the latest run document in Firestore for this transfer config.
+  // Uses transaction internally to prevent race conditions.
+  await updateLatestRunDocument(
+    db,
+    transferConfigId,
+    runId,
+    message,
+    rowCounts
+  );
 };
 
 export const transferConfigAssociatedWithExtension = async (
@@ -212,16 +236,29 @@ export const handleMessage = async (
   if (message.json.state === 'SUCCEEDED') {
     await writeRunResultsToFirestore(db, message);
   } else {
+    // Log handling of non-success state
+    logs.handlingNonSuccessRun(transferConfigId, runId, message.json.state);
+
+    // Explicit zero counts for non-success runs (clearer API shape than omitting)
+    const rowCounts = {failedRowCount: 0, totalRowCount: 0};
+
     // Write run document for non-success states
     await db
       .collection(`${config.firestoreCollection}/${transferConfigId}/runs`)
       .doc(runId)
       .set({
         runMetadata: message.json,
+        ...rowCounts,
       });
 
     // Also update "latest" for failed/pending runs so users can see current state
-    await updateLatestRunDocument(db, transferConfigId, runId, message);
+    await updateLatestRunDocument(
+      db,
+      transferConfigId,
+      runId,
+      message,
+      rowCounts
+    );
   }
 };
 

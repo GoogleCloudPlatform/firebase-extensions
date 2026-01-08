@@ -35,7 +35,7 @@ db.collection(`transferConfigs/${transferConfigId}/runs`)
   });
 ```
 
-Whenever the "latest" document updates, these fields are changed: "runMetadata", "latestRunId", and for successful runs: "failedRowCount" and "totalRowCount". You can check `runMetadata.state` to determine if the run succeeded ("SUCCEEDED") or failed. The extension uses parallel individual writes to Firestore to maximize write throughput, and if some failures occur due to intermittent Firestore issues, they will be counted in failedRowCount. Depending on the application, you may want to refresh the query results only if there are no write failures.
+Whenever the "latest" document updates, these fields are changed: "runMetadata", "latestRunId", "failedRowCount", and "totalRowCount". For successful runs, the counts reflect actual row processing; for failed/non-success runs, both counts are set to 0. You can check `runMetadata.state` to determine if the run succeeded ("SUCCEEDED") or failed. The extension uses parallel individual writes to Firestore to maximize write throughput, and if some failures occur due to intermittent Firestore issues, they will be counted in failedRowCount. Depending on the application, you may want to refresh the query results only if there are no write failures.
 
 Once you have the latestRunId, you can query the results of the query within Firestore:
 

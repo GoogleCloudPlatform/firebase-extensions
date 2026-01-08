@@ -2,6 +2,14 @@
 
 fix - "latest" document now updates for all run states (SUCCEEDED, FAILED, etc.), not just successful runs
 
+fix - use Firestore transaction in `updateLatestRunDocument` to prevent race conditions from concurrent Pub/Sub messages
+
+fix - allow same-runId updates to handle Pub/Sub redelivery edge cases
+
+fix - explicit zero counts (`failedRowCount: 0, totalRowCount: 0`) for failed/non-success runs for clearer API shape
+
+refactor - add logging for skipped latest updates and non-success run handling
+
 test - reorganize test structure and improve test coverage
 
 ## Version 0.1.6
