@@ -47,14 +47,23 @@ export const upsertTransferConfig = functions.tasks
       // Ensure the latest transfer config object is stored in Firestore.
       // If Firestore already contains an extension instance matching this config ID, the extension
       // will overwrite the existing config with the latest config from the API
-      const transferConfig = await dts.getTransferConfig(
-        config.transferConfigName
-      );
+      let transferConfig;
+      try {
+        transferConfig = await dts.getTransferConfig(config.transferConfigName);
+      } catch (error) {
+        await runtime.setProcessingState(
+          'PROCESSING_FAILED',
+          `Failed to retrieve transfer config from BigQuery: ${
+            error instanceof Error ? error.message : String(error)
+          }`
+        );
+        throw error;
+      }
 
       if (!transferConfig) {
         await runtime.setProcessingState(
           'PROCESSING_COMPLETE',
-          'Transfer Config Name was provided, but the transfer config could not be retrieved from BigQuery.'
+          'Transfer Config Name was provided, but the transfer config does not exist in BigQuery.'
         );
         return;
       }
@@ -84,44 +93,43 @@ export const upsertTransferConfig = functions.tasks
       // TODO: Warning if multiple instances found
       if (results.size > 0) {
         const existingTransferConfig = results.docs[0].data();
+        if (!existingTransferConfig?.name) {
+          await runtime.setProcessingState(
+            'PROCESSING_FAILED',
+            `Existing transfer config document in ${config.firestoreCollection} is missing required 'name' field.`
+          );
+          throw new Error(
+            'Existing transfer config document missing name field'
+          );
+        }
         const transferConfigName = existingTransferConfig.name;
         const {transferConfigId} = parseTransferConfigName(transferConfigName);
 
         try {
-          const response = await dts.updateTransferConfig(transferConfigName);
+          await dts.updateTransferConfig(transferConfigName);
 
-          if (response) {
-            const updatedConfig =
-              await dts.getTransferConfig(transferConfigName);
+          const updatedConfig = await dts.getTransferConfig(transferConfigName);
 
-            if (!updatedConfig) {
-              await runtime.setProcessingState(
-                'PROCESSING_COMPLETE',
-                'Transfer Config was updated, but the updated config could not be retrieved from BigQuery.'
-              );
-              return;
-            }
-
-            await db
-              .collection(config.firestoreCollection)
-              .doc(transferConfigId)
-              .set({
-                extInstanceId: config.instanceId,
-                ...updatedConfig,
-              });
-
+          if (!updatedConfig) {
             await runtime.setProcessingState(
               'PROCESSING_COMPLETE',
-              'Transfer Config Name was not provided to the extension, and an existing Transfer Config found. Transfer Config object was successfully updated in BQ and Firestore.'
+              'Transfer Config was updated, but the updated config could not be retrieved from BigQuery.'
             );
             return;
           }
 
+          await db
+            .collection(config.firestoreCollection)
+            .doc(transferConfigId)
+            .set({
+              extInstanceId: config.instanceId,
+              ...updatedConfig,
+            });
+
           await runtime.setProcessingState(
             'PROCESSING_COMPLETE',
-            `An existing Transfer Config name found in ${config.firestoreCollection}, but the associated Transfer Config does not exist.`
+            'Transfer Config Name was not provided to the extension, and an existing Transfer Config found. Transfer Config object was successfully updated in BQ and Firestore.'
           );
-
           return;
         } catch (error) {
           // Handle partitioning removal error specifically
@@ -135,26 +143,43 @@ export const upsertTransferConfig = functions.tasks
             );
             return;
           }
-          // Re-throw other errors
+          // Set processing state before re-throwing other errors
+          await runtime.setProcessingState(
+            'PROCESSING_FAILED',
+            `Failed during transfer config update: ${
+              error instanceof Error ? error.message : String(error)
+            }`
+          );
           throw error;
         }
       } else {
-        const transferConfig = await dts.createTransferConfig();
-        const {transferConfigId} = parseTransferConfigName(
-          transferConfig.name!
-        );
+        try {
+          const transferConfig = await dts.createTransferConfig();
+          // createTransferConfig guarantees name exists (throws if null)
+          const {transferConfigId} = parseTransferConfigName(
+            transferConfig.name!
+          );
 
-        await db
-          .collection(config.firestoreCollection)
-          .doc(transferConfigId)
-          .set({
-            extInstanceId: config.instanceId,
-            ...transferConfig,
-          });
-        await runtime.setProcessingState(
-          'PROCESSING_COMPLETE',
-          'Transfer Config Name was not provided to the extension, and no existing Transfer Config found. Transfer Config object was successfully created in BQ and Firestore.'
-        );
+          await db
+            .collection(config.firestoreCollection)
+            .doc(transferConfigId)
+            .set({
+              extInstanceId: config.instanceId,
+              ...transferConfig,
+            });
+          await runtime.setProcessingState(
+            'PROCESSING_COMPLETE',
+            'Transfer Config Name was not provided to the extension, and no existing Transfer Config found. Transfer Config object was successfully created in BQ and Firestore.'
+          );
+        } catch (error) {
+          await runtime.setProcessingState(
+            'PROCESSING_FAILED',
+            `Failed to create transfer config: ${
+              error instanceof Error ? error.message : String(error)
+            }`
+          );
+          throw error;
+        }
       }
     }
     return;

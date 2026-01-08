@@ -41,6 +41,30 @@ function isNotFoundError(e: unknown): boolean {
 // Error message constants for partitioning field removal
 export const PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX =
   'Cannot remove partitioning_field from an existing transfer config';
+
+/**
+ * Validates that a transfer config has the expected structure for accessing params.fields.
+ * @throws Error if the config structure is invalid or missing required fields
+ */
+function validateTransferConfigStructure(
+  transferConfig: bigqueryDataTransfer.protos.google.cloud.bigquery.datatransfer.v1.ITransferConfig
+): void {
+  if (!transferConfig.params?.fields) {
+    throw new Error(
+      'Transfer config has invalid structure: missing params.fields'
+    );
+  }
+  if (!transferConfig.params.fields.query) {
+    throw new Error(
+      'Transfer config has invalid structure: missing params.fields.query'
+    );
+  }
+  if (!transferConfig.params.fields.destination_table_name_template) {
+    throw new Error(
+      'Transfer config has invalid structure: missing params.fields.destination_table_name_template'
+    );
+  }
+}
 export const PARTITIONING_FIELD_REMOVAL_ERROR =
   'Cannot remove partitioning_field from an existing transfer config. The BigQuery Data Transfer API does not support clearing this parameter once it has been set. To change partitioning, you must create a new transfer config with the desired partitioning settings.';
 
@@ -125,15 +149,22 @@ export const createTransferConfig = async () => {
       projectId: config.projectId,
     });
   const request = createTransferConfigRequest(config);
-  // Run request
 
-  // TODO: Should we be converting it?
-  //const converted = bigqueryDataTransfer.protos.google.cloud.bigquery.datatransfer.v1.TransferConfig.fromObject(transferConfig);
+  // TODO: Should we be converting like updateTransferConfig does?
+  // const converted = bigqueryDataTransfer.protos.google.cloud.bigquery.datatransfer.v1.CreateTransferConfigRequest.fromObject(request);
+
   logs.createTransferConfig();
   const response = await datatransferClient.createTransferConfig(request);
-  //TODO - what if name is null or undefined?
-  logs.transferConfigCreated(response[0].name!);
-  return response[0];
+  const createdConfig = response[0];
+
+  if (!createdConfig.name) {
+    throw new Error(
+      'BigQuery API returned transfer config without a name - this is unexpected'
+    );
+  }
+
+  logs.transferConfigCreated(createdConfig.name);
+  return createdConfig;
 };
 
 export const constructUpdateTransferConfigRequest = async (
@@ -146,10 +177,16 @@ export const constructUpdateTransferConfigRequest = async (
     throw new Error('Transfer config not found');
   }
 
+  // Validate structure before accessing nested properties
+  validateTransferConfigStructure(transferConfig);
+
+  // After validation, we know params.fields exists
+  const fields = transferConfig.params!.fields!;
+
   const updateMask = [];
   const updatedConfig = JSON.parse(JSON.stringify(transferConfig));
-  //TODO - what if null or undefined?
-  if (config.queryString !== transferConfig.params!.fields!.query.stringValue) {
+
+  if (config.queryString !== fields.query.stringValue) {
     updateMask.push('params');
     updatedConfig.params.fields.query.stringValue = config.queryString;
   }
@@ -157,8 +194,7 @@ export const constructUpdateTransferConfigRequest = async (
   const destinationTableNameTemplate = `${config.tableName}_{run_time|"%H%M%S"}`;
   if (
     destinationTableNameTemplate !==
-    //TODO - what if null or undefined?
-    transferConfig.params!.fields!.destination_table_name_template.stringValue
+    fields.destination_table_name_template.stringValue
   ) {
     updateMask.push('params');
     updatedConfig.params.fields.destination_table_name_template.stringValue =
@@ -168,7 +204,7 @@ export const constructUpdateTransferConfigRequest = async (
   // Only update partitioning_field if it has a non-empty value
   // BigQuery Data Transfer API rejects empty/undefined values for this parameter on update
   const existingPartitioningField =
-    transferConfig.params!.fields!.partitioning_field?.stringValue || '';
+    fields.partitioning_field?.stringValue || '';
   const newPartitioningField = config.partitioningField || '';
 
   if (newPartitioningField !== existingPartitioningField) {
@@ -235,7 +271,8 @@ export const updateTransferConfig = async (transferConfigName: string) => {
     ) {
       throw e;
     }
+    // For all other errors, log and re-throw so callers can handle appropriately
     functions.logger.error(`Error updating transfer config: ${e}`);
-    return null;
+    throw e;
   }
 };
