@@ -21,6 +21,7 @@ import {getExtensions} from 'firebase-admin/extensions';
 import * as logs from './logs';
 import config from './config';
 import * as helper from './helper';
+import {parseTransferConfigName} from './helper';
 import * as dts from './dts';
 import {PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX} from './dts';
 
@@ -39,8 +40,9 @@ export const upsertTransferConfig = functions.tasks
     const runtime = getExtensions().runtime();
 
     if (config.transferConfigName) {
-      const nameSplit = config.transferConfigName.split('/');
-      const transferConfigId = nameSplit[nameSplit.length - 1];
+      const {transferConfigId} = parseTransferConfigName(
+        config.transferConfigName
+      );
 
       // Ensure the latest transfer config object is stored in Firestore.
       // If Firestore already contains an extension instance matching this config ID, the extension
@@ -83,8 +85,7 @@ export const upsertTransferConfig = functions.tasks
       if (results.size > 0) {
         const existingTransferConfig = results.docs[0].data();
         const transferConfigName = existingTransferConfig.name;
-        const splitName = transferConfigName.split('/');
-        const transferConfigId = splitName[splitName.length - 1];
+        const {transferConfigId} = parseTransferConfigName(transferConfigName);
 
         try {
           const response = await dts.updateTransferConfig(transferConfigName);
@@ -139,8 +140,9 @@ export const upsertTransferConfig = functions.tasks
         }
       } else {
         const transferConfig = await dts.createTransferConfig();
-        const splitName = transferConfig.name.split('/');
-        const transferConfigId = splitName[splitName.length - 1];
+        const {transferConfigId} = parseTransferConfigName(
+          transferConfig.name!
+        );
 
         await db
           .collection(config.firestoreCollection)

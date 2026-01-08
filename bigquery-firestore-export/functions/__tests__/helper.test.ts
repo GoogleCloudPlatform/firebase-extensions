@@ -11,6 +11,8 @@ import {
   writeRunResultsToFirestore,
   handleMessage,
   convertUnsupportedDataTypes,
+  parseTransferRunName,
+  parseTransferConfigName,
 } from '../src/helper';
 import {generateRandomString} from './helper';
 import {updateConfig} from './__mocks__';
@@ -743,6 +745,93 @@ describe('helpers', () => {
       expect(result.location).toBe('POINT(1 2)');
       expect(result.plainString).toBe('hello');
       expect(result.plainNumber).toBe(42);
+    });
+  });
+
+  describe('parseTransferRunName', () => {
+    test('parses valid transfer run name', () => {
+      const name =
+        'projects/my-project/locations/us/transferConfigs/abc123/runs/xyz789';
+      const result = parseTransferRunName(name);
+
+      expect(result.projectId).toBe('my-project');
+      expect(result.location).toBe('us');
+      expect(result.transferConfigId).toBe('abc123');
+      expect(result.runId).toBe('xyz789');
+    });
+
+    test('parses transfer run name with special characters in IDs', () => {
+      const name =
+        'projects/project-123/locations/us-central1/transferConfigs/642f3a36-0000-2fbb-ad1d-001a114e2fa6/runs/648762e0-0000-28ef-9109-001a11446b2a';
+      const result = parseTransferRunName(name);
+
+      expect(result.projectId).toBe('project-123');
+      expect(result.location).toBe('us-central1');
+      expect(result.transferConfigId).toBe(
+        '642f3a36-0000-2fbb-ad1d-001a114e2fa6'
+      );
+      expect(result.runId).toBe('648762e0-0000-28ef-9109-001a11446b2a');
+    });
+
+    test('throws error for invalid format - too few segments', () => {
+      expect(() => parseTransferRunName('invalid')).toThrow(
+        'Invalid transfer run name format'
+      );
+    });
+
+    test('throws error for invalid format - missing runs segment', () => {
+      expect(() =>
+        parseTransferRunName('projects/p/locations/l/transferConfigs/c')
+      ).toThrow('Invalid transfer run name format');
+    });
+
+    test('throws error for empty string', () => {
+      expect(() => parseTransferRunName('')).toThrow(
+        'Invalid transfer run name format'
+      );
+    });
+  });
+
+  describe('parseTransferConfigName', () => {
+    test('parses valid transfer config name', () => {
+      const name = 'projects/my-project/locations/us/transferConfigs/abc123';
+      const result = parseTransferConfigName(name);
+
+      expect(result.projectId).toBe('my-project');
+      expect(result.location).toBe('us');
+      expect(result.transferConfigId).toBe('abc123');
+    });
+
+    test('parses transfer config name with special characters in IDs', () => {
+      const name =
+        'projects/project-123/locations/us-central1/transferConfigs/642f3a36-0000-2fbb-ad1d-001a114e2fa6';
+      const result = parseTransferConfigName(name);
+
+      expect(result.projectId).toBe('project-123');
+      expect(result.location).toBe('us-central1');
+      expect(result.transferConfigId).toBe(
+        '642f3a36-0000-2fbb-ad1d-001a114e2fa6'
+      );
+    });
+
+    test('throws error for invalid format - too few segments', () => {
+      expect(() => parseTransferConfigName('invalid')).toThrow(
+        'Invalid transfer config name format'
+      );
+    });
+
+    test('throws error for transfer run name (too many segments)', () => {
+      expect(() =>
+        parseTransferConfigName(
+          'projects/p/locations/l/transferConfigs/c/runs/r'
+        )
+      ).toThrow('Invalid transfer config name format');
+    });
+
+    test('throws error for empty string', () => {
+      expect(() => parseTransferConfigName('')).toThrow(
+        'Invalid transfer config name format'
+      );
     });
   });
 });
