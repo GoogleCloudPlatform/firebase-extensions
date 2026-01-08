@@ -23,7 +23,6 @@ import config from './config';
 import * as helper from './helper';
 import * as dts from './dts';
 import {PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX} from './dts';
-import {TransferRunMessage} from './types';
 
 logs.init();
 
@@ -166,11 +165,3 @@ export const processMessages = functions.pubsub
     await helper.handleMessage(db, config, message);
     logs.pubsubMessageHandled(message);
   });
-
-export const processMessagesHttp = functions.https.onRequest(
-  async (req, res) => {
-    const message = req.body as TransferRunMessage;
-    await helper.handleMessage(db, config, message);
-    res.send('OK');
-  }
-);
