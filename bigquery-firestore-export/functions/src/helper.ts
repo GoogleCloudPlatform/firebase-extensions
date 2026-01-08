@@ -28,6 +28,44 @@ import {
 } from '@google-cloud/bigquery';
 import config from './config';
 
+/**
+ * Updates the "latest" run document in Firestore for a transfer config.
+ * Updates if: no doc exists, doc is corrupted/incomplete, or current run is newer.
+ * @param db Firestore database instance
+ * @param transferConfigId The transfer config ID
+ * @param runId The run ID
+ * @param message The transfer run message
+ * @param rowCounts Optional row counts (only available for successful runs)
+ */
+export const updateLatestRunDocument = async (
+  db: admin.firestore.Firestore,
+  transferConfigId: string,
+  runId: string,
+  message: TransferRunMessage,
+  rowCounts?: {failedRowCount: number; totalRowCount: number}
+) => {
+  const latestRef = db
+    .collection(`${config.firestoreCollection}/${transferConfigId}/runs`)
+    .doc('latest');
+
+  const latest = await latestRef.get();
+  const runTime = new Date(message.json.runTime);
+
+  const docUpdate = {
+    runMetadata: message.json,
+    latestRunId: runId,
+    ...(rowCounts || {}),
+  };
+
+  const latestData = latest.data();
+  const existingRunTime = latestData?.runMetadata?.runTime;
+
+  // Update if: no doc exists, doc is corrupted/incomplete, or current run is newer
+  if (!latestData || !existingRunTime || new Date(existingRunTime) < runTime) {
+    await latestRef.set(docUpdate);
+  }
+};
+
 export const getBigqueryResults = async (
   projectId: string,
   transferConfigId: string,
@@ -130,32 +168,10 @@ export const writeRunResultsToFirestore = async (
     });
 
   // Update the latest run document in Firestore for this transfer config as well.
-  const latest = await db
-    .collection(`${config.firestoreCollection}/${transferConfigId}/runs`)
-    .doc('latest')
-    .get();
-
-  const docUpdate = {
-    runMetadata: message.json,
-    latestRunId: runId,
+  await updateLatestRunDocument(db, transferConfigId, runId, message, {
     failedRowCount,
     totalRowCount: rows.length,
-  };
-  if (!latest.data()) {
-    await db
-      .collection(`${config.firestoreCollection}/${transferConfigId}/runs`)
-      .doc('latest')
-      .set(docUpdate);
-  } else if (
-    !!latest.data().runMetadata &&
-    !!latest.data().runMetadata.runTime &&
-    new Date(latest.data().runMetadata.runTime) < runTime
-  ) {
-    await db
-      .collection(`${config.firestoreCollection}/${transferConfigId}/runs`)
-      .doc('latest')
-      .set(docUpdate);
-  }
+  });
 };
 
 export const transferConfigAssociatedWithExtension = async (
@@ -196,12 +212,16 @@ export const handleMessage = async (
   if (message.json.state === 'SUCCEEDED') {
     await writeRunResultsToFirestore(db, message);
   } else {
+    // Write run document for non-success states
     await db
       .collection(`${config.firestoreCollection}/${transferConfigId}/runs`)
       .doc(runId)
       .set({
         runMetadata: message.json,
       });
+
+    // Also update "latest" for failed/pending runs so users can see current state
+    await updateLatestRunDocument(db, transferConfigId, runId, message);
   }
 };
 
