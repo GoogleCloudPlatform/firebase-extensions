@@ -116,3 +116,51 @@ export function partitioningFieldRemovalAttempted(
     `Attempted to remove partitioning_field '${existingField}' from transfer config '${transferConfigName}'. This operation is not supported by the BigQuery Data Transfer API.`
   );
 }
+
+export function latestDocUpdateSkipped(
+  transferConfigId: string,
+  runId: string,
+  reason: string
+) {
+  logger.log(
+    `Skipped updating 'latest' doc for transfer config '${transferConfigId}', run '${runId}': ${reason}`
+  );
+}
+
+export function handlingNonSuccessRun(
+  transferConfigId: string,
+  runId: string,
+  state: string
+) {
+  logger.log(
+    `Handling non-success run for transfer config '${transferConfigId}', run '${runId}' with state '${state}'.`
+  );
+}
+
+export function invalidResourceName(name: string, resourceType: string) {
+  logger.error(`Invalid ${resourceType} resource name format: "${name}"`);
+}
+
+export function bigqueryQueryFailed(
+  transferConfigId: string,
+  runId: string,
+  tableName: string,
+  error: Error
+) {
+  logger.error(
+    `BigQuery query failed for transfer config '${transferConfigId}', run '${runId}', table '${tableName}': ${error.message}`
+  );
+}
+
+export function transferConfigNotFound(transferConfigName: string) {
+  logger.log(`Transfer config not found: '${transferConfigName}'`);
+}
+
+export function getTransferConfigFailed(
+  transferConfigName: string,
+  error: Error
+) {
+  logger.error(
+    `Failed to get transfer config '${transferConfigName}': ${error.message}`
+  );
+}
