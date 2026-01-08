@@ -451,6 +451,61 @@ describe('helpers', () => {
       expect(latestResult.data()!.runMetadata.state).toEqual('FAILED');
     });
 
+    test('failed runs have explicit zero counts in run and latest documents', async () => {
+      /** Set variables **/
+      const collection = db.collection(config.firestoreCollection);
+      const transferConfigId = generateRandomString();
+      const runId = generateRandomString();
+      const name = `projects/409146382768/locations/us/transferConfigs/${transferConfigId}/runs/${runId}`;
+
+      /** Assign documents */
+      const document = collection.doc(transferConfigId);
+      const runDoc = document.collection('runs').doc(runId);
+      const latestDoc = document.collection('runs').doc('latest');
+
+      /** Set Transfer config */
+      await document.set({extInstanceId: config.instanceId});
+
+      /** Create message with FAILED state */
+      const failedMsg = {
+        json: {
+          name,
+          runTime: '2023-03-23T21:03:00Z',
+          state: 'FAILED' as const,
+          destinationDatasetId: 'test',
+          dataSourceId: 'scheduled_query',
+          schedule: '',
+          scheduleTime: '',
+          startTime: '',
+          endTime: '',
+          updateTime: '',
+          userId: '',
+          notificationPubsubTopic: '',
+          params: {
+            destination_table_name_template: '',
+            partitioning_field: '',
+            query: '',
+            write_disposition: '',
+          },
+          emailPreferences: {},
+          errorStatus: {message: 'Query failed'},
+        },
+      } satisfies TransferRunMessage;
+
+      /** Run function */
+      await handleMessage(db, config, failedMsg);
+
+      /** Check that run doc has explicit zero counts */
+      const runResult = await runDoc.get();
+      expect(runResult.data()!.failedRowCount).toEqual(0);
+      expect(runResult.data()!.totalRowCount).toEqual(0);
+
+      /** Check that latest doc has explicit zero counts */
+      const latestResult = await latestDoc.get();
+      expect(latestResult.data()!.failedRowCount).toEqual(0);
+      expect(latestResult.data()!.totalRowCount).toEqual(0);
+    });
+
     test('updates latest when existing latest doc has missing runMetadata', async () => {
       /** Set variables **/
       const collection = db.collection(config.firestoreCollection);
@@ -475,6 +530,72 @@ describe('helpers', () => {
       const latestResult = await latestDoc.get();
       expect(latestResult.data()!.latestRunId).toEqual(runId);
       expect(latestResult.data()!.runMetadata).toBeDefined();
+    });
+
+    test('same runId updates latest even with same runTime (Pub/Sub redelivery)', async () => {
+      /** Set variables **/
+      const collection = db.collection(config.firestoreCollection);
+      const transferConfigId = generateRandomString();
+      const runId = generateRandomString();
+
+      /** Assign documents */
+      const document = collection.doc(transferConfigId);
+      const latestDoc = document.collection('runs').doc('latest');
+
+      /** Set Transfer config */
+      await document.set({extInstanceId: config.instanceId});
+
+      /** First message - FAILED state */
+      const failedMsg = {
+        json: {
+          name: `projects/409146382768/locations/us/transferConfigs/${transferConfigId}/runs/${runId}`,
+          runTime: '2023-03-23T21:03:00Z',
+          state: 'FAILED' as const,
+          destinationDatasetId: 'test',
+          dataSourceId: 'scheduled_query',
+          schedule: '',
+          scheduleTime: '',
+          startTime: '',
+          endTime: '',
+          updateTime: '',
+          userId: '',
+          notificationPubsubTopic: '',
+          params: {
+            destination_table_name_template: '',
+            partitioning_field: '',
+            query: '',
+            write_disposition: '',
+          },
+          emailPreferences: {},
+          errorStatus: {message: 'Query failed'},
+        },
+      } satisfies TransferRunMessage;
+
+      await handleMessage(db, config, failedMsg);
+
+      /** Verify initial state */
+      let latestResult = await latestDoc.get();
+      expect(latestResult.data()!.runMetadata.state).toEqual('FAILED');
+
+      /** Second message - same runId but different state (simulates Pub/Sub redelivery with corrected state) */
+      const succeededMsg = {
+        json: {
+          ...failedMsg.json,
+          state: 'SUCCEEDED' as const,
+          params: {
+            ...failedMsg.json.params,
+            destination_table_name_template: 'transactions_{run_time|"%H%M%S"}',
+          },
+          errorStatus: {},
+        },
+      } satisfies TransferRunMessage;
+
+      await handleMessage(db, config, succeededMsg);
+
+      /** Latest should be updated despite same runTime because same runId */
+      latestResult = await latestDoc.get();
+      expect(latestResult.data()!.runMetadata.state).toEqual('SUCCEEDED');
+      expect(latestResult.data()!.latestRunId).toEqual(runId);
     });
   });
 

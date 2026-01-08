@@ -21,3 +21,5 @@ export const bigqueryResultsRowCount = jest.fn();
 export const pubsubMessage = jest.fn();
 export const pubsubMessageHandled = jest.fn();
 export const partitioningFieldRemovalAttempted = jest.fn();
+export const latestDocUpdateSkipped = jest.fn();
+export const handlingNonSuccessRun = jest.fn();

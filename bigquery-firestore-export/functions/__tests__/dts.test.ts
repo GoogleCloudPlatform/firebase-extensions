@@ -1,12 +1,6 @@
-import {Config} from '../src/types';
-import * as dts from '../src/dts';
-import {PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX} from '../src/dts';
-import {getTransferConfigResponse} from './fixtures/transferConfigResonse';
-
-// Mock logs to silence console output during tests
+// Mock declarations must come before imports for reliable hoisting
 jest.mock('../src/logs');
 
-// Mock firebase-functions logger to silence direct logger calls in dts.ts
 jest.mock('firebase-functions', () => ({
   logger: {
     log: jest.fn(),
@@ -94,6 +88,12 @@ jest.mock('@google-cloud/bigquery-data-transfer', () => {
     },
   };
 });
+
+// Imports after mocks for reliable module resolution
+import {Config} from '../src/types';
+import * as dts from '../src/dts';
+import {PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX} from '../src/dts';
+import {getTransferConfigResponse} from './fixtures/transferConfigResonse';
 
 describe('dts', () => {
   describe('createTransferConfigRequest', () => {
