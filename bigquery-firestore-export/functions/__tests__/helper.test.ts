@@ -23,6 +23,9 @@ import {
 } from '@google-cloud/bigquery';
 import {TransferRunMessage, FirestoreRow} from '../src/types';
 
+// Mock logs to silence console output during tests
+jest.mock('../src/logs');
+
 process.env.FIRESTORE_EMULATOR_HOST = 'localhost:8080';
 
 // TODO: Why does this have to be array of array? Double check
@@ -343,6 +346,135 @@ describe('helpers', () => {
       /** Check results */
       expect(result.exists).toBeTruthy();
       expect(result.data().runMetadata.state).toEqual('FAILED');
+    });
+
+    test('updates latest document when state is FAILED', async () => {
+      /** Set variables **/
+      const collection = db.collection(config.firestoreCollection);
+      const transferConfigId = generateRandomString();
+      const runId = generateRandomString();
+      const name = `projects/409146382768/locations/us/transferConfigs/${transferConfigId}/runs/${runId}`;
+
+      /** Assign documents */
+      const document = collection.doc(transferConfigId);
+      const latestDoc = document.collection('runs').doc('latest');
+
+      /** Set Transfer config */
+      await document.set({extInstanceId: config.instanceId});
+
+      /** Create message with FAILED state */
+      const failedMsg = {
+        json: {
+          name,
+          runTime: '2023-03-23T21:03:00Z',
+          state: 'FAILED' as const,
+          destinationDatasetId: 'test',
+          dataSourceId: 'scheduled_query',
+          schedule: '',
+          scheduleTime: '',
+          startTime: '',
+          endTime: '',
+          updateTime: '',
+          userId: '',
+          notificationPubsubTopic: '',
+          params: {
+            destination_table_name_template: '',
+            partitioning_field: '',
+            query: '',
+            write_disposition: '',
+          },
+          emailPreferences: {},
+          errorStatus: {message: 'Query failed'},
+        },
+      } satisfies TransferRunMessage;
+
+      /** Run function */
+      await handleMessage(db, config, failedMsg);
+
+      /** Check that latest doc was updated with failed run info */
+      const latestResult = await latestDoc.get();
+      expect(latestResult.exists).toBeTruthy();
+      expect(latestResult.data()!.runMetadata.state).toEqual('FAILED');
+      expect(latestResult.data()!.latestRunId).toEqual(runId);
+    });
+
+    test('newer failed run updates latest even when previous run succeeded', async () => {
+      /** Set variables **/
+      const collection = db.collection(config.firestoreCollection);
+      const transferConfigId = generateRandomString();
+      const runId1 = generateRandomString();
+      const runId2 = generateRandomString();
+
+      /** Assign documents */
+      const document = collection.doc(transferConfigId);
+      const latestDoc = document.collection('runs').doc('latest');
+
+      /** Set Transfer config */
+      await document.set({extInstanceId: config.instanceId});
+
+      /** First: successful run */
+      const successMsg = message(transferConfigId, runId1);
+      successMsg.json.runTime = '2023-03-23T21:00:00Z';
+      await handleMessage(db, config, successMsg);
+
+      /** Second: failed run with LATER runTime */
+      const failedMsg = {
+        json: {
+          name: `projects/409146382768/locations/us/transferConfigs/${transferConfigId}/runs/${runId2}`,
+          runTime: '2023-03-23T22:00:00Z',
+          state: 'FAILED' as const,
+          destinationDatasetId: 'test',
+          dataSourceId: 'scheduled_query',
+          schedule: '',
+          scheduleTime: '',
+          startTime: '',
+          endTime: '',
+          updateTime: '',
+          userId: '',
+          notificationPubsubTopic: '',
+          params: {
+            destination_table_name_template: '',
+            partitioning_field: '',
+            query: '',
+            write_disposition: '',
+          },
+          emailPreferences: {},
+          errorStatus: {message: 'Query failed'},
+        },
+      } satisfies TransferRunMessage;
+
+      await handleMessage(db, config, failedMsg);
+
+      /** Latest should now show the failed run */
+      const latestResult = await latestDoc.get();
+      expect(latestResult.data()!.latestRunId).toEqual(runId2);
+      expect(latestResult.data()!.runMetadata.state).toEqual('FAILED');
+    });
+
+    test('updates latest when existing latest doc has missing runMetadata', async () => {
+      /** Set variables **/
+      const collection = db.collection(config.firestoreCollection);
+      const transferConfigId = generateRandomString();
+      const runId = generateRandomString();
+
+      /** Assign documents */
+      const document = collection.doc(transferConfigId);
+      const latestDoc = document.collection('runs').doc('latest');
+
+      /** Set Transfer config */
+      await document.set({extInstanceId: config.instanceId});
+
+      /** Create corrupted "latest" doc without runMetadata */
+      await latestDoc.set({someOtherField: 'corrupted'});
+
+      /** Run a successful message */
+      const msg = message(transferConfigId, runId);
+      await handleMessage(db, config, msg);
+
+      /** Latest should be updated despite corruption */
+      const latestResult = await latestDoc.get();
+      expect(latestResult.data()!.latestRunId).toEqual(runId);
+      expect(latestResult.data()!.runMetadata).toBeDefined();
     });
   });
 

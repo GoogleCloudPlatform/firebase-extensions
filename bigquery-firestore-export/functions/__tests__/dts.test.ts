@@ -3,6 +3,19 @@ import * as dts from '../src/dts';
 import {PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX} from '../src/dts';
 import {getTransferConfigResponse} from './fixtures/transferConfigResonse';
 
+// Mock logs to silence console output during tests
+jest.mock('../src/logs');
+
+// Mock firebase-functions logger to silence direct logger calls in dts.ts
+jest.mock('firebase-functions', () => ({
+  logger: {
+    log: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  },
+}));
+
 jest.mock('../src/config', () => {
   return {
     default: {

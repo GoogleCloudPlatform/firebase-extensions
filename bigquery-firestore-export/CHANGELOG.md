@@ -1,3 +1,9 @@
+## Version 0.1.7
+
+fix - "latest" document now updates for all run states (SUCCEEDED, FAILED, etc.), not just successful runs
+
+test - reorganize test structure and improve test coverage
+
 ## Version 0.1.6
 
 fix - handle empty partitioning values in reconfiguration correctly
