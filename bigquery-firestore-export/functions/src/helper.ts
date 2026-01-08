@@ -200,6 +200,9 @@ export const writeRunResultsToFirestore = async (
   const hourStr = String(runTime.getUTCHours()).padStart(2, '0');
   const minuteStr = String(runTime.getUTCMinutes()).padStart(2, '0');
   const secondStr = String(runTime.getUTCSeconds()).padStart(2, '0');
+  // TODO: Consider making table name template parsing more robust.
+  // Currently assumes exact format '{run_time|"%H%M%S"}'. If BigQuery
+  // changes the template format, this replacement may fail.
   const tableName = message.json.params.destination_table_name_template.replace(
     '{run_time|"%H%M%S"}',
     `${hourStr}${minuteStr}${secondStr}`

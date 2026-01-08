@@ -8,7 +8,17 @@ fix - allow same-runId updates to handle Pub/Sub redelivery edge cases
 
 fix - explicit zero counts (`failedRowCount: 0, totalRowCount: 0`) for failed/non-success runs for clearer API shape
 
-refactor - add logging for skipped latest updates and non-success run handling
+fix - add resource name validation with descriptive error messages for malformed transfer config/run names
+
+fix - add error handling for BigQuery query failures with proper logging
+
+fix - `getTransferConfig` now properly distinguishes between "not found" (returns null) and API errors (throws)
+
+fix - add null/undefined validation for transfer config structure before accessing nested properties
+
+fix - all error paths now set `PROCESSING_FAILED` state before throwing for better visibility
+
+refactor - add logging for skipped latest updates, non-success run handling, and query failures
 
 test - reorganize test structure and improve test coverage
 
