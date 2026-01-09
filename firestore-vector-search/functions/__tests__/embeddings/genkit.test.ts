@@ -2,18 +2,12 @@ jest.resetModules();
 
 // Mocking `@genkit-ai/google-genai`
 jest.mock('@genkit-ai/google-genai', () => ({
-  googleAI: Object.assign(
-    jest.fn(),
-    {
-      embedder: jest.fn(() => 'gemini-embedding-001'),
-    }
-  ),
-  vertexAI: Object.assign(
-    jest.fn(),
-    {
-      embedder: jest.fn(() => 'gemini-embedding-001'),
-    }
-  ),
+  googleAI: Object.assign(jest.fn(), {
+    embedder: jest.fn(() => 'gemini-embedding-001'),
+  }),
+  vertexAI: Object.assign(jest.fn(), {
+    embedder: jest.fn(() => 'gemini-embedding-001'),
+  }),
 }));
 
 jest.mock('../../src/config', () => ({
