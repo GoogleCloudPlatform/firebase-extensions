@@ -22,6 +22,8 @@ refactor - add logging for skipped latest updates, non-success run handling, and
 
 test - reorganize test structure and improve test coverage
 
+fix - bump dependencies to fix vulnerabilities
+
 ## Version 0.1.6
 
 fix - handle empty partitioning values in reconfiguration correctly
