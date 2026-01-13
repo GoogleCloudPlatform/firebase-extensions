@@ -1,4 +1,4 @@
-## Version 0.1.7
+## Version 0.2.0
 
 fix - "latest" document now updates for all run states (SUCCEEDED, FAILED, etc.), not just successful runs
 
