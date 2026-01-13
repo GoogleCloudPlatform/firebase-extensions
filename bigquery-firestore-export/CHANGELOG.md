@@ -24,6 +24,8 @@ test - reorganize test structure and improve test coverage
 
 fix - bump dependencies to fix vulnerabilities
 
+fix - improve processing status messages
+
 ## Version 0.1.6
 
 fix - handle empty partitioning values in reconfiguration correctly

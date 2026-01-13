@@ -63,7 +63,7 @@ export const upsertTransferConfig = functions.tasks
       if (!transferConfig) {
         await runtime.setProcessingState(
           'PROCESSING_COMPLETE',
-          'Transfer Config Name was provided, but the transfer config does not exist in BigQuery.'
+          'The specified scheduled query does not exist in BigQuery. Please verify the Transfer Config Name.'
         );
         return;
       }
@@ -77,7 +77,7 @@ export const upsertTransferConfig = functions.tasks
         });
       await runtime.setProcessingState(
         'PROCESSING_COMPLETE',
-        'Transfer Config Name was provided to the extension, and Transfer Config object was successfully written to Firestore.'
+        'Successfully linked to existing scheduled query and saved configuration to Firestore.'
       );
     } else {
       // See if we have a transfer config in Firestore associated with this extension
@@ -115,7 +115,7 @@ export const upsertTransferConfig = functions.tasks
           if (!updatedConfig) {
             await runtime.setProcessingState(
               'PROCESSING_COMPLETE',
-              'Transfer Config was updated, but the updated config could not be retrieved from BigQuery.'
+              'Scheduled query was updated, but could not retrieve the updated configuration from BigQuery.'
             );
             return;
           }
@@ -130,7 +130,7 @@ export const upsertTransferConfig = functions.tasks
 
           await runtime.setProcessingState(
             'PROCESSING_COMPLETE',
-            'Transfer Config Name was not provided to the extension, and an existing Transfer Config found. Transfer Config object was successfully updated in BQ and Firestore.'
+            'Successfully updated existing scheduled query in BigQuery and Firestore.'
           );
           return;
         } catch (error) {
@@ -176,7 +176,7 @@ export const upsertTransferConfig = functions.tasks
             });
           await runtime.setProcessingState(
             'PROCESSING_COMPLETE',
-            'Transfer Config Name was not provided to the extension, and no existing Transfer Config found. Transfer Config object was successfully created in BQ and Firestore.'
+            'Successfully created new scheduled query in BigQuery and saved configuration to Firestore.'
           );
         } catch (error) {
           await runtime.setProcessingState(
