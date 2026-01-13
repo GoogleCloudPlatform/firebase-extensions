@@ -1,5 +1,9 @@
 ## Version 0.1.0
 
+chore: bump dependencies
+
+## Version 0.1.0
+
 feat!: update embedding model from text-embedding-004 to gemini-embedding-001 for both Vertex AI and Gemini providers
 
 ## Version 0.0.9
