@@ -106,6 +106,8 @@ export const upsertTransferConfig = functions.tasks
         const {transferConfigId} = parseTransferConfigName(transferConfigName);
 
         try {
+          // Note: serviceAccountName cannot be updated on existing transfer configs,
+          // so we don't pass it here. It's only set at creation time.
           await dts.updateTransferConfig(transferConfigName);
 
           const updatedConfig = await dts.getTransferConfig(transferConfigName);
@@ -154,7 +156,12 @@ export const upsertTransferConfig = functions.tasks
         }
       } else {
         try {
-          const transferConfig = await dts.createTransferConfig();
+          // Construct extension service account email
+          // Format: ext-{instanceId}@{projectId}.iam.gserviceaccount.com
+          const serviceAccountEmail = `ext-${config.instanceId}@${config.projectId}.iam.gserviceaccount.com`;
+
+          const transferConfig =
+            await dts.createTransferConfig(serviceAccountEmail);
           // createTransferConfig guarantees name exists (throws if null)
           const {transferConfigId} = parseTransferConfigName(
             transferConfig.name!

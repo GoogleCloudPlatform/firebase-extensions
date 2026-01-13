@@ -375,22 +375,22 @@ describe('dts', () => {
       expect(mockUpdateTransferConfig).toHaveBeenCalled();
     });
 
-    test('returns null when transfer config not found', async () => {
-      const result = await dts.updateTransferConfig(
-        'projects/test/locations/us/transferConfigs/wrong-id'
-      );
-
-      expect(result).toBeNull();
+    test('throws error when transfer config not found', async () => {
+      await expect(
+        dts.updateTransferConfig(
+          'projects/test/locations/us/transferConfigs/wrong-id'
+        )
+      ).rejects.toThrow('Transfer config not found');
     });
 
-    test('returns null when API throws error', async () => {
+    test('throws error when API throws error', async () => {
       mockUpdateTransferConfig.mockImplementationOnce(() => {
         throw new Error('Update API Error');
       });
 
-      const result = await dts.updateTransferConfig(baseResponse.name);
-
-      expect(result).toBeNull();
+      await expect(dts.updateTransferConfig(baseResponse.name)).rejects.toThrow(
+        'Update API Error'
+      );
     });
   });
 });
