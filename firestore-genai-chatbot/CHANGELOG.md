@@ -1,3 +1,7 @@
+## Version 0.0.18
+
+chore: update and audit packages
+
 ## Version 0.0.17
 
 - feat: Add support for Gemini 3 Pro Preview
