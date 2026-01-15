@@ -1,3 +1,7 @@
+## Version 0.1.11
+
+chore: update and audit packages
+
 ## Version 0.1.10
 
 chore: Update Vertex Matching Engine to Vector Search
