@@ -23,6 +23,7 @@ DOCUMENT: {
   totalRowCount: 779,
   failedRowCount: 0,
   latestRunId: 648762e0-0000-28ef-9109-001a11446b2a
+}
 ```
 
 Underneath the covers, schedules are managed by BigQuery Transfer Configs using the [Data Transfer Service](https://cloud.google.com/bigquery/docs/scheduling-queries). Once a scheduled BigQuery query completes, the extension will export the results back to a configurable Firestore collection. To facilitate the export, the extension creates a Pub/Sub trigger to capture notification events for BigQuery scheduled query (transfer run) completions and subsequently conduct a BigQuery to Firestore data export job using a Cloud Function.

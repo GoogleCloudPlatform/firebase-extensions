@@ -22,7 +22,7 @@ const transferConfigId = splitName[splitName.length-3];
 
 This can either be done once and hardcoded in the client application, or dynamically queried at runtime on page-load.
 
-The "latest" document for a Transfer Config will be updated every time a transfer run completes (regardless of success or failure). Once the client application knows the transfer config ID, it can use a listener to subscribe to the "latest" document updates.
+The "latest" document for a Transfer Config will be updated every time a transfer run completes (regardless of success or failure). Once the client application knows the transfer config ID, it can use a listener to subscribe to the “latest” document updates.
 
 ```javascript
 const latestRunId = null;
