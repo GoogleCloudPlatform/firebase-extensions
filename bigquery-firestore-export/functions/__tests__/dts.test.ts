@@ -1,7 +1,14 @@
-import {Config} from '../src/types';
-import * as dts from '../src/dts';
-import {PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX} from '../src/dts';
-import {getTransferConfigResponse} from './fixtures/transferConfigResonse';
+// Mock declarations must come before imports for reliable hoisting
+jest.mock('../src/logs');
+
+jest.mock('firebase-functions', () => ({
+  logger: {
+    log: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  },
+}));
 
 jest.mock('../src/config', () => {
   return {
@@ -37,7 +44,14 @@ jest.mock('@google-cloud/bigquery-data-transfer', () => {
               if (request.name.includes('wrong-id')) {
                 return [null]; // Simulate returning null for wrong IDs
               }
+              if (request.name.includes('not-found')) {
+                // Simulate gRPC NOT_FOUND error (code 5)
+                const error = new Error('Transfer config not found');
+                (error as Error & {code: number}).code = 5;
+                throw error;
+              }
               if (request.name.includes('api-error')) {
+                // Simulate a generic API error (should be re-thrown)
                 throw new Error('API Error');
               }
               return getTransferConfigResponse;
@@ -81,6 +95,12 @@ jest.mock('@google-cloud/bigquery-data-transfer', () => {
     },
   };
 });
+
+// Imports after mocks for reliable module resolution
+import {Config} from '../src/types';
+import * as dts from '../src/dts';
+import {PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX} from '../src/dts';
+import {getTransferConfigResponse} from './fixtures/transferConfigResonse';
 
 describe('dts', () => {
   describe('createTransferConfigRequest', () => {
@@ -308,12 +328,20 @@ describe('dts', () => {
       });
     });
 
-    test('returns null when API throws error', async () => {
+    test('returns null when config not found (gRPC NOT_FOUND)', async () => {
       const result = await dts.getTransferConfig(
-        'projects/test/locations/us/transferConfigs/api-error'
+        'projects/test/locations/us/transferConfigs/not-found'
       );
 
       expect(result).toBeNull();
+    });
+
+    test('throws error for non-NOT_FOUND API errors', async () => {
+      await expect(
+        dts.getTransferConfig(
+          'projects/test/locations/us/transferConfigs/api-error'
+        )
+      ).rejects.toThrow('API Error');
     });
   });
 
@@ -347,22 +375,22 @@ describe('dts', () => {
       expect(mockUpdateTransferConfig).toHaveBeenCalled();
     });
 
-    test('returns null when transfer config not found', async () => {
-      const result = await dts.updateTransferConfig(
-        'projects/test/locations/us/transferConfigs/wrong-id'
-      );
-
-      expect(result).toBeNull();
+    test('throws error when transfer config not found', async () => {
+      await expect(
+        dts.updateTransferConfig(
+          'projects/test/locations/us/transferConfigs/wrong-id'
+        )
+      ).rejects.toThrow('Transfer config not found');
     });
 
-    test('returns null when API throws error', async () => {
+    test('throws error when API throws error', async () => {
       mockUpdateTransferConfig.mockImplementationOnce(() => {
         throw new Error('Update API Error');
       });
 
-      const result = await dts.updateTransferConfig(baseResponse.name);
-
-      expect(result).toBeNull();
+      await expect(dts.updateTransferConfig(baseResponse.name)).rejects.toThrow(
+        'Update API Error'
+      );
     });
   });
 });

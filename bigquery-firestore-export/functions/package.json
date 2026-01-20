@@ -30,7 +30,6 @@
     "firebase-admin": "^13.2.0",
     "firebase-functions": "^6.3.2",
     "lodash.mapvalues": "^4.6.0",
-    "npm": "^9.6.2",
     "rimraf": "^2.6.3",
     "typescript": "^5.8.2"
   },
