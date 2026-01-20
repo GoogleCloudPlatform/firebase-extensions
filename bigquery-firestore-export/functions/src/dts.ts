@@ -99,7 +99,10 @@ export const getTransferConfig = async (transferConfigName: string) => {
   }
 };
 
-export const createTransferConfigRequest = (config: Config) => {
+export const createTransferConfigRequest = (
+  config: Config,
+  serviceAccountEmail?: string
+) => {
   const params = {
     query: config.queryString,
     destination_table_name_template: `${config.tableName}_{run_time|"%H%M%S"}`,
@@ -133,6 +136,7 @@ export const createTransferConfigRequest = (config: Config) => {
       params: {fields: transferConfigParams},
       schedule: config.schedule,
       notificationPubsubTopic: `projects/${config.projectId}/topics/${config.pubSubTopic}`,
+      ...(serviceAccountEmail && {serviceAccountName: serviceAccountEmail}),
     };
 
   // Instantiates a client
@@ -143,21 +147,28 @@ export const createTransferConfigRequest = (config: Config) => {
   return request;
 };
 
-export const createTransferConfig = async () => {
+export const createTransferConfig = async (serviceAccountEmail?: string) => {
   const datatransferClient =
     new bigqueryDataTransfer.v1.DataTransferServiceClient({
       projectId: config.projectId,
     });
-  const request = createTransferConfigRequest(config);
-  // Run request
+  const request = createTransferConfigRequest(config, serviceAccountEmail);
 
-  // TODO: Should we be converting it?
-  //const converted = bigqueryDataTransfer.protos.google.cloud.bigquery.datatransfer.v1.TransferConfig.fromObject(transferConfig);
+  // TODO: Should we be converting like updateTransferConfig does?
+  // const converted = bigqueryDataTransfer.protos.google.cloud.bigquery.datatransfer.v1.CreateTransferConfigRequest.fromObject(request);
+
   logs.createTransferConfig();
   const response = await datatransferClient.createTransferConfig(request);
-  //TODO - what if name is null or undefined?
-  logs.transferConfigCreated(response[0].name!);
-  return response[0];
+  const createdConfig = response[0];
+
+  if (!createdConfig.name) {
+    throw new Error(
+      'BigQuery API returned transfer config without a name - this is unexpected'
+    );
+  }
+
+  logs.transferConfigCreated(createdConfig.name);
+  return createdConfig;
 };
 
 export const constructUpdateTransferConfigRequest = async (
@@ -226,6 +237,9 @@ export const constructUpdateTransferConfigRequest = async (
     updatedConfig.schedule = config.schedule;
   }
 
+  // Note: serviceAccountName cannot be updated on existing transfer configs
+  // It can only be set at creation time
+
   const request = {
     transferConfig: updatedConfig,
     updateMask: {paths: updateMask},
@@ -264,7 +278,8 @@ export const updateTransferConfig = async (transferConfigName: string) => {
     ) {
       throw e;
     }
+    // For all other errors, log and re-throw so callers can handle appropriately
     functions.logger.error(`Error updating transfer config: ${e}`);
-    return null;
+    throw e;
   }
 };
