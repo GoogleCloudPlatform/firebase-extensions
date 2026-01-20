@@ -28,6 +28,76 @@ import {
 } from '@google-cloud/bigquery';
 import config from './config';
 
+/** Parsed components from a transfer run resource name */
+export interface ParsedTransferRunName {
+  projectId: string;
+  location: string;
+  transferConfigId: string;
+  runId: string;
+}
+
+/** Parsed components from a transfer config resource name */
+export interface ParsedTransferConfigName {
+  projectId: string;
+  location: string;
+  transferConfigId: string;
+}
+
+// Regex for transfer run name: projects/{projectId}/locations/{location}/transferConfigs/{configId}/runs/{runId}
+const TRANSFER_RUN_NAME_REGEX =
+  /^projects\/([^/]+)\/locations\/([^/]+)\/transferConfigs\/([^/]+)\/runs\/([^/]+)$/;
+
+// Regex for transfer config name: projects/{projectId}/locations/{location}/transferConfigs/{configId}
+const TRANSFER_CONFIG_NAME_REGEX =
+  /^projects\/([^/]+)\/locations\/([^/]+)\/transferConfigs\/([^/]+)$/;
+
+/**
+ * Parses a transfer run resource name and extracts its components.
+ * @param name The full resource name (e.g., projects/123/locations/us/transferConfigs/abc/runs/xyz)
+ * @returns Parsed components
+ * @throws Error if the name format is invalid
+ */
+export function parseTransferRunName(name: string): ParsedTransferRunName {
+  const match = name.match(TRANSFER_RUN_NAME_REGEX);
+  if (!match) {
+    const error = new Error(
+      `Invalid transfer run name format: "${name}". Expected format: projects/{projectId}/locations/{location}/transferConfigs/{configId}/runs/{runId}`
+    );
+    logs.invalidResourceName(name, 'transfer run');
+    throw error;
+  }
+  return {
+    projectId: match[1],
+    location: match[2],
+    transferConfigId: match[3],
+    runId: match[4],
+  };
+}
+
+/**
+ * Parses a transfer config resource name and extracts its components.
+ * @param name The full resource name (e.g., projects/123/locations/us/transferConfigs/abc)
+ * @returns Parsed components
+ * @throws Error if the name format is invalid
+ */
+export function parseTransferConfigName(
+  name: string
+): ParsedTransferConfigName {
+  const match = name.match(TRANSFER_CONFIG_NAME_REGEX);
+  if (!match) {
+    const error = new Error(
+      `Invalid transfer config name format: "${name}". Expected format: projects/{projectId}/locations/{location}/transferConfigs/{configId}`
+    );
+    logs.invalidResourceName(name, 'transfer config');
+    throw error;
+  }
+  return {
+    projectId: match[1],
+    location: match[2],
+    transferConfigId: match[3],
+  };
+}
+
 export const getBigqueryResults = async (
   projectId: string,
   transferConfigId: string,
