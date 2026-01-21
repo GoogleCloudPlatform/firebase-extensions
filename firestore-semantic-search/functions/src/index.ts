@@ -109,4 +109,6 @@ export const datapointWriteTask = functions.tasks
 /**
  * Call the Matching Engine Index to query for similar documents.
  */
-export const queryIndex = functions.https.onCall(queryIndexHandler);
+export const queryIndex = functions
+  .runWith({enforceAppCheck: config.enforceAppCheck})
+  .https.onCall(queryIndexHandler);

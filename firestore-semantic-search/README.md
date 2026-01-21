@@ -108,6 +108,8 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations).
 
+* Enforce App Check: Enforce App Check for the extension's functions.
+
 
 
 **Cloud Functions:**
