@@ -85,6 +85,8 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Firestore Collection: What's the top-level Firestore Collection to store transfer configs, run metadata, and query output?
 
+* Log Level: What's the log level you'd like to use for this extension?
+
 
 
 **Cloud Functions:**
