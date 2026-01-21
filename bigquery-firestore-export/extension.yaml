@@ -290,6 +290,25 @@ params:
     default: transferConfigs
     required: true
 
+  - param: LOG_LEVEL
+    label: Log Level
+    description: >-
+      What's the log level you'd like to use for this extension?
+    type: select
+    options:
+      - label: DEBUG
+        value: debug
+      - label: INFO
+        value: info
+      - label: WARN
+        value: warn
+      - label: ERROR
+        value: error
+      - label: SILENT
+        value: silent
+    default: INFO
+    required: false
+
 lifecycleEvents:
   onInstall:
     function: upsertTransferConfig

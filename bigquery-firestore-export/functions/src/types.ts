@@ -6,6 +6,7 @@ import {
   BigQueryTime,
   Geography,
 } from '@google-cloud/bigquery';
+import {LogLevel} from '@invertase/firebase-extension-utilities/lib/logger/logger';
 
 export interface Config {
   location: string;
@@ -21,6 +22,7 @@ export interface Config {
   pubSubTopic: string;
   firestoreCollection: string;
   displayName?: string;
+  logLevel: LogLevel;
 }
 
 /**
