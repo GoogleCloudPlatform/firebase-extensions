@@ -88,7 +88,6 @@ export function parseTransferConfigName(
     const error = new Error(
       `Invalid transfer config name format: "${name}". Expected format: projects/{projectId}/locations/{location}/transferConfigs/{configId}`
     );
-    logs.invalidResourceName(name, 'transfer config');
     throw error;
   }
   return {
