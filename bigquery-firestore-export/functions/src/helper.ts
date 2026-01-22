@@ -63,7 +63,6 @@ export function parseTransferRunName(name: string): ParsedTransferRunName {
     const error = new Error(
       `Invalid transfer run name format: "${name}". Expected format: projects/{projectId}/locations/{location}/transferConfigs/{configId}/runs/{runId}`
     );
-    logs.invalidResourceName(name, 'transfer run');
     throw error;
   }
   return {
