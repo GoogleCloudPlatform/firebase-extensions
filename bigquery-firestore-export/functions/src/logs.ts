@@ -147,7 +147,7 @@ export function bigqueryQueryFailed(
   tableName: string,
   error: Error
 ) {
-  logger.error(
+  logger.debug(
     `BigQuery query failed for transfer config '${transferConfigId}', run '${runId}', table '${tableName}': ${error.message}\n${error.stack}`
   );
 }
@@ -160,7 +160,7 @@ export function getTransferConfigFailed(
   transferConfigName: string,
   error: Error
 ) {
-  logger.error(
+  logger.debug(
     `Failed to get transfer config '${transferConfigName}': ${error.message}\n${error.stack}`
   );
 }
