@@ -51,3 +51,7 @@ const results = await q.get();
 The extension does not delete the BigQuery Transfer Config (scheduled query) automatically when you uninstall the extension.
 
 BigQuery charges by data processed, so your project will continue to incur costs until you manually delete the scheduled query. You can manage your scheduled queries directly in [Cloud Console](https://console.cloud.google.com/bigquery/scheduled-queries).
+
+## Upgrading from a Previous Version
+
+If you're upgrading from version 0.1.x, please review the [Migration Guide](MIGRATION_GUIDE.md) for important changes to how run results are recorded.
