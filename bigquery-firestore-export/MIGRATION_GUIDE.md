@@ -48,7 +48,19 @@ A `LOG_LEVEL` parameter has been added.
 - If you require more granular data for troubleshooting, you may switch this to `DEBUG` in the Firebase Console.
 - Available options: `DEBUG`, `INFO`, `WARN`, `ERROR`, `SILENT`
 
-## 4. Verification
+## 4. Automated Pub/Sub Topic Management
+
+Version 0.2.0 removes the `PUB_SUB_TOPIC` configuration parameter.
+
+**What Changed:**
+- The extension now automatically creates and manages its Pub/Sub topic using the naming convention: `ext-{INSTANCE_ID}-processMessages`
+- During upgrade, your BigQuery Transfer Configs are automatically reconfigured to use the new topic
+
+**Action Required:**
+- **None for the upgrade itself** — the transition is handled automatically
+- **Optional cleanup**: After verifying that new transfer runs work correctly, you may delete your old Pub/Sub topic from the Google Cloud Console to avoid orphaned resources
+
+## 5. Verification
 
 After upgrading, trigger a manual run of your BigQuery Transfer Config to verify the migration:
 
