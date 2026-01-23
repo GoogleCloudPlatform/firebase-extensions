@@ -1,5 +1,7 @@
 ## Version 0.2.0
 
+See [Migration Guide](MIGRATION_GUIDE.md) for upgrading from 0.1.x.
+
 fix - "latest" document now updates for all run states (SUCCEEDED, FAILED, etc.), not just successful runs
 
 fix - use Firestore transaction in `updateLatestRunDocument` to prevent race conditions from concurrent Pub/Sub messages
