@@ -51,25 +51,25 @@ export function bigqueryJobStarted(jobId: string) {
 }
 
 export function createTransferConfig() {
-  logger.log('Creating a new transfer config.');
+  logger.debug('Creating a new transfer config.');
 }
 
 export function transferConfigCreated(transferConfigName: string) {
-  logger.log(
+  logger.debug(
     `Successfully created a new transfer config with name '${transferConfigName}'.`
   );
 }
 
 export function updateTransferConfig(transferConfigName: string) {
-  logger.log(`Updating transfer config '${transferConfigName}'.`);
+  logger.debug(`Updating transfer config '${transferConfigName}'.`);
 }
 
 export function transferConfigUpdated(transferConfigName: string) {
-  logger.log(`Successfully updated transfer config '${transferConfigName}'.`);
+  logger.debug(`Successfully updated transfer config '${transferConfigName}'.`);
 }
 
 export function writeRunResultsToFirestore(runId: string) {
-  logger.log(`Writing query output from run '${runId}' to Firestore.`);
+  logger.debug(`Writing query output from run '${runId}' to Firestore.`);
 }
 
 export function runResultsWrittenToFirestore(
@@ -77,7 +77,7 @@ export function runResultsWrittenToFirestore(
   successCount: Number,
   totalCount: Number
 ) {
-  logger.log(
+  logger.debug(
     `Finished writing query output from run '${runId}' to Firestore. ${successCount}/${totalCount} rows written successfully.`
   );
 }
@@ -87,13 +87,13 @@ export function bigqueryResultsRowCount(
   runId: string,
   count: Number
 ) {
-  logger.log(
+  logger.debug(
     `Destination table for transfer config '${transferConfigId}' and transfer run '${runId}' contained rows ${count}.`
   );
 }
 
 export function pubsubMessage(message: pubsub.Message) {
-  logger.log(
+  logger.debug(
     `Transfer run complete. Handling pubsub message: ${JSON.stringify(
       message,
       null,
@@ -103,7 +103,7 @@ export function pubsubMessage(message: pubsub.Message) {
 }
 
 export function pubsubMessageHandled(message: pubsub.Message) {
-  logger.log(
+  logger.debug(
     `Pubsub message successfully handled: ${JSON.stringify(message, null, 2)}`
   );
 }
@@ -114,5 +114,53 @@ export function partitioningFieldRemovalAttempted(
 ) {
   logger.warn(
     `Attempted to remove partitioning_field '${existingField}' from transfer config '${transferConfigName}'. This operation is not supported by the BigQuery Data Transfer API.`
+  );
+}
+
+export function latestDocUpdateSkipped(
+  transferConfigId: string,
+  runId: string,
+  reason: string
+) {
+  logger.debug(
+    `Skipped updating 'latest' doc for transfer config '${transferConfigId}', run '${runId}': ${reason}`
+  );
+}
+
+export function handlingNonSuccessRun(
+  transferConfigId: string,
+  runId: string,
+  state: string
+) {
+  logger.debug(
+    `Handling non-success run for transfer config '${transferConfigId}', run '${runId}' with state '${state}'.`
+  );
+}
+
+export function invalidResourceName(name: string, resourceType: string) {
+  logger.error(`Invalid ${resourceType} resource name format: "${name}"`);
+}
+
+export function bigqueryQueryFailed(
+  transferConfigId: string,
+  runId: string,
+  tableName: string,
+  error: Error
+) {
+  logger.debug(
+    `BigQuery query failed for transfer config '${transferConfigId}', run '${runId}', table '${tableName}': ${error.message}\n${error.stack}`
+  );
+}
+
+export function transferConfigNotFound(transferConfigName: string) {
+  logger.error(`Transfer config not found: '${transferConfigName}'`);
+}
+
+export function getTransferConfigFailed(
+  transferConfigName: string,
+  error: Error
+) {
+  logger.debug(
+    `Failed to get transfer config '${transferConfigName}': ${error.message}\n${error.stack}`
   );
 }

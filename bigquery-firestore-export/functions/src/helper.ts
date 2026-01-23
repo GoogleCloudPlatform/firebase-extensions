@@ -28,6 +28,133 @@ import {
 } from '@google-cloud/bigquery';
 import config from './config';
 
+/** Parsed components from a transfer run resource name */
+export interface ParsedTransferRunName {
+  projectId: string;
+  location: string;
+  transferConfigId: string;
+  runId: string;
+}
+
+/** Parsed components from a transfer config resource name */
+export interface ParsedTransferConfigName {
+  projectId: string;
+  location: string;
+  transferConfigId: string;
+}
+
+// Regex for transfer run name: projects/{projectId}/locations/{location}/transferConfigs/{configId}/runs/{runId}
+const TRANSFER_RUN_NAME_REGEX =
+  /^projects\/([^/]+)\/locations\/([^/]+)\/transferConfigs\/([^/]+)\/runs\/([^/]+)$/;
+
+// Regex for transfer config name: projects/{projectId}/locations/{location}/transferConfigs/{configId}
+const TRANSFER_CONFIG_NAME_REGEX =
+  /^projects\/([^/]+)\/locations\/([^/]+)\/transferConfigs\/([^/]+)$/;
+
+/**
+ * Parses a transfer run resource name and extracts its components.
+ * @param name The full resource name (e.g., projects/123/locations/us/transferConfigs/abc/runs/xyz)
+ * @returns Parsed components
+ * @throws Error if the name format is invalid
+ */
+export function parseTransferRunName(name: string): ParsedTransferRunName {
+  const match = name.match(TRANSFER_RUN_NAME_REGEX);
+  if (!match) {
+    const error = new Error(
+      `Invalid transfer run name format: "${name}". Expected format: projects/{projectId}/locations/{location}/transferConfigs/{configId}/runs/{runId}`
+    );
+    throw error;
+  }
+  return {
+    projectId: match[1],
+    location: match[2],
+    transferConfigId: match[3],
+    runId: match[4],
+  };
+}
+
+/**
+ * Parses a transfer config resource name and extracts its components.
+ * @param name The full resource name (e.g., projects/123/locations/us/transferConfigs/abc)
+ * @returns Parsed components
+ * @throws Error if the name format is invalid
+ */
+export function parseTransferConfigName(
+  name: string
+): ParsedTransferConfigName {
+  const match = name.match(TRANSFER_CONFIG_NAME_REGEX);
+  if (!match) {
+    const error = new Error(
+      `Invalid transfer config name format: "${name}". Expected format: projects/{projectId}/locations/{location}/transferConfigs/{configId}`
+    );
+    throw error;
+  }
+  return {
+    projectId: match[1],
+    location: match[2],
+    transferConfigId: match[3],
+  };
+}
+
+/**
+ * Updates the "latest" run document in Firestore for a transfer config.
+ * Uses a transaction to prevent race conditions from concurrent Pub/Sub messages.
+ * Updates if: no doc exists, doc is corrupted/incomplete, current run is newer,
+ * or same run is being refreshed (handles Pub/Sub redelivery).
+ * @param db Firestore database instance
+ * @param transferConfigId The transfer config ID
+ * @param runId The run ID
+ * @param message The transfer run message
+ * @param rowCounts Row counts - explicit zeros for failed runs, actual counts for success
+ */
+export const updateLatestRunDocument = async (
+  db: admin.firestore.Firestore,
+  transferConfigId: string,
+  runId: string,
+  message: TransferRunMessage,
+  rowCounts: {failedRowCount: number; totalRowCount: number}
+) => {
+  const latestRef = db
+    .collection(`${config.firestoreCollection}/${transferConfigId}/runs`)
+    .doc('latest');
+
+  const runTime = new Date(message.json.runTime);
+
+  const docUpdate = {
+    runMetadata: message.json,
+    latestRunId: runId,
+    ...rowCounts,
+  };
+
+  await db.runTransaction(async transaction => {
+    const latest = await transaction.get(latestRef);
+    const latestData = latest.data();
+    const existingRunTime = latestData?.runMetadata?.runTime;
+    const existingRunId = latestData?.latestRunId;
+
+    // Update if:
+    // 1. No doc exists
+    // 2. Doc is corrupted/incomplete (missing runTime)
+    // 3. Current run is newer
+    // 4. Same run is being refreshed (handles Pub/Sub redelivery with updated data)
+    const shouldUpdate =
+      !latestData ||
+      !existingRunTime ||
+      new Date(existingRunTime) < runTime ||
+      existingRunId === runId;
+
+    if (shouldUpdate) {
+      transaction.set(latestRef, docUpdate);
+    } else {
+      logs.latestDocUpdateSkipped(
+        transferConfigId,
+        runId,
+        `existing run is newer (${existingRunTime} >= ${message.json.runTime})`
+      );
+    }
+  });
+};
+
 export const getBigqueryResults = async (
   projectId: string,
   transferConfigId: string,
@@ -35,7 +162,6 @@ export const getBigqueryResults = async (
   datasetId: string,
   tableName: string
 ) => {
-  // Run select * query from tableName
   const query = `SELECT * FROM \`${projectId}.${datasetId}.${tableName}\``;
   const bigquery = new BigQuery();
   const options = {
@@ -43,16 +169,23 @@ export const getBigqueryResults = async (
     // Location must match that of the dataset(s) referenced in the query.
     location: config.bigqueryDatasetLocation,
   };
-  // Run the query as a job
 
-  const [job] = await bigquery.createQueryJob(options);
+  try {
+    const [job] = await bigquery.createQueryJob(options);
+    logs.bigqueryJobStarted(job.id);
 
-  logs.bigqueryJobStarted(job.id);
-
-  // Wait for the query to finish
-  const [rows] = await job.getQueryResults();
-  logs.bigqueryResultsRowCount(transferConfigId, runId, rows.length);
-  return rows;
+    const [rows] = await job.getQueryResults();
+    logs.bigqueryResultsRowCount(transferConfigId, runId, rows.length);
+    return rows;
+  } catch (error) {
+    logs.bigqueryQueryFailed(
+      transferConfigId,
+      runId,
+      tableName,
+      error instanceof Error ? error : new Error(String(error))
+    );
+    throw error;
+  }
 };
 
 // Runs a SELECT * query on target tableName and writes results to corresponding firestore collection
@@ -60,14 +193,14 @@ export const writeRunResultsToFirestore = async (
   db: admin.firestore.Firestore,
   message: TransferRunMessage
 ) => {
-  const name = message.json.name;
-  const splitName = name.split('/');
-  const transferConfigId = splitName[splitName.length - 3];
-  const runId = splitName[splitName.length - 1];
+  const {transferConfigId, runId} = parseTransferRunName(message.json.name);
   const runTime = new Date(message.json.runTime);
   const hourStr = String(runTime.getUTCHours()).padStart(2, '0');
   const minuteStr = String(runTime.getUTCMinutes()).padStart(2, '0');
   const secondStr = String(runTime.getUTCSeconds()).padStart(2, '0');
+  // TODO: Consider making table name template parsing more robust.
+  // Currently assumes exact format '{run_time|"%H%M%S"}'. If BigQuery
+  // changes the template format, this replacement may fail.
   const tableName = message.json.params.destination_table_name_template.replace(
     '{run_time|"%H%M%S"}',
     `${hourStr}${minuteStr}${secondStr}`
@@ -117,45 +250,26 @@ export const writeRunResultsToFirestore = async (
   const failedRowCount = rowLength - succeededRowCount;
   logs.runResultsWrittenToFirestore(runId, succeededRowCount, rows.length);
 
-  // @TODO: Update run docs in a single transaction
+  const rowCounts = {failedRowCount, totalRowCount: rows.length};
 
-  // Update the run document in Firestore with metadata about the transfer run and number of sucecssful writes.
+  // Update the run document in Firestore with metadata about the transfer run and number of successful writes.
   await db
     .collection(`${config.firestoreCollection}/${transferConfigId}/runs`)
     .doc(runId)
     .set({
       runMetadata: message.json,
-      failedRowCount,
-      totalRowCount: rows.length,
+      ...rowCounts,
     });
 
-  // Update the latest run document in Firestore for this transfer config as well.
-  const latest = await db
-    .collection(`${config.firestoreCollection}/${transferConfigId}/runs`)
-    .doc('latest')
-    .get();
-
-  const docUpdate = {
-    runMetadata: message.json,
-    latestRunId: runId,
-    failedRowCount,
-    totalRowCount: rows.length,
-  };
-  if (!latest.data()) {
-    await db
-      .collection(`${config.firestoreCollection}/${transferConfigId}/runs`)
-      .doc('latest')
-      .set(docUpdate);
-  } else if (
-    !!latest.data().runMetadata &&
-    !!latest.data().runMetadata.runTime &&
-    new Date(latest.data().runMetadata.runTime) < runTime
-  ) {
-    await db
-      .collection(`${config.firestoreCollection}/${transferConfigId}/runs`)
-      .doc('latest')
-      .set(docUpdate);
-  }
+  // Update the latest run document in Firestore for this transfer config.
+  // Uses transaction internally to prevent race conditions.
+  await updateLatestRunDocument(
+    db,
+    transferConfigId,
+    runId,
+    message,
+    rowCounts
+  );
 };
 
 export const transferConfigAssociatedWithExtension = async (
@@ -175,9 +289,7 @@ export const handleMessage = async (
   config: Config,
   message: TransferRunMessage
 ) => {
-  const name = message.json.name;
-  const splitName = name.split('/');
-  const transferConfigId = splitName[splitName.length - 3];
+  const {transferConfigId, runId} = parseTransferRunName(message.json.name);
 
   const hasValidConfig = await transferConfigAssociatedWithExtension(
     db,
@@ -191,17 +303,32 @@ export const handleMessage = async (
     logs.error(error);
     throw error;
   }
-
-  const runId = splitName[splitName.length - 1];
   if (message.json.state === 'SUCCEEDED') {
     await writeRunResultsToFirestore(db, message);
   } else {
+    // Log handling of non-success state
+    logs.handlingNonSuccessRun(transferConfigId, runId, message.json.state);
+
+    // Explicit zero counts for non-success runs (clearer API shape than omitting)
+    const rowCounts = {failedRowCount: 0, totalRowCount: 0};
+
+    // Write run document for non-success states
     await db
       .collection(`${config.firestoreCollection}/${transferConfigId}/runs`)
       .doc(runId)
       .set({
         runMetadata: message.json,
+        ...rowCounts,
       });
+
+    // Also update "latest" for failed/pending runs so users can see current state
+    await updateLatestRunDocument(
+      db,
+      transferConfigId,
+      runId,
+      message,
+      rowCounts
+    );
   }
 };
 

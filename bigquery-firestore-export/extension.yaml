@@ -13,7 +13,7 @@
 # limitations under the License.
 
 name: bigquery-firestore-export
-version: 0.1.6
+version: 0.2.0
 specVersion: v1beta
 
 displayName: Export BigQuery to Firestore
@@ -268,16 +268,6 @@ params:
     example: every 15 minutes
     required: true
 
-  - param: PUB_SUB_TOPIC
-    label: Pub Sub Topic
-    description: >-
-      What's the Pub Sub topic to write messages to when the scheduled query
-      finishes executing?
-    type: string
-    example: test
-    required: true
-    immutable: true
-
   - param: COLLECTION_PATH
     label: Firestore Collection
     description: >-
@@ -289,6 +279,25 @@ params:
     example: transferConfigs
     default: transferConfigs
     required: true
+
+  - param: LOG_LEVEL
+    label: Log Level
+    description: >-
+      What's the log level you'd like to use for this extension?
+    type: select
+    options:
+      - label: DEBUG
+        value: debug
+      - label: INFO
+        value: info
+      - label: WARN
+        value: warn
+      - label: ERROR
+        value: error
+      - label: SILENT
+        value: silent
+    default: INFO
+    required: false
 
 lifecycleEvents:
   onInstall:

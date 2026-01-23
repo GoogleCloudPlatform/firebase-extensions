@@ -21,9 +21,9 @@ import {getExtensions} from 'firebase-admin/extensions';
 import * as logs from './logs';
 import config from './config';
 import * as helper from './helper';
+import {parseTransferConfigName} from './helper';
 import * as dts from './dts';
 import {PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX} from './dts';
-import {TransferRunMessage} from './types';
 
 logs.init();
 
@@ -40,20 +40,30 @@ export const upsertTransferConfig = functions.tasks
     const runtime = getExtensions().runtime();
 
     if (config.transferConfigName) {
-      const nameSplit = config.transferConfigName.split('/');
-      const transferConfigId = nameSplit[nameSplit.length - 1];
+      const {transferConfigId} = parseTransferConfigName(
+        config.transferConfigName
+      );
 
       // Ensure the latest transfer config object is stored in Firestore.
       // If Firestore already contains an extension instance matching this config ID, the extension
       // will overwrite the existing config with the latest config from the API
-      const transferConfig = await dts.getTransferConfig(
-        config.transferConfigName
-      );
+      let transferConfig;
+      try {
+        transferConfig = await dts.getTransferConfig(config.transferConfigName);
+      } catch (error) {
+        await runtime.setProcessingState(
+          'PROCESSING_FAILED',
+          `Failed to retrieve transfer config from BigQuery: ${
+            error instanceof Error ? error.message : String(error)
+          }`
+        );
+        throw error;
+      }
 
       if (!transferConfig) {
         await runtime.setProcessingState(
           'PROCESSING_COMPLETE',
-          'Transfer Config Name was provided, but the transfer config could not be retrieved from BigQuery.'
+          'The specified scheduled query does not exist in BigQuery. Please verify the Transfer Config Name.'
         );
         return;
       }
@@ -67,7 +77,7 @@ export const upsertTransferConfig = functions.tasks
         });
       await runtime.setProcessingState(
         'PROCESSING_COMPLETE',
-        'Transfer Config Name was provided to the extension, and Transfer Config object was successfully written to Firestore.'
+        'Successfully linked to existing scheduled query and saved configuration to Firestore.'
       );
     } else {
       // See if we have a transfer config in Firestore associated with this extension
@@ -83,45 +93,45 @@ export const upsertTransferConfig = functions.tasks
       // TODO: Warning if multiple instances found
       if (results.size > 0) {
         const existingTransferConfig = results.docs[0].data();
+        if (!existingTransferConfig?.name) {
+          await runtime.setProcessingState(
+            'PROCESSING_FAILED',
+            `Existing transfer config document in ${config.firestoreCollection} is missing required 'name' field.`
+          );
+          throw new Error(
+            'Existing transfer config document missing name field'
+          );
+        }
         const transferConfigName = existingTransferConfig.name;
-        const splitName = transferConfigName.split('/');
-        const transferConfigId = splitName[splitName.length - 1];
+        const {transferConfigId} = parseTransferConfigName(transferConfigName);
 
         try {
-          const response = await dts.updateTransferConfig(transferConfigName);
+          // Note: serviceAccountName cannot be updated on existing transfer configs,
+          // so we don't pass it here. It's only set at creation time.
+          await dts.updateTransferConfig(transferConfigName);
 
-          if (response) {
-            const updatedConfig =
-              await dts.getTransferConfig(transferConfigName);
+          const updatedConfig = await dts.getTransferConfig(transferConfigName);
 
-            if (!updatedConfig) {
-              await runtime.setProcessingState(
-                'PROCESSING_COMPLETE',
-                'Transfer Config was updated, but the updated config could not be retrieved from BigQuery.'
-              );
-              return;
-            }
-
-            await db
-              .collection(config.firestoreCollection)
-              .doc(transferConfigId)
-              .set({
-                extInstanceId: config.instanceId,
-                ...updatedConfig,
-              });
-
+          if (!updatedConfig) {
             await runtime.setProcessingState(
               'PROCESSING_COMPLETE',
-              'Transfer Config Name was not provided to the extension, and an existing Transfer Config found. Transfer Config object was successfully updated in BQ and Firestore.'
+              'Scheduled query was updated, but could not retrieve the updated configuration from BigQuery.'
             );
             return;
           }
 
+          await db
+            .collection(config.firestoreCollection)
+            .doc(transferConfigId)
+            .set({
+              extInstanceId: config.instanceId,
+              ...updatedConfig,
+            });
+
           await runtime.setProcessingState(
             'PROCESSING_COMPLETE',
-            `An existing Transfer Config name found in ${config.firestoreCollection}, but the associated Transfer Config does not exist.`
+            'Successfully updated existing scheduled query in BigQuery and Firestore.'
           );
-
           return;
         } catch (error) {
           // Handle partitioning removal error specifically
@@ -135,25 +145,48 @@ export const upsertTransferConfig = functions.tasks
             );
             return;
           }
-          // Re-throw other errors
+          // Set processing state before re-throwing other errors
+          await runtime.setProcessingState(
+            'PROCESSING_FAILED',
+            `Failed during transfer config update: ${
+              error instanceof Error ? error.message : String(error)
+            }`
+          );
           throw error;
         }
       } else {
-        const transferConfig = await dts.createTransferConfig();
-        const splitName = transferConfig.name.split('/');
-        const transferConfigId = splitName[splitName.length - 1];
+        try {
+          // Construct extension service account email
+          // Format: ext-{instanceId}@{projectId}.iam.gserviceaccount.com
+          const serviceAccountEmail = `ext-${config.instanceId}@${config.projectId}.iam.gserviceaccount.com`;
 
-        await db
-          .collection(config.firestoreCollection)
-          .doc(transferConfigId)
-          .set({
-            extInstanceId: config.instanceId,
-            ...transferConfig,
-          });
-        await runtime.setProcessingState(
-          'PROCESSING_COMPLETE',
-          'Transfer Config Name was not provided to the extension, and no existing Transfer Config found. Transfer Config object was successfully created in BQ and Firestore.'
-        );
+          const transferConfig =
+            await dts.createTransferConfig(serviceAccountEmail);
+          // createTransferConfig guarantees name exists (throws if null)
+          const {transferConfigId} = parseTransferConfigName(
+            transferConfig.name!
+          );
+
+          await db
+            .collection(config.firestoreCollection)
+            .doc(transferConfigId)
+            .set({
+              extInstanceId: config.instanceId,
+              ...transferConfig,
+            });
+          await runtime.setProcessingState(
+            'PROCESSING_COMPLETE',
+            'Successfully created new scheduled query in BigQuery and saved configuration to Firestore.'
+          );
+        } catch (error) {
+          await runtime.setProcessingState(
+            'PROCESSING_FAILED',
+            `Failed to create transfer config: ${
+              error instanceof Error ? error.message : String(error)
+            }`
+          );
+          throw error;
+        }
       }
     }
     return;
@@ -166,11 +199,3 @@ export const processMessages = functions.pubsub
     await helper.handleMessage(db, config, message);
     logs.pubsubMessageHandled(message);
   });
-
-export const processMessagesHttp = functions.https.onRequest(
-  async (req, res) => {
-    const message = req.body as TransferRunMessage;
-    await helper.handleMessage(db, config, message);
-    res.send('OK');
-  }
-);
