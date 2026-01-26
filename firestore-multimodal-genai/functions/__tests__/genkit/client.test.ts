@@ -73,7 +73,7 @@ describe('GenkitGenerativeClient', () => {
       apiKey: 'test-api-key',
     },
     model: 'gemini-1.5-flash',
-    location: 'us-central1',
+    location: 'europe-west1', // Function location (should NOT be used for Vertex AI)
     projectId: 'test-project',
     instanceId: 'test-instance',
     prompt: 'Test prompt',
@@ -90,7 +90,7 @@ describe('GenkitGenerativeClient', () => {
     maxOutputTokens: 256,
     maxOutputTokensVertex: 1024,
     provider: 'google-ai',
-    vertexProviderLocation: 'regional',
+    vertexAiLocation: 'us-central1', // Vertex AI location (should be used)
     apiKey: 'test-api-key',
     safetySettings: [
       {
@@ -128,7 +128,7 @@ describe('GenkitGenerativeClient', () => {
     });
   });
 
-  it('should initialize with correct plugin and client for Vertex AI', () => {
+  it('should initialize with correct plugin and client for Vertex AI using vertexAiLocation', () => {
     const vertexConfig: Config = {
       ...mockConfig,
       provider: 'vertex-ai',
@@ -137,6 +137,7 @@ describe('GenkitGenerativeClient', () => {
     };
     new GenkitGenerativeClient(vertexConfig);
 
+    // Should use vertexAiLocation (us-central1), not function location (europe-west1)
     expect(vertexAI).toHaveBeenCalledWith({location: 'us-central1'});
     expect(genkit).toHaveBeenCalledWith({
       plugins: [expect.anything()],
@@ -260,7 +261,7 @@ describe('GenkitGenerativeClient.shouldUseGenkitClient', () => {
     vertex: {model: 'gemini-1.0-pro'},
     googleAi: {model: 'gemini-1.5-flash', apiKey: 'test-api-key'},
     model: 'gemini-1.5-flash',
-    location: 'us-central1',
+    location: 'europe-west1',
     projectId: 'test-project',
     instanceId: 'test-instance',
     prompt: 'Test prompt',
@@ -277,7 +278,7 @@ describe('GenkitGenerativeClient.shouldUseGenkitClient', () => {
     maxOutputTokens: 256,
     maxOutputTokensVertex: 1024,
     provider: 'google-ai',
-    vertexProviderLocation: 'regional',
+    vertexAiLocation: 'us-central1',
     apiKey: 'test-api-key',
     safetySettings: [
       {

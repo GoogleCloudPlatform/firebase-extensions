@@ -1,3 +1,9 @@
+## Version 1.0.4
+
+- feat: Allow configuring Vertex AI API location independently from Cloud Functions location
+
+- fix: Ensure vertex_ai.ts client uses the configured Vertex AI location
+
 ## Version 1.0.3
 
 - feat: Add support for Gemini 3 preview models
