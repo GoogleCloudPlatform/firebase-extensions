@@ -1,3 +1,7 @@
+## Version 0.0.18
+
+- feat: Allow configuring Vertex AI API location independently from Cloud Functions location
+
 ## Version 0.0.17
 
 - feat: Add support for Gemini 3 Pro Preview

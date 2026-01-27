@@ -101,7 +101,7 @@ validateRequiredEnvVars();
 const config: Config = {
   vertex: {
     model: process.env.MODEL!,
-    modelLocation: process.env.VERTEX_AI_MODEL_LOCATION,
+    modelLocation: process.env.VERTEX_AI_MODEL_LOCATION || process.env.LOCATION,
   },
   googleAi: {
     model: process.env.MODEL!,
