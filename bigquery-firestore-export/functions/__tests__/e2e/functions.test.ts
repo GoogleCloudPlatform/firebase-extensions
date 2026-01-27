@@ -3,14 +3,14 @@ import {BigQuery, Dataset} from '@google-cloud/bigquery';
 import * as firebaseFunctionsTest from 'firebase-functions-test';
 import * as admin from 'firebase-admin';
 
-import config from '../src/config';
-import * as functions from '../src';
+import config from '../../src/config';
+import * as functions from '../../src';
 import {
   deleteAllDocumentsInCollection,
   generateRandomString,
   setupDataset,
-} from './helper';
-import {mockConfig, updateConfig} from './__mocks__';
+} from '../helper';
+import {mockConfig, updateConfig} from '../__mocks__';
 
 const {wrap} = firebaseFunctionsTest();
 const db = admin.firestore();
@@ -31,7 +31,7 @@ jest.mock('firebase-admin/extensions', () => {
   };
 });
 
-jest.mock('../src/config', () => {
+jest.mock('../../src/config', () => {
   return {
     default: {
       projectId: 'dev-extensions-testing',

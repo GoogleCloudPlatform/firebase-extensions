@@ -1,14 +1,13 @@
 jest.resetModules();
 
-// Mocking `@genkit-ai/googleai` and `@genkit-ai/vertexai`
-jest.mock('@genkit-ai/googleai', () => ({
-  googleAI: jest.fn(),
-  textEmbedding004: 'text-embedding-004-model',
-}));
-
-jest.mock('@genkit-ai/vertexai', () => ({
-  vertexAI: jest.fn(),
-  textEmbedding004: 'text-embedding-004-model',
+// Mocking `@genkit-ai/google-genai`
+jest.mock('@genkit-ai/google-genai', () => ({
+  googleAI: Object.assign(jest.fn(), {
+    embedder: jest.fn(() => 'gemini-embedding-001'),
+  }),
+  vertexAI: Object.assign(jest.fn(), {
+    embedder: jest.fn(() => 'gemini-embedding-001'),
+  }),
 }));
 
 jest.mock('../../src/config', () => ({
@@ -20,8 +19,7 @@ jest.mock('../../src/config', () => ({
 
 import {GenkitEmbedClient} from '../../src/embeddings/client/genkit';
 import {genkit} from 'genkit';
-import {vertexAI} from '@genkit-ai/vertexai';
-import {googleAI} from '@genkit-ai/googleai';
+import {vertexAI, googleAI} from '@genkit-ai/google-genai';
 
 // Mock the genkit client with properly structured responses
 const mockEmbedMany = jest.fn();
@@ -53,7 +51,7 @@ describe('GenkitEmbedClient', () => {
       });
 
       expect(embedClient.provider).toBe('vertexai');
-      expect(embedClient.embedder).toBe('text-embedding-004-model');
+      expect(embedClient.embedder).toBe('gemini-embedding-001');
       expect(mockVertexAI).toHaveBeenCalledWith({
         location: 'us-central1',
       });
@@ -70,7 +68,7 @@ describe('GenkitEmbedClient', () => {
       });
 
       expect(embedClient.provider).toBe('googleai');
-      expect(embedClient.embedder).toBe('text-embedding-004-model');
+      expect(embedClient.embedder).toBe('gemini-embedding-001');
       expect(mockGoogleAI).toHaveBeenCalledWith({
         apiKey: 'test-api-key',
       });
