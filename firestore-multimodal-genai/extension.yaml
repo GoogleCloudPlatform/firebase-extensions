@@ -125,7 +125,7 @@ params:
       locations](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations).
     type: select
     options:
-      - label: Same as Cloud Functions location (default)
+      - label: Same as Cloud Functions Location (default)
         value: ""
       - label: Global (required for preview models)
         value: global
