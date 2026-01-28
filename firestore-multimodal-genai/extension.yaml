@@ -252,7 +252,7 @@ params:
     type: select
     options:
       - label: Same as Cloud Functions Location (default)
-        value: ""
+        value: "null"
       - label: Global (required for preview models)
         value: global
       - label: Iowa (us-central1)
@@ -295,7 +295,7 @@ params:
         value: asia-southeast1
       - label: Sydney (australia-southeast1)
         value: australia-southeast1
-    default: ""
+    default: "null"
     required: false
     immutable: false
 

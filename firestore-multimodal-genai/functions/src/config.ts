@@ -124,7 +124,9 @@ export default {
   candidates,
   provider: process.env.GENERATIVE_AI_PROVIDER,
   vertexAiLocation:
-    process.env.VERTEX_AI_PROVIDER_LOCATION || process.env.LOCATION!,
+    process.env.VERTEX_AI_PROVIDER_LOCATION == 'null'
+      ? process.env.LOCATION!
+      : process.env.VERTEX_AI_PROVIDER_LOCATION,
   maxOutputTokensVertex: process.env.MAX_OUTPUT_TOKENS
     ? parseInt(process.env.MAX_OUTPUT_TOKENS)
     : 1024,
