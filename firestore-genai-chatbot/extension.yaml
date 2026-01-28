@@ -189,7 +189,7 @@ params:
     type: select
     options:
       - label: Same as Cloud Functions Location (default)
-        value: ""
+        value: "null"
       - label: Global (required for preview models)
         value: global
       - label: Columbus, Ohio (us-east5)
@@ -250,7 +250,7 @@ params:
         value: me-central1
       - label: Tel Aviv, Israel (me-west1)
         value: me-west1
-    default: ""
+    default: "null"
     required: false
     immutable: false
 
