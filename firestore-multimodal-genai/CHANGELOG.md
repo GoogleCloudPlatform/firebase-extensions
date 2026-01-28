@@ -1,3 +1,7 @@
+## Version 1.0.4
+
+- chore: bump dependencies
+
 ## Version 1.0.3
 
 - feat: Add support for Gemini 3 preview models
