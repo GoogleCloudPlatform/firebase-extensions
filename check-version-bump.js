@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Script to check that extension versions have been bumped correctly in a PR
  * Usage: node check-version-bump.js <extension-name1> [extension-name2] ...
@@ -76,7 +74,7 @@ function httpsGet(url) {
 
     return Promise.resolve(result);
   } catch (error) {
-    const stderr = error.stderr?.toString() || '';
+    const stderr = error.stderr ? error.stderr.toString() : '';
     const message = error.message || String(error);
 
     if (
@@ -300,7 +298,7 @@ async function main() {
     console.error(
       'Example: node check-version-bump.js firestore-genai-chatbot firestore-semantic-search'
     );
-    process.exit(1);
+    throw new Error('At least one extension name is required');
   }
 
   console.log('🔍 Checking extension version bumps...\n');
@@ -357,13 +355,17 @@ async function main() {
       '3. Version follows semantic versioning format (MAJOR.MINOR.PATCH)'
     );
     console.log('');
-    process.exit(1);
+    throw new Error('Version check failed');
   } else {
     console.log('\n✅ All version checks PASSED');
     console.log('');
-    process.exit(0);
   }
 }
 
 // Run the script
-main();
+main().catch(err => {
+  // Print any unhandled errors and fail loudly for CI/CD, breaking for the linter
+  console.error(err && err.stack ? err.stack : err);
+  // Don't use process.exit(); this ensures a non-zero exit code via uncaught errors.
+  throw err;
+});
