@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 /**
  * Script to compare published Firebase extension version with local extension.yaml version
  * Usage: node check-extension-version.js <extension-name>
@@ -77,7 +75,7 @@ function httpsGet(url) {
 
     return Promise.resolve(result);
   } catch (error) {
-    const stderr = error.stderr?.toString() || '';
+    const stderr = error.stderr ? error.stderr.toString() : '';
     const message = error.message || String(error);
 
     if (
@@ -121,7 +119,7 @@ async function getPublishedVersion(extensionName) {
     if (errorMessage.includes('HTTP 404')) {
       throw new Error(
         `Extension "${extensionName}" not found in the published repository.\n` +
-          `Make sure the extension exists at:\n` +
+          'Make sure the extension exists at:\n' +
           `https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/${extensionName}`
       );
     }
@@ -175,40 +173,47 @@ async function main() {
     console.error(
       'Example: node check-extension-version.js firestore-genai-chatbot'
     );
-    process.exit(1);
+    throw new Error('Extension name is required');
   }
 
   const extensionName = args[0];
 
-  try {
-    console.log(`\nChecking version for extension: ${extensionName}\n`);
+  console.log(`\nChecking version for extension: ${extensionName}\n`);
 
-    // Get local version
-    const localVersion = getLocalVersion(extensionName);
-    console.log(`✓ Local version (extension.yaml):  ${localVersion}`);
+  // Get local version
+  const localVersion = getLocalVersion(extensionName);
+  console.log(`✓ Local version (extension.yaml):  ${localVersion}`);
 
-    // Get published version
-    const publishedVersion = await getPublishedVersion(extensionName);
-    console.log(`✓ Published version (registry):    ${publishedVersion}`);
+  // Get published version
+  const publishedVersion = await getPublishedVersion(extensionName);
+  console.log(`✓ Published version (registry):    ${publishedVersion}`);
 
-    // Compare versions
-    console.log('\n' + '='.repeat(50));
-    if (localVersion === publishedVersion) {
-      console.log('✓ Versions match! Extension is up to date.');
-      console.log('='.repeat(50) + '\n');
-      process.exit(0);
-    } else {
-      console.log('⚠ Version mismatch detected!');
-      console.log(`  Local:     ${localVersion}`);
-      console.log(`  Published: ${publishedVersion}`);
-      console.log('='.repeat(50) + '\n');
-      process.exit(1);
-    }
-  } catch (error) {
-    console.error(`\n✗ Error: ${error.message}\n`);
-    process.exit(1);
+  // Compare versions
+  console.log('\n' + '='.repeat(50));
+  if (localVersion === publishedVersion) {
+    console.log('✓ Versions match! Extension is up to date.');
+    console.log('='.repeat(50) + '\n');
+    return 0;
+  } else {
+    console.log('⚠ Version mismatch detected!');
+    console.log(`  Local:     ${localVersion}`);
+    console.log(`  Published: ${publishedVersion}`);
+    console.log('='.repeat(50) + '\n');
+    throw new Error('Version mismatch detected');
   }
 }
 
 // Run the script
-main();
+main()
+  .then(exitCode => {
+    process.exitCode = exitCode || 0;
+  })
+  .catch(error => {
+    if (
+      error.message !== 'Extension name is required' &&
+      error.message !== 'Version mismatch detected'
+    ) {
+      console.error(`\n✗ Error: ${error.message}\n`);
+    }
+    process.exitCode = 1;
+  });
