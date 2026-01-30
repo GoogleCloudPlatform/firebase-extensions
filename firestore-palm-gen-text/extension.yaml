@@ -1,5 +1,5 @@
 name: firestore-palm-gen-text
-version: 0.1.10
+version: 0.1.11
 specVersion: v1beta
 
 displayName: Language Tasks with PaLM API
