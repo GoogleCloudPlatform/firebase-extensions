@@ -3,12 +3,13 @@ name: Check Extension Version Bump
 on:
   pull_request:
     paths:
-      - '*/*'
-    paths-ignore:
-      - '_emulator/**'
-      - 'scripts/**'
-      - '.*/*'
-      - '.*'
+      - '*/extension.yaml'
+      - '*/functions/**'
+      - '*/CHANGELOG.md'
+      - '*/PREINSTALL.md'
+      - '*/POSTINSTALL.md'
+      - '*/README.md'
+      - '*/icon.png'
 
 jobs:
   check-versions:
