@@ -29,8 +29,8 @@ jobs:
 
       - name: Make version check scripts executable
         run: |
-          chmod +x check-version-bump.js
-          chmod +x check-extension-version.js
+          chmod +x scripts/check-version-bump.js
+          chmod +x scripts/check-extension-version.js
 
       - name: Get list of changed extensions
         id: changed-extensions
@@ -74,7 +74,7 @@ jobs:
           echo ""
 
           # Run the version bump check script
-          node check-version-bump.js $extensions
+          node scripts/check-version-bump.js $extensions
 
       - name: No extensions changed
         if: steps.changed-extensions.outputs.count == 0
