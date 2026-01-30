@@ -22,7 +22,7 @@ const transferConfigId = splitName[splitName.length-3];
 
 This can either be done once and hardcoded in the client application, or dynamically queried at runtime on page-load.
 
-The “latest” document for a Transfer Config will be updated every time a transfer config finishes and rows have been written to Firestore. Once the client application knows the transfer config ID, it can use a listener to subscribe to the “latest” document updates.
+The "latest" document for a Transfer Config will be updated every time a transfer run completes (regardless of success or failure). Once the client application knows the transfer config ID, it can use a listener to subscribe to the “latest” document updates.
 
 ```javascript
 const latestRunId = null;
@@ -35,7 +35,7 @@ db.collection(`transferConfigs/${transferConfigId}/runs`)
   });
 ```
 
-Whenever the “latest” document updates, these fields are changed: “failedRowCount”, “totalRowCount”, “runMetadata”, and “latestRunId”. The extension uses parallel individual writes to Firestore to maximize write throughout, and if some failures occur due to intermittent Firestore issues, they will be counted in failedRowCount. Depending on the application, you may want to refresh the query results only if there are no write failures.
+Whenever the "latest" document updates, these fields are changed: "runMetadata", "latestRunId", "failedRowCount", and "totalRowCount". For successful runs, the counts reflect actual row processing; for failed/non-success runs, both counts are set to 0. You can check `runMetadata.state` to determine if the run succeeded ("SUCCEEDED") or failed ("FAILED"). The extension uses parallel individual writes to Firestore to maximize write throughput, and if some failures occur due to intermittent Firestore issues, they will be counted in failedRowCount. Depending on the application, you may want to refresh the query results only if there are no write failures.
 
 Once you have the latestRunId, you can query the results of the query within Firestore:
 
@@ -51,3 +51,7 @@ const results = await q.get();
 The extension does not delete the BigQuery Transfer Config (scheduled query) automatically when you uninstall the extension.
 
 BigQuery charges by data processed, so your project will continue to incur costs until you manually delete the scheduled query. You can manage your scheduled queries directly in [Cloud Console](https://console.cloud.google.com/bigquery/scheduled-queries).
+
+## Upgrading from a Previous Version
+
+If you're upgrading from version 0.1.x, please review the [Migration Guide](MIGRATION_GUIDE.md) for important changes to how run results are recorded.

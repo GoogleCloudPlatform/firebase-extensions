@@ -96,7 +96,10 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Gemini model: Input the name of the Gemini model you would like to use. To view available models for each provider, see: [Vertex AI Gemini models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models), [Google AI Gemini models](https://ai.google.dev/models/gemini). Note: Any models in preview on Vertex AI will require Vertex AI Model Location to be set to 'global'.
 
-* Vertex AI Model Location: The location of the Vertex AI model. If left undefined, the extension will default to the Cloud Function location (LOCATION parameter). Note: Any models in preview on Vertex AI will require this parameter to be set to 'global'.
+* Cloud Functions Location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations). Note that Generative AI on Vertex AI is only available in the regions listed [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/locations-genai). A list of languages and regions supported by the Gemini API on Google AI is [here](https://ai.google.dev/available_regions).
+
+* Vertex AI Model Location: If you are using Vertex AI as your provider, which location should be used for the Vertex AI API? This can differ from the Cloud Functions location.
+If not specified, defaults to the Cloud Functions location. Note: Models in preview on Vertex AI require 'Global'. See [available locations](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations).
 
 * Firestore Collection Path: Used to store conversation history represented as documents. This extension will listen to the specified collection(s) for new message documents.
 
@@ -105,8 +108,6 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 * Response Field: The field in the message document into which to put the response.
 
 * Order Field: The field by which to order when fetching conversation history. If absent when processing begins, the current timestamp will be written to this field. Sorting will be in descending order.
-
-* Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations). Note that Generative AI on Vertex AI is only available in the regions listed [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/locations-genai). A list of languages and regions supported by the Gemini API on Google AI is [here](https://ai.google.dev/available_regions).
 
 * Context: Contextual preamble for the generative AI model. A string giving context for the discussion.
 
