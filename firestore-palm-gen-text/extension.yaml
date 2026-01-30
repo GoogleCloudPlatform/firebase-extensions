@@ -2,7 +2,7 @@ name: firestore-palm-gen-text
 version: 0.1.10
 specVersion: v1beta
 
-displayName: Language Tasks with PaLM API
+displayName: Lasnguage Tasks with PaLM API
 
 description: >-
   Performs AI/ML tasks on text, customizable with prompt engineering, using PaLM
