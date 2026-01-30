@@ -31,7 +31,7 @@
     "fs-extra": "^11.3.0",
     "google-auth-library": "^8.8.0",
     "googleapis": "^114.0.0",
-    "typescript": "^4.9.0"
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
     "@types/jest": "^29.5.1",

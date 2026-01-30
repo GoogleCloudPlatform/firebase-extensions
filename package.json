@@ -8,7 +8,7 @@
     "gts": "^5.0.1",
     "lerna": "^4.0.0",
     "prettier": "^3.0.3",
-    "typescript": "^4.0.3"
+    "typescript": "^5.9.3"
   },
   "scripts": {
     "new-format": "prettier --write .",
