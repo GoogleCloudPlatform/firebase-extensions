@@ -13,7 +13,7 @@
 # limitations under the License.
 
 name: text-to-speech
-version: 0.1.7
+version: 0.1.8
 specVersion: v1beta
 
 icon: icon.png
