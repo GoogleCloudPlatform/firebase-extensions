@@ -26,6 +26,6 @@
     "fix": "gts fix",
     "pretest": "npm run compile",
     "posttest": "npm run lint",
-    "check-extension-version": "node check-extension-version.js"
+    "check-extension-version": "node ./scripts/check-extension-version.js"
   }
 }
