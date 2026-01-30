@@ -7,7 +7,7 @@ icon: icon.png
 displayName: Build Chatbot with the Gemini API
 
 description: >-
-  DDeploys customizable chatbots using Gemini models and Firestore.
+  Deploys customizable chatbots using Gemini models and Firestore.
 
 license: Apache-2.0 # https://spdx.org/licenses/
 

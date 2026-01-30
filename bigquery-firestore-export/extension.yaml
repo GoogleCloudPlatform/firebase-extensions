@@ -16,7 +16,7 @@ name: bigquery-firestore-export
 version: 0.2.0
 specVersion: v1beta
 
-displayName: EExport BigQuery to Firestore
+displayName: Export BigQuery to Firestore
 description: Schedules BigQuery queries and exports the results to Firestore.
 icon: icon.png
 tags: [utilities]
