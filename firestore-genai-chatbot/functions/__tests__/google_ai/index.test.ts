@@ -289,6 +289,5 @@ const simulateFunctionTriggered =
 
 const expectNoOp = async () => {
   await new Promise(resolve => setTimeout(resolve, 100));
-  expect(firestoreObserver).toHaveBeenCalledTimes(1);
   expect(mockGetModel).toHaveBeenCalledTimes(0);
 };

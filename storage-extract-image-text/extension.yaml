@@ -1,5 +1,5 @@
 name: storage-extract-image-text
-version: 0.1.7
+version: 0.1.8
 specVersion: v1beta
 
 displayName: Extract Image Text with Cloud Vision AI

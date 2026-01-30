@@ -1,5 +1,5 @@
 name: storage-label-images
-version: 0.1.8
+version: 0.1.9
 specVersion: v1beta
 
 displayName: Label Images with Cloud Vision AI

@@ -16,18 +16,18 @@ To use the extension, configure a BigQuery query to execute along with a schedul
 ```
 COLLECTION: transferConfigs/<configId>/runs/<runId>
 DOCUMENT: {
-  runMetadata: { },
+  runMetadata: { state: "SUCCEEDED", ... },
   totalRowCount: 779,
   failedRowCount: 0
 }
 ```
 
-To determine what the latest run is for a scheduled BigQuery query, read the metadata from the “latest” document in Firestore. Frontend applications using Firestore real-time listeners can subscribe to the “latest” document to listen for changes, in order to query and render the latest scheduled run results.
+To determine what the latest run is for a scheduled BigQuery query, read the metadata from the "latest" document in Firestore. This document is updated whenever a transfer run completes (regardless of success or failure). Frontend applications using Firestore real-time listeners can subscribe to the "latest" document to listen for changes. Check the `runMetadata.state` field to determine if the run succeeded before rendering results.
 
 ```
 COLLECTION: transferConfigs/<configId>/runs/latest
 DOCUMENT: {
-  runMetadata: { },
+  runMetadata: { state: "SUCCEEDED", ... },
   totalRowCount: 779,
   failedRowCount: 0,
   latestRunId: 648762e0-0000-28ef-9109-001a11446b2a
@@ -81,9 +81,9 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Schedule: What's the execution schedule you'd like to use for this query?
 
-* Pub Sub Topic: What's the Pub Sub topic to write messages to when the scheduled query finishes executing?
-
 * Firestore Collection: What's the top-level Firestore Collection to store transfer configs, run metadata, and query output?
+
+* Log Level: What's the log level you'd like to use for this extension?
 
 
 

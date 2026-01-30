@@ -2,6 +2,12 @@
 
 - chore: updated default model to Gemini 2.5 Flash, due to upcoming discontinuation of Gemini 2.0 Flash
 
+- feat: Allow configuring Vertex AI API location independently from Cloud Functions location
+
+- chore: update and audit packages
+
+- chore: remove flaky assertions from emulator tests
+
 ## Version 0.0.17
 
 - feat: Add support for Gemini 3 Pro Preview

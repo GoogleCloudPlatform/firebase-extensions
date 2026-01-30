@@ -62,10 +62,8 @@ export class GenkitGenerativeClient extends GenerativeClient<
       return pluginConfig;
     }
 
-    const isGlobal = config.vertexProviderLocation === 'global';
-
     const pluginConfig: VertexPluginOptions = {
-      location: isGlobal ? 'global' : config.location,
+      location: config.vertexAiLocation,
     };
     return pluginConfig;
   }
