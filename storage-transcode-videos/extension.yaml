@@ -1,5 +1,5 @@
 name: storage-transcode-videos
-version: 0.0.3
+version: 0.0.4
 specVersion: v1beta
 
 displayName: Transcode Videos on Google Cloud Storage
