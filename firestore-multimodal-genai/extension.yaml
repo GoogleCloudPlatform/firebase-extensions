@@ -1,10 +1,10 @@
 name: firestore-multimodal-genai
-version: 1.0.5
+version: 1.0.6
 specVersion: v1beta
 
 icon: icon.png
 
-displayName: tMultimodal Tasks with the Gemini API
+displayName: Multimodal Tasks with the Gemini API
 
 description: >-
   Performs multimodel generative tasks on text and images, customizable with
