@@ -1,3 +1,7 @@
+## Version 0.0.18
+
+- chore: updated default model to Gemini 2.5 Flash, due to upcoming discontinuation of Gemini 2.0 Flash
+
 ## Version 0.0.17
 
 - feat: Add support for Gemini 3 Pro Preview
