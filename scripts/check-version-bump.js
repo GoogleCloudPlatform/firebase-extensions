@@ -127,7 +127,7 @@ async function getPublishedVersion(extensionName) {
  * @returns {string} Local version
  */
 function getLocalVersion(extensionName) {
-  const extensionDir = path.join(__dirname, extensionName);
+  const extensionDir = path.join(__dirname, '..', extensionName);
   const yamlPath = path.join(extensionDir, 'extension.yaml');
 
   // Check if extension directory exists
