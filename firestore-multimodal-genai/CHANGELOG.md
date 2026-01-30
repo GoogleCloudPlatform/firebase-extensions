@@ -1,5 +1,7 @@
 ## Version 1.0.4
 
+- chore: updated default model to Gemini 2.5 Flash, due to upcoming discontinuation of Gemini 2.0 Flash
+
 - feat: Allow configuring Vertex AI API location independently from Cloud Functions location
 
 - fix: Ensure vertex_ai.ts client uses the configured Vertex AI location

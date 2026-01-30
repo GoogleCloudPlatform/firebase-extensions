@@ -124,7 +124,7 @@ params:
       [Google AI Gemini models](https://ai.google.dev/models/gemini)
     type: string
     required: true
-    default: gemini-2.0-flash
+    default: gemini-2.5-flash
     immutable: false
 
   - param: API_KEY
