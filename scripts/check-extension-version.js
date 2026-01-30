@@ -1,6 +1,8 @@
 /**
  * Script to compare published Firebase extension version with local extension.yaml version
- * Usage: node check-extension-version.js <extension-name>
+ * Usage:
+ *   node check-extension-version.js <extension-name>  - Check a specific extension
+ *   node check-extension-version.js *                 - Check all extensions
  */
 
 const fs = require('fs');
@@ -134,7 +136,7 @@ async function getPublishedVersion(extensionName) {
  * @returns {string} Local version
  */
 function getLocalVersion(extensionName) {
-  const extensionDir = path.join(__dirname, extensionName);
+  const extensionDir = path.join(__dirname, '..', extensionName);
   const yamlPath = path.join(extensionDir, 'extension.yaml');
 
   // Check if extension directory exists
@@ -161,6 +163,162 @@ function getLocalVersion(extensionName) {
 }
 
 /**
+ * Gets all extension directories in the repository
+ * @returns {string[]} Array of extension directory names
+ */
+function getAllExtensions() {
+  const rootDir = path.join(__dirname, '..');
+  const items = fs.readdirSync(rootDir, {withFileTypes: true});
+
+  const extensions = [];
+
+  for (const item of items) {
+    if (!item.isDirectory()) {
+      continue;
+    }
+
+    const extensionYamlPath = path.join(rootDir, item.name, 'extension.yaml');
+    if (fs.existsSync(extensionYamlPath)) {
+      extensions.push(item.name);
+    }
+  }
+
+  return extensions.sort();
+}
+
+/**
+ * Checks a single extension and returns the result
+ * @param {string} extensionName - Name of the extension
+ * @returns {Promise<object>} Result object with status and version info
+ */
+async function checkExtension(extensionName) {
+  try {
+    const localVersion = getLocalVersion(extensionName);
+
+    let publishedVersion;
+    let publishedError = null;
+
+    try {
+      publishedVersion = await getPublishedVersion(extensionName);
+    } catch (error) {
+      publishedError = error.message || String(error);
+      publishedVersion = null;
+    }
+
+    return {
+      name: extensionName,
+      localVersion,
+      publishedVersion,
+      publishedError,
+      match: publishedVersion === localVersion,
+    };
+  } catch (error) {
+    return {
+      name: extensionName,
+      error: error.message || String(error),
+    };
+  }
+}
+
+/**
+ * Checks all extensions and displays a summary
+ * @returns {Promise<number>} Exit code
+ */
+async function checkAllExtensions() {
+  const extensions = getAllExtensions();
+
+  if (extensions.length === 0) {
+    console.log('No extensions found in the repository.');
+    return 0;
+  }
+
+  console.log(
+    `\nFound ${extensions.length} extension(s). Checking versions...\n`
+  );
+
+  const results = [];
+
+  for (const extensionName of extensions) {
+    process.stdout.write(`Checking ${extensionName}... `);
+    const result = await checkExtension(extensionName);
+    results.push(result);
+
+    if (result.error) {
+      console.log('✗ Error');
+    } else if (result.publishedError) {
+      console.log('⚠ Not published');
+    } else if (result.match) {
+      console.log('✓ Match');
+    } else {
+      console.log('⚠ Mismatch');
+    }
+  }
+
+  // Display summary
+  console.log('\n' + '='.repeat(80));
+  console.log('SUMMARY');
+  console.log('='.repeat(80));
+
+  const matching = [];
+  const mismatched = [];
+  const notPublished = [];
+  const errors = [];
+
+  for (const result of results) {
+    if (result.error) {
+      errors.push(result);
+    } else if (result.publishedError) {
+      notPublished.push(result);
+    } else if (result.match) {
+      matching.push(result);
+    } else {
+      mismatched.push(result);
+    }
+  }
+
+  if (matching.length > 0) {
+    console.log(`\n✓ Matching (${matching.length}):`);
+    for (const result of matching) {
+      console.log(`  ${result.name.padEnd(50)} ${result.localVersion}`);
+    }
+  }
+
+  if (mismatched.length > 0) {
+    console.log(`\n⚠ Mismatched (${mismatched.length}):`);
+    for (const result of mismatched) {
+      console.log(
+        `  ${result.name.padEnd(50)} Local: ${
+          result.localVersion
+        } | Published: ${result.publishedVersion}`
+      );
+    }
+  }
+
+  if (notPublished.length > 0) {
+    console.log(`\n⚠ Not Published (${notPublished.length}):`);
+    for (const result of notPublished) {
+      console.log(`  ${result.name.padEnd(50)} ${result.localVersion}`);
+    }
+  }
+
+  if (errors.length > 0) {
+    console.log(`\n✗ Errors (${errors.length}):`);
+    for (const result of errors) {
+      console.log(`  ${result.name.padEnd(50)} ${result.error}`);
+    }
+  }
+
+  console.log('\n' + '='.repeat(80));
+  console.log(
+    `Total: ${results.length} | Matching: ${matching.length} | Mismatched: ${mismatched.length} | Not Published: ${notPublished.length} | Errors: ${errors.length}`
+  );
+  console.log('='.repeat(80) + '\n');
+
+  // Return non-zero exit code if there are mismatches or errors
+  return mismatched.length > 0 || errors.length > 0 ? 1 : 0;
+}
+
+/**
  * Main function
  */
 async function main() {
@@ -169,14 +327,22 @@ async function main() {
 
   if (args.length === 0) {
     console.error('Error: Extension name is required');
-    console.error('Usage: node check-extension-version.js <extension-name>');
+    console.error('Usage: node check-extension-version.js <extension-name|*>');
     console.error(
       'Example: node check-extension-version.js firestore-genai-chatbot'
+    );
+    console.error(
+      'Example: node check-extension-version.js * (check all extensions)'
     );
     throw new Error('Extension name is required');
   }
 
   const extensionName = args[0];
+
+  // Check if user wants to check all extensions
+  if (extensionName === '*') {
+    return await checkAllExtensions();
+  }
 
   console.log(`\nChecking version for extension: ${extensionName}\n`);
 
