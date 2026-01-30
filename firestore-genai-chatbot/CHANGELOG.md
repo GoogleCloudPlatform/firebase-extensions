@@ -1,3 +1,7 @@
+## Version 0.0.19
+
+- feat: Allow configuring Vertex AI API location independently from Cloud Functions location
+
 ## Version 0.0.18
 
 - chore: update and audit packages
