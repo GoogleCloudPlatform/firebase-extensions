@@ -3,9 +3,12 @@ name: Check Extension Version Bump
 on:
   pull_request:
     paths:
-      - '*/extension.yaml'
-      - '*/functions/**'
-      - '*/CHANGELOG.md'
+      - '*/*'
+    paths-ignore:
+      - '_emulator/**'
+      - 'scripts/**'
+      - '.*/*'
+      - '.*'
 
 jobs:
   check-versions:
@@ -71,42 +74,6 @@ jobs:
 
           # Run the version bump check script
           node check-version-bump.js $extensions
-
-      - name: Comment on PR (if check fails)
-        if: failure() && steps.changed-extensions.outputs.count > 0
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const extensions = '${{ steps.changed-extensions.outputs.extensions }}'.split(' ');
-            const body = `## ⚠️ Extension Version Check Failed
-
-            The following extension(s) were modified but their versions may not have been bumped correctly:
-
-            ${extensions.map(ext => `- \`${ext}\``).join('\n')}
-
-            ### Required Actions:
-
-            1. **Update \`extension.yaml\`**: Bump the \`version\` field to a semantic version **higher** than the published version
-            2. **Update \`CHANGELOG.md\`**: Document your changes in the changelog
-            3. **Follow semantic versioning**:
-               - **MAJOR** version for incompatible API changes
-               - **MINOR** version for backwards-compatible functionality additions
-               - **PATCH** version for backwards-compatible bug fixes
-
-            ### How to check current versions:
-
-            \`\`\`bash
-            node check-extension-version.js <extension-name>
-            \`\`\`
-
-            Please update the version(s) and push your changes.`;
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: body
-            });
 
       - name: No extensions changed
         if: steps.changed-extensions.outputs.count == 0
