@@ -1,3 +1,9 @@
+## Version 0.0.18
+
+- chore: update and audit packages
+
+- chore: remove flaky assertions from emulator tests
+
 ## Version 0.0.17
 
 - feat: Add support for Gemini 3 Pro Preview

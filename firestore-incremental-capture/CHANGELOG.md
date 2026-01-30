@@ -1,3 +1,7 @@
+## Version 0.0.9
+
+chore: bump dependencies
+
 ## Version 0.0.8
 
 chore: update and audit packages

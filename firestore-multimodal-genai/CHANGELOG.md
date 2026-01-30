@@ -4,6 +4,8 @@
 
 - fix: Ensure vertex_ai.ts client uses the configured Vertex AI location
 
+- chore: bump dependencies
+
 ## Version 1.0.3
 
 - feat: Add support for Gemini 3 preview models
