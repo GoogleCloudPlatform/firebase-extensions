@@ -31,5 +31,8 @@
     "dotenv": "^16.0.3",
     "node-fetch": "^2.6.9"
   },
+  "overrides": {
+    "fast-xml-parser": "^5.3.4"
+  },
   "private": true
 }
