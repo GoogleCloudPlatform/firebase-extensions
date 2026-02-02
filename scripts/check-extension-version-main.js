@@ -328,7 +328,9 @@ async function main() {
 
   if (args.length === 0) {
     console.error('Error: Extension name is required');
-    console.error('Usage: node check-extension-version-main.js <extension-name|*>');
+    console.error(
+      'Usage: node check-extension-version-main.js <extension-name|*>'
+    );
     console.error(
       'Example: node check-extension-version-main.js firestore-genai-chatbot'
     );
