@@ -30,17 +30,20 @@
   },
   "devDependencies": {
     "@types/node-fetch": "^2.6.11",
-    "@typescript-eslint/eslint-plugin": "^5.12.0",
-    "@typescript-eslint/parser": "^5.12.0",
-    "eslint": "^8.15.1",
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0",
+    "eslint": "^9.39.2",
     "eslint-config-google": "^0.14.0",
     "eslint-plugin-import": "^2.26.0",
     "firebase-functions-test": "^3.1.0",
     "jest": "^29.7.0",
-    "node-gyp": "^10.1.0",
+    "node-gyp": "^12.2.0",
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.2",
     "wait-for-expect": "^3.0.2"
+  },
+  "overrides": {
+    "fast-xml-parser": "^5.3.4"
   },
   "files": [
     "lib"
