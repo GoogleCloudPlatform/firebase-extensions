@@ -1,8 +1,9 @@
 /**
- * Script to compare published Firebase extension version with local extension.yaml version
+ * Script to compare Firebase extension version from GitHub main branch with local extension.yaml version
+ * Useful for comparing a branch against the main branch.
  * Usage:
- *   node check-extension-version.js <extension-name>  - Check a specific extension
- *   node check-extension-version.js *                 - Check all extensions
+ *   node check-extension-version-main.js <extension-name>  - Check a specific extension
+ *   node check-extension-version-main.js *                 - Check all extensions
  */
 
 const fs = require('fs');
@@ -93,7 +94,7 @@ function httpsGet(url) {
 }
 
 /**
- * Fetches the published version of a Firebase extension from GitHub
+ * Fetches the published version of a Firebase extension from GitHub main branch
  * @param {string} extensionName - Name of the extension (e.g., 'firestore-genai-chatbot')
  * @returns {Promise<string>} Published version
  */
@@ -327,12 +328,14 @@ async function main() {
 
   if (args.length === 0) {
     console.error('Error: Extension name is required');
-    console.error('Usage: node check-extension-version.js <extension-name|*>');
     console.error(
-      'Example: node check-extension-version.js firestore-genai-chatbot'
+      'Usage: node check-extension-version-main.js <extension-name|*>'
     );
     console.error(
-      'Example: node check-extension-version.js * (check all extensions)'
+      'Example: node check-extension-version-main.js firestore-genai-chatbot'
+    );
+    console.error(
+      'Example: node check-extension-version-main.js * (check all extensions)'
     );
     throw new Error('Extension name is required');
   }
@@ -340,7 +343,21 @@ async function main() {
   const extensionName = args[0];
 
   // Check if user wants to check all extensions
-  if (extensionName === '*') {
+  // Handle both literal '*' and when shell expands '*' to many files
+  const shouldCheckAll =
+    extensionName === '*' ||
+    args.length > 5 || // Many arguments suggests shell expansion
+    extensionName.includes('.') || // File extensions suggest shell expansion
+    !fs.existsSync(path.join(__dirname, '..', extensionName)) ||
+    !fs.existsSync(path.join(__dirname, '..', extensionName, 'extension.yaml'));
+
+  if (shouldCheckAll) {
+    // If user passed '*' but shell expanded it, show a helpful message
+    if (extensionName !== '*' && args.length > 1) {
+      console.log(
+        'Note: Detected shell expansion of "*". Checking all extensions instead.\n'
+      );
+    }
     return await checkAllExtensions();
   }
 
@@ -352,7 +369,7 @@ async function main() {
 
   // Get published version
   const publishedVersion = await getPublishedVersion(extensionName);
-  console.log(`✓ Published version (registry):    ${publishedVersion}`);
+  console.log(`✓ Published version (GitHub main): ${publishedVersion}`);
 
   // Compare versions
   console.log('\n' + '='.repeat(50));
