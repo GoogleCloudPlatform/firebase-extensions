@@ -1,3 +1,7 @@
+## Version 0.0.10
+
+chore: bump dependencies to fix vulnerabilities
+
 ## Version 0.0.9
 
 chore: bump dependencies
