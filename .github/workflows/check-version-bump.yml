@@ -1,0 +1,82 @@
+name: Check Extension Version Bump
+
+on:
+  pull_request:
+    paths:
+      - '*/extension.yaml'
+      - '*/functions/**'
+      - '*/CHANGELOG.md'
+      - '*/PREINSTALL.md'
+      - '*/POSTINSTALL.md'
+      - '*/README.md'
+      - '*/icon.png'
+
+jobs:
+  check-versions:
+    name: Verify extension versions are bumped
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for proper diff
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Make version check scripts executable
+        run: |
+          chmod +x scripts/check-version-bump.js
+          chmod +x scripts/check-extension-version.js
+
+      - name: Get list of changed extensions
+        id: changed-extensions
+        run: |
+          # Get the list of changed files between base and head
+          git fetch origin ${{ github.base_ref }}
+
+          # Find all directories containing changed extension.yaml or functions/
+          changed_dirs=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | \
+            grep -E '^[^/]+/(extension\.yaml|functions/|CHANGELOG\.md)' | \
+            cut -d'/' -f1 | \
+            sort -u)
+
+          # Filter to only include directories that have extension.yaml
+          extensions=""
+          for dir in $changed_dirs; do
+            if [ -f "$dir/extension.yaml" ]; then
+              extensions="$extensions $dir"
+            fi
+          done
+
+          # Trim leading/trailing spaces
+          extensions=$(echo "$extensions" | xargs)
+
+          if [ -z "$extensions" ]; then
+            echo "No extensions modified in this PR"
+            echo "extensions=" >> $GITHUB_OUTPUT
+            echo "count=0" >> $GITHUB_OUTPUT
+          else
+            echo "Modified extensions: $extensions"
+            echo "extensions=$extensions" >> $GITHUB_OUTPUT
+            echo "count=$(echo $extensions | wc -w | xargs)" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check version bumps
+        if: steps.changed-extensions.outputs.count > 0
+        run: |
+          extensions="${{ steps.changed-extensions.outputs.extensions }}"
+
+          echo "Checking version bumps for: $extensions"
+          echo ""
+
+          # Run the version bump check script
+          node scripts/check-version-bump.js $extensions
+
+      - name: No extensions changed
+        if: steps.changed-extensions.outputs.count == 0
+        run: |
+          echo "✅ No extensions were modified in this PR - skipping version check"
