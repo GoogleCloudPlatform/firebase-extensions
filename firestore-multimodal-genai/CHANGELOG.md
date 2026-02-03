@@ -1,3 +1,7 @@
+## Version 1.0.6
+
+- chore: bump some dependencies to fix vulnerabilities
+
 ## Version 1.0.5
 
 - chore: fix audit
