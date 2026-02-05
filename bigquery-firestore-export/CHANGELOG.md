@@ -1,3 +1,7 @@
+## Version 0.2.1
+
+fix - fix broken links
+
 ## Version 0.2.0
 
 See [Migration Guide](MIGRATION_GUIDE.md) for upgrading from 0.1.x.
