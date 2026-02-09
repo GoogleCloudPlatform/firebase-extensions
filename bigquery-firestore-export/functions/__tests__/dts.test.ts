@@ -329,6 +329,35 @@ describe('dts', () => {
       );
     });
 
+    test('should update destinationDatasetId when changed', async () => {
+      // Simulate a transfer config with a different dataset ID
+      const responseWithDifferentDataset = JSON.parse(
+        JSON.stringify(baseResponse)
+      );
+      responseWithDifferentDataset.transferConfig.destinationDatasetId =
+        'old_dataset_id';
+
+      // Mock getTransferConfig to return config with old dataset
+      mockGetTransferConfig.mockReturnValueOnce([
+        responseWithDifferentDataset.transferConfig,
+      ]);
+
+      // The config has a new dataset ID
+      const testConfig = Object.assign({}, baseConfig);
+      testConfig.datasetId = 'new_dataset_id';
+
+      const result = await dts.constructUpdateTransferConfigRequest(
+        baseResponse.name,
+        testConfig
+      );
+
+      // Should include destination_dataset_id in update mask
+      expect(result.updateMask.paths).toContain('destination_dataset_id');
+
+      // The destinationDatasetId should be updated to the new value
+      expect(result.transferConfig.destinationDatasetId).toBe('new_dataset_id');
+    });
+
     test('should throw error when attempting to clear non-empty partitioning field', async () => {
       // Create a response with a non-empty partitioning field
       const responseWithPartitioning = JSON.parse(JSON.stringify(baseResponse));

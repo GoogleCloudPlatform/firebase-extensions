@@ -190,6 +190,12 @@ export const constructUpdateTransferConfigRequest = async (
   const updateMask = [];
   const updatedConfig = JSON.parse(JSON.stringify(transferConfig));
 
+  // Check and update destinationDatasetId if changed
+  if (config.datasetId !== transferConfig.destinationDatasetId) {
+    updateMask.push('destination_dataset_id');
+    updatedConfig.destinationDatasetId = config.datasetId;
+  }
+
   if (config.queryString !== fields.query.stringValue) {
     updateMask.push('params');
     updatedConfig.params.fields.query.stringValue = config.queryString;
