@@ -239,6 +239,7 @@ export const updateTestTransferConfig = async (
     schedule?: string;
     tableName?: string;
     partitioningField?: string | null;
+    datasetId?: string;
   }
 ): Promise<any> => {
   // Get existing config
@@ -248,6 +249,11 @@ export const updateTestTransferConfig = async (
 
   const updateMask: string[] = [];
   const updatedConfig = JSON.parse(JSON.stringify(existingConfig));
+
+  if (updates.datasetId !== undefined) {
+    updateMask.push('destination_dataset_id');
+    updatedConfig.destinationDatasetId = updates.datasetId;
+  }
 
   if (updates.queryString !== undefined) {
     updateMask.push('params');

@@ -386,6 +386,43 @@ describe('BigQuery-Firestore Export E2E Reconfiguration Tests', () => {
         updatedConfig.params.fields.destination_table_name_template.stringValue
       ).toContain(newTableName);
     }, 60000);
+
+    test('should update destination dataset ID', async () => {
+      // Setup - create two datasets
+      await createTestDataset(testResources.datasetId);
+      await createTestTable(testResources.datasetId, testResources.tableName);
+      const newDatasetId = `${testResources.datasetId}_new`;
+      await createTestDataset(newDatasetId);
+      await createTestTopic(testResources.topicName);
+
+      const queryString = `SELECT * FROM \`${e2eConfig.projectId}.${testResources.datasetId}.${testResources.tableName}\``;
+
+      // Create transfer config with original dataset
+      const transferConfig = await createTestTransferConfig(
+        testResources.transferConfigDisplayName,
+        testResources.datasetId,
+        testResources.tableName,
+        queryString,
+        e2eConfig.testSchedule,
+        testResources.topicName
+      );
+
+      transferConfigName = transferConfig.name;
+
+      // Verify initial dataset
+      expect(transferConfig.destinationDatasetId).toBe(testResources.datasetId);
+
+      // Update dataset ID
+      const updatedConfig = await updateTestTransferConfig(transferConfigName, {
+        datasetId: newDatasetId,
+      });
+
+      // Verify dataset ID was updated
+      expect(updatedConfig.destinationDatasetId).toBe(newDatasetId);
+      expect(updatedConfig.destinationDatasetId).not.toBe(
+        testResources.datasetId
+      );
+    }, 60000);
   });
 
   describe('Partitioning Field Reconfiguration', () => {
@@ -1165,11 +1202,11 @@ describe('BigQuery-Firestore Export E2E Reconfiguration Tests', () => {
   });
 
   describe('Pub/Sub Topic Reconfiguration', () => {
-    test('BUG: notificationPubsubTopic is not updated on reconfiguration', async () => {
-      // This test demonstrates the bug where reconfiguring the extension
-      // does NOT update the notificationPubsubTopic on the transfer config.
-      // This causes BQ transfers to succeed but Firestore to receive no data
-      // because the Pub/Sub notification goes to the wrong topic.
+    test('should update notificationPubsubTopic when mismatched', async () => {
+      // This test verifies that reconfiguration correctly updates notificationPubsubTopic
+      // when it drifts (e.g., from migration, manual edit, or extension reinstall).
+      // This prevents BQ transfers from succeeding but Firestore receiving no data
+      // because notifications would go to the wrong topic.
 
       // Setup
       await createTestDataset(testResources.datasetId);
@@ -1217,9 +1254,11 @@ describe('BigQuery-Firestore Export E2E Reconfiguration Tests', () => {
       });
 
       // Verify the topic is now wrong
-      const [configWithWrongTopic] = await datatransferClient.getTransferConfig({
-        name: transferConfigName,
-      });
+      const [configWithWrongTopic] = await datatransferClient.getTransferConfig(
+        {
+          name: transferConfigName,
+        }
+      );
       expect(configWithWrongTopic.notificationPubsubTopic).toBe(wrongTopic);
 
       // Now simulate extension reconfiguration by calling constructUpdateTransferConfigRequest
@@ -1235,34 +1274,28 @@ describe('BigQuery-Firestore Export E2E Reconfiguration Tests', () => {
         mockConfig
       );
 
-      // BUG: The update mask does NOT include 'notification_pubsub_topic'
-      // This means the wrong topic will NOT be corrected
-      expect(updateRequest.updateMask.paths).not.toContain(
+      // The update mask should include 'notification_pubsub_topic' to correct the drift
+      expect(updateRequest.updateMask.paths).toContain(
         'notification_pubsub_topic'
       );
 
-      // The schedule IS in the update mask (that field works correctly)
+      // The schedule should also be in the update mask (that field works correctly)
       expect(updateRequest.updateMask.paths).toContain('schedule');
 
-      // BUG: The notificationPubsubTopic in the update request is still the WRONG value
-      // because the code never checks or updates this field
+      // The notificationPubsubTopic should be corrected to the expected value
+      const correctTopic = `projects/${e2eConfig.projectId}/topics/${testResources.topicName}`;
       expect(updateRequest.transferConfig.notificationPubsubTopic).toBe(
-        wrongTopic
-      );
-
-      // It SHOULD be the correct topic, but it's not:
-      expect(updateRequest.transferConfig.notificationPubsubTopic).not.toBe(
-        `projects/${e2eConfig.projectId}/topics/${testResources.topicName}`
+        correctTopic
       );
 
       // Clean up the extra topic we created
       await deleteTestTopic(wrongTopicName);
     }, 90000);
 
-    test('BUG: extension update does not correct mismatched Pub/Sub topic', async () => {
-      // This test verifies the end-to-end impact of the bug:
-      // After reconfiguration, the transfer config still points to the wrong topic,
-      // which means the processMessages function will never receive notifications.
+    test('should correct mismatched Pub/Sub topic during extension update', async () => {
+      // This test verifies the end-to-end fix:
+      // After reconfiguration, the transfer config is corrected to point to the right topic,
+      // ensuring the processMessages function will receive notifications.
 
       // Setup
       await createTestDataset(testResources.datasetId);
@@ -1293,7 +1326,7 @@ describe('BigQuery-Firestore Export E2E Reconfiguration Tests', () => {
           ...transferConfig,
         });
 
-      // Corrupt the Pub/Sub topic
+      // Corrupt the Pub/Sub topic (simulating drift from migration or manual edit)
       const wrongTopicName = `${testResources.topicName}-old`;
       const wrongTopic = `projects/${e2eConfig.projectId}/topics/${wrongTopicName}`;
 
@@ -1329,11 +1362,11 @@ describe('BigQuery-Firestore Export E2E Reconfiguration Tests', () => {
       // The expected correct topic
       const expectedTopic = `projects/${e2eConfig.projectId}/topics/${testResources.topicName}`;
 
-      // BUG: Topic is still wrong after full extension reconfiguration
-      expect(finalConfig.notificationPubsubTopic).toBe(wrongTopic);
-      expect(finalConfig.notificationPubsubTopic).not.toBe(expectedTopic);
+      // Topic should be corrected after full extension reconfiguration
+      expect(finalConfig.notificationPubsubTopic).toBe(expectedTopic);
+      expect(finalConfig.notificationPubsubTopic).not.toBe(wrongTopic);
 
-      // But the schedule was updated correctly
+      // And the schedule should also be updated correctly
       expect(finalConfig.schedule).toBe('every 45 minutes');
 
       // Clean up the extra topic
