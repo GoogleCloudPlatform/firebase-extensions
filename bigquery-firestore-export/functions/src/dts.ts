@@ -237,6 +237,13 @@ export const constructUpdateTransferConfigRequest = async (
     updatedConfig.schedule = config.schedule;
   }
 
+  // Check and update notificationPubsubTopic if mismatched
+  const expectedPubsubTopic = `projects/${config.projectId}/topics/${config.pubSubTopic}`;
+  if (expectedPubsubTopic !== transferConfig.notificationPubsubTopic) {
+    updateMask.push('notification_pubsub_topic');
+    updatedConfig.notificationPubsubTopic = expectedPubsubTopic;
+  }
+
   // Note: serviceAccountName cannot be updated on existing transfer configs
   // It can only be set at creation time
 
