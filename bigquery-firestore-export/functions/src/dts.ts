@@ -190,6 +190,12 @@ export const constructUpdateTransferConfigRequest = async (
   const updateMask = [];
   const updatedConfig = JSON.parse(JSON.stringify(transferConfig));
 
+  // Check and update destinationDatasetId if changed
+  if (config.datasetId !== transferConfig.destinationDatasetId) {
+    updateMask.push('destination_dataset_id');
+    updatedConfig.destinationDatasetId = config.datasetId;
+  }
+
   if (config.queryString !== fields.query.stringValue) {
     updateMask.push('params');
     updatedConfig.params.fields.query.stringValue = config.queryString;
@@ -235,6 +241,13 @@ export const constructUpdateTransferConfigRequest = async (
   if (config.schedule !== transferConfig.schedule) {
     updateMask.push('schedule');
     updatedConfig.schedule = config.schedule;
+  }
+
+  // Check and update notificationPubsubTopic if mismatched
+  const expectedPubsubTopic = `projects/${config.projectId}/topics/${config.pubSubTopic}`;
+  if (expectedPubsubTopic !== transferConfig.notificationPubsubTopic) {
+    updateMask.push('notification_pubsub_topic');
+    updatedConfig.notificationPubsubTopic = expectedPubsubTopic;
   }
 
   // Note: serviceAccountName cannot be updated on existing transfer configs

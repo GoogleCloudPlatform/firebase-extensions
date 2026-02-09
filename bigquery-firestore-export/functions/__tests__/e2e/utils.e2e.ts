@@ -20,6 +20,7 @@ import * as admin from 'firebase-admin';
 import {PubSub} from '@google-cloud/pubsub';
 import {e2eConfig, generateTestResourceNames} from './config.e2e';
 import {Config} from '../../src/types';
+import {LogLevel} from '@invertase/firebase-extension-utilities/lib/logger/logger';
 import * as firebaseFunctionsTest from 'firebase-functions-test';
 
 // Initialize clients
@@ -178,6 +179,9 @@ export const deleteTestCollection = async (
   }
 };
 
+/** Service account email for e2e tests */
+const E2E_SERVICE_ACCOUNT_EMAIL = `bq-firestore-e2e-test@${e2eConfig.projectId}.iam.gserviceaccount.com`;
+
 /**
  * Create a transfer config for testing
  */
@@ -212,6 +216,7 @@ export const createTestTransferConfig = async (
     params: {fields: transferConfigParams},
     schedule,
     notificationPubsubTopic: `projects/${e2eConfig.projectId}/topics/${topicName}`,
+    serviceAccountName: E2E_SERVICE_ACCOUNT_EMAIL,
   };
 
   const request = {
@@ -234,6 +239,7 @@ export const updateTestTransferConfig = async (
     schedule?: string;
     tableName?: string;
     partitioningField?: string | null;
+    datasetId?: string;
   }
 ): Promise<any> => {
   // Get existing config
@@ -243,6 +249,11 @@ export const updateTestTransferConfig = async (
 
   const updateMask: string[] = [];
   const updatedConfig = JSON.parse(JSON.stringify(existingConfig));
+
+  if (updates.datasetId !== undefined) {
+    updateMask.push('destination_dataset_id');
+    updatedConfig.destinationDatasetId = updates.datasetId;
+  }
 
   if (updates.queryString !== undefined) {
     updateMask.push('params');
@@ -453,6 +464,7 @@ export const createMockConfig = (
     pubSubTopic: testResources.topicName,
     firestoreCollection: testResources.collectionPath,
     displayName: testResources.transferConfigDisplayName,
+    logLevel: 'info' as LogLevel,
     ...overrides,
   };
 };

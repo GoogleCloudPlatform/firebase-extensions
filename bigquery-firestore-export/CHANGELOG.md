@@ -1,3 +1,11 @@
+## Version 0.2.1
+
+fix - update `notificationPubsubTopic` when mismatched during extension reconfiguration to prevent data loss from notifications going to wrong topic
+
+fix - update `destinationDatasetId` when changed during extension reconfiguration to prevent data being written to wrong dataset
+
+test - add unit and e2e tests for reconfiguration drift detection
+
 ## Version 0.2.0
 
 See [Migration Guide](MIGRATION_GUIDE.md) for upgrading from 0.1.x.
