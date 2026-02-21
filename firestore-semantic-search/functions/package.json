@@ -18,7 +18,7 @@
     "@google-cloud/aiplatform": "^4.2.0",
     "@google-cloud/logging": "^11.2.0",
     "@google-cloud/resource-manager": "^6.1.0",
-    "@google-cloud/storage": "^7.16.0",
+    "@google-cloud/storage": "^7.19.0",
     "@google-cloud/vpc-access": "^4.1.0",
     "@google/generative-ai": "^0.24.1",
     "@tensorflow-models/universal-sentence-encoder": "^1.3.3",
