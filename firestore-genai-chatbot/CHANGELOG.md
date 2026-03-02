@@ -1,3 +1,8 @@
+## Version 0.0.19
+
+- chore: bump Cloud Functions runtime to Node.js 22
+- chore: run npm audit fix
+
 ## Version 0.0.18
 
 - chore: updated default model to Gemini 2.5 Flash, due to upcoming discontinuation of Gemini 2.0 Flash

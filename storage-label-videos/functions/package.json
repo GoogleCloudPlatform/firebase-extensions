@@ -15,7 +15,7 @@
     "publish-from-main": "firebase ext:dev:upload googlecloud/storage-label-videos --repo=https://github.com/googlecloudplatform/firebase-extensions --root=storage-label-videos --ref=main --project pub-ext-gcloud"
   },
   "engines": {
-    "node": "20"
+    "node": "22"
   },
   "main": "lib/index.js",
   "dependencies": {

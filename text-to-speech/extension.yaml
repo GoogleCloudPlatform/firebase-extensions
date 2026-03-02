@@ -13,7 +13,7 @@
 # limitations under the License.
 
 name: text-to-speech
-version: 0.1.8
+version: 0.1.9
 specVersion: v1beta
 
 icon: icon.png
@@ -69,7 +69,7 @@ resources:
       writing synthesized natural speech files to Cloud Storage
     properties:
       location: ${param:LOCATION}
-      runtime: nodejs20
+      runtime: nodejs22
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
         resource: projects/${param:PROJECT_ID}/databases/(default)/documents/${param:COLLECTION_PATH}/{id}

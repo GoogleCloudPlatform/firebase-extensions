@@ -14,7 +14,7 @@
     "publish-from-main": "firebase ext:dev:upload googlecloud/speech-to-text --repo=https://github.com/googlecloudplatform/firebase-extensions --root=speech-to-text --ref=main --project pub-ext-gcloud"
   },
   "engines": {
-    "node": "20"
+    "node": "22"
   },
   "main": "lib/index.js",
   "dependencies": {
