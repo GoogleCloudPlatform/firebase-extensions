@@ -11,7 +11,7 @@
     "publish-from-main": "firebase ext:dev:upload googlecloud/storage-reverse-image-search --repo=https://github.com/googlecloudplatform/firebase-extensions --root=storage-reverse-image-search --ref=main --project pub-ext-gcloud"
   },
   "engines": {
-    "node": "20"
+    "node": "22"
   },
   "main": "lib/index.js",
   "dependencies": {
