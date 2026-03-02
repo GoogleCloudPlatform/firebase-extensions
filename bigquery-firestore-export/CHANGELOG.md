@@ -1,3 +1,8 @@
+## Version 0.2.2
+
+chore: bump Cloud Functions runtime to Node.js 22
+chore: run npm audit fix
+
 ## Version 0.2.1
 
 fix - update `notificationPubsubTopic` when mismatched during extension reconfiguration to prevent data loss from notifications going to wrong topic

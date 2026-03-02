@@ -1,5 +1,5 @@
 name: storage-label-videos
-version: 0.1.5
+version: 0.1.6
 specVersion: v1beta
 
 displayName: Label Videos with Cloud Video AI
@@ -51,7 +51,7 @@ resources:
       eventTrigger:
         eventType: google.storage.object.finalize
         resource: projects/_/buckets/${param:INPUT_VIDEOS_BUCKET}
-      runtime: nodejs20
+      runtime: nodejs22
 
 params:
   - param: LOCATION

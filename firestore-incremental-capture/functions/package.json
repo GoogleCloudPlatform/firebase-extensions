@@ -14,7 +14,7 @@
     "publish-from-main": "firebase ext:dev:upload googlecloud/firestore-incremental-capture --repo=https://github.com/googlecloudplatform/firebase-extensions --root=firestore-incremental-capture --ref=main --project pub-ext-gcloud"
   },
   "engines": {
-    "node": "20"
+    "node": "22"
   },
   "main": "lib/index.js",
   "dependencies": {

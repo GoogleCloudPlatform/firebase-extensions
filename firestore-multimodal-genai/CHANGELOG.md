@@ -1,3 +1,8 @@
+## Version 1.0.6
+
+- chore: bump runtime to Node.js 22
+chore: run npm audit fix
+
 ## Version 1.0.5
 
 - chore: fix audit

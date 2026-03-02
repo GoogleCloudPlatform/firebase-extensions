@@ -1,6 +1,6 @@
 name: firestore-genai-chatbot
 
-version: 0.0.18
+version: 0.0.19
 
 specVersion: v1beta
 
@@ -80,7 +80,7 @@ resources:
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
         resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION_NAME}/{messageId}
-      runtime: "nodejs20"
+      runtime: "nodejs22"
       timeout: 540s
 
 params:

@@ -1,5 +1,5 @@
 name: firestore-multimodal-genai
-version: 1.0.5
+version: 1.0.6
 specVersion: v1beta
 
 icon: icon.png
@@ -82,7 +82,7 @@ resources:
     properties:
       location: ${LOCATION}
       httpsTrigger: {}
-      runtime: nodejs20
+      runtime: nodejs22
 
   - name: generateText
     type: firebaseextensions.v1beta.function
@@ -95,7 +95,7 @@ resources:
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
         resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION_NAME}/{summaryId}
-      runtime: nodejs20
+      runtime: nodejs22
 
 params:
   - param: GENERATIVE_AI_PROVIDER
