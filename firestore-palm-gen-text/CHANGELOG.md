@@ -1,3 +1,7 @@
+## Version 0.1.11
+
+chore - bump runtime to Node.js 22
+
 ## Version 0.1.10
 
 docs - update response field to mention response length limitation

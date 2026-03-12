@@ -1,5 +1,5 @@
 name: firestore-palm-gen-text
-version: 0.1.10
+version: 0.1.11
 specVersion: v1beta
 
 displayName: Language Tasks with PaLM API
@@ -64,7 +64,7 @@ resources:
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
         resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION_NAME}/{summaryId}
-      runtime: 'nodejs18'
+      runtime: 'nodejs22'
 
 params:
   - param: PALM_API_PROVIDER
