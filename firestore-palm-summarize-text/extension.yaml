@@ -2,7 +2,7 @@
 # https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml
 
 name: firestore-palm-summarize-text # Identifier for your extension
-version: 0.1.11 # Follow semver versioning
+version: 0.1.12 # Follow semver versioning
 specVersion: v1beta # Version of the Firebase Extensions specification
 
 # Friendly display name for your extension (~3-5 words)
@@ -79,7 +79,7 @@ resources:
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
         resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION_NAME}/{summaryId}
-      runtime: 'nodejs18'
+      runtime: 'nodejs22'
 
 # In the `params` field, set up your extension's user-configured parameters.
 # Learn more in the docs: https://firebase.google.com/docs/extensions/alpha/ref-extension-yaml#params-field
