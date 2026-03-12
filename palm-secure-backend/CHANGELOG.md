@@ -1,3 +1,7 @@
+## Version 0.1.6
+
+chore - bump runtime to Node.js 22
+
 ## Version 0.1.5
 
 docs - updated POSTINSTALL to correct code snippet
