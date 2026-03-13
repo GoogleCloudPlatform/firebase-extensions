@@ -13,7 +13,7 @@
 # limitations under the License.
 
 name: firestore-vector-search
-version: 0.1.2
+version: 0.1.3
 specVersion: v1beta
 
 tags:
@@ -117,7 +117,7 @@ resources:
     properties:
       availableMemoryMb: 512
       location: ${LOCATION}
-      runtime: nodejs20
+      runtime: nodejs22
       timeout: 540s
       taskQueueTrigger: {}
 
@@ -128,7 +128,7 @@ resources:
     properties:
       availableMemoryMb: 1024
       location: ${LOCATION}
-      runtime: nodejs20
+      runtime: nodejs22
       timeout: 540s
       taskQueueTrigger:
         retryConfig:
@@ -142,7 +142,7 @@ resources:
       embeddings back to firestore
     properties:
       location: ${LOCATION}
-      runtime: nodejs20
+      runtime: nodejs22
       availableMemoryMb: 512
       timeout: 540s
       eventTrigger:
@@ -157,7 +157,7 @@ resources:
       perform a vector search query.
     properties:
       location: ${LOCATION}
-      runtime: nodejs20
+      runtime: nodejs22
       availableMemoryMb: 512
       timeout: 540s
       eventTrigger:
@@ -172,7 +172,7 @@ resources:
       location: ${LOCATION}
       httpsTrigger: {}
       availableMemoryMb: 512
-      runtime: nodejs20
+      runtime: nodejs22
 params:
   - param: EMBEDDING_PROVIDER
     label: LLM
