@@ -1,3 +1,7 @@
+## Version 0.0.12
+
+chore: complete runtime migration to Node.js 22
+
 ## Version 0.0.11
 
 chore: bump runtime to Node.js 22
