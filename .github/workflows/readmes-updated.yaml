@@ -60,7 +60,10 @@ jobs:
           STEPS_GLOBAL_DEPS_SETUP_OUTPUTS_DIR: ${{ steps.global-deps-setup.outputs.dir }}
 
       - name: Install local dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
+
+      - name: Bootstrap monorepo dependencies
+        run: npx lerna bootstrap --no-ci --ignore-scripts
 
       - name: Run Lerna generate-readme
         run: lerna run --parallel generate-readme

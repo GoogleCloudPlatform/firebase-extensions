@@ -12,7 +12,9 @@ jobs:
         with:
           node-version: 22
       - name: NPM Install
-        run: npm i
+        run: npm ci --ignore-scripts
+      - name: Bootstrap monorepo dependencies
+        run: npx lerna bootstrap --no-ci --ignore-scripts
       - name: Lint
         run: npm run lint
       - name: Compile

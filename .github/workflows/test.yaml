@@ -52,12 +52,15 @@ jobs:
             ${{ runner.os }}-lerna-
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci --ignore-scripts
+
+      - name: Bootstrap monorepo dependencies
+        run: npx lerna bootstrap --no-ci --ignore-scripts
 
       - name: Build emulator functions
         run: |
           cd _emulator/functions
-          npm install
+          npm ci --ignore-scripts
 
       - name: Install Firebase CLI
         uses: nick-invision/retry@v1
