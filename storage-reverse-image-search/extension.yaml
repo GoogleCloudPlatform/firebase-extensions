@@ -148,7 +148,7 @@ resources:
       Search index.
     properties:
       location: ${LOCATION}
-      runtime: nodejs20
+      runtime: nodejs22
       availableMemoryMb: 8192
       timeout: 540s
       eventTrigger:
@@ -162,7 +162,7 @@ resources:
       It removes the image's datapoint from the Vector Search index.
     properties:
       location: ${LOCATION}
-      runtime: nodejs20
+      runtime: nodejs22
       availableMemoryMb: 8192
       timeout: 540s
       eventTrigger:
@@ -178,7 +178,7 @@ resources:
     properties:
       availableMemoryMb: 1024
       location: ${LOCATION}
-      runtime: nodejs20
+      runtime: nodejs22
       timeout: 540s
       taskQueueTrigger: {}
 
@@ -189,7 +189,7 @@ resources:
     properties:
       availableMemoryMb: 8192
       location: ${LOCATION}
-      runtime: nodejs20
+      runtime: nodejs22
       httpsTrigger: {}
 
 params:
