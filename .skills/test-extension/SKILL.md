@@ -18,24 +18,91 @@ export PROJECT_ID="<user-provided-project-id>"
 # 1. Build the extension
 cd <extension>/functions && npm install && npm run build
 
-# 2. Write test data to trigger the extension
+# 2. Install the extension (interactive — user must run this)
+#    ! firebase ext:install ./<extension-dir> --project=$PROJECT_ID
+
+# 3. Write test data to trigger the extension
 .skills/test-extension/scripts/write-firestore-doc.sh <collection> '<json>'
 
-# 3. Watch for completion
+# 4. Watch for completion
 .skills/test-extension/scripts/watch-status.sh <collection> <doc-id>
 
-# 4. Read the result
+# 5. Read the result
 .skills/test-extension/scripts/read-firestore-doc.sh <collection>/<doc-id>
 
-# 5. Clean up test data
+# 6. Clean up test data
 .skills/test-extension/scripts/delete-firestore-doc.sh <collection>/<doc-id>
 ```
 
 ## Prerequisites
 
 - The user must be authenticated: `firebase login` or `gcloud auth application-default login`
-- The extension must already be installed on the target project, or the user installs it
+- The extension must already be installed on the target project, or install it first (see below)
 - `PROJECT_ID` environment variable must be set
+
+## Installing an Extension
+
+`firebase ext:install` is interactive — there is no `--params` flag or non-interactive mode for providing configuration values. You cannot pipe or echo answers into it.
+
+### Option 1: Manual config files + deploy (recommended for agents)
+
+This is the non-interactive approach. You create the config files and deploy:
+
+1. Create `firebase.json` at the repo root (if it doesn't exist):
+   ```json
+   {
+     "extensions": {
+       "<instance-id>": "./<extension-dir>"
+     }
+   }
+   ```
+
+2. Create `extensions/<instance-id>.env` with the param values. See extension-specific reference docs for the correct params (e.g. [references/multimodal-genai.md](references/multimodal-genai.md)).
+
+3. For secret params (like `API_KEY`), create `extensions/<instance-id>.secret.local`:
+   ```
+   API_KEY=<ask the user for this>
+   ```
+
+4. Deploy: `firebase deploy --only extensions --project=$PROJECT_ID`
+
+**Use Vertex AI as the provider when possible** — it uses the project's service account for auth, so no API key secret is needed.
+
+### Option 2: Interactive install (user runs it)
+
+Suggest the user runs the install command themselves:
+
+```
+! firebase ext:install ./<extension-dir> --project=$PROJECT_ID
+```
+
+The `!` prefix runs it in the current session so the user can interact with the prompts.
+
+### Deployment Gotchas
+
+- **Do NOT use `--force`** with `firebase deploy --only extensions`. It will **delete all extension instances** on the project that are not in `firebase.json`.
+- **Instance ID conflicts**: If an instance with the same ID already exists, use a different instance ID (e.g. `firestore-multimodal-genai-test`). Use a unique collection name too to avoid conflicts with existing data.
+- **Immutable params**: Some params like `LOCATION` are immutable after install. If you need to change them, uninstall and reinstall.
+- **Never hardcode or commit API keys or secrets.** Always ask the user.
+
+## Checking Logs
+
+After triggering an extension, check Cloud Function logs to verify behavior:
+
+```bash
+gcloud functions logs read ext-<instance-id>-<function-name> \
+  --project=$PROJECT_ID --limit=20 --region=<location>
+```
+
+The function name is typically `generateText` for Firestore-triggered GenAI extensions and `generateOnCall` for callable functions. The region must match the extension's `LOCATION` param.
+
+## Uninstalling
+
+```bash
+firebase ext:uninstall <instance-id> --project=$PROJECT_ID --force
+```
+
+This removes the extension and cleans up `firebase.json` and the `.env` file. It does NOT delete Firestore data created by the extension.
 
 ## Extension Type Routing
 

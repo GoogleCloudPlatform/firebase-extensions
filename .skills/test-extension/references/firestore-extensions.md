@@ -11,20 +11,23 @@
 | firestore-incremental-capture | (wildcard `{document=**}`) | Any document fields | BigQuery export | document.write |
 | text-to-speech | (configured at install) | `text` field | Audio in Cloud Storage | document.write |
 
+## Detailed References
+
+For extension-specific installation config, test workflows, and gotchas, see:
+
+- [multimodal-genai.md](multimodal-genai.md) — firestore-multimodal-genai (Gemini tasks)
+
 ## Example Test Workflows
 
 ### firestore-multimodal-genai
 
-The extension substitutes handlebars variables from the document into the configured PROMPT.
+See [multimodal-genai.md](multimodal-genai.md) for full details including installation config and monitoring setup.
 
 ```bash
 export PROJECT_ID="<your-project>"
 
-# If PROMPT is "What is the capital of {{ country }}?"
-./scripts/write-firestore-doc.sh generate '{"country": "France"}'
-
-# If PROMPT is a static prompt with no variables
-./scripts/write-firestore-doc.sh generate '{"dummy": "trigger"}'
+# If PROMPT is "{{ prompt }}"
+./scripts/write-firestore-doc.sh generate '{"prompt": "What is Firebase?"}'
 
 # Watch for completion (use the doc ID from write output)
 ./scripts/watch-status.sh generate/<doc-id> COMPLETED
