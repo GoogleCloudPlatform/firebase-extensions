@@ -6,11 +6,15 @@ Monorepo of **Firebase Extensions** — self-contained Cloud Functions packages 
 
 ### Extension Types
 
-**Firestore-triggered** (document write/create): firestore-multimodal-genai, firestore-genai-chatbot, firestore-vector-search, firestore-semantic-search, firestore-palm-chatbot, firestore-palm-gen-text, firestore-palm-summarize-text, firestore-incremental-capture, text-to-speech
+**Firestore-triggered** (document write/create): firestore-multimodal-genai, firestore-genai-chatbot, firestore-vector-search, firestore-semantic-search, firestore-incremental-capture, text-to-speech
 
-**Storage-triggered** (object finalize): storage-label-images, storage-label-videos, storage-extract-image-text, storage-reverse-image-search, storage-transcode-videos, speech-to-text
+**Storage-triggered** (object finalize): storage-label-images, storage-label-videos, storage-extract-image-text, storage-reverse-image-search, speech-to-text
 
-**Other**: bigquery-firestore-export (Pub/Sub), palm-secure-backend (HTTPS callable)
+**Other**: bigquery-firestore-export (Pub/Sub)
+
+**Deprecated (PaLM)**: firestore-palm-chatbot, firestore-palm-gen-text, firestore-palm-summarize-text, palm-secure-backend
+
+**Unpublished**: storage-transcode-videos
 
 ## Development Workflow
 

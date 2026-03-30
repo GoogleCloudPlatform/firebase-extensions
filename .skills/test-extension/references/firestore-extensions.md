@@ -8,9 +8,6 @@
 | firestore-genai-chatbot | `generate` | `prompt` field | `response` | document.write |
 | firestore-vector-search | `products` | `input` field | `embedding` | document.write |
 | firestore-semantic-search | (configured at install) | Fields from FIELDS param | Vertex AI index | document.create |
-| firestore-palm-chatbot | `users/{uid}/discussions/{id}/messages` | `prompt` field | `response` | document.write |
-| firestore-palm-gen-text | `generate` | Handlebars vars from PROMPT | `output` | document.write |
-| firestore-palm-summarize-text | `text_documents` | `text` field | `summary` | document.write |
 | firestore-incremental-capture | (wildcard `{document=**}`) | Any document fields | BigQuery export | document.write |
 | text-to-speech | (configured at install) | `text` field | Audio in Cloud Storage | document.write |
 

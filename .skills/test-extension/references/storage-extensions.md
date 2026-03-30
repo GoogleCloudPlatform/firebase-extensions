@@ -8,7 +8,6 @@
 | storage-label-videos | `INPUT_VIDEOS_BUCKET` | Video file | JSON in `OUTPUT_BUCKET` | object.finalize |
 | storage-extract-image-text | `IMG_BUCKET` | Image file (PNG, JPG) | Firestore `extractedText` collection | object.finalize |
 | storage-reverse-image-search | `IMG_BUCKET` | Image file | Vertex AI index embeddings | object.finalize + object.delete |
-| storage-transcode-videos | `INPUT_VIDEOS_BUCKET` | Video file | Transcoded video in `OUTPUT_VIDEOS_BUCKET` | object.finalize |
 | speech-to-text | `EXTENSION_BUCKET` | Audio file (WAV, FLAC, MP3) | `.txt` file in Storage + optional Firestore | object.finalize |
 
 ## Uploading Files
@@ -43,7 +42,7 @@ These extensions write results to a Firestore collection:
 ./scripts/read-firestore-doc.sh extractedText
 ```
 
-### Storage Output (label-videos, transcode-videos)
+### Storage Output (label-videos)
 
 These extensions write output files to a storage bucket:
 
