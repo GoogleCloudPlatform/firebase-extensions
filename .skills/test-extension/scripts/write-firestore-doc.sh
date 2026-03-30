@@ -6,6 +6,9 @@ set -euo pipefail
 #
 # Writes a document to Firestore in the target project. JSON values are
 # converted to Firestore field format automatically.
+# Supports flat JSON with string, number, boolean, and null values.
+# Nested objects and arrays are stringified — use the Firestore REST API
+# directly if you need complex nested structures.
 # Requires: PROJECT_ID env var, gcloud auth (application-default credentials)
 
 COLLECTION="${1:?Usage: write-firestore-doc.sh <collection> '<json>'}"
@@ -33,13 +36,22 @@ FIELDS=$(echo "$JSON_DATA" | jq '{
   }) | from_entries)
 }')
 
-RESPONSE=$(curl -sf -X POST "${BASE_URL}/${COLLECTION}" \
+RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "${BASE_URL}/${COLLECTION}" \
   -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   -H "Content-Type: application/json" \
   -d "$FIELDS")
 
-DOC_NAME=$(echo "$RESPONSE" | jq -r '.name')
+HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+BODY=$(echo "$RESPONSE" | sed '$d')
+
+if [ "$HTTP_CODE" -ge 400 ] 2>/dev/null; then
+  echo "ERROR: Firestore API returned HTTP ${HTTP_CODE}" >&2
+  echo "$BODY" | jq . 2>/dev/null || echo "$BODY" >&2
+  exit 1
+fi
+
+DOC_NAME=$(echo "$BODY" | jq -r '.name')
 DOC_ID=$(echo "$DOC_NAME" | rev | cut -d'/' -f1 | rev)
 
 echo "Document created: ${COLLECTION}/${DOC_ID}"
-echo "$RESPONSE" | jq .
+echo "$BODY" | jq .

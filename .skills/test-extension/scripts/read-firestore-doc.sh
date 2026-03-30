@@ -19,10 +19,20 @@ SEGMENT_COUNT=$(echo "$DOC_PATH" | tr '/' '\n' | wc -l | tr -d ' ')
 
 if [ $((SEGMENT_COUNT % 2)) -eq 1 ]; then
   echo "Listing documents in: ${DOC_PATH}"
-  curl -sf "${BASE_URL}/${DOC_PATH}" \
-    -H "Authorization: Bearer ${ACCESS_TOKEN}" | jq .
 else
   echo "Reading document: ${DOC_PATH}"
-  curl -sf "${BASE_URL}/${DOC_PATH}" \
-    -H "Authorization: Bearer ${ACCESS_TOKEN}" | jq .
 fi
+
+RESPONSE=$(curl -s -w "\n%{http_code}" "${BASE_URL}/${DOC_PATH}" \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}")
+
+HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+BODY=$(echo "$RESPONSE" | sed '$d')
+
+if [ "$HTTP_CODE" -ge 400 ] 2>/dev/null; then
+  echo "ERROR: Firestore API returned HTTP ${HTTP_CODE}" >&2
+  echo "$BODY" | jq . 2>/dev/null || echo "$BODY" >&2
+  exit 1
+fi
+
+echo "$BODY" | jq .

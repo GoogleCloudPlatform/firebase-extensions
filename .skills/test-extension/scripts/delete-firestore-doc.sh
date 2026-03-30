@@ -14,7 +14,13 @@ ACCESS_TOKEN=$(gcloud auth application-default print-access-token 2>/dev/null ||
 BASE_URL="https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents"
 
 echo "Deleting document: ${DOC_PATH}"
-curl -sf -X DELETE "${BASE_URL}/${DOC_PATH}" \
-  -H "Authorization: Bearer ${ACCESS_TOKEN}" > /dev/null
+
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "${BASE_URL}/${DOC_PATH}" \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}")
+
+if [ "$HTTP_CODE" -ge 400 ] 2>/dev/null; then
+  echo "ERROR: Firestore API returned HTTP ${HTTP_CODE}" >&2
+  exit 1
+fi
 
 echo "Document deleted."
