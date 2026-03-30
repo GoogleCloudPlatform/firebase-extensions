@@ -21,24 +21,22 @@
 The extension substitutes handlebars variables from the document into the configured PROMPT.
 
 ```bash
+export PROJECT_ID="<your-project>"
+
 # If PROMPT is "What is the capital of {{ country }}?"
 ./scripts/write-firestore-doc.sh generate '{"country": "France"}'
 
 # If PROMPT is a static prompt with no variables
 ./scripts/write-firestore-doc.sh generate '{"dummy": "trigger"}'
-```
 
-The extension will:
-1. Set `status.state` to `PROCESSING`
-2. Call Gemini API with the substituted prompt
-3. Set `status.state` to `COMPLETED` and populate the `output` field
-
-```bash
 # Watch for completion (use the doc ID from write output)
 ./scripts/watch-status.sh generate/<doc-id> COMPLETED
 
 # Read the result
 ./scripts/read-firestore-doc.sh generate/<doc-id>
+
+# Clean up
+./scripts/delete-firestore-doc.sh generate/<doc-id>
 ```
 
 ### firestore-genai-chatbot
@@ -69,3 +67,4 @@ Expects an `input` field and generates an `embedding` field.
 - **Re-triggering**: Delete the document and create a new one, or clear both the response field and the status field
 - **Handlebars**: If the PROMPT uses `{{ variable }}`, the document MUST have a field named `variable` with a string value
 - **Missing variables**: The extension will error if a handlebars variable is referenced in PROMPT but missing from the document
+- **Collection path**: Check the installed extension's configuration for the actual collection path — it may differ from defaults

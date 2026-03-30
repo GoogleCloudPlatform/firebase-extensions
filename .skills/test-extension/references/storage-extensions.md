@@ -11,27 +11,22 @@
 | storage-transcode-videos | `INPUT_VIDEOS_BUCKET` | Video file | Transcoded video in `OUTPUT_VIDEOS_BUCKET` | object.finalize |
 | speech-to-text | `EXTENSION_BUCKET` | Audio file (WAV, FLAC, MP3) | `.txt` file in Storage + optional Firestore | object.finalize |
 
-## Uploading Files to the Storage Emulator
+## Uploading Files
 
-The Storage emulator runs on port 9199. You can upload files using the Firebase Storage REST API:
+Upload files to the extension's configured bucket using `gsutil`:
 
 ```bash
-BUCKET="demo-gcp.appspot.com"
-FILE_PATH="test-image.png"
-STORAGE_PATH="images/test.png"
+# Upload an image
+gsutil cp test-image.png gs://<bucket-name>/images/test.png
 
-# Upload via the Storage emulator REST API
-curl -X POST \
-  "http://127.0.0.1:9199/v0/b/${BUCKET}/o?name=${STORAGE_PATH}" \
-  -H "Content-Type: image/png" \
-  --data-binary @"${FILE_PATH}"
+# Upload an audio file
+gsutil cp test-audio.wav gs://<bucket-name>/audio/test.wav
 ```
 
-You can also use `gsutil` with the emulator:
+Or using the Firebase CLI:
 
 ```bash
-export STORAGE_EMULATOR_HOST="http://127.0.0.1:9199"
-gsutil cp test-image.png gs://demo-gcp.appspot.com/images/test.png
+firebase storage:upload test-image.png --bucket <bucket-name> --path images/test.png --project $PROJECT_ID
 ```
 
 ## Verifying Output
@@ -50,10 +45,10 @@ These extensions write results to a Firestore collection:
 
 ### Storage Output (label-videos, transcode-videos)
 
-These extensions write output files to a storage bucket. List bucket contents:
+These extensions write output files to a storage bucket:
 
 ```bash
-curl -sf "http://127.0.0.1:9199/v0/b/demo-gcp.appspot.com/o" | jq '.items[].name'
+gsutil ls gs://<output-bucket-name>/
 ```
 
 ## Test Fixtures
@@ -63,8 +58,8 @@ Some extensions have test fixtures committed to the repo:
 - `storage-label-images/functions/__tests__/fixtures/test.png`
 - `speech-to-text/functions/__tests__/fixtures/test.wav`
 
-You can use these for manual testing.
+You can use these for manual testing against a real project.
 
 ## Path Filtering
 
-Several storage extensions support `INCLUDE_PATH_LIST` and `EXCLUDE_PATH_LIST` params. When testing, make sure your upload path matches the include filter (or doesn't match the exclude filter).
+Several storage extensions support `INCLUDE_PATH_LIST` and `EXCLUDE_PATH_LIST` params. When testing, make sure your upload path matches the include filter (or doesn't match the exclude filter). Check the installed extension's configuration for the actual values.

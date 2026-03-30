@@ -1,34 +1,41 @@
 ---
 name: test-extension
-description: Test Firebase extensions end-to-end using the local emulator. Use when the user asks to test, verify, or debug an extension — covers building, emulator setup, writing test data, triggering, and verifying output.
+description: Test Firebase extensions end-to-end against a real Firebase project. Use when the user asks to test, verify, or debug an extension — covers building, installing, writing test data, triggering, and verifying output.
 ---
 
 # Test Extension
 
-Full-lifecycle manual testing of Firebase extensions against the local emulator.
+Full-lifecycle manual testing of Firebase extensions against a production Firebase project.
+
+**Important:** Always ask the user for their Firebase project ID before running any scripts. All scripts require `PROJECT_ID` to be set.
 
 ## Quick Start
 
 ```bash
+# 0. Set the target project (ask the user for this)
+export PROJECT_ID="<user-provided-project-id>"
+
 # 1. Build the extension
 cd <extension>/functions && npm install && npm run build
 
-# 2. Start the emulator (from repo root)
-.skills/test-extension/scripts/start-emulator.sh
-
-# 3. Write test data to trigger the extension
+# 2. Write test data to trigger the extension
 .skills/test-extension/scripts/write-firestore-doc.sh <collection> '<json>'
 
-# 4. Watch for completion
+# 3. Watch for completion
 .skills/test-extension/scripts/watch-status.sh <collection> <doc-id>
 
-# 5. Read the result
+# 4. Read the result
 .skills/test-extension/scripts/read-firestore-doc.sh <collection>/<doc-id>
 
-# 6. Clean up
-.skills/test-extension/scripts/clear-firestore.sh
-.skills/test-extension/scripts/stop-emulator.sh
+# 5. Clean up test data
+.skills/test-extension/scripts/delete-firestore-doc.sh <collection>/<doc-id>
 ```
+
+## Prerequisites
+
+- The user must be authenticated: `firebase login` or `gcloud auth application-default login`
+- The extension must already be installed on the target project, or the user installs it
+- `PROJECT_ID` environment variable must be set
 
 ## Extension Type Routing
 
@@ -52,24 +59,18 @@ Before testing, determine the extension's trigger type:
 
 ## Storage Extension Testing Flow
 
-1. Upload a file to the configured storage bucket via the emulator REST API or `gsutil`
+1. Upload a file to the configured storage bucket via `gsutil` or the Firebase CLI
 2. The extension triggers on `object.finalize`
 3. Output is typically written to a Firestore collection or a different storage bucket
 4. Check Firestore or the output bucket for results
 
-## Emulator Details
-
-See [references/emulator.md](references/emulator.md) for port mapping, health checks, environment variables, and Firebase CLI commands.
-
 ## Available Scripts
 
-All scripts are in `scripts/` and use `curl` + `jq` against the emulator REST API:
+All scripts require `PROJECT_ID` to be set. They use the Firebase/Google Cloud REST APIs with application default credentials:
 
 | Script | Purpose |
 |--------|---------|
-| `start-emulator.sh` | Start emulator with health check polling |
-| `stop-emulator.sh` | Stop emulator cleanly |
-| `clear-firestore.sh` | Delete all Firestore emulator data |
 | `write-firestore-doc.sh` | Write a JSON document to a collection |
 | `read-firestore-doc.sh` | Read a document or list a collection |
+| `delete-firestore-doc.sh` | Delete a specific document |
 | `watch-status.sh` | Poll a document until status.state matches a target |

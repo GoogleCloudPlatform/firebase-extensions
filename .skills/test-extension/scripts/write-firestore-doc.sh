@@ -4,15 +4,16 @@ set -euo pipefail
 # Usage: write-firestore-doc.sh <collection> '<json>'
 # Example: write-firestore-doc.sh generate '{"prompt": "What is Firebase?"}'
 #
-# Writes a document to the Firestore emulator. The JSON values are converted
-# to Firestore field format automatically. Supports string, number, and boolean values.
+# Writes a document to Firestore in the target project. JSON values are
+# converted to Firestore field format automatically.
+# Requires: PROJECT_ID env var, gcloud auth (application-default credentials)
 
 COLLECTION="${1:?Usage: write-firestore-doc.sh <collection> '<json>'}"
 JSON_DATA="${2:?Usage: write-firestore-doc.sh <collection> '<json>'}"
+PROJECT_ID="${PROJECT_ID:?Set PROJECT_ID environment variable}"
 
-PROJECT_ID="${PROJECT_ID:-demo-gcp}"
-HOST="${FIRESTORE_EMULATOR_HOST:-127.0.0.1:8080}"
-BASE_URL="http://${HOST}/v1/projects/${PROJECT_ID}/databases/(default)/documents"
+ACCESS_TOKEN=$(gcloud auth application-default print-access-token 2>/dev/null || gcloud auth print-access-token)
+BASE_URL="https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents"
 
 # Convert simple JSON to Firestore field format using jq
 FIELDS=$(echo "$JSON_DATA" | jq '{
@@ -33,6 +34,7 @@ FIELDS=$(echo "$JSON_DATA" | jq '{
 }')
 
 RESPONSE=$(curl -sf -X POST "${BASE_URL}/${COLLECTION}" \
+  -H "Authorization: Bearer ${ACCESS_TOKEN}" \
   -H "Content-Type: application/json" \
   -d "$FIELDS")
 

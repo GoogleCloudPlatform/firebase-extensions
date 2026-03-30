@@ -57,4 +57,4 @@ Extension environment configs are in `_emulator/extensions/*.env`.
 
 ## Manual Testing
 
-Use the **test-extension** skill (`.skills/test-extension/`) for full-lifecycle manual testing of extensions — building, emulator setup, writing test data, triggering, and verifying output. This is the recommended approach for end-to-end testing during development.
+Use the **test-extension** skill (`.skills/test-extension/`) for full-lifecycle manual testing of extensions against a real Firebase project. Covers writing test data, triggering extensions, and verifying output. Always ask the user for their `PROJECT_ID` before running tests.
