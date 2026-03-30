@@ -63,6 +63,12 @@ Provide a star rating from 1-5 of the following review text: \“{{review_text}}
 
 In this case, `review_text`` is a field of the Firestore document and will be substituted into the prompt when querying.
 
+### Genkit Monitoring (optional)
+
+This extension optionally supports [Genkit Monitoring](https://firebase.google.com/docs/genkit/monitoring) for collecting real-time telemetry data. If you choose to enable this feature, you will need to manually grant additional IAM roles (`monitoring.metricWriter`, `cloudtrace.agent`, `logging.logWriter`) to the extension's service account after installation. See the post-installation documentation for detailed instructions.
+
+If the required roles are not granted, the extension will log an error but continue to function normally.
+
 ### Choosing a generative model
 
 When installing this extension you will be prompted to pick a Gemini model.
@@ -88,16 +94,6 @@ This extension has historically supported calls to the (now deprecated) Gemini P
 For the Gemini Pro Vision models Google AI requires prompts to have both an image and text part, whereas Vertex AI allows gemini-pro-vision to be prompted with text only as well. If you have selected to use the Gemini Pro Vision model (deprecated) and have Google AI as a provider then any document handled by the extension must contain an image field.
 
 The Gemini Pro Vision API has a limit on image sizes. For Google AI this limit is currently 1MB, and for Vertex AI this limit is 4MB. This extension compress and resize images that fall above this limit.
-
-### Genkit Monitoring (optional)
-
-This extension optionally supports [Genkit Monitoring](https://firebase.google.com/docs/genkit/monitoring) for collecting real-time telemetry data. If you enable this during installation, you must manually grant the following IAM roles to the extension's service account:
-
-- `roles/monitoring.metricWriter`
-- `roles/cloudtrace.agent`
-- `roles/logging.logWriter`
-
-See the post-installation documentation for detailed instructions. If the required roles are not granted, the extension will log an error but continue to function normally.
 
 ### Troubleshooting timeout/PROCESSING errors
 
@@ -165,6 +161,8 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 * Harassment Content Threshold: Threshold for harassment content. Specify what probability level of harassment content is blocked by the Gemini provider.
 
 * Sexual Content Threshold: Threshold for sexually explicit content. Specify what probability level of sexual content is blocked by the Gemini provider.
+
+* Enable Genkit Monitoring: If set to "Yes", enables Genkit Monitoring for collecting and viewing real-time telemetry data. This requires the Cloud Logging API, Cloud Trace API, and Cloud Monitoring API to be enabled, and the following IAM roles to be manually granted to the extension's service account: monitoring.metricWriter, cloudtrace.agent, and logging.logWriter. See the post-installation documentation for instructions.
 
 
 
