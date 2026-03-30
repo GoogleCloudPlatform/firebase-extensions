@@ -56,6 +56,38 @@ The Gemini Pro Vision API has a limit on image sizes. For Google AI this limit i
 
 If the extension encounters an error, it will write an error message to the document in `status` field. You can use this field to monitor for errors in your documents. Currently some errors will instruct you to visit the Cloud Function logs for the extension, to avoid exposing sensitive information.
 
+## Genkit Monitoring (optional)
+
+If you enabled Genkit Monitoring during installation, you must manually grant the following IAM roles to the extension's service account (`ext-${param:EXT_INSTANCE_ID}@${param:PROJECT_ID}.iam.gserviceaccount.com`):
+
+- `roles/monitoring.metricWriter` — write metrics to Cloud Monitoring
+- `roles/cloudtrace.agent` — write trace data to Cloud Trace
+- `roles/logging.logWriter` — write logs to Cloud Logging
+
+You can grant these roles using the [Google Cloud Console](https://console.cloud.google.com/iam-admin/iam) or via the gcloud CLI:
+
+```bash
+gcloud projects add-iam-policy-binding ${param:PROJECT_ID} \
+  --member="serviceAccount:ext-${param:EXT_INSTANCE_ID}@${param:PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/monitoring.metricWriter"
+
+gcloud projects add-iam-policy-binding ${param:PROJECT_ID} \
+  --member="serviceAccount:ext-${param:EXT_INSTANCE_ID}@${param:PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/cloudtrace.agent"
+
+gcloud projects add-iam-policy-binding ${param:PROJECT_ID} \
+  --member="serviceAccount:ext-${param:EXT_INSTANCE_ID}@${param:PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/logging.logWriter"
+```
+
+You must also enable the following APIs in your project:
+
+- [Cloud Monitoring API](https://console.cloud.google.com/apis/library/monitoring.googleapis.com)
+- [Cloud Trace API](https://console.cloud.google.com/apis/library/cloudtrace.googleapis.com)
+- [Cloud Logging API](https://console.cloud.google.com/apis/library/logging.googleapis.com)
+
+If the required roles are not granted, the extension will log an error but continue to function normally without monitoring.
+
 ## Monitoring
 
 As a best practice, you can [monitor the activity](https://firebase.google.com/docs/extensions/manage-installed-extensions#monitor) of your installed extension, including checks on its health, usage, and logs.

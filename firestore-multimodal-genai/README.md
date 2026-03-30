@@ -89,6 +89,16 @@ For the Gemini Pro Vision models Google AI requires prompts to have both an imag
 
 The Gemini Pro Vision API has a limit on image sizes. For Google AI this limit is currently 1MB, and for Vertex AI this limit is 4MB. This extension compress and resize images that fall above this limit.
 
+### Genkit Monitoring (optional)
+
+This extension optionally supports [Genkit Monitoring](https://firebase.google.com/docs/genkit/monitoring) for collecting real-time telemetry data. If you enable this during installation, you must manually grant the following IAM roles to the extension's service account:
+
+- `roles/monitoring.metricWriter`
+- `roles/cloudtrace.agent`
+- `roles/logging.logWriter`
+
+See the post-installation documentation for detailed instructions. If the required roles are not granted, the extension will log an error but continue to function normally.
+
 ### Troubleshooting timeout/PROCESSING errors
 
 This extension will update the state of a document that is being processed within that status field of that document. When using Gemini Pro Vision with large images, there is a possibility that the process of compressing and resizing the image will exceed the extension's cloud function memory. By default this extension deploys a cloud function with 2GiB of memory, which should handle most use cases. If for some reason this is too much memory, you may reconfigure the function in the GCP console.
