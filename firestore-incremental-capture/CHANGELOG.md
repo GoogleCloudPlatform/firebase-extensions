@@ -1,6 +1,7 @@
-## Version 0.0.12
+## Version 0.0.13
 
-chore: complete runtime migration to Node.js 22
+- chore: complete runtime migration to Node.js 22
+- chore: run npm audit fix
 
 ## Version 0.0.11
 
