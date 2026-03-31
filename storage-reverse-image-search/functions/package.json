@@ -45,5 +45,10 @@
   "files": [
     "lib"
   ],
-  "private": true
+  "private": true,
+  "overrides": {
+    "@mapbox/node-pre-gyp": "^2.0.3",
+    "http-proxy-agent": "^7.0.0",
+    "tar": "^7.5.13"
+  }
 }
