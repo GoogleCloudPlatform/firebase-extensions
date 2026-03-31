@@ -63,6 +63,12 @@ Provide a star rating from 1-5 of the following review text: \“{{review_text}}
 
 In this case, `review_text`` is a field of the Firestore document and will be substituted into the prompt when querying.
 
+### Genkit Monitoring (optional)
+
+This extension optionally supports [Genkit Monitoring](https://firebase.google.com/docs/genkit/monitoring) for collecting real-time telemetry data. If you choose to enable this feature, you will need to manually grant additional IAM roles (`monitoring.metricWriter`, `cloudtrace.agent`, `logging.logWriter`) to the extension's service account after installation. See the post-installation documentation for detailed instructions.
+
+If the required roles are not granted, the extension will log an error but continue to function normally.
+
 ### Choosing a generative model
 
 When installing this extension you will be prompted to pick a Gemini model.
@@ -155,6 +161,8 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 * Harassment Content Threshold: Threshold for harassment content. Specify what probability level of harassment content is blocked by the Gemini provider.
 
 * Sexual Content Threshold: Threshold for sexually explicit content. Specify what probability level of sexual content is blocked by the Gemini provider.
+
+* Enable Genkit Monitoring: If set to "Yes", enables Genkit Monitoring for collecting and viewing real-time telemetry data. This requires the Cloud Logging API, Cloud Trace API, and Cloud Monitoring API to be enabled, and the following IAM roles to be manually granted to the extension's service account: monitoring.metricWriter, cloudtrace.agent, and logging.logWriter. See the post-installation documentation for instructions.
 
 
 

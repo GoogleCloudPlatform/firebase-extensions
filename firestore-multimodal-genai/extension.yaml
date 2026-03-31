@@ -1,5 +1,5 @@
 name: firestore-multimodal-genai
-version: 1.0.6
+version: 1.0.7
 specVersion: v1beta
 
 icon: icon.png
@@ -63,16 +63,12 @@ roles:
       Allows this extension to access the Gemini family of genai models via
       Vertex AI if this provider is chosen.
 
-  # - role: monitoring.metricWriter
-  #   reason: Allows this extension to write metrics to Cloud Monitoring when Genkit Monitoring is enabled.
-
-  # - role: cloudtrace.agent
-  #   reason:
-  #     Allows this extension to write trace data to Cloud Trace when Genkit Monitoring is enabled.
-
-  # - role: logging.logWriter
-  #   reason:
-  #     Allows this extension to write logs to Cloud Logging when Genkit Monitoring is enabled.
+  # Note: If you enable Genkit Monitoring, you must manually grant the following
+  # roles to the extension's service account:
+  #   - monitoring.metricWriter
+  #   - cloudtrace.agent
+  #   - logging.logWriter
+  # See POSTINSTALL.md for instructions.
 
 resources:
   - name: generateOnCall
@@ -495,17 +491,19 @@ params:
     default: HARM_BLOCK_THRESHOLD_UNSPECIFIED
     immutable: false
 
-  # - param: ENABLE_GENKIT_MONITORING
-  #   label: Enable Genkit Monitoring
-  #   description: >-
-  #     If set to "Yes", enables Genkit Monitoring for collecting and viewing real-time telemetry data.
-  #     This requires the Cloud Logging API, Cloud Trace API, and Cloud Monitoring API to be enabled,
-  #     and appropriate IAM roles to be configured. See the documentation for more details.
-  #   type: select
-  #   options:
-  #     - label: Yes
-  #       value: yes
-  #     - label: No
-  #       value: no
-  #   default: no
-  #   required: true
+  - param: ENABLE_GENKIT_MONITORING
+    label: Enable Genkit Monitoring
+    description: >-
+      If set to "Yes", enables Genkit Monitoring for collecting and viewing real-time telemetry data.
+      This requires the Cloud Logging API, Cloud Trace API, and Cloud Monitoring API to be enabled,
+      and the following IAM roles to be manually granted to the extension's service account:
+      monitoring.metricWriter, cloudtrace.agent, and logging.logWriter.
+      See the post-installation documentation for instructions.
+    type: select
+    options:
+      - label: Yes
+        value: yes
+      - label: No
+        value: no
+    default: no
+    required: true
