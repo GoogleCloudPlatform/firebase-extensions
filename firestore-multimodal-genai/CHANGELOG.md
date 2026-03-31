@@ -1,11 +1,8 @@
 ## Version 1.0.7
 
 - feat: add optional Genkit Monitoring support with `ENABLE_GENKIT_MONITORING` parameter. Monitoring roles must be manually granted to the extension's service account — see post-installation docs for instructions.
-
-## Version 1.0.6
-
 - chore: bump runtime to Node.js 22
-chore: run npm audit fix
+- chore: run npm audit fix
 
 ## Version 1.0.5
 

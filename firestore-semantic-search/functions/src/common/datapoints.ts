@@ -25,8 +25,8 @@ export const getEmbeddings =
   config.embeddingMethod === 'gemini'
     ? getEmbeddingsGemini
     : config.embeddingMethod === 'palm'
-    ? getEmbeddingsPaLM
-    : getEmbeddingsUSE;
+      ? getEmbeddingsPaLM
+      : getEmbeddingsUSE;
 
 export async function getDatapoint(
   reference: admin.firestore.DocumentReference,
