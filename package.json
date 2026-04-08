@@ -27,6 +27,7 @@
     "pretest": "npm run compile",
     "posttest": "npm run lint",
     "check-extension-version-main": "node ./scripts/check-extension-version-main.js",
-    "check-published-versions": "./scripts/check-published-versions.sh"
+    "check-published-versions": "./scripts/check-published-versions.sh",
+    "publish-rc": "node ./scripts/publish-rc.js"
   }
 }
