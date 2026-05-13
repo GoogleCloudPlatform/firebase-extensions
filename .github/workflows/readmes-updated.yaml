@@ -16,9 +16,17 @@ concurrency:
 env:
   BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      # `contents: write` is needed for the README push-back step at the end
+      # of the job. The step is gated on the PR being from this repo, so it
+      # only ever runs on first-party branches.
+      contents: write
 
     steps:
       - name: Checkout repository

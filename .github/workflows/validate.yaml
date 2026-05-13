@@ -3,6 +3,9 @@ name: validate
 on:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   linting:
     runs-on: ubuntu-latest
