@@ -59,15 +59,18 @@ jobs:
 
       # Dependencies are installed with --ignore-scripts, which skips the
       # @tensorflow/tfjs-node postinstall that fetches its native addon. Build
-      # the addon from source so firestore-semantic-search test suites that
-      # require('@tensorflow/tfjs-node') can load.
-      - name: Build firestore-semantic-search native addon (tfjs-node)
+      # the addon from source so test suites that require('@tensorflow/tfjs-node')
+      # can load (firestore-semantic-search and storage-reverse-image-search).
+      - name: Build tfjs-node native addons
         uses: nick-invision/retry@v1
         with:
-          timeout_minutes: 15
+          timeout_minutes: 20
           retry_wait_seconds: 30
           max_attempts: 3
-          command: cd firestore-semantic-search/functions && npm rebuild @tensorflow/tfjs-node --build-addon-from-source
+          command: |
+            for ext in firestore-semantic-search storage-reverse-image-search; do
+              (cd "$ext/functions" && npm rebuild @tensorflow/tfjs-node --build-addon-from-source)
+            done
 
       - name: Build emulator functions
         run: |
