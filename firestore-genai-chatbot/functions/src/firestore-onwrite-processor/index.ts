@@ -18,12 +18,25 @@ import {DocumentSnapshot} from 'firebase-admin/firestore';
  *
  * - 1  CANCELLED   (connection-level cancel; write did not commit)
  * - 14 UNAVAILABLE (channel/transport unavailable; write did not commit)
+ *
+ * gRPC retry semantics: UNAVAILABLE is safe to retry on the same call,
+ * whereas ABORTED requires a higher-level retry and DEADLINE_EXCEEDED leaves
+ * the write outcome ambiguous — hence both are excluded.
+ *
+ * @see https://grpc.io/docs/guides/retry/
+ * @see https://firebase.google.com/docs/firestore/enterprise/understand-error-codes
  */
 const TRANSIENT_GRPC_CODES = new Set<number>([1, 14]);
 
 /**
  * Determines whether an error is a transient gRPC failure that may be retried.
  *
+ * Firestore client errors expose the numeric gRPC status as `error.code`
+ * (e.g. `{code: 1, details: 'Call cancelled', ...}`); CANCELLED is not
+ * classified as transient by google-gax, so it is never retried internally
+ * and must be handled here.
+ *
+ * @see https://github.com/googleapis/nodejs-firestore/issues/2167
  * @param e the caught error
  * @returns true if the error carries a transient gRPC status code
  */
