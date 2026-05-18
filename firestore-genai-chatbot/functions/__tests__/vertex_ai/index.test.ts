@@ -105,12 +105,19 @@ let collectionName: string;
 describe('generateMessage', () => {
   let unsubscribe: (() => void) | undefined;
 
-  // clear firestore
-  beforeEach(async () => {
+  const clearFirestore = async () => {
     await fetch(
       `http://${process.env.FIRESTORE_EMULATOR_HOST}/emulator/v1/projects/demo-gcp/databases/(default)/documents`,
       {method: 'DELETE'}
     );
+  };
+
+  // Wipe before the suite starts so the first test has a clean slate. The
+  // wipe is otherwise performed in afterEach so it never races a live
+  // onSnapshot listener on the shared gRPC channel.
+  beforeAll(clearFirestore);
+
+  beforeEach(async () => {
     jest.clearAllMocks();
     const randomInteger = Math.floor(Math.random() * 1000000);
     collectionName = config.collectionName.replace(
@@ -130,11 +137,17 @@ describe('generateMessage', () => {
         if (snap.docs.length) firestoreObserver(snap);
       });
   });
-  afterEach(() => {
+  afterEach(async () => {
     if (unsubscribe && typeof unsubscribe === 'function') {
       unsubscribe();
     }
     jest.clearAllMocks();
+    // Let the onSnapshot Listen stream close before wiping the database;
+    // wiping while it tears down disturbs the shared gRPC channel. This is a
+    // best-effort settle to cut test noise — the processor's transient-retry
+    // is the authoritative safeguard against the gRPC cancellation.
+    await new Promise(resolve => setTimeout(resolve, 200));
+    await clearFirestore();
   });
 
   test('should not run if the prompt field is not set', async () => {

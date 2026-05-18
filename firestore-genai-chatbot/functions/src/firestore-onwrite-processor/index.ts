@@ -9,6 +9,57 @@ import {
 } from './common';
 import {DocumentSnapshot} from 'firebase-admin/firestore';
 
+/**
+ * gRPC status codes for transient, connection-level failures that are safe to
+ * retry for idempotent writes. Deliberately narrow: codes that may indicate
+ * the write actually committed (4 DEADLINE_EXCEEDED) or a contention abort
+ * that a blind retry would not resolve (10 ABORTED) are excluded to avoid
+ * ambiguous double-writes.
+ *
+ * - 1  CANCELLED   (connection-level cancel; write did not commit)
+ * - 14 UNAVAILABLE (channel/transport unavailable; write did not commit)
+ */
+const TRANSIENT_GRPC_CODES = new Set<number>([1, 14]);
+
+/**
+ * Determines whether an error is a transient gRPC failure that may be retried.
+ *
+ * @param e the caught error
+ * @returns true if the error carries a transient gRPC status code
+ */
+const isTransientGrpcError = (e: unknown): boolean => {
+  if (typeof e !== 'object' || e === null) return false;
+  const code = (e as {code?: unknown}).code;
+  return typeof code === 'number' && TRANSIENT_GRPC_CODES.has(code);
+};
+
+/**
+ * Runs an operation, retrying with exponential backoff on transient gRPC
+ * errors. The status writes performed by this processor are idempotent, so it
+ * is safe to retry them rather than dropping the document's status when the
+ * Firestore client reports a transient, connection-level failure (e.g. gRPC
+ * `1 CANCELLED` / `14 UNAVAILABLE`).
+ *
+ * @param op the operation to run
+ * @returns the resolved value of the operation
+ */
+const withTransientRetry = async <T>(op: () => Promise<T>): Promise<T> => {
+  const maxAttempts = 4;
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await op();
+    } catch (e) {
+      if (attempt >= maxAttempts || !isTransientGrpcError(e)) throw e;
+      // Exponential backoff with full jitter to avoid synchronised retry
+      // spikes when many function instances fail at once.
+      const backoff = 100 * 2 ** (attempt - 1);
+      await new Promise(resolve =>
+        setTimeout(resolve, Math.random() * backoff)
+      );
+    }
+  }
+};
+
 export class FirestoreOnWriteProcessor<
   TInput,
   TOutput extends Record<string, FirestoreField>,
@@ -73,7 +124,7 @@ export class FirestoreOnWriteProcessor<
       ? {[this.statusField]: status}
       : {[this.orderField]: createTime, [this.statusField]: status};
 
-    await change.after.ref.update(update);
+    await withTransientRetry(() => change.after.ref.update(update));
   }
 
   private async writeCompletionEvent(change: Change, output: TOutput) {
@@ -81,25 +132,29 @@ export class FirestoreOnWriteProcessor<
     const stateField = `${this.statusField}.state`;
     const updateTimeField = `${this.statusField}.updateTime`;
     const completeTimeField = `${this.statusField}.completeTime`;
-    await change.after.ref.update({
-      ...output,
-      [stateField]: State.COMPLETED,
-      [updateTimeField]: updateTime,
-      [completeTimeField]: updateTime,
-    });
+    await withTransientRetry(() =>
+      change.after.ref.update({
+        ...output,
+        [stateField]: State.COMPLETED,
+        [updateTimeField]: updateTime,
+        [completeTimeField]: updateTime,
+      })
+    );
   }
 
   private async writeErrorEvent(change: Change, e: unknown) {
     const eventTimestamp = now();
 
     const errorMessage = this.errorFn(e);
-    await change.after.ref.update({
-      [this.statusField]: {
-        state: State.ERROR,
-        updateTime: eventTimestamp,
-        error: errorMessage,
-      },
-    });
+    await withTransientRetry(() =>
+      change.after.ref.update({
+        [this.statusField]: {
+          state: State.ERROR,
+          updateTime: eventTimestamp,
+          error: errorMessage,
+        },
+      })
+    );
   }
 
   async run(change: Change): Promise<void> {
