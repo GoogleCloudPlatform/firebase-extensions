@@ -36,7 +36,10 @@
     "ts-jest": "^29.4.0"
   },
   "overrides": {
-    "fast-xml-parser": "^5.3.4"
+    "fast-xml-parser": "^5.7.1",
+    "fast-xml-builder": "^1.2.0",
+    "@protobufjs/utf8": "^1.1.1",
+    "protobufjs": "^7.5.8"
   },
   "private": true
 }
