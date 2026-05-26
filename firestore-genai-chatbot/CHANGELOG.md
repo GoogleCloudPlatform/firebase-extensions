@@ -1,3 +1,26 @@
+## Version 0.0.19
+
+- chore: bump Cloud Functions runtime to Node.js 22
+- chore: run npm audit fix
+
+## Version 0.0.18
+
+- chore: updated default model to Gemini 2.5 Flash, due to upcoming discontinuation of Gemini 2.0 Flash
+
+- feat: Allow configuring Vertex AI API location independently from Cloud Functions location
+
+- chore: update and audit packages
+
+- chore: remove flaky assertions from emulator tests
+
+## Version 0.0.17
+
+- feat: Add support for Gemini 3 Pro Preview
+
+## Version 0.0.16
+
+- feat: add support for Gemini 2.5 Flash Lite
+
 ## Version 0.0.15
 
 - feat: Add support for Gemini 2.5 models

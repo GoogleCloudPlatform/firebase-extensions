@@ -1,3 +1,54 @@
+## Version 0.2.2
+
+chore: bump Cloud Functions runtime to Node.js 22
+chore: run npm audit fix
+
+## Version 0.2.1
+
+fix - update `notificationPubsubTopic` when mismatched during extension reconfiguration to prevent data loss from notifications going to wrong topic
+
+fix - update `destinationDatasetId` when changed during extension reconfiguration to prevent data being written to wrong dataset
+
+test - add unit and e2e tests for reconfiguration drift detection
+
+## Version 0.2.0
+
+See [Migration Guide](MIGRATION_GUIDE.md) for upgrading from 0.1.x.
+
+fix - "latest" document now updates for all run states (SUCCEEDED, FAILED, etc.), not just successful runs
+
+fix - use Firestore transaction in `updateLatestRunDocument` to prevent race conditions from concurrent Pub/Sub messages
+
+fix - allow same-runId updates to handle Pub/Sub redelivery edge cases
+
+fix - explicit zero counts (`failedRowCount: 0, totalRowCount: 0`) for failed/non-success runs for clearer API shape
+
+fix - add resource name validation with descriptive error messages for malformed transfer config/run names
+
+fix - add error handling for BigQuery query failures with proper logging
+
+fix - `getTransferConfig` now properly distinguishes between "not found" (returns null) and API errors (throws)
+
+fix - add null/undefined validation for transfer config structure before accessing nested properties
+
+fix - all error paths now set `PROCESSING_FAILED` state before throwing for better visibility
+
+refactor - add logging for skipped latest updates, non-success run handling, and query failures
+
+test - reorganize test structure and improve test coverage
+
+fix - bump dependencies to fix vulnerabilities
+
+fix - improve processing status messages
+
+## Version 0.1.6
+
+fix - handle empty partitioning values in reconfiguration correctly
+
+refactor - improve type safety
+
+test - add e2e test coverage
+
 ## Version 0.1.5
 
 chore - remove irrelevant dependencies

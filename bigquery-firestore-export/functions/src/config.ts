@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Google LLC
+ * Copyright 2025 Google LLC
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 
 import {Config} from './types';
+import {LogLevel} from '@invertase/firebase-extension-utilities/lib/logger/logger';
 
 const config: Config = {
   location: process.env.LOCATION!,
@@ -30,6 +31,7 @@ const config: Config = {
   schedule: process.env.SCHEDULE,
   pubSubTopic: `ext-${process.env.EXT_INSTANCE_ID}-processMessages`,
   firestoreCollection: process.env.COLLECTION_PATH!,
+  logLevel: process.env.LOG_LEVEL! as LogLevel,
 };
 
 export default config;

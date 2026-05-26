@@ -1,20 +1,35 @@
+## Version 1.0.7
+
+- feat: add optional Genkit Monitoring support with `ENABLE_GENKIT_MONITORING` parameter. Monitoring roles must be manually granted to the extension's service account — see post-installation docs for instructions.
+
+## Version 1.0.6
+
+- chore: bump runtime to Node.js 22
+chore: run npm audit fix
+
 ## Version 1.0.5
 
-- Add missing Metric Monitoring role reason
-
-- feat: Add support for Gemini 2.5 models
-
-- fix: remove deprecated Gemini models (gemini10ProGoogleAI, gemini10ProVertexAI, gemini20FlashExpGoogleAI, gemini20ProExp0205GoogleAI, gemini20ProExp0205VertexAI, gemini20FlashLitePreview0205VertexAI)
+- chore: fix audit
 
 ## Version 1.0.4
 
-- chore: ensure consistent naming convention for Genkit Monitoring
+- chore: updated default model to Gemini 2.5 Flash, due to upcoming discontinuation of Gemini 2.0 Flash
+
+- feat: Allow configuring Vertex AI API location independently from Cloud Functions location
+
+- fix: Ensure vertex_ai.ts client uses the configured Vertex AI location
+
+- chore: bump dependencies
 
 ## Version 1.0.3
 
-- chore: clean up tests
+- feat: Add support for Gemini 3 preview models
 
-- feat: add genkit ai monitoring
+- feat: Add support for Gemini 2.5 models (Flash Lite, Flash, and Pro)
+
+- fix: remove deprecated Gemini models (Gemini 1.0 Pro, Gemini 2.0 Flash Experimental, Gemini 2.0 Pro Experimental, Gemini 2.0 Flash Lite Preview)
+
+- chore: clean up tests
 
 ## Version 1.0.2
 

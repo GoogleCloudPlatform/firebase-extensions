@@ -43,7 +43,7 @@ export class VertexDiscussionClient extends DiscussionClient<
     super();
     this.client = new VertexAI({
       project: config.projectId,
-      location: config.location,
+      location: config.vertex.modelLocation,
     });
     if (!modelName) {
       throw new Error('Model name required.');

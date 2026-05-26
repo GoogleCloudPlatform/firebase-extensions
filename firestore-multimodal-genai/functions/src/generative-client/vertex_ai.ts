@@ -16,7 +16,7 @@ export class VertexLanguageClient extends GenerativeClient<any, VertexAI> {
     super();
     this.client = new VertexAI({
       project: config.projectId,
-      location: config.location,
+      location: config.vertexAiLocation,
     });
 
     this.modelName = modelName;

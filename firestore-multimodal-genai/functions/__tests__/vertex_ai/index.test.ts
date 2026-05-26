@@ -40,7 +40,7 @@ jest.mock('../../src/config', () => ({
     },
     model: 'gemini-2.5-pro',
     collectionName: 'generate',
-    location: 'us-central1',
+    location: 'europe-west1', // Function location
     prompt: '{{ instruction }}',
     variableFields: ['instruction'],
     responseField: 'output',
@@ -48,6 +48,7 @@ jest.mock('../../src/config', () => ({
     projectId: 'demo-gcp',
     instanceId: 'demo-test',
     provider: 'vertex-ai',
+    vertexAiLocation: 'us-central1', // Vertex AI location
     candidates: {
       field: 'candidates',
       count: 2,

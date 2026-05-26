@@ -63,6 +63,12 @@ Provide a star rating from 1-5 of the following review text: \“{{review_text}}
 
 In this case, `review_text`` is a field of the Firestore document and will be substituted into the prompt when querying.
 
+### Genkit Monitoring (optional)
+
+This extension optionally supports [Genkit Monitoring](https://firebase.google.com/docs/genkit/monitoring) for collecting real-time telemetry data. If you choose to enable this feature, you will need to manually grant additional IAM roles (`monitoring.metricWriter`, `cloudtrace.agent`, `logging.logWriter`) to the extension's service account after installation. See the post-installation documentation for detailed instructions.
+
+If the required roles are not granted, the extension will log an error but continue to function normally.
+
 ### Choosing a generative model
 
 When installing this extension you will be prompted to pick a Gemini model.
@@ -136,6 +142,8 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations). Note that Generative AI on Vertex AI is only available in the regions listed [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/locations-genai). A list of languages and regions supported by the Gemini API on Google AI is [here](https://ai.google.dev/available_regions).
 
+* Vertex AI API Location: If you are using Vertex AI as your provider, which location should be used for the Vertex AI API? This can differ from the Cloud Functions location. If not specified, defaults to the Cloud Functions location. Note: Models in preview on Vertex AI require 'Global'. See [available locations](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations).
+
 * Temperature: Controls the randomness of the output. Values can range over [0,1], inclusive. A value closer to 1 will produce responses that are more varied, while a value closer to 0 will typically result in less surprising responses from the model.
 
 * Nucleus sampling probability: If specified, nucleus sampling will be used as the decoding strategy. Nucleus sampling considers the smallest set of tokens whose probability sum is at least a fixed value. Enter a value between 0 and 1.
@@ -154,7 +162,7 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Sexual Content Threshold: Threshold for sexually explicit content. Specify what probability level of sexual content is blocked by the Gemini provider.
 
-* Enable Genkit Monitoring: If set to "Yes", enables Genkit Monitoring for collecting and viewing real-time telemetry data. This requires the Cloud Logging API, Cloud Trace API, and Cloud Monitoring API to be enabled, and appropriate IAM roles to be configured. See the documentation for more details.
+* Enable Genkit Monitoring: If set to "Yes", enables Genkit Monitoring for collecting and viewing real-time telemetry data. This requires the Cloud Logging API, Cloud Trace API, and Cloud Monitoring API to be enabled, and the following IAM roles to be manually granted to the extension's service account: monitoring.metricWriter, cloudtrace.agent, and logging.logWriter. See the post-installation documentation for instructions.
 
 
 
@@ -183,9 +191,3 @@ This extension will operate with the following project IAM roles:
 * storage.objectAdmin (Reason: Allows the extension to read from your Cloud Storage.)
 
 * aiplatform.user (Reason: Allows this extension to access the Gemini family of genai models via Vertex AI if this provider is chosen.)
-
-* monitoring.metricWriter (Reason: Allows this extension to write metrics to Cloud Monitoring when Genkit Monitoring is enabled.)
-
-* cloudtrace.agent (Reason: Allows this extension to write trace data to Cloud Trace when Genkit Monitoring is enabled.)
-
-* logging.logWriter (Reason: Allows this extension to write logs to Cloud Logging when Genkit Monitoring is enabled.)

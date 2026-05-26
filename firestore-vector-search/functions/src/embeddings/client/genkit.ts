@@ -1,14 +1,7 @@
 import {EmbedderReference, Genkit, genkit} from 'genkit';
 import {config} from '../../config';
-import {GenkitPlugin} from 'genkit/plugin';
-import {
-  googleAI,
-  textEmbedding004 as textEmbedding004Google,
-} from '@genkit-ai/googleai';
-import {
-  textEmbedding004 as textEmbedding004Vertex,
-  vertexAI,
-} from '@genkit-ai/vertexai';
+import {GenkitPluginV2} from 'genkit/plugin';
+import {googleAI, vertexAI} from '@genkit-ai/google-genai';
 
 export class GenkitEmbedClient {
   provider: 'vertexai' | 'googleai' | 'multimodal';
@@ -26,10 +19,12 @@ export class GenkitEmbedClient {
   }) {
     this.provider = provider;
 
-    let plugins: GenkitPlugin[] = [];
+    let plugins: GenkitPluginV2[] = [];
 
     if (this.provider === 'vertexai') {
-      this.embedder = textEmbedding004Vertex;
+      this.embedder = vertexAI.embedder('gemini-embedding-001', {
+        outputDimensionality: 768,
+      });
       plugins = [
         vertexAI({
           location: config.location,
@@ -37,7 +32,9 @@ export class GenkitEmbedClient {
       ];
     }
     if (this.provider === 'googleai') {
-      this.embedder = textEmbedding004Google;
+      this.embedder = googleAI.embedder('gemini-embedding-001', {
+        outputDimensionality: 768,
+      });
       plugins = [
         googleAI({
           apiKey: config.geminiApiKey,

@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: ['20']
+        node: ['22']
     name: node.js_${{ matrix.node }}_test
     steps:
       - uses: actions/checkout@v3
@@ -52,12 +52,15 @@ jobs:
             ${{ runner.os }}-lerna-
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci --ignore-scripts
+
+      - name: Bootstrap monorepo dependencies
+        run: npx lerna bootstrap --no-ci --ignore-scripts
 
       - name: Build emulator functions
         run: |
           cd _emulator/functions
-          npm install
+          npm ci --ignore-scripts
 
       - name: Install Firebase CLI
         uses: nick-invision/retry@v1

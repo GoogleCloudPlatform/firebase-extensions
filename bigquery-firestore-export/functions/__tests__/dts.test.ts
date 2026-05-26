@@ -1,24 +1,107 @@
-import {Config} from '../src/types';
-import * as dts from '../src/dts';
-import {getTransferConfigResponse} from './fixtures/transferConfigResonse';
+// Mock declarations must come before imports for reliable hoisting
+jest.mock('../src/logs');
+
+jest.mock('firebase-functions', () => ({
+  logger: {
+    log: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  },
+}));
+
+jest.mock('../src/config', () => {
+  return {
+    default: {
+      location: 'us-central1',
+      bigqueryDatasetLocation: 'us',
+      displayName: 'Transactions Rollup',
+      datasetId: 'destination_dataset_id',
+      tableName: 'transactions',
+      queryString: 'Select * from `test-project.transaction_data.transactions`',
+      partitioningField: '',
+      schedule: 'every 15 minutes',
+      pubSubTopic: 'transfer_runs',
+      firestoreCollection: 'transferConfigs',
+      instanceId: 'firestore-bigquery-scheduler',
+      projectId: 'test',
+    },
+  };
+});
+
+const mockGetTransferConfig = jest.fn();
+const mockCreateTransferConfig = jest.fn();
+const mockUpdateTransferConfig = jest.fn();
 
 jest.mock('@google-cloud/bigquery-data-transfer', () => {
   return {
     v1: {
       DataTransferServiceClient: jest.fn().mockImplementation(() => {
         return {
-          getTransferConfig: jest.fn().mockImplementation(request => {
-            // Conditional response based on the request name
-            if (request.name.includes('wrong-id')) {
-              return [null]; // Simulate returning null for wrong IDs
+          getTransferConfig: mockGetTransferConfig.mockImplementation(
+            request => {
+              // Conditional response based on the request name
+              if (request.name.includes('wrong-id')) {
+                return [null]; // Simulate returning null for wrong IDs
+              }
+              if (request.name.includes('not-found')) {
+                // Simulate gRPC NOT_FOUND error (code 5)
+                const error = new Error('Transfer config not found');
+                (error as Error & {code: number}).code = 5;
+                throw error;
+              }
+              if (request.name.includes('api-error')) {
+                // Simulate a generic API error (should be re-thrown)
+                throw new Error('API Error');
+              }
+              return getTransferConfigResponse;
             }
-            return getTransferConfigResponse;
-          }),
+          ),
+          createTransferConfig: mockCreateTransferConfig.mockImplementation(
+            () => {
+              return [
+                {
+                  name: 'projects/test/locations/us/transferConfigs/new-config-id',
+                },
+              ];
+            }
+          ),
+          updateTransferConfig: mockUpdateTransferConfig.mockImplementation(
+            () => {
+              return [
+                {
+                  name: 'projects/test/locations/us/transferConfigs/updated-config-id',
+                },
+              ];
+            }
+          ),
         };
       }),
     },
+    protos: {
+      google: {
+        cloud: {
+          bigquery: {
+            datatransfer: {
+              v1: {
+                UpdateTransferConfigRequest: {
+                  fromObject: jest.fn().mockImplementation(obj => obj),
+                },
+              },
+            },
+          },
+        },
+      },
+    },
   };
 });
+
+// Imports after mocks for reliable module resolution
+import {Config} from '../src/types';
+import * as dts from '../src/dts';
+import {PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX} from '../src/dts';
+import {getTransferConfigResponse} from './fixtures/transferConfigResonse';
+import {LogLevel} from '@invertase/firebase-extension-utilities/lib/logger/logger';
 
 describe('dts', () => {
   describe('createTransferConfigRequest', () => {
@@ -37,6 +120,7 @@ describe('dts', () => {
         firestoreCollection: 'transferConfigs',
         instanceId: 'firestore-bigquery-scheduler',
         projectId: 'test',
+        logLevel: 'info' as LogLevel,
       };
       const expected = {
         parent: 'projects/test',
@@ -79,6 +163,7 @@ describe('dts', () => {
     firestoreCollection: 'transferConfigs',
     instanceId: 'firestore-bigquery-scheduler',
     projectId: 'test',
+    logLevel: 'info' as LogLevel,
   };
 
   const baseResponse = {
@@ -168,6 +253,209 @@ describe('dts', () => {
           testConfig
         )
       ).toEqual(expectedResponse);
+    });
+
+    test('empty partitioning field should not cause params update when only schedule changes', async () => {
+      // This test reproduces the bug from issue #2544
+      // When partitioningField is empty/undefined and schedule changes,
+      // the update should not include partitioning_field in params
+      const testConfig = Object.assign({}, baseConfig);
+      testConfig.schedule = 'every 24 hours';
+      testConfig.partitioningField = ''; // Empty, same as existing
+
+      const result = await dts.constructUpdateTransferConfigRequest(
+        baseResponse.name,
+        testConfig
+      );
+
+      // Should only update schedule, not params
+      expect(result.updateMask.paths).toEqual(['schedule']);
+      // partitioning_field should remain unchanged (empty string)
+      expect(
+        result.transferConfig.params.fields.partitioning_field.stringValue
+      ).toBe('');
+    });
+
+    test('undefined partitioning field should not include partitioning_field in update when existing is empty', async () => {
+      // When partitioningField is undefined (not set in config) and existing is empty,
+      // the update should proceed normally without error
+      const testConfig = Object.assign({}, baseConfig);
+      testConfig.queryString = 'SELECT * from newtable';
+      testConfig.partitioningField = undefined as unknown as string; // Simulates unset config
+
+      const result = await dts.constructUpdateTransferConfigRequest(
+        baseResponse.name,
+        testConfig
+      );
+
+      // Should update params for query change
+      expect(result.updateMask.paths).toContain('params');
+      // But partitioning_field should NOT be set to undefined - it should keep the existing value
+      expect(
+        result.transferConfig.params.fields.partitioning_field.stringValue
+      ).toBe(''); // Should remain empty string, not undefined
+    });
+
+    test('should update notificationPubsubTopic when mismatched', async () => {
+      // Simulate a transfer config with a WRONG topic (e.g., from drift or migration)
+      const responseWithWrongTopic = JSON.parse(JSON.stringify(baseResponse));
+      responseWithWrongTopic.transferConfig.notificationPubsubTopic =
+        'projects/test/topics/wrong-topic-name';
+
+      // Mock getTransferConfig to return config with wrong topic
+      mockGetTransferConfig.mockReturnValueOnce([
+        responseWithWrongTopic.transferConfig,
+      ]);
+
+      // The config has the CORRECT topic
+      const testConfig = Object.assign({}, baseConfig);
+      testConfig.pubSubTopic = 'transfer_runs'; // Correct topic
+      testConfig.schedule = 'every 24 hours'; // Change something to trigger update
+
+      const result = await dts.constructUpdateTransferConfigRequest(
+        baseResponse.name,
+        testConfig
+      );
+
+      // Should include notification_pubsub_topic in update mask
+      expect(result.updateMask.paths).toContain('notification_pubsub_topic');
+
+      // The schedule should also be in the update mask
+      expect(result.updateMask.paths).toContain('schedule');
+
+      // The notificationPubsubTopic should be corrected to the expected value
+      expect(result.transferConfig.notificationPubsubTopic).toBe(
+        'projects/test/topics/transfer_runs'
+      );
+    });
+
+    test('should update destinationDatasetId when changed', async () => {
+      // Simulate a transfer config with a different dataset ID
+      const responseWithDifferentDataset = JSON.parse(
+        JSON.stringify(baseResponse)
+      );
+      responseWithDifferentDataset.transferConfig.destinationDatasetId =
+        'old_dataset_id';
+
+      // Mock getTransferConfig to return config with old dataset
+      mockGetTransferConfig.mockReturnValueOnce([
+        responseWithDifferentDataset.transferConfig,
+      ]);
+
+      // The config has a new dataset ID
+      const testConfig = Object.assign({}, baseConfig);
+      testConfig.datasetId = 'new_dataset_id';
+
+      const result = await dts.constructUpdateTransferConfigRequest(
+        baseResponse.name,
+        testConfig
+      );
+
+      // Should include destination_dataset_id in update mask
+      expect(result.updateMask.paths).toContain('destination_dataset_id');
+
+      // The destinationDatasetId should be updated to the new value
+      expect(result.transferConfig.destinationDatasetId).toBe('new_dataset_id');
+    });
+
+    test('should throw error when attempting to clear non-empty partitioning field', async () => {
+      // Create a response with a non-empty partitioning field
+      const responseWithPartitioning = JSON.parse(JSON.stringify(baseResponse));
+      responseWithPartitioning.transferConfig.params.fields.partitioning_field.stringValue =
+        'timestamp';
+
+      // Mock getTransferConfig to return config with partitioning
+      mockGetTransferConfig.mockReturnValueOnce([
+        responseWithPartitioning.transferConfig,
+      ]);
+
+      const testConfig = Object.assign({}, baseConfig);
+      testConfig.partitioningField = ''; // Trying to clear partitioning
+
+      // Should throw error when attempting to clear partitioning
+      await expect(
+        dts.constructUpdateTransferConfigRequest(baseResponse.name, testConfig)
+      ).rejects.toThrow(PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX);
+    });
+  });
+
+  describe('getTransferConfig', () => {
+    beforeEach(() => {
+      mockGetTransferConfig.mockClear();
+    });
+
+    test('returns transfer config when found', async () => {
+      const result = await dts.getTransferConfig(baseResponse.name);
+
+      expect(result).toEqual(getTransferConfigResponse[0]);
+      expect(mockGetTransferConfig).toHaveBeenCalledWith({
+        name: baseResponse.name,
+      });
+    });
+
+    test('returns null when config not found (gRPC NOT_FOUND)', async () => {
+      const result = await dts.getTransferConfig(
+        'projects/test/locations/us/transferConfigs/not-found'
+      );
+
+      expect(result).toBeNull();
+    });
+
+    test('throws error for non-NOT_FOUND API errors', async () => {
+      await expect(
+        dts.getTransferConfig(
+          'projects/test/locations/us/transferConfigs/api-error'
+        )
+      ).rejects.toThrow('API Error');
+    });
+  });
+
+  describe('createTransferConfig', () => {
+    beforeEach(() => {
+      mockCreateTransferConfig.mockClear();
+    });
+
+    test('successfully creates transfer config and returns response', async () => {
+      const result = await dts.createTransferConfig();
+
+      expect(result).toEqual({
+        name: 'projects/test/locations/us/transferConfigs/new-config-id',
+      });
+      expect(mockCreateTransferConfig).toHaveBeenCalled();
+    });
+  });
+
+  describe('updateTransferConfig', () => {
+    beforeEach(() => {
+      mockUpdateTransferConfig.mockClear();
+      mockGetTransferConfig.mockClear();
+    });
+
+    test('successfully updates transfer config and returns response', async () => {
+      const result = await dts.updateTransferConfig(baseResponse.name);
+
+      expect(result).toEqual({
+        name: 'projects/test/locations/us/transferConfigs/updated-config-id',
+      });
+      expect(mockUpdateTransferConfig).toHaveBeenCalled();
+    });
+
+    test('throws error when transfer config not found', async () => {
+      await expect(
+        dts.updateTransferConfig(
+          'projects/test/locations/us/transferConfigs/wrong-id'
+        )
+      ).rejects.toThrow('Transfer config not found');
+    });
+
+    test('throws error when API throws error', async () => {
+      mockUpdateTransferConfig.mockImplementationOnce(() => {
+        throw new Error('Update API Error');
+      });
+
+      await expect(dts.updateTransferConfig(baseResponse.name)).rejects.toThrow(
+        'Update API Error'
+      );
     });
   });
 });
