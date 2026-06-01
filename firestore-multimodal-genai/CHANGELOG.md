@@ -1,3 +1,9 @@
+## Version 1.0.8
+
+- chore: bump `sharp` from `^0.33.5` to `^0.34.5`
+- chore: bump `protobufjs` to 7.6.1 (security update)
+- chore: bump transitive dependencies (`lodash`, `handlebars`, `picomatch`, `flatted`)
+
 ## Version 1.0.7
 
 - feat: add optional Genkit Monitoring support with `ENABLE_GENKIT_MONITORING` parameter. Monitoring roles must be manually granted to the extension's service account — see post-installation docs for instructions.
