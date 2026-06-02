@@ -1,3 +1,7 @@
+## Version 0.1.12
+
+fix: allow periods in storage path validation for IMG_PATH parameter
+
 ## Version 0.1.11
 
 chore: bump runtime to Node.js 22
