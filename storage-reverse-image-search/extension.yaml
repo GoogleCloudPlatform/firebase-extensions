@@ -212,7 +212,7 @@ params:
       empty, the root of the bucket will be used.
     type: string
     example: root/images
-    validationRegex: ^[\w-]+(\/[\w-]+)*$
+    validationRegex: ^[\w.-]+(\/[\w.-]+)*$
     validationErrorMessage: Invalid path
     immutable: true
 

@@ -108,7 +108,7 @@ params:
       videos from.
     type: string
     example: /video_annotation_input/
-    validationRegex: ^\/([0-9a-zA-Z_\/\-]*\/){0,1}$
+    validationRegex: ^\/([0-9a-zA-Z_.\-\/]*\/){0,1}$
     validationErrorMessage: Invalid storage folder name
     default: /video_annotation_input/
     required: true
@@ -120,7 +120,7 @@ params:
       stored.
     type: string
     example: /video_annotation_output/
-    validationRegex: ^\/([0-9a-zA-Z_\/\-]*\/){0,1}$
+    validationRegex: ^\/([0-9a-zA-Z_.\-\/]*\/){0,1}$
     validationErrorMessage: Invalid storage folder name
     default: /video_annotation_output/
     required: true
