@@ -1,3 +1,7 @@
+## Version 0.1.11
+
+docs: correct the query function App Check and Firebase Auth claims (the Callable Function does not enforce either by default)
+
 ## Version 0.1.10
 
 chore: bump runtime to Node.js 22
