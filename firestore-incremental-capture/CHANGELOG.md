@@ -1,3 +1,7 @@
+## Version 0.0.13
+
+docs: document the Cloud Tasks maximum document size limitation that causes "Task size too large" errors
+
 ## Version 0.0.12
 
 chore: complete runtime migration to Node.js 22
