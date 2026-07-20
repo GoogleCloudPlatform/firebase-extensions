@@ -25,7 +25,7 @@
     "@tensorflow/tfjs-node": "^4.22.0",
     "@tensorflow/tfjs-node-gpu": "^4.22.0",
     "@types/fs-extra": "^11.0.4",
-    "axios": "^1.10.0",
+    "axios": "^1.18.1",
     "firebase-admin": "^12.2.0",
     "firebase-functions": "^4.3.1",
     "fs-extra": "^11.3.0",
@@ -44,6 +44,15 @@
     "firebase-functions-test": "^3.4.1",
     "jest": "^29.5.0",
     "ts-jest": "^29.4.0"
+  },
+  "overrides": {
+    "adm-zip": "^0.6.0",
+    "fast-xml-parser": "^5.7.0",
+    "protobufjs": "^7.6.5",
+    "tar": "^7.5.16",
+    "ts-deepmerge": "^8.0.0",
+    "uuid": "^11.1.1",
+    "websocket-driver": "^0.7.5"
   },
   "files": [
     "lib"
