@@ -21,6 +21,8 @@
     "test": "cd _emulator && npm run reset:emulator && firebase emulators:start --project=demo-gcp & sleep 100 && lerna run test --concurrency 1",
     "test:local": "lerna run test --concurrency 1",
     "lint": "gts lint",
+    "license:check": "./scripts/addlicense.sh check",
+    "license:fix": "./scripts/addlicense.sh fix",
     "clean": "gts clean",
     "compile": "lerna run build",
     "fix": "gts fix",
