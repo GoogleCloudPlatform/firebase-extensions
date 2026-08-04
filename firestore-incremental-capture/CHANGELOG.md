@@ -1,3 +1,7 @@
+## Version 0.0.13
+
+- chore: bump transitive dependencies (`lodash`, `picomatch`, `flatted`)
+
 ## Version 0.0.12
 
 chore: complete runtime migration to Node.js 22
