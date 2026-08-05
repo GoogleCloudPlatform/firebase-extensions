@@ -1,5 +1,5 @@
 name: firestore-semantic-search
-version: 0.1.10
+version: 0.1.11
 specVersion: v1beta
 
 icon: icon.png
@@ -651,6 +651,14 @@ params:
         value: australia-southeast1
     required: true
     immutable: true
+
+  - param: ENFORCE_APP_CHECK
+    label: Enforce App Check
+    description: >-
+      Enforce App Check for the extension's functions.
+    type: boolean
+    default: false # False to avoid breaking changes
+    required: false
 
 lifecycleEvents:
   onInstall:

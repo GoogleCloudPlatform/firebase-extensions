@@ -1,3 +1,7 @@
+## Version 0.1.11
+
+feat - add enforceAppCheck param for queryIndex function (#686)
+
 ## Version 0.1.10
 
 chore: bump runtime to Node.js 22
