@@ -1,3 +1,7 @@
+## Version 0.1.12
+
+chore: fix npm audit vulnerabilities
+
 ## Version 0.1.11
 
 chore: bump runtime to Node.js 22
