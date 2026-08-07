@@ -16,5 +16,14 @@
     "firebase-admin": "^11.8.0",
     "firebase-functions": "^4.3.1"
   },
-  "private": true
+  "private": true,
+  "overrides": {
+    "markdown-it": "^14.1.1",
+    "underscore": "^1.13.8",
+    "node-forge": "^1.4.0",
+    "lodash": "^4.18.1",
+    "fast-xml-parser": "^4.5.6",
+    "@protobufjs/utf8": "^1.1.1",
+    "protobufjs": "^7.5.8"
+  }
 }
