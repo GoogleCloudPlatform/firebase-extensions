@@ -1,5 +1,5 @@
 name: firestore-multimodal-genai
-version: 1.0.7
+version: 1.0.8
 specVersion: v1beta
 
 icon: icon.png
@@ -187,9 +187,17 @@ params:
     description: >-
       Where do you want to deploy the functions created for this extension? For
       help selecting a location, refer to the [location selection
-      guide](https://firebase.google.com/docs/functions/locations). Note that
-      Generative AI on Vertex AI is only available in the regions listed
-      [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/locations-genai).
+      guide](https://firebase.google.com/docs/functions/locations). This is the
+      Cloud Functions deployment location only; it is not necessarily the region
+      used to call the Vertex AI Gemini API. If you use the Vertex AI provider
+      and do not set a "Vertex AI API Location" below, the extension calls Vertex
+      AI in this location. Not every Cloud Functions location is a supported
+      Vertex AI region, and choosing an unsupported region (for example,
+      us-west2) causes generation to fail with a "Publisher Model ... not found"
+      error. To avoid this, set the "Vertex AI API Location" parameter below to a
+      region where your chosen Gemini model is available. Generative AI on Vertex
+      AI is only available in the regions listed
+      [here](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations).
       A list of languages and regions supported by the Gemini API on Google AI
       is [here](https://ai.google.dev/available_regions).
     type: select
@@ -242,8 +250,11 @@ params:
     description: >-
       If you are using Vertex AI as your provider, which location should be used
       for the Vertex AI API? This can differ from the Cloud Functions location.
-      If not specified, defaults to the Cloud Functions location. Note: Models
-      in preview on Vertex AI require 'Global'. See [available
+      If not specified, defaults to the Cloud Functions location. If the Cloud
+      Functions location is not a supported Vertex AI region for your model, the
+      Vertex AI call fails with a "Publisher Model ... not found" error, so set
+      this parameter to a supported region in that case. Note: Models in preview
+      on Vertex AI require 'Global'. See [available
       locations](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations).
     type: select
     options:
