@@ -24,7 +24,12 @@ import * as mkdirp from 'mkdirp';
 import {FieldValue} from 'firebase-admin/firestore';
 
 import * as logs from './logs';
-import {publishFailureEvent, errorFromAny, publishCompleteEvent} from './util';
+import {
+  publishFailureEvent,
+  errorFromAny,
+  publishCompleteEvent,
+  getTranscodedStoragePath,
+} from './util';
 import {
   transcodeToLinear16,
   transcribeAndUpload,
@@ -126,11 +131,14 @@ export const transcribeAudio = functions.storage
         message: 'Transcoding audio file.',
       });
 
+      const transcodedStoragePath = getTranscodedStoragePath(
+        filePath,
+        config.outputStoragePath
+      );
+
       const transcodedUploadResult = await uploadTranscodedFile({
         localPath: transcodeResult.outputPath,
-        storagePath: config.outputStoragePath
-          ? `${config.outputStoragePath}${transcodeResult.outputPath}`
-          : transcodeResult.outputPath.slice(1),
+        storagePath: transcodedStoragePath,
         bucket: bucket,
       });
 
