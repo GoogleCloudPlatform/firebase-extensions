@@ -1,3 +1,7 @@
+## Version 0.2.3
+
+chore: fix npm audit vulnerabilities
+
 ## Version 0.2.2
 
 chore: bump Cloud Functions runtime to Node.js 22
