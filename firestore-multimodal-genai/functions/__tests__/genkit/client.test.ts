@@ -181,14 +181,27 @@ describe('GenkitGenerativeClient', () => {
 
   it('should create the correct model reference', () => {
     const modelReference = GenkitGenerativeClient.createModelReference(
-      'gemini-1.5-flash',
+      'gemini-3.6-flash',
       'google-ai'
     );
-    expect(modelReference === null).toBe(false);
 
     expect(modelReference).toHaveProperty('name');
 
-    expect(modelReference!.name).toBe('googleai/gemini-1.5-flash');
+    expect(modelReference.name).toBe('googleai/gemini-3.6-flash');
+  });
+
+  it('should create a model reference for an unlisted model id', () => {
+    const googleAiReference = GenkitGenerativeClient.createModelReference(
+      'gemini-9-flash',
+      'google-ai'
+    );
+    const vertexAiReference = GenkitGenerativeClient.createModelReference(
+      'gemini-9-flash',
+      'vertex-ai'
+    );
+
+    expect(googleAiReference.name).toBe('googleai/gemini-9-flash');
+    expect(vertexAiReference.name).toBe('vertexai/gemini-9-flash');
   });
 
   it('should call generate with correct options and return response', async () => {
@@ -334,16 +347,12 @@ describe('GenkitGenerativeClient.shouldUseGenkitClient', () => {
     expect(result).toBe(false);
   });
 
-  it('should return false if no model reference is found', () => {
-    const config = {...baseConfig, model: 'unknown-model'};
-
-    jest
-      .spyOn(GenkitGenerativeClient, 'createModelReference')
-      .mockReturnValueOnce(null);
+  it('should return true for a model id that is not in the known list', () => {
+    const config = {...baseConfig, model: 'gemini-9-flash'};
 
     const result = GenkitGenerativeClient.shouldUseGenkitClient(config);
 
-    expect(result).toBe(false);
+    expect(result).toBe(true);
   });
 
   it('should return true if conditions are met for Genkit client usage', () => {

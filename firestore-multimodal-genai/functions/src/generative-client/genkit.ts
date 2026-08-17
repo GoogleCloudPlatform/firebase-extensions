@@ -53,7 +53,10 @@ export class GenkitGenerativeClient extends GenerativeClient<
     this.generateOptions = this.createGenerateOptions(config);
   }
 
-  //   We use this to check before creating the client to see if we should use the Genkit client
+  /**
+   * Whether the Genkit client can serve this config (single candidate, not a
+   * legacy `pro-vision` model).
+   */
   static shouldUseGenkitClient(config: Config): boolean {
     if (config.model.includes('pro-vision')) return false;
     const shouldReturnMultipleCandidates =
@@ -111,35 +114,33 @@ export class GenkitGenerativeClient extends GenerativeClient<
     return genkit(genkitConfig);
   }
 
+  /**
+   * Resolves a Genkit model reference for the configured provider.
+   *
+   * Known ids are registered first so version aliases still match. Unknown
+   * ids fall through to `googleAI.model()` / `vertexAI.model()` so current
+   * Gemini releases work without a package update.
+   */
   static createModelReference(
     model: string,
     provider: string
-  ): ModelReference<any> | null {
-    const modelReferences =
-      provider === 'google-ai'
-        ? [
-            googleAI.model('gemini-1.5-flash'),
-            googleAI.model('gemini-1.5-pro'),
-            googleAI.model('gemini-2.0-flash'),
-            googleAI.model('gemini-2.0-flash-lite'),
-            googleAI.model('gemini-2.5-flash-lite'),
-            googleAI.model('gemini-2.5-flash'),
-            googleAI.model('gemini-2.5-pro'),
-            googleAI.model('gemini-3-pro-preview'),
-          ]
-        : [
-            vertexAI.model('gemini-1.5-flash'),
-            vertexAI.model('gemini-1.5-pro'),
-            vertexAI.model('gemini-2.0-flash'),
-            vertexAI.model('gemini-2.0-flash-lite'),
-            vertexAI.model('gemini-2.0-flash-001'),
-            vertexAI.model('gemini-2.5-flash-lite'),
-            vertexAI.model('gemini-2.5-flash'),
-            vertexAI.model('gemini-2.5-pro'),
-            vertexAI.model('gemini-3-pro-preview'),
-          ];
+  ): ModelReference<any> {
+    const isGoogleAi = provider === 'google-ai';
+    const pluginName = isGoogleAi ? 'googleai' : 'vertexai';
+    const knownIds = [
+      'gemini-3.6-flash',
+      'gemini-3.5-flash',
+      'gemini-3.5-flash-lite',
+      'gemini-3.1-flash-lite',
+      'gemini-3.1-pro-preview',
+      'gemini-2.5-flash-lite',
+      'gemini-2.5-flash',
+      'gemini-2.5-pro',
+    ] as const;
 
-    const pluginName = provider === 'google-ai' ? 'googleai' : 'vertexai';
+    const modelReferences = knownIds.map(id =>
+      isGoogleAi ? googleAI.model(id) : vertexAI.model(id)
+    );
 
     for (const modelReference of modelReferences) {
       if (modelReference.name === `${pluginName}/${model}`) {
@@ -149,7 +150,7 @@ export class GenkitGenerativeClient extends GenerativeClient<
         return modelReference.withVersion(model);
       }
     }
-    return null;
+    return isGoogleAi ? googleAI.model(model) : vertexAI.model(model);
   }
 
   private createGenerateOptions(config: Config): GenerateOptions {
@@ -157,17 +158,11 @@ export class GenkitGenerativeClient extends GenerativeClient<
       throw new Error('Model must be specified in the configuration.');
     }
 
-    const modelRef = GenkitGenerativeClient.createModelReference(
-      config.model,
-      config.provider!
-    );
-
-    if (!modelRef) {
-      throw new Error('Model reference not found.');
-    }
-
     return {
-      model: modelRef,
+      model: GenkitGenerativeClient.createModelReference(
+        config.model,
+        config.provider!
+      ),
       config: {
         topP: config.topP,
         topK: config.topK,
