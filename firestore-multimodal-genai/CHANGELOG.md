@@ -1,3 +1,7 @@
+## Version 1.0.8
+
+- feat: default to Gemini 3.6 Flash; Genkit accepts current Gemini 3.x ids without falling back to the legacy clients. Gemini 2.5 models retire in October 2026.
+
 ## Version 1.0.7
 
 - feat: add optional Genkit Monitoring support with `ENABLE_GENKIT_MONITORING` parameter. Monitoring roles must be manually granted to the extension's service account — see post-installation docs for instructions.
