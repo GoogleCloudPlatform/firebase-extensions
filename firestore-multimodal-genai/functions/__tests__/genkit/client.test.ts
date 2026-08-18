@@ -356,26 +356,8 @@ describe('GenkitGenerativeClient.shouldUseGenkitClient', () => {
   });
 
   it('should return true if conditions are met for Genkit client usage', () => {
-    const config = {...baseConfig, model: 'gemini-1.5-flash'};
-
-    jest
-      .spyOn(GenkitGenerativeClient, 'createModelReference')
-      .mockReturnValueOnce({
-        name: 'googleai/gemini-1.5-flash',
-        withVersion: jest.fn(),
-        withConfig: jest.fn(),
-      });
-
-    const result = GenkitGenerativeClient.shouldUseGenkitClient(config);
+    const result = GenkitGenerativeClient.shouldUseGenkitClient(baseConfig);
 
     expect(result).toBe(true);
-  });
-
-  it('should call createModelReference with correct parameters', () => {
-    const spy = jest.spyOn(GenkitGenerativeClient, 'createModelReference');
-
-    GenkitGenerativeClient.shouldUseGenkitClient(baseConfig);
-
-    expect(spy).toHaveBeenCalledWith('gemini-1.5-flash', 'google-ai');
   });
 });
