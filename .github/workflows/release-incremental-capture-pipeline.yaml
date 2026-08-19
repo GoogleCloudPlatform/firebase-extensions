@@ -22,6 +22,10 @@ jobs:
       attestations: write
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          # The release is cut with gh and GH_TOKEN, so no later step needs the
+          # credential left behind in .git/config.
+          persist-credentials: false
 
       # JDK 11 rather than a newer JDK targeting 11: the pom sets
       # maven.compiler.source/target without --release, so javac links against
@@ -31,7 +35,8 @@ jobs:
         with:
           distribution: temurin
           java-version: '11'
-          cache: maven
+          # No dependency cache: a cache entry poisoned from a pull request would
+          # otherwise feed into a published artifact.
 
       # Tests run as part of package, so they gate the release.
       - name: Build the shaded jar
@@ -43,7 +48,7 @@ jobs:
         run: sha256sum restore-firestore.jar > restore-firestore.jar.sha256
 
       - name: Attest build provenance
-        uses: actions/attest-build-provenance@8beda2b7ed98355c0e97c0a63bec38ae472e66c4 # v4
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4
         with:
           subject-path: firestore-incremental-capture-pipeline/target/restore-firestore.jar
 
