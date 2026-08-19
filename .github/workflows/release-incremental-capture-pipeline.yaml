@@ -1,0 +1,70 @@
+name: Release incremental capture pipeline
+
+on:
+  push:
+    tags:
+      - 'firestore-incremental-capture-pipeline-v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-fic-pipeline-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      # JDK 11 rather than a newer JDK targeting 11: the pom sets
+      # maven.compiler.source/target without --release, so javac links against
+      # the running JDK's class library and can emit Java 11 bytecode that calls
+      # APIs the runtime lacks. The flex template base image is JAVA11.
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '11'
+          cache: maven
+
+      # Tests run as part of package, so they gate the release.
+      - name: Build the shaded jar
+        working-directory: firestore-incremental-capture-pipeline
+        run: mvn --batch-mode clean package
+
+      - name: Compute checksum
+        working-directory: firestore-incremental-capture-pipeline/target
+        run: sha256sum restore-firestore.jar > restore-firestore.jar.sha256
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@8beda2b7ed98355c0e97c0a63bec38ae472e66c4 # v4
+        with:
+          subject-path: firestore-incremental-capture-pipeline/target/restore-firestore.jar
+
+      # Lets us prove the build and attestation work before cutting a tag.
+      - name: Upload artifacts for a dry run
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
+        with:
+          name: restore-firestore
+          path: |
+            firestore-incremental-capture-pipeline/target/restore-firestore.jar
+            firestore-incremental-capture-pipeline/target/restore-firestore.jar.sha256
+          if-no-files-found: error
+
+      - name: Publish the release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" \
+            --title "${GITHUB_REF_NAME}" \
+            --notes "Restoration pipeline for firestore-incremental-capture, built from ${GITHUB_SHA}. Verify with: shasum -a 256 -c restore-firestore.jar.sha256" \
+            firestore-incremental-capture-pipeline/target/restore-firestore.jar \
+            firestore-incremental-capture-pipeline/target/restore-firestore.jar.sha256
