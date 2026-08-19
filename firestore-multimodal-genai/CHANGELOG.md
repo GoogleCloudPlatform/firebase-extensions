@@ -1,6 +1,8 @@
 ## Version 1.0.8
 
 - feat: default to Gemini 3.6 Flash; Genkit accepts current Gemini 3.x ids without falling back to the legacy clients. Gemini 2.5 models retire in October 2026.
+- feat: default `VERTEX_AI_PROVIDER_LOCATION` to `global`. Gemini 3.x is only served from the Vertex AI `global`, `us` and `eu` endpoints, so the previous "same as Cloud Functions location" default would fail for the new default model.
+- docs: note that Gemini 3.x deprecates `TEMPERATURE`, `TOP_P` and `TOP_K`; custom values are ignored. They still apply to Gemini 2.5 models.
 
 ## Version 1.0.7
 
