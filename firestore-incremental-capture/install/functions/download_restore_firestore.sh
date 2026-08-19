@@ -1,42 +1,30 @@
-echo -e "${YELLOW}Downloading the JAR file...${NC}"
+# Pinned to a release tag, never to a branch. Installed versions of this
+# extension run their own copy of this script at install time, so a moving URL
+# would hand an old install a pipeline build it was never tested against.
+# Bump PIPELINE_RELEASE and PIPELINE_SHA256 together, in the same extension
+# version bump that ships the new pipeline.
+PIPELINE_RELEASE="firestore-incremental-capture-pipeline-v1.0.0"
+PIPELINE_SHA256="REPLACE_WITH_RELEASE_DIGEST"
 
-# Use the correct URL
-if curl -L -o restore-firestore.jar "https://github.com/GoogleCloudPlatform/firebase-extensions/raw/main/firestore-incremental-capture-pipeline/target/restore-firestore.jar"; then
-  # Check if the file is actually a JAR and not HTML
-  if file restore-firestore.jar | grep -q "HTML"; then
-    echo -e "${YELLOW}The downloaded file appears to be an HTML page, not a JAR file. The file may not exist at that location.${NC}"
-    
-    # Try alternative sources
-    echo -e "${YELLOW}Trying alternative locations...${NC}"
-    
-    # Alternative 1: Try Firebase Extensions GitHub repo directly
-    if curl -L -o restore-firestore.jar "https://github.com/firebase/extensions/raw/main/firestore-incremental-capture-pipeline/target/restore-firestore.jar"; then
-      if ! file restore-firestore.jar | grep -q "HTML"; then
-        echo -e "${GREEN}JAR file downloaded successfully from alternative location.${NC}"
-        SUCCESS_TASKS+=("${GREEN}${TICK} Successfully downloaded assets.")
-        exit 0
-      fi
-    fi
-    
-    # Alternative 2: Try checking Google Cloud Storage
-    echo -e "${YELLOW}Trying to download from Cloud Storage...${NC}"
-    if gcloud storage cp gs://firebase-preview-drop/extension-builds/firestore-incremental-capture/restore-firestore.jar ./restore-firestore.jar 2>/dev/null; then
-      echo -e "${GREEN}JAR file downloaded successfully from Cloud Storage.${NC}"
-      SUCCESS_TASKS+=("${GREEN}${TICK} Successfully downloaded assets.")
-      exit 0
-    fi
-    
-    # If all attempts fail
-    echo -e "${RED}Failed to download a valid JAR file from all known locations.${NC}"
-    echo -e "${YELLOW}You may need to build the JAR from source or contact Firebase support.${NC}"
-    FAILED_TASKS+=("${RED}${CROSS} Failed to download assets.")
-    exit 1
-  else
-    echo -e "${GREEN}JAR file downloaded successfully.${NC}"
-    SUCCESS_TASKS+=("${GREEN}${TICK} Successfully downloaded assets.")
-  fi
-else
-  echo -e "${RED}Failed to download JAR file.${NC}"
+PIPELINE_URL="https://github.com/GoogleCloudPlatform/firebase-extensions/releases/download/${PIPELINE_RELEASE}/restore-firestore.jar"
+
+echo -e "${YELLOW}Downloading the JAR file (${PIPELINE_RELEASE})...${NC}"
+
+download_failed() {
+  echo -e "${RED}$1${NC}"
   FAILED_TASKS+=("${RED}${CROSS} Failed to download assets.")
-  exit 1
+}
+
+# This file is sourced by run.sh, so it must return rather than exit - an exit
+# here would skip every remaining setup step and still report success.
+if ! curl -fsSL -o restore-firestore.jar "$PIPELINE_URL"; then
+  download_failed "Failed to download the JAR from ${PIPELINE_URL}."
+elif [ "$PIPELINE_SHA256" = "REPLACE_WITH_RELEASE_DIGEST" ]; then
+  download_failed "No pinned checksum is configured for ${PIPELINE_RELEASE}; refusing to use the download."
+elif ! echo "${PIPELINE_SHA256}  restore-firestore.jar" | shasum -a 256 -c - >/dev/null 2>&1; then
+  download_failed "Checksum mismatch: ${PIPELINE_URL} does not match the digest pinned in this extension version."
+  rm -f restore-firestore.jar
+else
+  echo -e "${GREEN}JAR file downloaded and verified.${NC}"
+  SUCCESS_TASKS+=("${GREEN}${TICK} Successfully downloaded assets.")
 fi
