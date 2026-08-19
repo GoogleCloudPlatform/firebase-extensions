@@ -1,0 +1,40 @@
+# The published extension's install script downloads the restoration jar from
+# raw/main at install time, so every installed version - including versions
+# published years ago - resolves to whatever blob sits at that path right now.
+# Old installs cannot be given a new jar safely: they were never tested against
+# one. The committed jar is therefore frozen, and new pipeline builds ship as
+# release assets instead. This job enforces the freeze.
+name: Guard incremental capture jar
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  jar-unchanged:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Fail if the committed jar changed
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          JAR: firestore-incremental-capture-pipeline/target/restore-firestore.jar
+        run: |
+          set -euo pipefail
+          if git diff --name-only "origin/${BASE_REF}...HEAD" -- "$JAR" | grep -q .; then
+            echo "::error file=${JAR}::The committed restoration jar is frozen."
+            echo "Installed extension versions download this exact path from raw/main"
+            echo "at install time, so changing it retroactively swaps the pipeline"
+            echo "under every existing install, including ones never tested on it."
+            echo "Ship new builds as release assets via the release workflow instead."
+            exit 1
+          fi
+          echo "Committed jar unchanged."

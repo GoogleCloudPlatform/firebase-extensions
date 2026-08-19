@@ -63,8 +63,10 @@ jobs:
             firestore-incremental-capture-pipeline/target/restore-firestore.jar.sha256
           if-no-files-found: error
 
+      # Guarded on the event too: workflow_dispatch accepts a tag as its ref, so
+      # a ref-only check would turn a dry run into a real release.
       - name: Publish the release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
