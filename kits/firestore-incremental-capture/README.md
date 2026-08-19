@@ -238,6 +238,8 @@ silently drops any field whose tag it does not handle:
 - **Documents sharing an id across collections collide.** The replay query ranks
   with `ROW_NUMBER() OVER(PARTITION BY documentId …)`, partitioning by document
   id rather than path, so only one of `users/x` and `orders/x` is replayed.
+  Tracked in
+  [#1138](https://github.com/GoogleCloudPlatform/firebase-extensions/issues/1138).
 
 The PITR baseline half of a restoration is unaffected; these apply to the
 changelog replay on top of it. Fixing them means changing the Java, which is out
