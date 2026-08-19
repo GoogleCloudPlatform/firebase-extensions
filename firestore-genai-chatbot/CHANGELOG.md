@@ -1,3 +1,7 @@
+## Version 0.0.20
+
+- feat: default to Gemini 3.6 Flash; Genkit accepts current Gemini 3.x ids without throwing `Model not found.` Gemini 2.5 models retire in October 2026.
+
 ## Version 0.0.19
 
 - chore: bump Cloud Functions runtime to Node.js 22
