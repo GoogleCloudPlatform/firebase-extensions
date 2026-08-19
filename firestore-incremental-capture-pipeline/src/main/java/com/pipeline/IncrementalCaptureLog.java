@@ -97,12 +97,15 @@ public class IncrementalCaptureLog
 
   }
 
-  private static KV<String, Document> convertToFirestoreValue(SchemaAndRecord schemaAndRecord, String projectId,
+  static KV<String, Document> convertToFirestoreValue(SchemaAndRecord schemaAndRecord, String projectId,
       String databaseId) {
 
     GenericRecord record = schemaAndRecord.getRecord();
 
-    String data = record.get("afterData").toString();
+    // Delete rows carry NULL afterData. The fields are unused on that path, but
+    // the map is still built before changeType is read.
+    Object afterData = record.get("afterData");
+    String data = afterData != null ? afterData.toString() : "{}";
     String documentPath = createDocumentName(record.get("documentPath").toString(), projectId, databaseId);
     String changeType = record.get("changeType").toString();
 
@@ -114,15 +117,15 @@ public class IncrementalCaptureLog
 
     // using static methods as beam seems to error when passing an instance version
     // of FirestoreReconstructor to the transform
-    Document doc = Document.newBuilder().putAllFields((Map<String, Value>) firestoreMap).setName(createDocumentName(
-        documentPath, projectId, databaseId)).build();
+    // createDocumentName is not idempotent and documentPath is already qualified.
+    Document doc = Document.newBuilder().putAllFields((Map<String, Value>) firestoreMap).setName(documentPath).build();
 
     KV<String, Document> kv = KV.of(changeType, doc);
 
     return kv;
   }
 
-  private static String createDocumentName(String path, String projectId, String databaseId) {
+  static String createDocumentName(String path, String projectId, String databaseId) {
     String documentPath = String.format(
         "projects/%s/databases/%s/documents",
         projectId,
