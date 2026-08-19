@@ -210,20 +210,65 @@ describe('GenkitGenerativeClient', () => {
       Promise.resolve(mockGenerateResponse as unknown as GenerateResponse<any>)
     );
 
-    const response = await client.generate('Test prompt');
+    const response = await client.generate('Test prompt', {
+      image: 'path/to/image.jpg',
+    });
 
     expect(client.client.generate).toHaveBeenCalledWith({
       messages: [
         {
           role: 'user',
-          content: [{text: 'Test prompt'}],
+          content: [
+            {text: 'Test prompt'},
+            {media: {url: 'data:image/jpeg;base64,base64EncodedImage'}},
+          ],
         },
       ],
       model: expect.any(Object),
       config: expect.any(Object),
+      image: 'path/to/image.jpg',
     });
 
     expect(response).toEqual({candidates: ['Generated text response']});
+  });
+
+  it('should throw if the image field is configured but no image is given', async () => {
+    const client = new GenkitGenerativeClient(mockConfig);
+    client.client.generate = jest.fn(() =>
+      Promise.resolve(mockGenerateResponse as unknown as GenerateResponse<any>)
+    );
+
+    await expect(client.generate('Test prompt')).rejects.toThrow(
+      'Image Field is configured, but this document has no image.'
+    );
+    expect(client.client.generate).not.toHaveBeenCalled();
+  });
+
+  it('should merge per-call safetySettings into the generate config', async () => {
+    const client = new GenkitGenerativeClient(mockConfig);
+    client.client.generate = jest.fn(() =>
+      Promise.resolve(mockGenerateResponse as unknown as GenerateResponse<any>)
+    );
+
+    const callerSafetySettings = [
+      {
+        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+        threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+      },
+    ];
+
+    await client.generate('Test prompt', {
+      image: 'path/to/image.jpg',
+      safetySettings: callerSafetySettings,
+    } as never);
+
+    expect(client.client.generate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        config: expect.objectContaining({
+          safetySettings: callerSafetySettings,
+        }),
+      })
+    );
   });
 
   it('should process an image if provided', async () => {
@@ -274,9 +319,9 @@ describe('GenkitGenerativeClient', () => {
     client.client.generate = jest.fn(() => Promise.reject(error));
     logger.error = jest.fn();
 
-    await expect(client.generate('Test prompt')).rejects.toThrow(
-      'Content generation failed.'
-    );
+    await expect(
+      client.generate('Test prompt', {image: 'path/to/image.jpg'})
+    ).rejects.toThrow('Content generation failed.');
 
     expect(logger.error).toHaveBeenCalledWith(
       'Failed to generate content:',
@@ -324,12 +369,12 @@ describe('GenkitGenerativeClient.shouldUseGenkitClient', () => {
     jest.clearAllMocks();
   });
 
-  it('should return false if the model includes "pro-vision"', () => {
+  it('should return true for a retired pro-vision id (no special case)', () => {
     const config = {...baseConfig, model: 'gemini-pro-vision'};
 
     const result = GenkitGenerativeClient.shouldUseGenkitClient(config);
 
-    expect(result).toBe(false);
+    expect(result).toBe(true);
   });
 
   it('should return false if multiple candidates are requested', () => {
