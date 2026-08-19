@@ -23,6 +23,7 @@ import {
   Part,
 } from '@google-cloud/vertexai';
 import config from '../config';
+import {answerText} from './parts';
 import {SafetySetting as VertexSafetySetting} from '@google-cloud/vertexai';
 
 interface GeminiChatOptions {
@@ -49,6 +50,15 @@ enum Role {
   GEMINI = 'model',
 }
 
+/**
+ * The `global` location is not a regional endpoint: this SDK builds
+ * `<location>-aiplatform.googleapis.com`, which does not resolve for `global`.
+ * Passing `apiEndpoint` overrides that so the request goes to the unprefixed
+ * host while the resource path keeps `locations/global`.
+ */
+const GLOBAL_LOCATION = 'global';
+const GLOBAL_API_ENDPOINT = 'aiplatform.googleapis.com';
+
 export class VertexDiscussionClient extends DiscussionClient<
   VertexAI,
   GeminiChatOptions,
@@ -57,9 +67,13 @@ export class VertexDiscussionClient extends DiscussionClient<
   modelName: string;
   constructor({modelName}: {apiKey?: string; modelName: string}) {
     super();
+    const location = config.vertex.modelLocation;
     this.client = new VertexAI({
       project: config.projectId,
-      location: config.vertex.modelLocation,
+      location,
+      ...(location === GLOBAL_LOCATION
+        ? {apiEndpoint: GLOBAL_API_ENDPOINT}
+        : {}),
     });
     if (!modelName) {
       throw new Error('Model name required.');
@@ -131,20 +145,19 @@ export class VertexDiscussionClient extends DiscussionClient<
       throw new Error('No candidates returned');
     }
 
-    const candidates = result.candidates.filter(c => {
-      return (
-        c &&
-        c.content &&
-        c.content.parts &&
-        c.content.parts.length > 0 &&
-        c.content.parts[0].text &&
-        typeof c.content.parts[0].text === 'string'
+    const candidates = result.candidates
+      .map(c => answerText(c?.content?.parts))
+      .filter((text): text is string => !!text);
+
+    if (candidates.length === 0) {
+      throw new Error(
+        'No answer text returned, see function logs for details.'
       );
-    });
+    }
 
     return {
-      response: candidates[0]!.content!.parts![0].text!,
-      candidates: candidates?.map(c => c.content!.parts![0].text!) ?? [],
+      response: candidates[0],
+      candidates,
       safetyMetadata: result.promptFeedback,
       history,
     };

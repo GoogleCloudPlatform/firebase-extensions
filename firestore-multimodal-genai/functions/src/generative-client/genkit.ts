@@ -39,6 +39,7 @@ export class GenkitGenerativeClient extends GenerativeClient<
   Genkit
 > {
   private provider: string;
+  private imageField?: string;
   private generateOptions: GenerateOptions;
   private pluginOptions: VertexPluginOptions | GoogleAIPluginOptions;
   private plugin: GenkitPluginV2;
@@ -47,18 +48,15 @@ export class GenkitGenerativeClient extends GenerativeClient<
   constructor(config: Config) {
     super();
     this.provider = config.provider;
+    this.imageField = config.imageField;
     this.pluginOptions = this.getPluginOptions(config);
     this.plugin = this.initializePlugin();
     this.client = this.initializeGenkit(config);
     this.generateOptions = this.createGenerateOptions(config);
   }
 
-  /**
-   * Whether the Genkit client can serve this config (single candidate, not a
-   * legacy `pro-vision` model).
-   */
+  /** Whether the Genkit client can serve this config (single candidate). */
   static shouldUseGenkitClient(config: Config): boolean {
-    if (config.model.includes('pro-vision')) return false;
     return !config.candidates.shouldIncludeCandidatesField;
   }
 
@@ -139,6 +137,28 @@ export class GenkitGenerativeClient extends GenerativeClient<
     };
   }
 
+  /**
+   * Folds per-call overrides into the stored options.
+   *
+   * `safetySettings` reaches us at the top level (see `generateOnCall` in
+   * index.ts) but Genkit only reads it from `config`, so a plain spread would
+   * silently drop caller overrides.
+   */
+  private mergeGenerateOptions(
+    options?: GenerateOptions & {image?: string; safetySettings?: unknown}
+  ): GenerateOptions {
+    const {safetySettings, ...rest} = options ?? {};
+    return {
+      ...this.generateOptions,
+      ...rest,
+      config: {
+        ...this.generateOptions.config,
+        ...(rest.config ?? {}),
+        ...(safetySettings ? {safetySettings} : {}),
+      },
+    };
+  }
+
   async generate(
     promptText: string,
     options?: GenerateOptions & {image?: string}
@@ -147,9 +167,15 @@ export class GenkitGenerativeClient extends GenerativeClient<
       throw new Error('Genkit client is not initialized.');
     }
 
-    const generateOptions = {...this.generateOptions, ...options};
+    const generateOptions = this.mergeGenerateOptions(options);
 
     let imageBase64: string | undefined;
+
+    if (this.imageField && !options?.image) {
+      throw new Error(
+        'Image Field is configured, but this document has no image.'
+      );
+    }
 
     if (options?.image) {
       try {

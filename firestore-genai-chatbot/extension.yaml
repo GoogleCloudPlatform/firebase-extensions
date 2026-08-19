@@ -125,6 +125,12 @@ params:
       Note: Gemini 3.x deprecates the Temperature, Nucleus sampling probability
       and Sampling strategy parameters below; custom values are ignored.
     type: string
+    validationRegex: ^[a-zA-Z0-9][a-zA-Z0-9.\-_/]*$
+    validationErrorMessage:
+      Please specify a model id with no spaces, for example
+      'gemini-3.6-flash'. Model ids are not validated against the provider at
+      install time - an id the provider does not serve will fail at request
+      time.
     required: true
     default: gemini-3.6-flash
     immutable: false

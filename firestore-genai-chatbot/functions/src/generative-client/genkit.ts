@@ -22,6 +22,7 @@ import {
 import {VertexPluginOptions} from '@genkit-ai/google-genai/lib/vertexai';
 import {GenkitPluginV2} from 'genkit/plugin';
 import type {Config} from '../config';
+import {wantsMultipleCandidates} from '../candidates';
 import {
   genkit,
   MessageData as ApiMessage,
@@ -114,7 +115,7 @@ export class GenkitDiscussionClient extends DiscussionClient<
 
   private createGenerateOptions(config: Config): GenerateOptions {
     if (!config.model) {
-      throw new Error('Model not found.');
+      throw new Error('Model must be specified in the configuration.');
     }
 
     return {
@@ -134,9 +135,7 @@ export class GenkitDiscussionClient extends DiscussionClient<
 
   /** Whether the Genkit client can serve this config (single candidate). */
   static shouldUseGenkitClient(config: Config): boolean {
-    const shouldReturnMultipleCandidates =
-      config.candidateCount && config.candidateCount > 1;
-    return !shouldReturnMultipleCandidates;
+    return !wantsMultipleCandidates(config);
   }
 
   async generateResponse(
