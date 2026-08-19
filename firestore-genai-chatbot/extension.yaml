@@ -1,6 +1,6 @@
 name: firestore-genai-chatbot
 
-version: 0.0.19
+version: 0.0.20
 
 specVersion: v1beta
 
@@ -121,7 +121,7 @@ params:
       Note: Any models in preview on Vertex AI will require Vertex AI Model Location to be set to 'global'.
     type: string
     required: true
-    default: gemini-2.5-flash
+    default: gemini-3.6-flash
     immutable: false
 
   - param: LOCATION
