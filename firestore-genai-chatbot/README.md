@@ -94,12 +94,12 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Google AI API Key: If you have selected Google AI as your provider, then this parameteris required. If you have instead selected Vertex AI, then this parameter is not required, and application default credentials will be used.
 
-* Gemini model: Input the name of the Gemini model you would like to use. To view available models for each provider, see: [Vertex AI Gemini models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models), [Google AI Gemini models](https://ai.google.dev/models/gemini). Note: Any models in preview on Vertex AI will require Vertex AI Model Location to be set to 'global'.
+* Gemini model: Input the name of the Gemini model you would like to use. To view available models for each provider, see: [Vertex AI Gemini models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models), [Google AI Gemini models](https://ai.google.dev/models/gemini). Note: On Vertex AI, Gemini 3.x models (including the default 'gemini-3.6-flash') and any models in preview are only served from the 'global', 'us' and 'eu' endpoints, so Vertex AI Model Location must be set to one of those - a single region such as 'us-central1' will fail. Note: Gemini 3.x deprecates the Temperature, Nucleus sampling probability and Sampling strategy parameters below; custom values are ignored.
 
 * Cloud Functions Location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations). Note that Generative AI on Vertex AI is only available in the regions listed [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/locations-genai). A list of languages and regions supported by the Gemini API on Google AI is [here](https://ai.google.dev/available_regions).
 
 * Vertex AI Model Location: If you are using Vertex AI as your provider, which location should be used for the Vertex AI API? This can differ from the Cloud Functions location.
-If not specified, defaults to the Cloud Functions location. Note: Models in preview on Vertex AI require 'Global'. See [available locations](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations).
+Defaults to 'Global'. Gemini 3.x models, including the default 'gemini-3.6-flash', and any models in preview are only served from the 'global', 'us' and 'eu' endpoints - a single region such as 'us-central1' returns an error for those models. Only pick a single region if the model you selected is served there. See [available locations](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations).
 
 * Firestore Collection Path: Used to store conversation history represented as documents. This extension will listen to the specified collection(s) for new message documents.
 
@@ -111,11 +111,11 @@ If not specified, defaults to the Cloud Functions location. Note: Models in prev
 
 * Context: Contextual preamble for the generative AI model. A string giving context for the discussion.
 
-* Temperature: Controls the randomness of the output. Values can range over [0,1], inclusive. A value closer to 1 will produce responses that are more varied, while a value closer to 0 will typically result in less surprising responses from the model.
+* Temperature: Controls the randomness of the output. Values can range over [0,1], inclusive. A value closer to 1 will produce responses that are more varied, while a value closer to 0 will typically result in less surprising responses from the model. Note: Gemini 3.x deprecates this control - the Vertex AI model card for 'gemini-3.6-flash' states that custom values are ignored. It still applies to Gemini 2.5 models, which retire in October 2026.
 
-* Nucleus sampling probability: If specified, nucleus sampling will be used as the decoding strategy. Nucleus sampling considers the smallest set of tokens whose probability sum is at least a fixed value. Enter a value between 0 and 1.
+* Nucleus sampling probability: If specified, nucleus sampling will be used as the decoding strategy. Nucleus sampling considers the smallest set of tokens whose probability sum is at least a fixed value. Enter a value between 0 and 1. Note: Gemini 3.x deprecates this control and ignores custom values. It still applies to Gemini 2.5 models, which retire in October 2026.
 
-* Sampling strategy parameter: If specified, top-k sampling will be used as the decoding strategy. Top-k sampling considers the set of topK most probable tokens.
+* Sampling strategy parameter: If specified, top-k sampling will be used as the decoding strategy. Top-k sampling considers the set of topK most probable tokens. Note: Gemini 3.x deprecates this control and ignores custom values. It still applies to Gemini 2.5 models, which retire in October 2026.
 
 * Candidate count: The default value is one. When set to an integer higher than one, additional candidate responses, up to the specified number, will be stored in Firestore under the 'candidates' field.
 

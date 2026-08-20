@@ -1,3 +1,13 @@
+## Version 0.0.20
+
+- feat: default to Gemini 3.6 Flash; Genkit accepts current Gemini 3.x ids without throwing `Model not found.` Gemini 2.5 models retire in October 2026.
+- feat: default `VERTEX_AI_MODEL_LOCATION` to `global`. Gemini 3.x is only served from the Vertex AI `global`, `us` and `eu` endpoints, so the previous "same as Cloud Functions location" default would fail for the new default model.
+- docs: note that Gemini 3.x deprecates `TEMPERATURE`, `TOP_P` and `TOP_K`; custom values are ignored. They still apply to Gemini 2.5 models.
+- fix: the legacy Vertex AI client, used when `CANDIDATE_COUNT` is above one, now reaches the `global` endpoint. It builds `<location>-aiplatform.googleapis.com`, which does not resolve for `global`.
+- fix: the legacy clients skip thought parts when reading candidates instead of assuming `parts[0]`, so thinking models no longer store a thought summary or crash on a thought-only candidate.
+- fix: add a loose `validationRegex` to `MODEL` so a mistyped id is rejected at install time rather than failing on every write.
+- refactor: one shared predicate decides both which client serves a request and whether the `candidates` field is written, so the two cannot drift.
+
 ## Version 0.0.19
 
 - chore: bump Cloud Functions runtime to Node.js 22

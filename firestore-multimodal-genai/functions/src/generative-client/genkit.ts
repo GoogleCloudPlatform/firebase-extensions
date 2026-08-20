@@ -39,6 +39,7 @@ export class GenkitGenerativeClient extends GenerativeClient<
   Genkit
 > {
   private provider: string;
+  private imageField?: string;
   private generateOptions: GenerateOptions;
   private pluginOptions: VertexPluginOptions | GoogleAIPluginOptions;
   private plugin: GenkitPluginV2;
@@ -47,24 +48,16 @@ export class GenkitGenerativeClient extends GenerativeClient<
   constructor(config: Config) {
     super();
     this.provider = config.provider;
+    this.imageField = config.imageField;
     this.pluginOptions = this.getPluginOptions(config);
     this.plugin = this.initializePlugin();
     this.client = this.initializeGenkit(config);
     this.generateOptions = this.createGenerateOptions(config);
   }
 
-  //   We use this to check before creating the client to see if we should use the Genkit client
+  /** Whether the Genkit client can serve this config (single candidate). */
   static shouldUseGenkitClient(config: Config): boolean {
-    if (config.model.includes('pro-vision')) return false;
-    const shouldReturnMultipleCandidates =
-      config.candidates.shouldIncludeCandidatesField;
-    return (
-      !shouldReturnMultipleCandidates &&
-      !!GenkitGenerativeClient.createModelReference(
-        config.model,
-        config.provider
-      )
-    );
+    return !config.candidates.shouldIncludeCandidatesField;
   }
 
   private getPluginOptions(config: Config) {
@@ -111,45 +104,17 @@ export class GenkitGenerativeClient extends GenerativeClient<
     return genkit(genkitConfig);
   }
 
+  /**
+   * Resolves a Genkit model reference via `googleAI.model()` / `vertexAI.model()`.
+   * Any id is passed through so current Gemini releases work without a package update.
+   */
   static createModelReference(
     model: string,
     provider: string
-  ): ModelReference<any> | null {
-    const modelReferences =
-      provider === 'google-ai'
-        ? [
-            googleAI.model('gemini-1.5-flash'),
-            googleAI.model('gemini-1.5-pro'),
-            googleAI.model('gemini-2.0-flash'),
-            googleAI.model('gemini-2.0-flash-lite'),
-            googleAI.model('gemini-2.5-flash-lite'),
-            googleAI.model('gemini-2.5-flash'),
-            googleAI.model('gemini-2.5-pro'),
-            googleAI.model('gemini-3-pro-preview'),
-          ]
-        : [
-            vertexAI.model('gemini-1.5-flash'),
-            vertexAI.model('gemini-1.5-pro'),
-            vertexAI.model('gemini-2.0-flash'),
-            vertexAI.model('gemini-2.0-flash-lite'),
-            vertexAI.model('gemini-2.0-flash-001'),
-            vertexAI.model('gemini-2.5-flash-lite'),
-            vertexAI.model('gemini-2.5-flash'),
-            vertexAI.model('gemini-2.5-pro'),
-            vertexAI.model('gemini-3-pro-preview'),
-          ];
-
-    const pluginName = provider === 'google-ai' ? 'googleai' : 'vertexai';
-
-    for (const modelReference of modelReferences) {
-      if (modelReference.name === `${pluginName}/${model}`) {
-        return modelReference;
-      }
-      if (modelReference.info?.versions?.includes(model)) {
-        return modelReference.withVersion(model);
-      }
-    }
-    return null;
+  ): ModelReference<any> {
+    return provider === 'google-ai'
+      ? googleAI.model(model)
+      : vertexAI.model(model);
   }
 
   private createGenerateOptions(config: Config): GenerateOptions {
@@ -157,23 +122,39 @@ export class GenkitGenerativeClient extends GenerativeClient<
       throw new Error('Model must be specified in the configuration.');
     }
 
-    const modelRef = GenkitGenerativeClient.createModelReference(
-      config.model,
-      config.provider!
-    );
-
-    if (!modelRef) {
-      throw new Error('Model reference not found.');
-    }
-
     return {
-      model: modelRef,
+      model: GenkitGenerativeClient.createModelReference(
+        config.model,
+        config.provider!
+      ),
       config: {
         topP: config.topP,
         topK: config.topK,
         temperature: config.temperature,
         maxOutputTokens: config.maxOutputTokens,
         safetySettings: config.safetySettings,
+      },
+    };
+  }
+
+  /**
+   * Folds per-call overrides into the stored options.
+   *
+   * `safetySettings` reaches us at the top level (see `generateOnCall` in
+   * index.ts) but Genkit only reads it from `config`, so a plain spread would
+   * silently drop caller overrides.
+   */
+  private mergeGenerateOptions(
+    options?: GenerateOptions & {image?: string; safetySettings?: unknown}
+  ): GenerateOptions {
+    const {safetySettings, ...rest} = options ?? {};
+    return {
+      ...this.generateOptions,
+      ...rest,
+      config: {
+        ...this.generateOptions.config,
+        ...(rest.config ?? {}),
+        ...(safetySettings ? {safetySettings} : {}),
       },
     };
   }
@@ -186,9 +167,15 @@ export class GenkitGenerativeClient extends GenerativeClient<
       throw new Error('Genkit client is not initialized.');
     }
 
-    const generateOptions = {...this.generateOptions, ...options};
+    const generateOptions = this.mergeGenerateOptions(options);
 
     let imageBase64: string | undefined;
+
+    if (this.imageField && !options?.image) {
+      throw new Error(
+        'Image Field is configured, but this document has no image.'
+      );
+    }
 
     if (options?.image) {
       try {
