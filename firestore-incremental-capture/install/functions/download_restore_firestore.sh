@@ -4,7 +4,7 @@
 # Bump PIPELINE_RELEASE and PIPELINE_SHA256 together, in the same extension
 # version bump that ships the new pipeline.
 PIPELINE_RELEASE="firestore-incremental-capture-pipeline-v0.1.0"
-PIPELINE_SHA256="REPLACE_WITH_RELEASE_DIGEST"
+PIPELINE_SHA256="41c59a69a553a55d603763fca146b49e00e2e63139e9cf029c55a1ce8ee47ef8"
 
 PIPELINE_URL="https://github.com/GoogleCloudPlatform/firebase-extensions/releases/download/${PIPELINE_RELEASE}/restore-firestore.jar"
 
@@ -23,7 +23,7 @@ download_failed() {
 # here would skip every remaining setup step and still report success.
 if ! curl -fsSL -o restore-firestore.jar "$PIPELINE_URL"; then
   download_failed "Failed to download the JAR from ${PIPELINE_URL}."
-elif [ "$PIPELINE_SHA256" = "REPLACE_WITH_RELEASE_DIGEST" ]; then
+elif [ "$PIPELINE_SHA256" = "41c59a69a553a55d603763fca146b49e00e2e63139e9cf029c55a1ce8ee47ef8" ]; then
   download_failed "No pinned checksum is configured for ${PIPELINE_RELEASE}; refusing to use the download."
 elif ! echo "${PIPELINE_SHA256}  restore-firestore.jar" | shasum -a 256 -c - >/dev/null 2>&1; then
   download_failed "Checksum mismatch: ${PIPELINE_URL} does not match the digest pinned in this extension version."
