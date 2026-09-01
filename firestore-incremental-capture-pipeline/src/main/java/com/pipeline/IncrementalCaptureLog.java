@@ -106,7 +106,7 @@ public class IncrementalCaptureLog
     // the map is still built before changeType is read.
     Object afterData = record.get("afterData");
     String data = afterData != null ? afterData.toString() : "{}";
-    String documentPath = createDocumentName(record.get("documentPath").toString(), projectId, databaseId);
+    String documentName = createDocumentName(record.get("documentPath").toString(), projectId, databaseId);
     String changeType = record.get("changeType").toString();
 
     // this JsonElement has serialized data, e.g a string would be represented on
@@ -117,21 +117,22 @@ public class IncrementalCaptureLog
 
     // using static methods as beam seems to error when passing an instance version
     // of FirestoreReconstructor to the transform
-    // createDocumentName is not idempotent and documentPath is already qualified.
-    Document doc = Document.newBuilder().putAllFields((Map<String, Value>) firestoreMap).setName(documentPath).build();
+    Document doc = Document.newBuilder().putAllFields((Map<String, Value>) firestoreMap).setName(documentName).build();
 
     KV<String, Document> kv = KV.of(changeType, doc);
 
     return kv;
   }
 
+  // Not idempotent: path must be the record's relative documentPath, never an
+  // already-qualified document name.
   static String createDocumentName(String path, String projectId, String databaseId) {
-    String documentPath = String.format(
+    String prefix = String.format(
         "projects/%s/databases/%s/documents",
         projectId,
         databaseId);
 
-    return documentPath + "/" + path;
+    return prefix + "/" + path;
   }
 
 }
