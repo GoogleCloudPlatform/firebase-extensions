@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.time.Instant;
+import java.time.format.DateTimeParseException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,12 @@ import org.slf4j.LoggerFactory;
 public class FirestoreReconstructor {
 
     private static final Logger LOG = LoggerFactory.getLogger(FirestoreReconstructor.class);
+
+    // An element that cannot be reconstructed is replaced with null rather than
+    // dropped, so the restored array keeps the length and the element positions
+    // the document was written with.
+    private static final Value UNRECONSTRUCTABLE_ELEMENT = Value.newBuilder()
+            .setNullValue(com.google.protobuf.NullValue.NULL_VALUE).build();
 
     public enum FirestoreType {
         STRING,
@@ -59,6 +66,10 @@ public class FirestoreReconstructor {
             JsonElement valueElem = entry.getValue();
 
             if (!isTaggedValue(valueElem)) {
+                if (valueElem.isJsonObject()) {
+                    LOG.warn("Skipping field '{}': not a serialized value", entry.getKey());
+                }
+
                 continue;
             }
 
@@ -96,8 +107,9 @@ public class FirestoreReconstructor {
 
     // Builds the Value a serialized {type, value} object describes, or null
     // when the tag is unknown or its value does not have the shape the tag
-    // implies. Changelog rows corrupted when they were written are
-    // unrecoverable, so the caller skips them rather than failing the job.
+    // implies. A changelog row corrupted when it was written is unrecoverable,
+    // and it runs inside a BigQueryIO read with no handler, so one bad value
+    // must cost its own field or element rather than the whole restore job.
     private static Value buildTaggedValue(JsonObject taggedValue, String projectId, String databaseId) {
 
         String valueType = taggedValue.get("type").getAsString().toUpperCase();
@@ -105,10 +117,38 @@ public class FirestoreReconstructor {
 
         switch (valueType) {
             case "STRING":
+                if (!value.isJsonPrimitive()) {
+                    return null;
+                }
+
                 return Value.newBuilder().setStringValue(value.getAsString()).build();
             case "NUMBER":
-                return Value.newBuilder().setDoubleValue(value.getAsDouble()).build();
+                if (!value.isJsonPrimitive()) {
+                    return null;
+                }
+
+                // A NaN or Infinity double reaches the changelog as a JSON null,
+                // which JSON cannot represent and this pipeline cannot restore.
+                try {
+                    return Value.newBuilder().setDoubleValue(value.getAsDouble()).build();
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            case "BIGINT":
+                if (!value.isJsonPrimitive()) {
+                    return null;
+                }
+
+                try {
+                    return Value.newBuilder().setIntegerValue(Long.parseLong(value.getAsString())).build();
+                } catch (NumberFormatException e) {
+                    return null;
+                }
             case "BOOLEAN":
+                if (!value.isJsonPrimitive()) {
+                    return null;
+                }
+
                 return Value.newBuilder().setBooleanValue("true".equals(value.getAsString())).build();
             case "OBJECT":
             case "MAP":
@@ -135,11 +175,12 @@ public class FirestoreReconstructor {
                 }
 
                 JsonObject geopointValue = value.getAsJsonObject();
-                JsonObject latitude = geopointValue.get("latitude").getAsJsonObject();
-                JsonObject longitude = geopointValue.get("longitude").getAsJsonObject();
+                Double latitudeValue = buildCoordinate(geopointValue, "latitude");
+                Double longitudeValue = buildCoordinate(geopointValue, "longitude");
 
-                Double latitudeValue = latitude.get("value").getAsDouble();
-                Double longitudeValue = longitude.get("value").getAsDouble();
+                if (latitudeValue == null || longitudeValue == null) {
+                    return null;
+                }
 
                 return Value.newBuilder().setGeoPointValue(
                         com.google.type.LatLng.newBuilder().setLatitude(latitudeValue)
@@ -147,23 +188,33 @@ public class FirestoreReconstructor {
                                 .build())
                         .build();
             case "TIMESTAMP":
+                if (!value.isJsonPrimitive()) {
+                    return null;
+                }
 
-                // parse the timestamp value as an Instant
-                Instant instant = Instant.parse(value.getAsString());
+                try {
+                    // parse the timestamp value as an Instant
+                    Instant instant = Instant.parse(value.getAsString());
 
-                long epochSecond = instant.getEpochSecond();
-                int nanoSecond = instant.getNano();
+                    long epochSecond = instant.getEpochSecond();
+                    int nanoSecond = instant.getNano();
 
-                Timestamp timestamp = Timestamp.newBuilder().setSeconds(epochSecond).setNanos(nanoSecond)
-                        .build();
+                    Timestamp timestamp = Timestamp.newBuilder().setSeconds(epochSecond).setNanos(nanoSecond)
+                            .build();
 
-                // convert to seconds and nanoseconds
-                return Value.newBuilder().setTimestampValue(timestamp).build();
+                    // convert to seconds and nanoseconds
+                    return Value.newBuilder().setTimestampValue(timestamp).build();
+                } catch (DateTimeParseException e) {
+                    return null;
+                }
 
             // The serializer emits "documentReference"; "reference" is kept for
             // changelog rows written by older serializer versions.
             case "REFERENCE":
             case "DOCUMENTREFERENCE":
+                if (!value.isJsonPrimitive()) {
+                    return null;
+                }
 
                 String fullReferenceString = String.format(
                         "projects/%s/databases/%s/documents/%s",
@@ -175,12 +226,37 @@ public class FirestoreReconstructor {
             case "NULL":
                 return Value.newBuilder().setNullValue(com.google.protobuf.NullValue.NULL_VALUE).build();
             case "BINARY":
-                byte[] bytes = Base64.getDecoder().decode(value.getAsString());
+                if (!value.isJsonPrimitive()) {
+                    return null;
+                }
 
-                return Value.newBuilder().setBytesValue(com.google.protobuf.ByteString.copyFrom(bytes)).build();
+                try {
+                    byte[] bytes = Base64.getDecoder().decode(value.getAsString());
+
+                    return Value.newBuilder().setBytesValue(com.google.protobuf.ByteString.copyFrom(bytes)).build();
+                } catch (IllegalArgumentException e) {
+                    return null;
+                }
             default:
                 return null;
         }
+    }
+
+    private static Double buildCoordinate(JsonObject geopointValue, String name) {
+
+        JsonElement coordinate = geopointValue.get(name);
+
+        if (coordinate == null || !coordinate.isJsonObject()) {
+            return null;
+        }
+
+        JsonElement value = coordinate.getAsJsonObject().get("value");
+
+        if (value == null || !value.isJsonPrimitive() || !value.getAsJsonPrimitive().isNumber()) {
+            return null;
+        }
+
+        return value.getAsDouble();
     }
 
     private static List<Value> buildFirestoreList(JsonArray arr, String projectId, String databaseId) {
@@ -192,8 +268,9 @@ public class FirestoreReconstructor {
                 Value val = buildTaggedValue(taggedValue, projectId, databaseId);
 
                 if (val == null) {
-                    LOG.warn("Skipping array element: cannot reconstruct serialized type tag '{}'",
+                    LOG.warn("Nulling array element: cannot reconstruct serialized type tag '{}'",
                             taggedValue.get("type").getAsString());
+                    lst.add(UNRECONSTRUCTABLE_ELEMENT);
                     continue;
                 }
 
@@ -202,7 +279,8 @@ public class FirestoreReconstructor {
             }
 
             if (!el.isJsonObject()) {
-                LOG.warn("Skipping array element: expected a serialized value or a field map");
+                LOG.warn("Nulling array element: expected a serialized value or a field map");
+                lst.add(UNRECONSTRUCTABLE_ELEMENT);
                 continue;
             }
 

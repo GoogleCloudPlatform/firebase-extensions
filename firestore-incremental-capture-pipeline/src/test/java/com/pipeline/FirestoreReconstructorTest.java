@@ -164,15 +164,15 @@ public class FirestoreReconstructorTest {
   }
 
   @Test
-  public void timestampArrayElementBecomesATimestampValue() {
-    Instant instant = Instant.parse("2026-01-02T03:04:05.000Z");
+  public void timestampArrayElementKeepsItsSecondsAndNanoseconds() {
+    Instant instant = Instant.parse("2026-01-02T03:04:05.123456789Z");
 
     List<Value> elements = buildArrayElements(
-        "{\"type\":\"timestamp\",\"value\":\"2026-01-02T03:04:05.000Z\"}");
+        "{\"type\":\"timestamp\",\"value\":\"2026-01-02T03:04:05.123456789Z\"}");
 
     assertEquals(1, elements.size());
     assertEquals(instant.getEpochSecond(), elements.get(0).getTimestampValue().getSeconds());
-    assertEquals(instant.getNano(), elements.get(0).getTimestampValue().getNanos());
+    assertEquals(123456789, elements.get(0).getTimestampValue().getNanos());
   }
 
   @Test
@@ -243,22 +243,152 @@ public class FirestoreReconstructorTest {
   }
 
   @Test
-  public void unknownTaggedArrayElementIsSkippedWithoutThrowing() {
+  public void unknownTaggedArrayElementBecomesANullPlaceholder() {
     List<Value> elements = buildArrayElements(
         "{\"type\":\"vector\",\"value\":\"?\"},{\"type\":\"string\",\"value\":\"a\"}");
 
-    assertEquals(1, elements.size());
-    assertEquals("a", elements.get(0).getStringValue());
+    assertEquals(2, elements.size());
+    assertEquals(Value.ValueTypeCase.NULL_VALUE, elements.get(0).getValueTypeCase());
+    assertEquals("a", elements.get(1).getStringValue());
   }
 
   @Test
-  public void legacyNullArrayElementIsSkippedWithoutThrowing() {
+  public void legacyNullArrayElementBecomesANullPlaceholder() {
     // The original extension tagged a null array element with `typeof null`,
-    // which no reader can tell from a map. Those rows are unrecoverable.
+    // so the value it carries is unreadable. The element was a null.
     List<Value> elements = buildArrayElements(
         "{\"type\":\"object\",\"value\":null},{\"type\":\"string\",\"value\":\"a\"}");
 
-    assertEquals(1, elements.size());
-    assertEquals("a", elements.get(0).getStringValue());
+    assertEquals(2, elements.size());
+    assertEquals(Value.ValueTypeCase.NULL_VALUE, elements.get(0).getValueTypeCase());
+    assertEquals("a", elements.get(1).getStringValue());
+  }
+
+  @Test
+  public void barePrimitiveArrayElementBecomesANullPlaceholder() {
+    List<Value> elements = buildArrayElements("\"loose\",{\"type\":\"string\",\"value\":\"a\"}");
+
+    assertEquals(2, elements.size());
+    assertEquals(Value.ValueTypeCase.NULL_VALUE, elements.get(0).getValueTypeCase());
+    assertEquals("a", elements.get(1).getStringValue());
+  }
+
+  @Test
+  public void emptyArrayKeepsTheFieldWithNoElements() {
+    Map<String, Value> fields = build("{\"items\":{\"type\":\"array\",\"value\":[]}}");
+
+    assertEquals(1, fields.size());
+    assertEquals(Value.ValueTypeCase.ARRAY_VALUE, fields.get("items").getValueTypeCase());
+    assertEquals(0, fields.get("items").getArrayValue().getValuesCount());
+  }
+
+  @Test
+  public void arrayTagWithoutAnArrayValueIsSkippedWithoutThrowing() {
+    Map<String, Value> fields = build(
+        "{\"items\":{\"type\":\"array\",\"value\":\"not an array\"},"
+            + "\"name\":{\"type\":\"string\",\"value\":\"Ada\"}}");
+
+    assertEquals(1, fields.size());
+    assertTrue(fields.containsKey("name"));
+  }
+
+  @Test
+  public void bigintBecomesAnIntegerValue() {
+    Map<String, Value> fields = build("{\"big\":{\"type\":\"bigint\",\"value\":\"9007199254740993\"}}");
+
+    assertEquals(1, fields.size());
+    assertEquals(9007199254740993L, fields.get("big").getIntegerValue());
+    assertEquals(Value.ValueTypeCase.INTEGER_VALUE, fields.get("big").getValueTypeCase());
+  }
+
+  @Test
+  public void bigintBeyondLongRangeBecomesANullPlaceholder() {
+    List<Value> elements = buildArrayElements(
+        "{\"type\":\"bigint\",\"value\":\"10\"},"
+            + "{\"type\":\"bigint\",\"value\":\"99999999999999999999999999\"}");
+
+    assertEquals(2, elements.size());
+    assertEquals(10L, elements.get(0).getIntegerValue());
+    assertEquals(Value.ValueTypeCase.NULL_VALUE, elements.get(1).getValueTypeCase());
+  }
+
+  @Test
+  public void nanSerializedAsANullNumberIsSkippedWithoutThrowing() {
+    // A NaN or Infinity double survives capture as a JSON null, which the
+    // reader cannot turn back into a double.
+    Map<String, Value> fields = build(
+        "{\"n\":{\"type\":\"number\",\"value\":null},"
+            + "\"name\":{\"type\":\"string\",\"value\":\"Ada\"}}");
+
+    assertEquals(1, fields.size());
+    assertTrue(fields.containsKey("name"));
+  }
+
+  @Test
+  public void scalarTagsWithoutAPrimitiveValueAreSkippedWithoutThrowing() {
+    Map<String, Value> fields = build(
+        "{\"s\":{\"type\":\"string\",\"value\":null},"
+            + "\"n\":{\"type\":\"number\",\"value\":{}},"
+            + "\"b\":{\"type\":\"boolean\",\"value\":null},"
+            + "\"t\":{\"type\":\"timestamp\",\"value\":null},"
+            + "\"r\":{\"type\":\"reference\",\"value\":null},"
+            + "\"bin\":{\"type\":\"binary\",\"value\":null},"
+            + "\"big\":{\"type\":\"bigint\",\"value\":null},"
+            + "\"name\":{\"type\":\"string\",\"value\":\"Ada\"}}");
+
+    assertEquals(1, fields.size());
+    assertTrue(fields.containsKey("name"));
+  }
+
+  @Test
+  public void scalarTagsWithoutAPrimitiveValueBecomeNullPlaceholders() {
+    List<Value> elements = buildArrayElements(
+        "{\"type\":\"string\",\"value\":null},"
+            + "{\"type\":\"number\",\"value\":null},"
+            + "{\"type\":\"boolean\",\"value\":null},"
+            + "{\"type\":\"timestamp\",\"value\":null},"
+            + "{\"type\":\"reference\",\"value\":null},"
+            + "{\"type\":\"binary\",\"value\":null}");
+
+    assertEquals(6, elements.size());
+    for (Value element : elements) {
+      assertEquals(Value.ValueTypeCase.NULL_VALUE, element.getValueTypeCase());
+    }
+  }
+
+  @Test
+  public void unparseableScalarValuesAreSkippedWithoutThrowing() {
+    Map<String, Value> fields = build(
+        "{\"t\":{\"type\":\"timestamp\",\"value\":\"yesterday\"},"
+            + "\"bin\":{\"type\":\"binary\",\"value\":\"not base64!\"},"
+            + "\"n\":{\"type\":\"number\",\"value\":\"abc\"},"
+            + "\"name\":{\"type\":\"string\",\"value\":\"Ada\"}}");
+
+    assertEquals(1, fields.size());
+    assertTrue(fields.containsKey("name"));
+  }
+
+  @Test
+  public void malformedGeopointIsSkippedWithoutThrowing() {
+    Map<String, Value> fields = build(
+        "{\"flat\":{\"type\":\"geopoint\",\"value\":{"
+            + "\"latitude\":52.379189,"
+            + "\"longitude\":{\"type\":\"number\",\"value\":4.899431}}},"
+            + "\"partial\":{\"type\":\"geopoint\",\"value\":{"
+            + "\"longitude\":{\"type\":\"number\",\"value\":4.899431}}},"
+            + "\"name\":{\"type\":\"string\",\"value\":\"Ada\"}}");
+
+    assertEquals(1, fields.size());
+    assertTrue(fields.containsKey("name"));
+  }
+
+  @Test
+  public void fieldValueThatIsNotATaggedValueIsSkippedWithoutThrowing() {
+    Map<String, Value> fields = build(
+        "{\"odd\":{\"type\":1,\"value\":\"x\"},"
+            + "\"name\":{\"type\":\"string\",\"value\":\"Ada\"}}");
+
+    assertEquals(1, fields.size());
+    assertTrue(fields.containsKey("name"));
   }
 }
