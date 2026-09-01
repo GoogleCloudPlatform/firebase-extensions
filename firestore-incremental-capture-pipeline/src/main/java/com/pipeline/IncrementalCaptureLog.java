@@ -68,7 +68,7 @@ public class IncrementalCaptureLog
         }).fromQuery(constructQuery(formattedTimestamp)).usingStandardSql().withTemplateCompatibility());
   }
 
-  private String constructQuery(String timestamp) {
+  String constructQuery(String timestamp) {
 
     LOG.info("Querying BigQuery for changes before timestamp: " + timestamp);
     String query = "WITH RankedChanges AS (" +
@@ -79,7 +79,7 @@ public class IncrementalCaptureLog
         "        beforeData," +
         "        afterData," +
         "        timestamp," +
-        "        ROW_NUMBER() OVER(PARTITION BY documentId ORDER BY timestamp DESC) as rank" +
+        "        ROW_NUMBER() OVER(PARTITION BY documentPath ORDER BY timestamp DESC) as rank" +
         "    FROM `" + projectId + "." + datasetId + "." + tableId + "`" +
         "    WHERE timestamp < TIMESTAMP('" + (timestamp) + "') " +
         ") " +
@@ -92,7 +92,7 @@ public class IncrementalCaptureLog
         "    timestamp " +
         "FROM RankedChanges " +
         "WHERE rank = 1 " +
-        "ORDER BY documentId, timestamp DESC";
+        "ORDER BY documentPath, timestamp DESC";
 
     return query;
 
