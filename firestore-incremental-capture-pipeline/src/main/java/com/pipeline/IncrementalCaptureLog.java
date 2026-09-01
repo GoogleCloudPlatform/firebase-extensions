@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import com.google.firestore.v1.Document;
 import com.google.firestore.v1.Value;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class IncrementalCaptureLog
@@ -97,38 +98,48 @@ public class IncrementalCaptureLog
 
   }
 
-  private static KV<String, Document> convertToFirestoreValue(SchemaAndRecord schemaAndRecord, String projectId,
+  static KV<String, Document> convertToFirestoreValue(SchemaAndRecord schemaAndRecord, String projectId,
       String databaseId) {
 
     GenericRecord record = schemaAndRecord.getRecord();
 
-    String data = record.get("afterData").toString();
-    String documentPath = createDocumentName(record.get("documentPath").toString(), projectId, databaseId);
+    // Delete rows carry NULL afterData. The fields are unused on that path, but
+    // the map is still built before changeType is read.
+    Object afterData = record.get("afterData");
+    String data = afterData != null ? afterData.toString() : "{}";
+    String documentName = createDocumentName(record.get("documentPath").toString(), projectId, databaseId);
     String changeType = record.get("changeType").toString();
 
     // this JsonElement has serialized data, e.g a string would be represented on
     // the json tree as {type: "STRING", value: "some string"}
     JsonElement dataJson = JsonParser.parseString(data);
 
+    // Deletes can surface as SQL NULL or as the JSON literal null, depending on
+    // how the changelog row was ingested; both mean "no data".
+    if (dataJson.isJsonNull()) {
+      dataJson = new JsonObject();
+    }
+
     Map<String, Value> firestoreMap = FirestoreReconstructor.buildFirestoreMap(dataJson, projectId, databaseId);
 
     // using static methods as beam seems to error when passing an instance version
     // of FirestoreReconstructor to the transform
-    Document doc = Document.newBuilder().putAllFields((Map<String, Value>) firestoreMap).setName(createDocumentName(
-        documentPath, projectId, databaseId)).build();
+    Document doc = Document.newBuilder().putAllFields((Map<String, Value>) firestoreMap).setName(documentName).build();
 
     KV<String, Document> kv = KV.of(changeType, doc);
 
     return kv;
   }
 
-  private static String createDocumentName(String path, String projectId, String databaseId) {
-    String documentPath = String.format(
+  // Not idempotent: path must be the record's relative documentPath, never an
+  // already-qualified document name.
+  static String createDocumentName(String path, String projectId, String databaseId) {
+    String prefix = String.format(
         "projects/%s/databases/%s/documents",
         projectId,
         databaseId);
 
-    return documentPath + "/" + path;
+    return prefix + "/" + path;
   }
 
 }
