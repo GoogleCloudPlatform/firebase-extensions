@@ -6,7 +6,7 @@
 
     <groupId>com.pipeline</groupId>
     <artifactId>pipeline</artifactId>
-    <version>1.0</version>
+    <version>1.0.0-rc.1</version>
 
     <properties>
         <!-- release, not source/target: the flex template base image is JAVA11,
