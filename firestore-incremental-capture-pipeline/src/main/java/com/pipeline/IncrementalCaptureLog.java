@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import com.google.firestore.v1.Document;
 import com.google.firestore.v1.Value;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class IncrementalCaptureLog
@@ -112,6 +113,12 @@ public class IncrementalCaptureLog
     // this JsonElement has serialized data, e.g a string would be represented on
     // the json tree as {type: "STRING", value: "some string"}
     JsonElement dataJson = JsonParser.parseString(data);
+
+    // Deletes can surface as SQL NULL or as the JSON literal null, depending on
+    // how the changelog row was ingested; both mean "no data".
+    if (dataJson.isJsonNull()) {
+      dataJson = new JsonObject();
+    }
 
     Map<String, Value> firestoreMap = FirestoreReconstructor.buildFirestoreMap(dataJson, projectId, databaseId);
 

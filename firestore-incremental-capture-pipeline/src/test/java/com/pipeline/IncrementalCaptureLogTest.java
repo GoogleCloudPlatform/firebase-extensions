@@ -57,6 +57,26 @@ public class IncrementalCaptureLogTest {
     assertEquals(
         "projects/test-project/databases/test-db/documents/users/abc",
         kv.getValue().getName());
+    assertEquals("UPDATE", kv.getKey());
+  }
+
+  @Test
+  public void treatsJsonNullAfterDataAsAnEmptyDocument() {
+    KV<String, Document> kv =
+        IncrementalCaptureLog.convertToFirestoreValue(row("users/abc", "null", "DELETE"), PROJECT_ID, DATABASE_ID);
+
+    assertEquals(0, kv.getValue().getFieldsCount());
+    assertEquals("DELETE", kv.getKey());
+  }
+
+  @Test
+  public void buildsFieldsFromSerializedAfterData() {
+    KV<String, Document> kv = IncrementalCaptureLog.convertToFirestoreValue(
+        row("users/abc", "{\"name\":{\"type\":\"string\",\"value\":\"Ada\"}}", "UPDATE"),
+        PROJECT_ID, DATABASE_ID);
+
+    assertEquals(1, kv.getValue().getFieldsCount());
+    assertEquals("Ada", kv.getValue().getFieldsOrThrow("name").getStringValue());
   }
 
   @Test
