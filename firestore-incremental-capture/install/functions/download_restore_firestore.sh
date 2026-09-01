@@ -3,7 +3,7 @@
 # hand an old install a pipeline build it was never tested against.
 # Bump PIPELINE_RELEASE and PIPELINE_SHA256 together, in the same extension
 # version bump that ships the new pipeline.
-PIPELINE_RELEASE="firestore-incremental-capture-pipeline-v1.0.0"
+PIPELINE_RELEASE="firestore-incremental-capture-pipeline-v0.1.0"
 PIPELINE_SHA256="REPLACE_WITH_RELEASE_DIGEST"
 
 PIPELINE_URL="https://github.com/GoogleCloudPlatform/firebase-extensions/releases/download/${PIPELINE_RELEASE}/restore-firestore.jar"
