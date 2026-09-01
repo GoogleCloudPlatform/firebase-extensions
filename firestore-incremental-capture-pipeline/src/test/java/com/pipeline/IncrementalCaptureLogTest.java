@@ -17,6 +17,8 @@
 package com.pipeline;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
@@ -77,6 +79,18 @@ public class IncrementalCaptureLogTest {
 
     assertEquals(1, kv.getValue().getFieldsCount());
     assertEquals("Ada", kv.getValue().getFieldsOrThrow("name").getStringValue());
+  }
+
+  @Test
+  public void dedupesChangelogRowsByDocumentPath() {
+    IncrementalCaptureLog captureLog = new IncrementalCaptureLog(
+        PROJECT_ID, org.joda.time.Instant.now(), DATABASE_ID, "test_dataset", "test_table");
+
+    String query = captureLog.constructQuery("2026-01-01 00:00:00");
+
+    assertTrue(query.contains("ROW_NUMBER() OVER(PARTITION BY documentPath ORDER BY timestamp DESC)"));
+    assertFalse(query.contains("PARTITION BY documentId"));
+    assertTrue(query.contains("ORDER BY documentPath, timestamp DESC"));
   }
 
   @Test
