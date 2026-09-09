@@ -1,3 +1,8 @@
+## Version 0.0.20
+
+- fix: retry transient gRPC errors (CANCELLED/UNAVAILABLE) on status writes
+- test: serialise Firestore listener teardown to fix flaky emulator tests
+
 ## Version 0.0.19
 
 - chore: bump Cloud Functions runtime to Node.js 22
