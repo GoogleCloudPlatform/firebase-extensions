@@ -23,7 +23,7 @@ import {
   Part,
 } from '@google-cloud/vertexai';
 import config from '../config';
-import {answerText} from './parts';
+import {answerText, noAnswerMessage} from './parts';
 import {SafetySetting as VertexSafetySetting} from '@google-cloud/vertexai';
 
 interface GeminiChatOptions {
@@ -132,23 +132,12 @@ export class VertexDiscussionClient extends DiscussionClient<
       );
     }
 
-    if (
-      !result.candidates ||
-      !Array.isArray(result.candidates) ||
-      result.candidates.length === 0
-    ) {
-      // TODO: handle blocked responses
-      throw new Error('No candidates returned');
-    }
-
-    const candidates = result.candidates
+    const candidates = (result.candidates ?? [])
       .map(c => answerText(c?.content?.parts))
       .filter((text): text is string => !!text);
 
     if (candidates.length === 0) {
-      throw new Error(
-        'No answer text returned, see function logs for details.'
-      );
+      throw new Error(noAnswerMessage(result));
     }
 
     return {

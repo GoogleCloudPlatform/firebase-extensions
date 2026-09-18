@@ -15,7 +15,7 @@
  */
 
 import {wantsMultipleCandidates} from '../../src/candidates';
-import {answerText} from '../../src/generative-client/parts';
+import {answerText, noAnswerMessage} from '../../src/generative-client/parts';
 
 describe('wantsMultipleCandidates', () => {
   it('is true for a count above one with a field to write to', () => {
@@ -66,5 +66,39 @@ describe('answerText', () => {
     expect(answerText(undefined)).toBeUndefined();
     expect(answerText([])).toBeUndefined();
     expect(answerText([{}])).toBeUndefined();
+  });
+});
+
+describe('noAnswerMessage', () => {
+  test('names the prompt block reason', () => {
+    expect(
+      noAnswerMessage({
+        promptFeedback: {blockReason: 'SAFETY', blockReasonMessage: 'nope'},
+      })
+    ).toBe('Prompt was blocked due to SAFETY: nope');
+  });
+
+  test('names the first candidate finish reason', () => {
+    expect(
+      noAnswerMessage({
+        candidates: [{finishReason: 'RECITATION'}],
+      })
+    ).toBe('No answer text returned, candidate finished due to RECITATION');
+  });
+
+  test('prefers the prompt block reason over the finish reason', () => {
+    expect(
+      noAnswerMessage({
+        promptFeedback: {blockReason: 'OTHER'},
+        candidates: [{finishReason: 'SAFETY'}],
+      })
+    ).toBe('Prompt was blocked due to OTHER');
+  });
+
+  test('treats a normal stop with no text as unexplained', () => {
+    expect(noAnswerMessage({candidates: [{finishReason: 'STOP'}]})).toBe(
+      'No answer text returned'
+    );
+    expect(noAnswerMessage({})).toBe('No answer text returned');
   });
 });

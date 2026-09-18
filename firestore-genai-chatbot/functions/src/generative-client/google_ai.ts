@@ -17,7 +17,7 @@
 import {DiscussionClient, Message} from './base_class';
 import {GoogleGenerativeAI} from '@google/generative-ai';
 import {logger} from '../logger';
-import {answerText} from './parts';
+import {answerText, noAnswerMessage} from './parts';
 import {SafetySetting} from '@google/generative-ai';
 
 interface GeminiChatOptions {
@@ -115,7 +115,7 @@ export class GeminiDiscussionClient extends DiscussionClient<
     const text = answerText(result.response.candidates?.[0]?.content?.parts);
 
     if (!text) {
-      throw new Error('No text returned candidate');
+      throw new Error(noAnswerMessage(result.response));
     }
 
     return {

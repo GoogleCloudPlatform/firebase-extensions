@@ -32,3 +32,29 @@ export function answerText(parts?: TextPart[]): string | undefined {
   return parts?.find(part => !part.thought && typeof part.text === 'string')
     ?.text;
 }
+
+/** The response fields that explain a missing answer. */
+export interface BlockedResponse {
+  promptFeedback?: {blockReason?: string; blockReasonMessage?: string};
+  candidates?: {finishReason?: string; finishMessage?: string}[];
+}
+
+/**
+ * Why a response carried no answer text, from the prompt block reason or the
+ * first candidate's finish reason.
+ */
+export function noAnswerMessage(response: BlockedResponse): string {
+  const {blockReason, blockReasonMessage} = response.promptFeedback ?? {};
+  if (blockReason) {
+    return `Prompt was blocked due to ${blockReason}${
+      blockReasonMessage ? `: ${blockReasonMessage}` : ''
+    }`;
+  }
+  const {finishReason, finishMessage} = response.candidates?.[0] ?? {};
+  if (finishReason && finishReason !== 'STOP') {
+    return `No answer text returned, candidate finished due to ${finishReason}${
+      finishMessage ? `: ${finishMessage}` : ''
+    }`;
+  }
+  return 'No answer text returned';
+}
