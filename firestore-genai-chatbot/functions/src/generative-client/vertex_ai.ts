@@ -120,14 +120,10 @@ export class VertexDiscussionClient extends DiscussionClient<
       safetySettings: options.safetySettings,
     };
     try {
-      const responseStream =
-        await generativeModel.generateContentStream(request);
-
-      // TODO: we can stream now!
-      const aggregatedResponse = await responseStream.response;
-
-      result = aggregatedResponse;
-      // result = await chatSession.sendMessage(latestApiMessage.parts[0].text);
+      // The streaming aggregate flattens every part into parts[0].text and
+      // drops the thought flag, so thought parts can only be skipped on the
+      // unary response.
+      result = (await generativeModel.generateContent(request)).response;
     } catch (e) {
       logger.error('Failed to generate response', e);
       // TODO: the error message provided exposes the API key, so we should handle this/ get the Gemini team to fix it their side.
