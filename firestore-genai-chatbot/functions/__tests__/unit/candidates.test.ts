@@ -15,7 +15,11 @@
  */
 
 import {wantsMultipleCandidates} from '../../src/candidates';
-import {answerText, noAnswerMessage} from '../../src/generative-client/parts';
+import {
+  answerText,
+  noAnswerMessage,
+  wasBlocked,
+} from '../../src/generative-client/parts';
 
 describe('wantsMultipleCandidates', () => {
   it('is true for a count above one with a field to write to', () => {
@@ -52,6 +56,10 @@ describe('answerText', () => {
     expect(answerText([{text: 'answer'}])).toBe('answer');
   });
 
+  it('joins several text parts', () => {
+    expect(answerText([{text: 'Hi.'}, {text: ' Hi'}])).toBe('Hi. Hi');
+  });
+
   it('skips a leading thought part', () => {
     expect(
       answerText([{text: 'thinking out loud', thought: true}, {text: 'answer'}])
@@ -70,7 +78,7 @@ describe('answerText', () => {
 });
 
 describe('noAnswerMessage', () => {
-  test('names the prompt block reason', () => {
+  it('names the prompt block reason', () => {
     expect(
       noAnswerMessage({
         promptFeedback: {blockReason: 'SAFETY', blockReasonMessage: 'nope'},
@@ -78,7 +86,7 @@ describe('noAnswerMessage', () => {
     ).toBe('Prompt was blocked due to SAFETY: nope');
   });
 
-  test('names the first candidate finish reason', () => {
+  it('names the first candidate finish reason', () => {
     expect(
       noAnswerMessage({
         candidates: [{finishReason: 'RECITATION'}],
@@ -86,7 +94,7 @@ describe('noAnswerMessage', () => {
     ).toBe('No answer text returned, candidate finished due to RECITATION');
   });
 
-  test('prefers the prompt block reason over the finish reason', () => {
+  it('prefers the prompt block reason over the finish reason', () => {
     expect(
       noAnswerMessage({
         promptFeedback: {blockReason: 'OTHER'},
@@ -95,10 +103,24 @@ describe('noAnswerMessage', () => {
     ).toBe('Prompt was blocked due to OTHER');
   });
 
-  test('treats a normal stop with no text as unexplained', () => {
+  it('treats a normal stop with no text as unexplained', () => {
     expect(noAnswerMessage({candidates: [{finishReason: 'STOP'}]})).toBe(
       'No answer text returned'
     );
     expect(noAnswerMessage({})).toBe('No answer text returned');
+  });
+});
+
+describe('wasBlocked', () => {
+  it('is true for a safety or recitation finish', () => {
+    expect(wasBlocked({finishReason: 'SAFETY'})).toBe(true);
+    expect(wasBlocked({finishReason: 'RECITATION'})).toBe(true);
+  });
+
+  it('is false for a normal stop, a token limit, or no candidate', () => {
+    expect(wasBlocked({finishReason: 'STOP'})).toBe(false);
+    expect(wasBlocked({finishReason: 'MAX_TOKENS'})).toBe(false);
+    expect(wasBlocked({})).toBe(false);
+    expect(wasBlocked(undefined)).toBe(false);
   });
 });

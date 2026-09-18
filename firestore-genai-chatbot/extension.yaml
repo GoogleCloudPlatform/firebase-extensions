@@ -1,6 +1,6 @@
 name: firestore-genai-chatbot
 
-version: 0.0.20
+version: 0.1.0
 
 specVersion: v1beta
 
@@ -206,6 +206,10 @@ params:
     options:
       - label: Global (default, required for Gemini 3.x and preview models)
         value: global
+      - label: United States (multi-region)
+        value: us
+      - label: European Union (multi-region)
+        value: eu
       - label: Same as Cloud Functions Location
         value: "null"
       - label: Columbus, Ohio (us-east5)

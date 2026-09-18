@@ -1,5 +1,5 @@
 name: firestore-multimodal-genai
-version: 1.0.8
+version: 1.1.0
 specVersion: v1beta
 
 icon: icon.png
@@ -264,6 +264,10 @@ params:
     options:
       - label: Global (default, required for Gemini 3.x and preview models)
         value: global
+      - label: United States (multi-region)
+        value: us
+      - label: European Union (multi-region)
+        value: eu
       - label: Same as Cloud Functions Location
         value: "null"
       - label: Iowa (us-central1)

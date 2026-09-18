@@ -21,16 +21,26 @@ export interface TextPart {
 }
 
 /**
- * First non-thought text part of a candidate.
+ * The non-thought text parts of a candidate, joined.
  *
  * The legacy clients read `parts[0].text`, which is not reliable for thinking
- * models: they can lead with thought parts, or put the answer in a later part.
+ * models: they can lead with thought parts, or split the answer across parts.
  * Thought parts carry `thought: true`, which the pinned legacy SDK versions do
  * not type, so callers pass their own part shape in.
  */
 export function answerText(parts?: TextPart[]): string | undefined {
-  return parts?.find(part => !part.thought && typeof part.text === 'string')
-    ?.text;
+  const text = (parts ?? [])
+    .filter(part => !part.thought && typeof part.text === 'string')
+    .map(part => part.text)
+    .join('');
+  return text || undefined;
+}
+
+const BLOCKED_FINISH_REASONS = ['SAFETY', 'RECITATION'];
+
+/** Whether a candidate was cut off for a reason that makes its text unusable. */
+export function wasBlocked(candidate?: {finishReason?: string}): boolean {
+  return BLOCKED_FINISH_REASONS.includes(candidate?.finishReason ?? '');
 }
 
 /** The response fields that explain a missing answer. */
