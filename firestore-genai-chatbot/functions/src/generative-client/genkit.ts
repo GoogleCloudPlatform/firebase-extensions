@@ -22,6 +22,7 @@ import {
 import {VertexPluginOptions} from '@genkit-ai/google-genai/lib/vertexai';
 import {GenkitPluginV2} from 'genkit/plugin';
 import type {Config} from '../config';
+import {wantsMultipleCandidates} from '../candidates';
 import {
   genkit,
   MessageData as ApiMessage,
@@ -99,52 +100,22 @@ export class GenkitDiscussionClient extends DiscussionClient<
     return genkit(genkitConfig);
   }
 
+  /**
+   * Resolves a Genkit model reference via `googleAI.model()` / `vertexAI.model()`.
+   * Any id is passed through so current Gemini releases work without a package update.
+   */
   static createModelReference(
     model: string,
     provider: string
   ): ModelReference<any> {
-    const modelReferences =
-      provider === 'google-ai'
-        ? [
-            googleAI.model('gemini-1.5-flash'),
-            googleAI.model('gemini-1.5-pro'),
-            googleAI.model('gemini-2.0-flash'),
-            googleAI.model('gemini-2.0-flash-lite'),
-            googleAI.model('gemini-2.5-flash-lite'),
-            googleAI.model('gemini-2.5-flash'),
-            googleAI.model('gemini-2.5-pro'),
-            googleAI.model('gemini-3-pro-preview'),
-            googleAI.model('gemini-3-pro-image-preview'),
-          ]
-        : [
-            vertexAI.model('gemini-1.5-flash'),
-            vertexAI.model('gemini-1.5-pro'),
-            vertexAI.model('gemini-2.0-flash'),
-            vertexAI.model('gemini-2.0-flash-lite'),
-            vertexAI.model('gemini-2.0-flash-001'),
-            vertexAI.model('gemini-2.5-flash-lite'),
-            vertexAI.model('gemini-2.5-flash'),
-            vertexAI.model('gemini-2.5-pro'),
-            vertexAI.model('gemini-3-pro-preview'),
-            vertexAI.model('gemini-3-pro-image-preview'),
-          ];
-
-    const pluginName = provider === 'google-ai' ? 'googleai' : 'vertexai';
-
-    for (const modelReference of modelReferences) {
-      if (modelReference.name === `${pluginName}/${model}`) {
-        return modelReference;
-      }
-      if (modelReference.info?.versions?.includes(model)) {
-        return modelReference.withVersion(model);
-      }
-    }
-    throw new Error('Model not found.');
+    return provider === 'google-ai'
+      ? googleAI.model(model)
+      : vertexAI.model(model);
   }
 
   private createGenerateOptions(config: Config): GenerateOptions {
     if (!config.model) {
-      throw new Error('Model not found.');
+      throw new Error('Model must be specified in the configuration.');
     }
 
     return {
@@ -162,17 +133,9 @@ export class GenkitDiscussionClient extends DiscussionClient<
     };
   }
 
-  //   We use this to check before creating the client to see if we should use the Genkit client
+  /** Whether the Genkit client can serve this config (single candidate). */
   static shouldUseGenkitClient(config: Config): boolean {
-    const shouldReturnMultipleCandidates =
-      config.candidateCount && config.candidateCount > 1;
-    return (
-      !shouldReturnMultipleCandidates &&
-      !!GenkitDiscussionClient.createModelReference(
-        config.model,
-        config.provider
-      )
-    );
+    return !wantsMultipleCandidates(config);
   }
 
   async generateResponse(

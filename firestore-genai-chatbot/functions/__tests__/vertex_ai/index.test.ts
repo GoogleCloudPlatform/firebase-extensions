@@ -56,7 +56,7 @@ jest.mock('../../src/config', () => ({
 // // mock to check the arguments passed to the annotateVideo function+
 const mockGetClient = jest.fn();
 const mockGetModel = jest.fn();
-const mockGenerateContentStream = jest.fn();
+const mockGenerateContent = jest.fn();
 
 jest.mock('@google-cloud/vertexai', () => {
   return {
@@ -68,17 +68,16 @@ jest.mock('@google-cloud/vertexai', () => {
           getGenerativeModel: (args: unknown) => {
             mockGetModel(args);
             return {
-              generateContentStream: async function mockedStartChat(args: any) {
-                mockGenerateContentStream(args);
+              generateContent: async function mockedGenerateContent(args: any) {
+                mockGenerateContent(args);
                 return {
                   response: {
                     candidates: [
                       {
                         content: {
                           parts: [
-                            {
-                              text: 'test response',
-                            },
+                            {thought: true, text: 'thinking out loud'},
+                            {text: 'test response'},
                           ],
                         },
                       },
@@ -224,8 +223,8 @@ describe('generateMessage', () => {
 
     expect(mockGetModel).toHaveBeenCalledTimes(1);
     expect(mockGetModel).toHaveBeenCalledWith({model: config.googleAi.model});
-    expect(mockGenerateContentStream).toHaveBeenCalledTimes(1);
-    expect(mockGenerateContentStream).toHaveBeenCalledWith({
+    expect(mockGenerateContent).toHaveBeenCalledTimes(1);
+    expect(mockGenerateContent).toHaveBeenCalledWith({
       contents: [{parts: [{text: 'hello chat bison'}], role: 'user'}],
       generationConfig: {
         topK: undefined,
@@ -270,8 +269,8 @@ describe('generateMessage', () => {
 
     expect(mockGetModel).toHaveBeenCalledTimes(1);
     expect(mockGetModel).toBeCalledWith({model: config.googleAi.model});
-    expect(mockGenerateContentStream).toHaveBeenCalledTimes(1);
-    expect(mockGenerateContentStream).toHaveBeenCalledWith({
+    expect(mockGenerateContent).toHaveBeenCalledTimes(1);
+    expect(mockGenerateContent).toHaveBeenCalledWith({
       contents: [{parts: [{text: 'hello chat bison'}], role: 'user'}],
       generationConfig: {
         topK: undefined,

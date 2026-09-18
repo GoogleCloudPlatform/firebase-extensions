@@ -75,7 +75,9 @@ jest.mock('@google/generative-ai', () => {
                   mockSendMessage(args);
                   return {
                     response: {
-                      text: () => 'test response',
+                      candidates: [
+                        {content: {parts: [{text: 'test response'}]}},
+                      ],
                       promptFeedback: {
                         foo: 'bar',
                       },
