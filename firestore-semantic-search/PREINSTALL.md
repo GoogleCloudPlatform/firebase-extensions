@@ -8,7 +8,7 @@ Once installed, the extension does the following:
 2. Provides a secure API endpoint to query similar documents (given an input document) that can be used by client applications
 3. (Optional) Backfills existing data from target collection(s)
 
-The query API endpoint is deployed as a Firebase Callable Function, and requires that you are signed in with a Firebase Auth user to successfully call the Function from your client application.
+The query API endpoint is deployed as a Firebase Callable Function. This extension does not enforce App Check for this function.
 
 ### Embeddings models
 

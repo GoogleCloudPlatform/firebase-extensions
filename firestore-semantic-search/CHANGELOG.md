@@ -1,3 +1,7 @@
+## Version 0.1.11
+
+docs - clarify that the `queryIndex` callable function does not enforce App Check.
+
 ## Version 0.1.10
 
 chore: bump runtime to Node.js 22
