@@ -4,7 +4,7 @@ On installation, you will be asked to provide the following information:
 
 - **Gemini API Provider** This extension makes use of the Gemini family of models. Currently the extension supports the Google AI Gemini API and the Vertex AI Gemini API. Learn more about the differences between the Google AI and Vertex AI Gemini APIs [here](https://cloud.google.com/vertex-ai/docs/generative-ai/migrate/migrate-google-ai).
 
-Note that Generative AI on Vertex AI is only available in the regions listed [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/locations-genai).
+Note that Generative AI on Vertex AI is only available in the regions listed [here](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations). The **Cloud Functions location** you choose is not necessarily the region used to call the Vertex AI Gemini API. If you use the Vertex AI provider and leave the **Vertex AI API Location** parameter unset, the extension calls Vertex AI in the Cloud Functions location. Not every Cloud Functions location is a supported Vertex AI region, and choosing an unsupported region (for example, `us-west2`) causes generation to fail with a `Publisher Model ... not found` error. To avoid this, set the **Vertex AI API Location** parameter to a region where your chosen Gemini model is available.
 
 A list of languages and regions supported by the Gemini API on Google AI is [here](https://ai.google.dev/available_regions).
 

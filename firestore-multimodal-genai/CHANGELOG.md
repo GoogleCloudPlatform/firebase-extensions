@@ -1,3 +1,7 @@
+## Version 1.0.8
+
+- docs: clarify that the Cloud Functions location is distinct from the Vertex AI region, and explain how an unsupported Vertex AI region causes a "Publisher Model not found" error. Point users to the "Vertex AI API Location" parameter and refresh the Vertex AI locations links.
+
 ## Version 1.0.7
 
 - feat: add optional Genkit Monitoring support with `ENABLE_GENKIT_MONITORING` parameter. Monitoring roles must be manually granted to the extension's service account — see post-installation docs for instructions.
