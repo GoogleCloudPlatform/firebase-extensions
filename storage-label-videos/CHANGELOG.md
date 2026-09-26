@@ -1,3 +1,7 @@
+## Version 0.1.7
+
+- chore: bump `protobufjs` to 7.6.1 (security update)
+
 ## Version 0.1.6
 
 chore: bump runtime to Node.js 22

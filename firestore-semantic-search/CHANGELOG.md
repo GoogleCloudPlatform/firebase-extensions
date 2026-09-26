@@ -1,3 +1,7 @@
+## Version 0.1.11
+
+- chore: bump transitive dependencies (`lodash`, `handlebars`, `picomatch`, `flatted`)
+
 ## Version 0.1.10
 
 chore: bump runtime to Node.js 22

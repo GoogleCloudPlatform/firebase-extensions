@@ -1,3 +1,7 @@
+## Version 0.2.3
+
+- chore: bump `protobufjs` to 7.6.1 (security update)
+
 ## Version 0.2.2
 
 chore: bump Cloud Functions runtime to Node.js 22

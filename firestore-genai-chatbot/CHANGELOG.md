@@ -1,3 +1,8 @@
+## Version 0.0.20
+
+- chore: bump `@google/generative-ai` from `^0.1.1` to `^0.24.1`
+- chore: bump transitive dependencies (`qs`, `body-parser`, `express`, `lodash`, `handlebars`, `picomatch`, `flatted`)
+
 ## Version 0.0.19
 
 - chore: bump Cloud Functions runtime to Node.js 22

@@ -1,3 +1,10 @@
+## Version 0.1.10
+
+- chore: bump `uuid` from `^9.0.0` to `^14.0.0`
+- chore: bump `@google-cloud/tasks` from `4.0.0` to `4.1.0`
+- chore: bump `@types/node` from `14.18.34` to `14.18.63`
+- chore: bump `@tootallnate/once` to 2.0.1
+
 ## Version 0.1.9
 
 chore: bump runtime to Node.js 22

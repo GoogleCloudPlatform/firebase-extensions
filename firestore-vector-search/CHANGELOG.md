@@ -1,3 +1,8 @@
+## Version 0.1.4
+
+- chore: bump `@google-cloud/vertexai` from `^0.1.3` to `^0.5.0`
+- chore: bump `protobufjs` to 7.6.1, `tmp` to 0.2.7, `@tootallnate/once` to 2.0.1 (security updates)
+
 ## Version 0.1.3
 
 chore: complete runtime migration to Node.js 22
