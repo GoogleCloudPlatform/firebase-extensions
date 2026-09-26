@@ -2,6 +2,7 @@
 
 chore: bump runtime to Node.js 22
 chore: run npm audit fix
+chore: add dependency overrides to resolve transitive vulnerabilities (tar, http-proxy-agent, @mapbox/node-pre-gyp)
 
 ## Version 0.1.10
 
