@@ -37,6 +37,7 @@ jest.mock('../../src/config', () => ({
     },
     vertex: {
       model: 'gemini-2.5-pro',
+      modelLocation: 'global',
     },
     collectionName: 'discussionsTestGenerative/{discussionId}/messages',
     location: 'us-central1',
@@ -69,7 +70,8 @@ jest.mock('@google-cloud/vertexai', () => {
             mockGetModel(args);
             return {
               generateContent: async function mockedGenerateContent(args: any) {
-                mockGenerateContent(args);
+                const override = mockGenerateContent(args);
+                if (override) return override;
                 return {
                   response: {
                     candidates: [
@@ -127,6 +129,7 @@ describe('generateMessage', () => {
       {method: 'DELETE'}
     );
     jest.clearAllMocks();
+    mockGenerateContent.mockReset();
     const randomInteger = Math.floor(Math.random() * 1000000);
     collectionName = config.collectionName.replace(
       '{discussionId}',
@@ -220,6 +223,12 @@ describe('generateMessage', () => {
     );
 
     expect(mockGetClient).toHaveBeenCalledTimes(1);
+    expect(mockGetClient).toHaveBeenCalledWith(
+      expect.objectContaining({
+        location: 'global',
+        apiEndpoint: 'aiplatform.googleapis.com',
+      })
+    );
 
     expect(mockGetModel).toHaveBeenCalledTimes(1);
     expect(mockGetModel).toHaveBeenCalledWith({model: config.googleAi.model});
@@ -281,6 +290,57 @@ describe('generateMessage', () => {
       },
       safetySettings: [],
     });
+  });
+
+  test('should error instead of storing text from a blocked candidate', async () => {
+    mockGenerateContent.mockReturnValueOnce({
+      response: {
+        candidates: [
+          {
+            finishReason: 'SAFETY',
+            content: {parts: [{text: 'partial answer'}]},
+          },
+        ],
+      },
+    });
+    const message = {
+      prompt: 'hello chat bison',
+      createTime: Timestamp.now(),
+    };
+    const ref = await admin.firestore().collection(collectionName).add(message);
+
+    await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
+
+    const data = (await ref.get()).data()!;
+    expect(data.response).toBeUndefined();
+    expect(data.status.state).toBe('ERROR');
+    expect(data.status.error).toContain('candidate finished due to SAFETY');
+  });
+
+  test('should skip a blocked candidate and answer from the next one', async () => {
+    mockGenerateContent.mockReturnValueOnce({
+      response: {
+        candidates: [
+          {
+            finishReason: 'SAFETY',
+            content: {parts: [{text: 'partial answer'}]},
+          },
+          {finishReason: 'STOP', content: {parts: [{text: 'good answer'}]}},
+        ],
+      },
+    });
+    const message = {
+      prompt: 'hello chat bison',
+      createTime: Timestamp.now(),
+    };
+    const ref = await admin.firestore().collection(collectionName).add(message);
+
+    await simulateFunctionTriggered(wrappedGenerateMessage)(ref);
+
+    const data = (await ref.get()).data()!;
+    expect(data.status.state).toBe('COMPLETED');
+    expect(data.response).toBe('good answer');
+    expect(data.candidates).toEqual(['good answer']);
   });
 });
 

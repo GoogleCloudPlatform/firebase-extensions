@@ -23,7 +23,7 @@ import {
   Part,
 } from '@google-cloud/vertexai';
 import config from '../config';
-import {answerText, noAnswerMessage} from './parts';
+import {answerText, noAnswerMessage, wasBlocked} from './parts';
 import {vertexApiEndpoint} from './vertex_endpoint';
 import {SafetySetting as VertexSafetySetting} from '@google-cloud/vertexai';
 
@@ -111,9 +111,7 @@ export class VertexDiscussionClient extends DiscussionClient<
       safetySettings: options.safetySettings,
     };
     try {
-      // The streaming aggregate flattens every part into parts[0].text and
-      // drops the thought flag, so thought parts can only be skipped on the
-      // unary response.
+      // Unary, because the streaming aggregate drops the thought flag.
       result = (await generativeModel.generateContent(request)).response;
     } catch (e) {
       logger.error('Failed to generate response', e);
@@ -124,6 +122,7 @@ export class VertexDiscussionClient extends DiscussionClient<
     }
 
     const candidates = (result.candidates ?? [])
+      .filter(c => !wasBlocked(c))
       .map(c => answerText(c?.content?.parts))
       .filter((text): text is string => !!text);
 

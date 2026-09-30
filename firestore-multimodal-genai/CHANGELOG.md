@@ -2,10 +2,10 @@
 
 - feat: default to Gemini 3.6 Flash; Genkit accepts current Gemini 3.x ids without falling back to the legacy clients. Gemini 2.5 models retire in October 2026. Existing installs keep their stored `MODEL` and `VERTEX_AI_PROVIDER_LOCATION` values until reconfigured; move to a Gemini 3.x model and the `global` location before the retirement.
 - change: model ids outside the old allowlist (preview, dated, experimental and tuned ids) are now served by Genkit instead of the legacy SDK clients. Genkit applies `TEMPERATURE`, `TOP_P`, `TOP_K` and the safety thresholds on every request, which the legacy clients did not, so outputs and blocking can differ for those installs.
-- feat: default `VERTEX_AI_PROVIDER_LOCATION` to `global`. Gemini 3.x is only served from the Vertex AI `global`, `us` and `eu` endpoints, so the previous "same as Cloud Functions location" default would fail for the new default model.
+- feat: default `VERTEX_AI_PROVIDER_LOCATION` to `global`, and add the `us` and `eu` multi-region locations. Gemini 3.x is only served from the Vertex AI `global`, `us` and `eu` endpoints, so the previous "same as Cloud Functions location" default would fail for the new default model.
+- chore: bump `genkit`, `@genkit-ai/google-genai` and `@genkit-ai/firebase` to 1.42, which routes the `us` and `eu` locations to their multi-region endpoints.
 - docs: note that Gemini 3.x deprecates `TEMPERATURE`, `TOP_P` and `TOP_K`; custom values are ignored. They still apply to Gemini 2.5 models.
 - fix: per-call `safetySettings` from the callable are merged into the Genkit generate config instead of being silently dropped.
-- fix: the `us` and `eu` values of `VERTEX_AI_PROVIDER_LOCATION` reach the Vertex AI multi-region endpoints. Bumps `genkit` and `@genkit-ai/google-genai` to 1.42.
 - fix: add a loose `validationRegex` to `MODEL` so a mistyped id is rejected at install time rather than failing on every write.
 - refactor: drop the `pro-vision` routing special case. The model is retired, so diverting it to a legacy SDK cannot help; unknown ids are now rejected by the API like everywhere else in this extension.
 
