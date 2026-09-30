@@ -92,10 +92,7 @@ export class GenkitGenerativeClient extends GenerativeClient<
     return genkit(genkitConfig);
   }
 
-  /**
-   * Resolves a Genkit model reference via `googleAI.model()` / `vertexAI.model()`.
-   * Any id is passed through so current Gemini releases work without a package update.
-   */
+  /** Resolves a Genkit model reference for any model id. */
   static createModelReference(
     model: string,
     provider: string
@@ -125,13 +122,7 @@ export class GenkitGenerativeClient extends GenerativeClient<
     };
   }
 
-  /**
-   * Folds per-call overrides into the stored options.
-   *
-   * `safetySettings` reaches us at the top level (see `generateOnCall` in
-   * index.ts) but Genkit only reads it from `config`, so a plain spread would
-   * silently drop caller overrides.
-   */
+  /** Merges per-call options; Genkit reads `safetySettings` from `config`. */
   private mergeGenerateOptions(
     options?: GenerateOptions & {image?: string; safetySettings?: unknown}
   ): GenerateOptions {

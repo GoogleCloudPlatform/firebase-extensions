@@ -45,40 +45,31 @@ export class GenkitDiscussionClient extends DiscussionClient<
   private provider: 'google-ai' | 'vertex-ai';
   private generateOptions: GenerateOptions;
   client: Genkit;
-  private pluginOptions: VertexPluginOptions | GoogleAIPluginOptions;
   private plugin: GenkitPluginV2;
 
   constructor(config: Config) {
     super();
     this.provider = config.provider;
-    this.pluginOptions = this.getPluginOptions(config);
-    this.plugin = this.initializePlugin();
+    this.plugin = this.initializePlugin(config);
     this.client = this.initializeGenkit(config);
     this.generateOptions = this.createGenerateOptions(config);
   }
 
-  private getPluginOptions(config: Config) {
+  private initializePlugin(config: Config): GenkitPluginV2 {
     if (this.provider === 'google-ai') {
       if (!config.googleAi.apiKey) {
         throw new Error('API key required.');
       }
-      const pluginConfig: GoogleAIPluginOptions = {
+      const pluginOptions: GoogleAIPluginOptions = {
         apiKey: config.googleAi.apiKey,
       };
-      return pluginConfig;
-    }
-    const pluginConfig: VertexPluginOptions = {
-      location: config.vertex.modelLocation,
-    };
-    return pluginConfig;
-  }
-
-  private initializePlugin(): GenkitPluginV2 {
-    if (this.provider === 'google-ai') {
-      return googleAI(this.pluginOptions as GoogleAIPluginOptions);
+      return googleAI(pluginOptions);
     }
     if (this.provider === 'vertex-ai') {
-      return vertexAI(this.pluginOptions as VertexPluginOptions);
+      const pluginOptions: VertexPluginOptions = {
+        location: config.vertex.modelLocation,
+      };
+      return vertexAI(pluginOptions);
     }
     throw new Error('Invalid provider.');
   }
@@ -100,10 +91,7 @@ export class GenkitDiscussionClient extends DiscussionClient<
     return genkit(genkitConfig);
   }
 
-  /**
-   * Resolves a Genkit model reference via `googleAI.model()` / `vertexAI.model()`.
-   * Any id is passed through so current Gemini releases work without a package update.
-   */
+  /** Resolves a Genkit model reference for any model id. */
   static createModelReference(
     model: string,
     provider: string

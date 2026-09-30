@@ -14,15 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * Whether this configuration asks for multiple candidate responses.
- *
- * The client-selection gate and the Firestore write path must agree: the Genkit
- * client only serves single-candidate configs, and writing the `candidates`
- * field requires a field name to write it to. Keeping one predicate stops the
- * two from drifting, which would either waste a multi-candidate request or send
- * a single-candidate config down the legacy clients.
- */
+/** Whether this configuration asks for multiple candidate responses. */
 export function wantsMultipleCandidates(config: {
   candidateCount?: number;
   candidatesField?: string;

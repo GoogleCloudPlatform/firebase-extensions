@@ -20,14 +20,7 @@ export interface TextPart {
   thought?: boolean;
 }
 
-/**
- * The non-thought text parts of a candidate, joined.
- *
- * The legacy clients read `parts[0].text`, which is not reliable for thinking
- * models: they can lead with thought parts, or split the answer across parts.
- * Thought parts carry `thought: true`, which the pinned legacy SDK versions do
- * not type, so callers pass their own part shape in.
- */
+/** The non-thought text parts of a candidate, joined. */
 export function answerText(parts?: TextPart[]): string | undefined {
   const text = (parts ?? [])
     .filter(part => !part.thought && typeof part.text === 'string')
@@ -38,7 +31,7 @@ export function answerText(parts?: TextPart[]): string | undefined {
 
 const BLOCKED_FINISH_REASONS = ['SAFETY', 'RECITATION'];
 
-/** Whether a candidate was cut off for a reason that makes its text unusable. */
+/** Whether a candidate was cut off in a way that makes its text unusable. */
 export function wasBlocked(candidate?: {finishReason?: string}): boolean {
   return BLOCKED_FINISH_REASONS.includes(candidate?.finishReason ?? '');
 }
@@ -49,10 +42,7 @@ export interface BlockedResponse {
   candidates?: {finishReason?: string; finishMessage?: string}[];
 }
 
-/**
- * Why a response carried no answer text, from the prompt block reason or the
- * first candidate's finish reason.
- */
+/** Why a response carried no answer text. */
 export function noAnswerMessage(response: BlockedResponse): string {
   const {blockReason, blockReasonMessage} = response.promptFeedback ?? {};
   if (blockReason) {

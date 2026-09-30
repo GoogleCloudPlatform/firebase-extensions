@@ -16,10 +16,7 @@
 
 const MULTI_REGIONAL_LOCATIONS = ['us', 'eu'];
 
-/**
- * The Vertex AI host for a location that is not a single region, or undefined
- * to keep the SDK's `<location>-aiplatform.googleapis.com` default.
- */
+/** The Vertex AI host for a non-regional location, else undefined. */
 export function vertexApiEndpoint(location?: string): string | undefined {
   if (location === 'global') {
     return 'aiplatform.googleapis.com';
