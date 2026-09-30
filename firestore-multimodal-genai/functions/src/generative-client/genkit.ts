@@ -41,7 +41,6 @@ export class GenkitGenerativeClient extends GenerativeClient<
   private provider: string;
   private imageField?: string;
   private generateOptions: GenerateOptions;
-  private pluginOptions: VertexPluginOptions | GoogleAIPluginOptions;
   private plugin: GenkitPluginV2;
   client: Genkit;
 
@@ -49,8 +48,7 @@ export class GenkitGenerativeClient extends GenerativeClient<
     super();
     this.provider = config.provider;
     this.imageField = config.imageField;
-    this.pluginOptions = this.getPluginOptions(config);
-    this.plugin = this.initializePlugin();
+    this.plugin = this.initializePlugin(config);
     this.client = this.initializeGenkit(config);
     this.generateOptions = this.createGenerateOptions(config);
   }
@@ -60,29 +58,21 @@ export class GenkitGenerativeClient extends GenerativeClient<
     return !config.candidates.shouldIncludeCandidatesField;
   }
 
-  private getPluginOptions(config: Config) {
+  private initializePlugin(config: Config): GenkitPluginV2 {
     if (this.provider === 'google-ai') {
       if (!config.googleAi.apiKey) {
         throw new Error('API key required for Google AI.');
       }
-      const pluginConfig: GoogleAIPluginOptions = {
+      const pluginOptions: GoogleAIPluginOptions = {
         apiKey: config.googleAi.apiKey,
       };
-      return pluginConfig;
-    }
-
-    const pluginConfig: VertexPluginOptions = {
-      location: config.vertexAiLocation,
-    };
-    return pluginConfig;
-  }
-
-  private initializePlugin(): GenkitPluginV2 {
-    if (this.provider === 'google-ai') {
-      return googleAI(this.pluginOptions);
+      return googleAI(pluginOptions);
     }
     if (this.provider === 'vertex-ai') {
-      return vertexAI(this.pluginOptions);
+      const pluginOptions: VertexPluginOptions = {
+        location: config.vertexAiLocation,
+      };
+      return vertexAI(pluginOptions);
     }
     throw new Error('Invalid provider specified.');
   }

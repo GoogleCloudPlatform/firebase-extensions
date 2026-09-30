@@ -24,6 +24,7 @@ import {
 } from '@google-cloud/vertexai';
 import config from '../config';
 import {answerText, noAnswerMessage} from './parts';
+import {vertexApiEndpoint} from './vertex_endpoint';
 import {SafetySetting as VertexSafetySetting} from '@google-cloud/vertexai';
 
 interface GeminiChatOptions {
@@ -50,15 +51,6 @@ enum Role {
   GEMINI = 'model',
 }
 
-/**
- * The `global` location is not a regional endpoint: this SDK builds
- * `<location>-aiplatform.googleapis.com`, which does not resolve for `global`.
- * Passing `apiEndpoint` overrides that so the request goes to the unprefixed
- * host while the resource path keeps `locations/global`.
- */
-const GLOBAL_LOCATION = 'global';
-const GLOBAL_API_ENDPOINT = 'aiplatform.googleapis.com';
-
 export class VertexDiscussionClient extends DiscussionClient<
   VertexAI,
   GeminiChatOptions,
@@ -68,12 +60,11 @@ export class VertexDiscussionClient extends DiscussionClient<
   constructor({modelName}: {apiKey?: string; modelName: string}) {
     super();
     const location = config.vertex.modelLocation;
+    const apiEndpoint = vertexApiEndpoint(location);
     this.client = new VertexAI({
       project: config.projectId,
       location,
-      ...(location === GLOBAL_LOCATION
-        ? {apiEndpoint: GLOBAL_API_ENDPOINT}
-        : {}),
+      ...(apiEndpoint ? {apiEndpoint} : {}),
     });
     if (!modelName) {
       throw new Error('Model name required.');
