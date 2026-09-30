@@ -48,7 +48,7 @@ On installation you may pick an `image` field. The image field must be the Cloud
 
 This extension has historically supported calls to the (now deprecated) Gemini Pro Vision model on Google AI and Vertex AI APIs.
 
-For the Gemini Pro Vision models Google AI requires prompts to have both an image and text part, whereas Vertex AI allows gemini-pro-vision to be prompted with text only as well. If you have selected to use the Gemini Pro Vision model (deprecated) and have Google AI as a provider then any document handled by the extension must contain an image field.
+If you configure an image field, every document handled by the extension must contain it. A document without an image is marked as errored rather than answered from the prompt alone.
 
 The Gemini Pro Vision API has a limit on image sizes. For Google AI this limit is currently 1MB, and for Vertex AI this limit is 4MB. This extension compress and resize images that fall above this limit.
 

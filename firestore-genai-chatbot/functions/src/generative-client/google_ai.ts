@@ -17,6 +17,7 @@
 import {DiscussionClient, Message} from './base_class';
 import {GoogleGenerativeAI} from '@google/generative-ai';
 import {logger} from '../logger';
+import {answerText, noAnswerMessage, wasBlocked} from './parts';
 import {SafetySetting} from '@google/generative-ai';
 
 interface GeminiChatOptions {
@@ -111,17 +112,21 @@ export class GeminiDiscussionClient extends DiscussionClient<
       );
     }
 
-    const text = result.response.text();
+    const first = result.response.candidates?.[0];
+    const text = wasBlocked(first)
+      ? undefined
+      : answerText(first?.content?.parts);
 
     if (!text) {
-      throw new Error('No text returned candidate');
+      throw new Error(noAnswerMessage(result.response));
     }
 
     return {
       response: text,
       candidates:
-        result.response.candidates?.map(c => c.content.parts[0].text ?? '') ??
-        [],
+        result.response.candidates?.map(
+          c => answerText(c.content.parts) ?? ''
+        ) ?? [],
       safetyMetadata: result.response.promptFeedback,
       history,
     };

@@ -22,6 +22,7 @@ import {
 import {VertexPluginOptions} from '@genkit-ai/google-genai/lib/vertexai';
 import {GenkitPluginV2} from 'genkit/plugin';
 import type {Config} from '../config';
+import {wantsMultipleCandidates} from '../candidates';
 import {
   genkit,
   MessageData as ApiMessage,
@@ -44,40 +45,31 @@ export class GenkitDiscussionClient extends DiscussionClient<
   private provider: 'google-ai' | 'vertex-ai';
   private generateOptions: GenerateOptions;
   client: Genkit;
-  private pluginOptions: VertexPluginOptions | GoogleAIPluginOptions;
   private plugin: GenkitPluginV2;
 
   constructor(config: Config) {
     super();
     this.provider = config.provider;
-    this.pluginOptions = this.getPluginOptions(config);
-    this.plugin = this.initializePlugin();
+    this.plugin = this.initializePlugin(config);
     this.client = this.initializeGenkit(config);
     this.generateOptions = this.createGenerateOptions(config);
   }
 
-  private getPluginOptions(config: Config) {
+  private initializePlugin(config: Config): GenkitPluginV2 {
     if (this.provider === 'google-ai') {
       if (!config.googleAi.apiKey) {
         throw new Error('API key required.');
       }
-      const pluginConfig: GoogleAIPluginOptions = {
+      const pluginOptions: GoogleAIPluginOptions = {
         apiKey: config.googleAi.apiKey,
       };
-      return pluginConfig;
-    }
-    const pluginConfig: VertexPluginOptions = {
-      location: config.vertex.modelLocation,
-    };
-    return pluginConfig;
-  }
-
-  private initializePlugin(): GenkitPluginV2 {
-    if (this.provider === 'google-ai') {
-      return googleAI(this.pluginOptions as GoogleAIPluginOptions);
+      return googleAI(pluginOptions);
     }
     if (this.provider === 'vertex-ai') {
-      return vertexAI(this.pluginOptions as VertexPluginOptions);
+      const pluginOptions: VertexPluginOptions = {
+        location: config.vertex.modelLocation,
+      };
+      return vertexAI(pluginOptions);
     }
     throw new Error('Invalid provider.');
   }
@@ -99,52 +91,19 @@ export class GenkitDiscussionClient extends DiscussionClient<
     return genkit(genkitConfig);
   }
 
+  /** Resolves a Genkit model reference for any model id. */
   static createModelReference(
     model: string,
     provider: string
   ): ModelReference<any> {
-    const modelReferences =
-      provider === 'google-ai'
-        ? [
-            googleAI.model('gemini-1.5-flash'),
-            googleAI.model('gemini-1.5-pro'),
-            googleAI.model('gemini-2.0-flash'),
-            googleAI.model('gemini-2.0-flash-lite'),
-            googleAI.model('gemini-2.5-flash-lite'),
-            googleAI.model('gemini-2.5-flash'),
-            googleAI.model('gemini-2.5-pro'),
-            googleAI.model('gemini-3-pro-preview'),
-            googleAI.model('gemini-3-pro-image-preview'),
-          ]
-        : [
-            vertexAI.model('gemini-1.5-flash'),
-            vertexAI.model('gemini-1.5-pro'),
-            vertexAI.model('gemini-2.0-flash'),
-            vertexAI.model('gemini-2.0-flash-lite'),
-            vertexAI.model('gemini-2.0-flash-001'),
-            vertexAI.model('gemini-2.5-flash-lite'),
-            vertexAI.model('gemini-2.5-flash'),
-            vertexAI.model('gemini-2.5-pro'),
-            vertexAI.model('gemini-3-pro-preview'),
-            vertexAI.model('gemini-3-pro-image-preview'),
-          ];
-
-    const pluginName = provider === 'google-ai' ? 'googleai' : 'vertexai';
-
-    for (const modelReference of modelReferences) {
-      if (modelReference.name === `${pluginName}/${model}`) {
-        return modelReference;
-      }
-      if (modelReference.info?.versions?.includes(model)) {
-        return modelReference.withVersion(model);
-      }
-    }
-    throw new Error('Model not found.');
+    return provider === 'google-ai'
+      ? googleAI.model(model)
+      : vertexAI.model(model);
   }
 
   private createGenerateOptions(config: Config): GenerateOptions {
     if (!config.model) {
-      throw new Error('Model not found.');
+      throw new Error('Model must be specified in the configuration.');
     }
 
     return {
@@ -162,17 +121,9 @@ export class GenkitDiscussionClient extends DiscussionClient<
     };
   }
 
-  //   We use this to check before creating the client to see if we should use the Genkit client
+  /** Whether the Genkit client can serve this config (single candidate). */
   static shouldUseGenkitClient(config: Config): boolean {
-    const shouldReturnMultipleCandidates =
-      config.candidateCount && config.candidateCount > 1;
-    return (
-      !shouldReturnMultipleCandidates &&
-      !!GenkitDiscussionClient.createModelReference(
-        config.model,
-        config.provider
-      )
-    );
+    return !wantsMultipleCandidates(config);
   }
 
   async generateResponse(

@@ -15,6 +15,7 @@
  */
 
 import config from './config';
+import {wantsMultipleCandidates} from './candidates';
 import {GenerateMessageOptions} from './types';
 import {fetchDiscussionOptions, fetchHistory} from './firestore';
 import {getGenerativeClient} from './generative-client';
@@ -56,5 +57,4 @@ export const generateChatResponse = async (
       };
 };
 
-const shouldAddCandidatesField =
-  config.candidatesField && config.candidateCount && config.candidateCount > 1;
+const shouldAddCandidatesField = wantsMultipleCandidates(config);
