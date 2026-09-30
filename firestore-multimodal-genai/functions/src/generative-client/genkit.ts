@@ -39,7 +39,6 @@ export class GenkitGenerativeClient extends GenerativeClient<
   Genkit
 > {
   private provider: string;
-  private imageField?: string;
   private generateOptions: GenerateOptions;
   private plugin: GenkitPluginV2;
   client: Genkit;
@@ -47,7 +46,6 @@ export class GenkitGenerativeClient extends GenerativeClient<
   constructor(config: Config) {
     super();
     this.provider = config.provider;
-    this.imageField = config.imageField;
     this.plugin = this.initializePlugin(config);
     this.client = this.initializeGenkit(config);
     this.generateOptions = this.createGenerateOptions(config);
@@ -160,12 +158,6 @@ export class GenkitGenerativeClient extends GenerativeClient<
     const generateOptions = this.mergeGenerateOptions(options);
 
     let imageBase64: string | undefined;
-
-    if (this.imageField && !options?.image) {
-      throw new Error(
-        'Image Field is configured, but this document has no image.'
-      );
-    }
 
     if (options?.image) {
       try {

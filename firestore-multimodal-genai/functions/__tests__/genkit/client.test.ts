@@ -232,16 +232,20 @@ describe('GenkitGenerativeClient', () => {
     expect(response).toEqual({candidates: ['Generated text response']});
   });
 
-  it('should throw if the image field is configured but no image is given', async () => {
+  it('should generate from text only when the image field is configured but the document has no image', async () => {
     const client = new GenkitGenerativeClient(mockConfig);
     client.client.generate = jest.fn(() =>
       Promise.resolve(mockGenerateResponse as unknown as GenerateResponse<any>)
     );
 
-    await expect(client.generate('Test prompt')).rejects.toThrow(
-      'Image Field is configured, but this document has no image.'
+    const response = await client.generate('Test prompt');
+
+    expect(client.client.generate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messages: [{role: 'user', content: [{text: 'Test prompt'}]}],
+      })
     );
-    expect(client.client.generate).not.toHaveBeenCalled();
+    expect(response).toEqual({candidates: ['Generated text response']});
   });
 
   it('should merge per-call safetySettings into the generate config', async () => {
