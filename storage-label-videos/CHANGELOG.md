@@ -1,3 +1,7 @@
+## Version 0.1.7
+
+fix: allow periods in storage path validation for INPUT_VIDEOS_PATH and OUTPUT_PATH parameters
+
 ## Version 0.1.6
 
 chore: bump runtime to Node.js 22

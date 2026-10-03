@@ -1,5 +1,5 @@
 name: storage-transcode-videos
-version: 0.0.5
+version: 0.0.6
 specVersion: v1beta
 
 displayName: Transcode Videos on Google Cloud Storage
@@ -87,7 +87,7 @@ params:
       videos from.
     type: string
     example: /video_transcoding_input/
-    validationRegex: ^\/([0-9a-zA-Z_\/\-]*\/){0,1}$
+    validationRegex: ^\/([0-9a-zA-Z_.\-\/]*\/){0,1}$
     validationErrorMessage: Invalid storage folder name
     default: /video_transcoding_input/
     required: true
@@ -99,7 +99,7 @@ params:
       be output to.
     type: string
     example: /video_transcoding_output/
-    validationRegex: ^\/([0-9a-zA-Z_\/\-]*\/){0,1}$
+    validationRegex: ^\/([0-9a-zA-Z_.\-\/]*\/){0,1}$
     validationErrorMessage: Invalid storage folder name
     default: /video_transcoding_output/
     required: true
@@ -109,7 +109,7 @@ params:
     description: >
       A template id for populating a job configuration.
     example: preset/web-hd
-    validationRegex: ^[a-zA-Z0-9\/\-_]+$
+    validationRegex: ^[a-zA-Z0-9\/\-_.]+$
     validationErrorMessage:
       Must be an alphanumeric string. Dashes, underscores and forward slashes
       are also allowed
