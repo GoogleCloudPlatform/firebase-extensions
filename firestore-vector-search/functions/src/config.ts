@@ -16,6 +16,7 @@
 
 import * as admin from 'firebase-admin/app';
 import * as Firestore from '@google-cloud/firestore';
+import {getEmbeddingModel} from './embeddings/client/models';
 
 admin.initializeApp();
 
@@ -83,6 +84,10 @@ export const config = {
       : undefined,
   },
   embeddingProvider: embeddingProvider,
+  embeddingModel: getEmbeddingModel(
+    embeddingProvider,
+    process.env.CUSTOM_EMBEDDINGS_ENDPOINT
+  ),
   multimodal: embeddingProvider === EmbeddingProvider.Multimodal,
   vectorStoreProvider: 'firestore',
   geminiApiKey: process.env.GEMINI_API_KEY,

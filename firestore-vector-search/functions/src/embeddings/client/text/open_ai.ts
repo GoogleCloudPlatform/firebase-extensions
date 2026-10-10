@@ -15,6 +15,7 @@
  */
 
 import OpenAI from 'openai';
+import {OPENAI_EMBEDDING_MODEL} from '../models';
 import {EmbedClient} from '../base_class';
 import {config} from '../../../config';
 
@@ -42,7 +43,7 @@ export class OpenAIEmbedClient extends EmbedClient {
     }
 
     const embeddingRequest: OpenAI.Embeddings.EmbeddingCreateParams = {
-      model: 'text-embedding-ada-002',
+      model: OPENAI_EMBEDDING_MODEL,
       input: batch,
     };
 

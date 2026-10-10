@@ -16,6 +16,7 @@
 
 import {EmbedClient} from '../base_class';
 import {config} from '../../../config';
+import {MULTIMODAL_EMBEDDING_MODEL} from '../models';
 import * as admin from 'firebase-admin';
 import {VertexAI} from '@google-cloud/vertexai';
 import fetch from 'node-fetch';
@@ -80,7 +81,7 @@ export class MultimodalEmbeddingClient extends EmbedClient {
     // POST https://us-central1-aiplatform.googleapis.com/v1/projects/PROJECT_ID/locations/us-central1/publishers/google/models/multimodalembedding@001:predict
 
     // TODO: do we add config location?
-    const endpoint = `https://us-central1-aiplatform.googleapis.com/v1/projects/${config.projectId}/locations/us-central-1/publishers/google/models/multimodalembedding@001:predict`;
+    const endpoint = `https://us-central1-aiplatform.googleapis.com/v1/projects/${config.projectId}/locations/us-central-1/publishers/google/models/${MULTIMODAL_EMBEDDING_MODEL}:predict`;
 
     const promises: Promise<{
       image?: {bytesBase64Encoded: string; mimeType: string};
