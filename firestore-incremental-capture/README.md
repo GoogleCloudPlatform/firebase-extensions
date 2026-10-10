@@ -40,6 +40,24 @@ Before this extension can run restoration jobs from BigQuery to Firestore, youâ€
 
 Further instructions are provided upon installation.
 
+### Upgrading from a version before 0.0.13
+
+Versions before 0.0.13 downloaded the restoration pipeline from the `main`
+branch of this repository, so an install resolved to whichever build sat there
+at the time. From 0.0.13 the download is pinned to a specific pipeline release
+and verified against a checksum recorded in the extension version.
+
+The build those earlier versions resolve to is frozen and keeps working, so
+nothing breaks if you stay put. Upgrading is still recommended: the pinned
+build is the one tested against this version, and the frozen build targets an
+Apache Beam SDK that Dataflow deprecated in October 2024 and may eventually
+decommission, at which point restoration jobs on old versions would stop
+launching.
+
+Upgrading does not change captured data or the BigQuery changelog. Re-run the
+setup script after upgrading so the Dataflow Flex Template is rebuilt from the
+pinned jar.
+
 ### Billing
 
 To install an extension, your project must be on the Blaze (pay as you go) plan. You will be charged a small amount (typically around $0.01/month) for the Firebase resources required by this extension (even if it is not used).

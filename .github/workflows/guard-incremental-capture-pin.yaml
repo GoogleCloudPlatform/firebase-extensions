@@ -1,0 +1,33 @@
+# The install script pins the restoration jar to a release digest. A published
+# version carrying the placeholder would ship a script that refuses to install,
+# so the placeholder must not survive into main.
+name: Guard incremental capture pin
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  digest-pinned:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+
+      - name: Fail if the pipeline digest is still a placeholder
+        env:
+          SCRIPT: firestore-incremental-capture/install/functions/download_restore_firestore.sh
+        run: |
+          set -euo pipefail
+          if grep -q 'REPLACE_WITH_RELEASE_DIGEST' "$SCRIPT"; then
+            echo "::error file=${SCRIPT}::PIPELINE_SHA256 is still a placeholder."
+            echo "Cut the pipeline release named by PIPELINE_RELEASE, then set"
+            echo "PIPELINE_SHA256 to the sha256 of its restore-firestore.jar asset."
+            exit 1
+          fi
+          echo "Pipeline digest is pinned."

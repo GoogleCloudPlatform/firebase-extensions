@@ -77,7 +77,7 @@ gcloud auth configure-docker ${param:LOCATION}-docker.pkg.dev
     --role=roles/artifactregistry.writer
    ```
 
-7. Download the JAR file for the Dataflow Flex Template [here](https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-incremental-capture-pipeline/target/restore-firestore.jar).
+7. Download the JAR file for the Dataflow Flex Template from the [pinned pipeline release](https://github.com/GoogleCloudPlatform/firebase-extensions/releases/tag/firestore-incremental-capture-pipeline-v0.1.0). Each extension version pins one release; verify the download against the `restore-firestore.jar.sha256` published alongside it.
 8. Run the following command to build the Dataflow Flex Template. Note that Cloud Storage buckets provisioned after September 30th 2024 are suffixed by `.firebasestorage.app` rather than `.appspot.com` and you should change the following command accordingly:
 
 ```bash

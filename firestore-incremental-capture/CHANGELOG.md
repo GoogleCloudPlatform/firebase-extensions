@@ -1,3 +1,22 @@
+## Version 0.0.13
+
+fix: download the restoration pipeline from a pinned release instead of the main branch
+
+The install script fetched the Dataflow jar from `raw/main`, so every install
+resolved to whatever build sat at that path at the time it ran. It now downloads
+a release pinned to this extension version and verifies its SHA-256.
+
+Existing installations are unaffected until they upgrade: the jar previously
+served from `main` is frozen and still resolves for older versions. Upgrading is
+recommended - the pinned build is the tested one, and the frozen jar targets an
+Apache Beam SDK that Dataflow deprecated in October 2024.
+
+fix: stop the download step aborting the rest of the setup script
+
+`run.sh` sources this step, so its fallback `exit 0` ended the whole run and
+skipped PITR, Firestore, Artifact Registry, service account and template setup
+while reporting success.
+
 ## Version 0.0.12
 
 chore: complete runtime migration to Node.js 22
