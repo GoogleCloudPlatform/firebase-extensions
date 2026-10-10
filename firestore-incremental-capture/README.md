@@ -20,6 +20,26 @@ The extension also provides a Dataflow connector that can incrementally restore 
 
 This extension is subject to [BigQuery write throughput limitations and availability limitations](https://cloud.google.com/bigquery/quotas), as well as [Cloud Functions at-least-once delivery guarantee](https://cloud.google.com/functions/docs/concepts/execution-environment). Since data is mirrored into BigQuery through Cloud Events, it is recommended to restore to timestamp prior to the current time to prevent missing data.
 
+## Known limitations
+
+### Maximum document size (`Error: Task size too large`)
+
+On every Firestore write, this extension enqueues a [Cloud Task](https://cloud.google.com/tasks) that carries both the previous (`before`) and new (`after`) state of the changed document so the change can be written to BigQuery. Cloud Tasks enforces a [maximum task size of 100KB](https://cloud.google.com/tasks/docs/quotas). Because a single task includes both document states plus serialization overhead, writes to large documents can exceed this limit.
+
+When the limit is exceeded, the change fails to enqueue and the extension logs:
+
+```
+Error: Task size too large
+```
+
+That specific change is **not** captured to BigQuery and therefore cannot be restored. Firestore permits documents up to 1 MiB, which is far larger than the 100KB Cloud Tasks limit, and because both the `before` and `after` states are sent together, a document only needs to be roughly half the limit (~50KB) for an update to fail. This is a limitation of the underlying Cloud Tasks transport and cannot currently be worked around by configuration.
+
+To avoid losing changes:
+
+- Keep documents in the captured collection(s) well below the Cloud Tasks size limit (as a guideline, under ~50KB each).
+- Split large documents into several smaller documents, or move large fields (for example, binary blobs or large arrays) into [Cloud Storage](https://firebase.google.com/docs/storage) and store only a reference in Firestore.
+- If you need to back up documents that exceed this size, consider [Firestore's native Point in Time Recovery](https://firebase.google.com/docs/firestore/use-pitr) and [Scheduled Backups](https://cloud.google.com/firestore/docs/backups) instead, which are not subject to this per-document limit.
+
 ## Additional Setup
 
 Before this extension can run restoration jobs from BigQuery to Firestore, you’ll need to:
