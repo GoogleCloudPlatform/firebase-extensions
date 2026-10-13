@@ -26,6 +26,7 @@ import {
   createTestTable,
   insertTestData,
   createTestTopic,
+  deleteTestTopic,
   createTestTransferConfig,
   updateTestTransferConfig,
   deleteTestTransferConfig,
@@ -384,6 +385,43 @@ describe('BigQuery-Firestore Export E2E Reconfiguration Tests', () => {
       expect(
         updatedConfig.params.fields.destination_table_name_template.stringValue
       ).toContain(newTableName);
+    }, 60000);
+
+    test('should update destination dataset ID', async () => {
+      // Setup - create two datasets
+      await createTestDataset(testResources.datasetId);
+      await createTestTable(testResources.datasetId, testResources.tableName);
+      const newDatasetId = `${testResources.datasetId}_new`;
+      await createTestDataset(newDatasetId);
+      await createTestTopic(testResources.topicName);
+
+      const queryString = `SELECT * FROM \`${e2eConfig.projectId}.${testResources.datasetId}.${testResources.tableName}\``;
+
+      // Create transfer config with original dataset
+      const transferConfig = await createTestTransferConfig(
+        testResources.transferConfigDisplayName,
+        testResources.datasetId,
+        testResources.tableName,
+        queryString,
+        e2eConfig.testSchedule,
+        testResources.topicName
+      );
+
+      transferConfigName = transferConfig.name;
+
+      // Verify initial dataset
+      expect(transferConfig.destinationDatasetId).toBe(testResources.datasetId);
+
+      // Update dataset ID
+      const updatedConfig = await updateTestTransferConfig(transferConfigName, {
+        datasetId: newDatasetId,
+      });
+
+      // Verify dataset ID was updated
+      expect(updatedConfig.destinationDatasetId).toBe(newDatasetId);
+      expect(updatedConfig.destinationDatasetId).not.toBe(
+        testResources.datasetId
+      );
     }, 60000);
   });
 
@@ -1161,6 +1199,179 @@ describe('BigQuery-Firestore Export E2E Reconfiguration Tests', () => {
           .destination_table_name_template.stringValue
       ).toContain(newTableName);
     }, 60000);
+  });
+
+  describe('Pub/Sub Topic Reconfiguration', () => {
+    test('should update notificationPubsubTopic when mismatched', async () => {
+      // This test verifies that reconfiguration correctly updates notificationPubsubTopic
+      // when it drifts (e.g., from migration, manual edit, or extension reinstall).
+      // This prevents BQ transfers from succeeding but Firestore receiving no data
+      // because notifications would go to the wrong topic.
+
+      // Setup
+      await createTestDataset(testResources.datasetId);
+      await createTestTable(testResources.datasetId, testResources.tableName);
+      await createTestTopic(testResources.topicName);
+
+      const queryString = `SELECT * FROM \`${e2eConfig.projectId}.${testResources.datasetId}.${testResources.tableName}\``;
+
+      // Create transfer config with one topic
+      const transferConfig = await createTestTransferConfig(
+        testResources.transferConfigDisplayName,
+        testResources.datasetId,
+        testResources.tableName,
+        queryString,
+        e2eConfig.testSchedule,
+        testResources.topicName // Initial topic
+      );
+
+      transferConfigName = transferConfig.name;
+
+      // Verify initial topic is set correctly
+      const initialTopic = `projects/${e2eConfig.projectId}/topics/${testResources.topicName}`;
+      expect(transferConfig.notificationPubsubTopic).toBe(initialTopic);
+
+      // Simulate the topic being wrong (e.g., from migration, manual edit, or drift)
+      // We'll manually update the transfer config to have a different topic
+      const wrongTopicName = `${testResources.topicName}-wrong`;
+      const wrongTopic = `projects/${e2eConfig.projectId}/topics/${wrongTopicName}`;
+
+      // Create the "wrong" topic so the API accepts the update
+      await createTestTopic(wrongTopicName);
+
+      const datatransferClient =
+        new (require('@google-cloud/bigquery-data-transfer').v1.DataTransferServiceClient)(
+          {projectId: e2eConfig.projectId}
+        );
+
+      // Update the transfer config to have a wrong topic
+      await datatransferClient.updateTransferConfig({
+        transferConfig: {
+          name: transferConfigName,
+          notificationPubsubTopic: wrongTopic,
+        },
+        updateMask: {paths: ['notification_pubsub_topic']},
+      });
+
+      // Verify the topic is now wrong
+      const [configWithWrongTopic] = await datatransferClient.getTransferConfig(
+        {
+          name: transferConfigName,
+        }
+      );
+      expect(configWithWrongTopic.notificationPubsubTopic).toBe(wrongTopic);
+
+      // Now simulate extension reconfiguration by calling constructUpdateTransferConfigRequest
+      // This is what happens when user reconfigures the extension (changes schedule, query, etc.)
+      const mockConfig = createMockConfig(testResources, {
+        queryString,
+        schedule: 'every 30 minutes', // Change schedule to trigger reconfiguration
+        pubSubTopic: testResources.topicName, // The correct topic
+      });
+
+      const updateRequest = await dts.constructUpdateTransferConfigRequest(
+        transferConfigName,
+        mockConfig
+      );
+
+      // The update mask should include 'notification_pubsub_topic' to correct the drift
+      expect(updateRequest.updateMask.paths).toContain(
+        'notification_pubsub_topic'
+      );
+
+      // The schedule should also be in the update mask (that field works correctly)
+      expect(updateRequest.updateMask.paths).toContain('schedule');
+
+      // The notificationPubsubTopic should be corrected to the expected value
+      const correctTopic = `projects/${e2eConfig.projectId}/topics/${testResources.topicName}`;
+      expect(updateRequest.transferConfig.notificationPubsubTopic).toBe(
+        correctTopic
+      );
+
+      // Clean up the extra topic we created
+      await deleteTestTopic(wrongTopicName);
+    }, 90000);
+
+    test('should correct mismatched Pub/Sub topic during extension update', async () => {
+      // This test verifies the end-to-end fix:
+      // After reconfiguration, the transfer config is corrected to point to the right topic,
+      // ensuring the processMessages function will receive notifications.
+
+      // Setup
+      await createTestDataset(testResources.datasetId);
+      await createTestTable(testResources.datasetId, testResources.tableName);
+      await createTestTopic(testResources.topicName);
+
+      const queryString = `SELECT * FROM \`${e2eConfig.projectId}.${testResources.datasetId}.${testResources.tableName}\``;
+
+      // Create transfer config
+      const transferConfig = await createTestTransferConfig(
+        testResources.transferConfigDisplayName,
+        testResources.datasetId,
+        testResources.tableName,
+        queryString,
+        e2eConfig.testSchedule,
+        testResources.topicName
+      );
+
+      transferConfigName = transferConfig.name;
+      const transferConfigId = transferConfigName.split('/').pop();
+
+      // Write to Firestore (simulating extension install)
+      await firestore
+        .collection(testResources.collectionPath)
+        .doc(transferConfigId!)
+        .set({
+          extInstanceId: e2eConfig.testInstanceId,
+          ...transferConfig,
+        });
+
+      // Corrupt the Pub/Sub topic (simulating drift from migration or manual edit)
+      const wrongTopicName = `${testResources.topicName}-old`;
+      const wrongTopic = `projects/${e2eConfig.projectId}/topics/${wrongTopicName}`;
+
+      // Create the "wrong" topic so the API accepts the update
+      await createTestTopic(wrongTopicName);
+
+      const datatransferClient =
+        new (require('@google-cloud/bigquery-data-transfer').v1.DataTransferServiceClient)(
+          {projectId: e2eConfig.projectId}
+        );
+
+      await datatransferClient.updateTransferConfig({
+        transferConfig: {
+          name: transferConfigName,
+          notificationPubsubTopic: wrongTopic,
+        },
+        updateMask: {paths: ['notification_pubsub_topic']},
+      });
+
+      // Simulate extension reconfiguration via invokeUpsertTransferConfig
+      const updateConfig = createMockConfig(testResources, {
+        queryString,
+        schedule: 'every 45 minutes',
+      });
+
+      await invokeUpsertTransferConfig(updateConfig);
+
+      // Check the transfer config in BigQuery
+      const [finalConfig] = await datatransferClient.getTransferConfig({
+        name: transferConfigName,
+      });
+
+      // The expected correct topic
+      const expectedTopic = `projects/${e2eConfig.projectId}/topics/${testResources.topicName}`;
+
+      // Topic should be corrected after full extension reconfiguration
+      expect(finalConfig.notificationPubsubTopic).toBe(expectedTopic);
+      expect(finalConfig.notificationPubsubTopic).not.toBe(wrongTopic);
+
+      // And the schedule should also be updated correctly
+      expect(finalConfig.schedule).toBe('every 45 minutes');
+
+      // Clean up the extra topic
+      await deleteTestTopic(wrongTopicName);
+    }, 120000);
   });
 
   describe('Firestore Integration', () => {

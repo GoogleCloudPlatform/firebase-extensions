@@ -48,13 +48,45 @@ On installation you may pick an `image` field. The image field must be the Cloud
 
 This extension has historically supported calls to the (now deprecated) Gemini Pro Vision model on Google AI and Vertex AI APIs.
 
-For the Gemini Pro Vision models Google AI requires prompts to have both an image and text part, whereas Vertex AI allows gemini-pro-vision to be prompted with text only as well. If you have selected to use the Gemini Pro Vision model (deprecated) and have Google AI as a provider then any document handled by the extension must contain an image field.
+If you configure an image field, every document handled by the extension must contain it. A document without an image is marked as errored rather than answered from the prompt alone.
 
 The Gemini Pro Vision API has a limit on image sizes. For Google AI this limit is currently 1MB, and for Vertex AI this limit is 4MB. This extension compress and resize images that fall above this limit.
 
 ## Handling errors
 
 If the extension encounters an error, it will write an error message to the document in `status` field. You can use this field to monitor for errors in your documents. Currently some errors will instruct you to visit the Cloud Function logs for the extension, to avoid exposing sensitive information.
+
+## Genkit Monitoring (optional)
+
+If you enabled Genkit Monitoring during installation, you must manually grant the following IAM roles to the extension's service account (`ext-${param:EXT_INSTANCE_ID}@${param:PROJECT_ID}.iam.gserviceaccount.com`):
+
+- `roles/monitoring.metricWriter` — write metrics to Cloud Monitoring
+- `roles/cloudtrace.agent` — write trace data to Cloud Trace
+- `roles/logging.logWriter` — write logs to Cloud Logging
+
+You can grant these roles using the [Google Cloud Console](https://console.cloud.google.com/iam-admin/iam) or via the gcloud CLI:
+
+```bash
+gcloud projects add-iam-policy-binding ${param:PROJECT_ID} \
+  --member="serviceAccount:ext-${param:EXT_INSTANCE_ID}@${param:PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/monitoring.metricWriter"
+
+gcloud projects add-iam-policy-binding ${param:PROJECT_ID} \
+  --member="serviceAccount:ext-${param:EXT_INSTANCE_ID}@${param:PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/cloudtrace.agent"
+
+gcloud projects add-iam-policy-binding ${param:PROJECT_ID} \
+  --member="serviceAccount:ext-${param:EXT_INSTANCE_ID}@${param:PROJECT_ID}.iam.gserviceaccount.com" \
+  --role="roles/logging.logWriter"
+```
+
+You must also enable the following APIs in your project:
+
+- [Cloud Monitoring API](https://console.cloud.google.com/apis/library/monitoring.googleapis.com)
+- [Cloud Trace API](https://console.cloud.google.com/apis/library/cloudtrace.googleapis.com)
+- [Cloud Logging API](https://console.cloud.google.com/apis/library/logging.googleapis.com)
+
+If the required roles are not granted, the extension will log an error but continue to function normally without monitoring.
 
 ## Monitoring
 

@@ -1,3 +1,19 @@
+/**
+ * Copyright 2026 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 // Mock declarations must come before imports for reliable hoisting
 jest.mock('../src/logs');
 
@@ -101,6 +117,7 @@ import {Config} from '../src/types';
 import * as dts from '../src/dts';
 import {PARTITIONING_FIELD_REMOVAL_ERROR_PREFIX} from '../src/dts';
 import {getTransferConfigResponse} from './fixtures/transferConfigResonse';
+import {LogLevel} from '@invertase/firebase-extension-utilities/lib/logger/logger';
 
 describe('dts', () => {
   describe('createTransferConfigRequest', () => {
@@ -119,6 +136,7 @@ describe('dts', () => {
         firestoreCollection: 'transferConfigs',
         instanceId: 'firestore-bigquery-scheduler',
         projectId: 'test',
+        logLevel: 'info' as LogLevel,
       };
       const expected = {
         parent: 'projects/test',
@@ -161,6 +179,7 @@ describe('dts', () => {
     firestoreCollection: 'transferConfigs',
     instanceId: 'firestore-bigquery-scheduler',
     projectId: 'test',
+    logLevel: 'info' as LogLevel,
   };
 
   const baseResponse = {
@@ -291,6 +310,68 @@ describe('dts', () => {
       expect(
         result.transferConfig.params.fields.partitioning_field.stringValue
       ).toBe(''); // Should remain empty string, not undefined
+    });
+
+    test('should update notificationPubsubTopic when mismatched', async () => {
+      // Simulate a transfer config with a WRONG topic (e.g., from drift or migration)
+      const responseWithWrongTopic = JSON.parse(JSON.stringify(baseResponse));
+      responseWithWrongTopic.transferConfig.notificationPubsubTopic =
+        'projects/test/topics/wrong-topic-name';
+
+      // Mock getTransferConfig to return config with wrong topic
+      mockGetTransferConfig.mockReturnValueOnce([
+        responseWithWrongTopic.transferConfig,
+      ]);
+
+      // The config has the CORRECT topic
+      const testConfig = Object.assign({}, baseConfig);
+      testConfig.pubSubTopic = 'transfer_runs'; // Correct topic
+      testConfig.schedule = 'every 24 hours'; // Change something to trigger update
+
+      const result = await dts.constructUpdateTransferConfigRequest(
+        baseResponse.name,
+        testConfig
+      );
+
+      // Should include notification_pubsub_topic in update mask
+      expect(result.updateMask.paths).toContain('notification_pubsub_topic');
+
+      // The schedule should also be in the update mask
+      expect(result.updateMask.paths).toContain('schedule');
+
+      // The notificationPubsubTopic should be corrected to the expected value
+      expect(result.transferConfig.notificationPubsubTopic).toBe(
+        'projects/test/topics/transfer_runs'
+      );
+    });
+
+    test('should update destinationDatasetId when changed', async () => {
+      // Simulate a transfer config with a different dataset ID
+      const responseWithDifferentDataset = JSON.parse(
+        JSON.stringify(baseResponse)
+      );
+      responseWithDifferentDataset.transferConfig.destinationDatasetId =
+        'old_dataset_id';
+
+      // Mock getTransferConfig to return config with old dataset
+      mockGetTransferConfig.mockReturnValueOnce([
+        responseWithDifferentDataset.transferConfig,
+      ]);
+
+      // The config has a new dataset ID
+      const testConfig = Object.assign({}, baseConfig);
+      testConfig.datasetId = 'new_dataset_id';
+
+      const result = await dts.constructUpdateTransferConfigRequest(
+        baseResponse.name,
+        testConfig
+      );
+
+      // Should include destination_dataset_id in update mask
+      expect(result.updateMask.paths).toContain('destination_dataset_id');
+
+      // The destinationDatasetId should be updated to the new value
+      expect(result.transferConfig.destinationDatasetId).toBe('new_dataset_id');
     });
 
     test('should throw error when attempting to clear non-empty partitioning field', async () => {

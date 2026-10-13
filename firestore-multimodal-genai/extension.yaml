@@ -1,5 +1,5 @@
 name: firestore-multimodal-genai
-version: 1.0.4
+version: 1.1.0
 specVersion: v1beta
 
 icon: icon.png
@@ -63,16 +63,12 @@ roles:
       Allows this extension to access the Gemini family of genai models via
       Vertex AI if this provider is chosen.
 
-  # - role: monitoring.metricWriter
-  #   reason: Allows this extension to write metrics to Cloud Monitoring when Genkit Monitoring is enabled.
-
-  # - role: cloudtrace.agent
-  #   reason:
-  #     Allows this extension to write trace data to Cloud Trace when Genkit Monitoring is enabled.
-
-  # - role: logging.logWriter
-  #   reason:
-  #     Allows this extension to write logs to Cloud Logging when Genkit Monitoring is enabled.      
+  # Note: If you enable Genkit Monitoring, you must manually grant the following
+  # roles to the extension's service account:
+  #   - monitoring.metricWriter
+  #   - cloudtrace.agent
+  #   - logging.logWriter
+  # See POSTINSTALL.md for instructions.
 
 resources:
   - name: generateOnCall
@@ -82,7 +78,7 @@ resources:
     properties:
       location: ${LOCATION}
       httpsTrigger: {}
-      runtime: nodejs20
+      runtime: nodejs22
 
   - name: generateText
     type: firebaseextensions.v1beta.function
@@ -95,7 +91,7 @@ resources:
       eventTrigger:
         eventType: providers/cloud.firestore/eventTypes/document.write
         resource: projects/${PROJECT_ID}/databases/(default)/documents/${COLLECTION_NAME}/{summaryId}
-      runtime: nodejs20
+      runtime: nodejs22
 
 params:
   - param: GENERATIVE_AI_PROVIDER
@@ -115,32 +111,28 @@ params:
     default: google-ai
     immutable: false
 
-  - param: VERTEX_AI_PROVIDER_LOCATION
-    label: Vertex AI Gemini API Provider Location
-    description: >-
-      If you are not using Vertex AI as your provider, this parameter can be skipped.
-      If you are using Vertex AI as your provider, this parameter is required and is used to specify the location of the Vertex AI Gemini API provider.
-      Note: Any models in preview on Vertex AI will require this parameter to be set to 'global'.
-    type: select
-    options:
-      - label: Global
-        value: global
-      - label: Regional
-        value: regional
-    required: false
-    default: global
-    immutable: false
-
   - param: MODEL
     label: Gemini model
     description: >-
       Input the name of the Gemini model you would like to use. To view
       available models for each provider, see: [Vertex AI Gemini
       models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models),
-      [Google AI Gemini models](https://ai.google.dev/models/gemini)
+      [Google AI Gemini models](https://ai.google.dev/models/gemini).
+      Note: On Vertex AI, Gemini 3.x models (including the default
+      'gemini-3.6-flash') and any models in preview are only served from the
+      'global', 'us' and 'eu' endpoints, so Vertex AI API Location must be set to
+      one of those - a single region such as 'us-central1' will fail.
+      Note: Gemini 3.x deprecates the Temperature, Nucleus sampling probability
+      and Sampling strategy parameters below; custom values are ignored.
     type: string
+    validationRegex: ^[a-zA-Z0-9][a-zA-Z0-9.\-_/]*$
+    validationErrorMessage:
+      Please specify a model id with no spaces, for example
+      'gemini-3.6-flash'. Model ids are not validated against the provider at
+      install time - an id the provider does not serve will fail at request
+      time.
     required: true
-    default: gemini-2.0-flash
+    default: gemini-3.6-flash
     immutable: false
 
   - param: API_KEY
@@ -160,7 +152,7 @@ params:
       extension will listen to the specified collection(s) for new message
       documents.
     type: string
-    validationRegex: '^[^/]+(/[^/]+/[^/]+)*$'
+    validationRegex: "^[^/]+(/[^/]+/[^/]+)*$"
     validationErrorMessage: Must be a valid Cloud Firestore Collection
     default: generate
     required: true
@@ -257,13 +249,81 @@ params:
     required: true
     immutable: true
 
+  - param: VERTEX_AI_PROVIDER_LOCATION
+    label: Vertex AI API Location
+    description: >-
+      If you are using Vertex AI as your provider, which location should be used
+      for the Vertex AI API? This can differ from the Cloud Functions location.
+      Defaults to 'Global'. Gemini 3.x models, including the default
+      'gemini-3.6-flash', and any models in preview are only served from the
+      'global', 'us' and 'eu' endpoints - a single region such as 'us-central1'
+      returns an error for those models. Only pick a single region if the model
+      you selected is served there. See [available
+      locations](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations).
+    type: select
+    options:
+      - label: Global (default, required for Gemini 3.x and preview models)
+        value: global
+      - label: United States (multi-region)
+        value: us
+      - label: European Union (multi-region)
+        value: eu
+      - label: Same as Cloud Functions Location
+        value: "null"
+      - label: Iowa (us-central1)
+        value: us-central1
+      - label: South Carolina (us-east1)
+        value: us-east1
+      - label: Northern Virginia (us-east4)
+        value: us-east4
+      - label: Columbus (us-east5)
+        value: us-east5
+      - label: Oregon (us-west1)
+        value: us-west1
+      - label: Las Vegas (us-west4)
+        value: us-west4
+      - label: Dallas (us-south1)
+        value: us-south1
+      - label: Montréal (northamerica-northeast1)
+        value: northamerica-northeast1
+      - label: São Paulo (southamerica-east1)
+        value: southamerica-east1
+      - label: Belgium (europe-west1)
+        value: europe-west1
+      - label: London (europe-west2)
+        value: europe-west2
+      - label: Frankfurt (europe-west3)
+        value: europe-west3
+      - label: Netherlands (europe-west4)
+        value: europe-west4
+      - label: Zürich (europe-west6)
+        value: europe-west6
+      - label: Paris (europe-west9)
+        value: europe-west9
+      - label: Tokyo (asia-northeast1)
+        value: asia-northeast1
+      - label: Seoul (asia-northeast3)
+        value: asia-northeast3
+      - label: Mumbai (asia-south1)
+        value: asia-south1
+      - label: Singapore (asia-southeast1)
+        value: asia-southeast1
+      - label: Sydney (australia-southeast1)
+        value: australia-southeast1
+    default: global
+    required: false
+    immutable: false
+
   - param: TEMPERATURE
     label: Temperature
     description: >-
       Controls the randomness of the output. Values can range over [0,1],
       inclusive. A value closer to 1 will produce responses that are more
       varied, while a value closer to 0 will typically result in less surprising
-      responses from the model.
+      responses from the model. Note: Gemini 3.x deprecates this control - the
+      Vertex AI model card for 'gemini-3.6-flash' states that custom values are
+      ignored. It still applies to Gemini 2.5 models, which retire in October
+      2026.
     type: string
     validationRegex: ^(?:0*(?:\.\d+)?|1(\.0*)?)$
     validationErrorMessage:
@@ -276,7 +336,9 @@ params:
     description: >-
       If specified, nucleus sampling will be used as the decoding strategy.
       Nucleus sampling considers the smallest set of tokens whose probability
-      sum is at least a fixed value. Enter a value between 0 and 1.
+      sum is at least a fixed value. Enter a value between 0 and 1. Note: Gemini
+      3.x deprecates this control and ignores custom values. It still applies to
+      Gemini 2.5 models, which retire in October 2026.
     type: string
     validationRegex: ^(?:0*(?:\.\d+)?|1(\.0*)?)$
     validationErrorMessage:
@@ -288,7 +350,9 @@ params:
     label: Sampling strategy parameter
     description: >-
       If specified, top-k sampling will be used as the decoding strategy. Top-k
-      sampling considers the set of topK most probable tokens.
+      sampling considers the set of topK most probable tokens. Note: Gemini 3.x
+      deprecates this control and ignores custom values. It still applies to
+      Gemini 2.5 models, which retire in October 2026.
     type: string
     validationRegex: ^[1-9][0-9]*
     validationErrorMessage: Please specify a positive integer.
@@ -453,17 +517,19 @@ params:
     default: HARM_BLOCK_THRESHOLD_UNSPECIFIED
     immutable: false
 
-  # - param: ENABLE_GENKIT_MONITORING
-  #   label: Enable Genkit Monitoring
-  #   description: >-
-  #     If set to "Yes", enables Genkit Monitoring for collecting and viewing real-time telemetry data.
-  #     This requires the Cloud Logging API, Cloud Trace API, and Cloud Monitoring API to be enabled,
-  #     and appropriate IAM roles to be configured. See the documentation for more details.
-  #   type: select
-  #   options:
-  #     - label: Yes
-  #       value: yes
-  #     - label: No
-  #       value: no
-  #   default: no
-  #   required: true
+  - param: ENABLE_GENKIT_MONITORING
+    label: Enable Genkit Monitoring
+    description: >-
+      If set to "Yes", enables Genkit Monitoring for collecting and viewing real-time telemetry data.
+      This requires the Cloud Logging API, Cloud Trace API, and Cloud Monitoring API to be enabled,
+      and the following IAM roles to be manually granted to the extension's service account:
+      monitoring.metricWriter, cloudtrace.agent, and logging.logWriter.
+      See the post-installation documentation for instructions.
+    type: select
+    options:
+      - label: Yes
+        value: yes
+      - label: No
+        value: no
+    default: no
+    required: true

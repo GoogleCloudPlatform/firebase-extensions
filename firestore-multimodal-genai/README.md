@@ -63,6 +63,12 @@ Provide a star rating from 1-5 of the following review text: \“{{review_text}}
 
 In this case, `review_text`` is a field of the Firestore document and will be substituted into the prompt when querying.
 
+### Genkit Monitoring (optional)
+
+This extension optionally supports [Genkit Monitoring](https://firebase.google.com/docs/genkit/monitoring) for collecting real-time telemetry data. If you choose to enable this feature, you will need to manually grant additional IAM roles (`monitoring.metricWriter`, `cloudtrace.agent`, `logging.logWriter`) to the extension's service account after installation. See the post-installation documentation for detailed instructions.
+
+If the required roles are not granted, the extension will log an error but continue to function normally.
+
 ### Choosing a generative model
 
 When installing this extension you will be prompted to pick a Gemini model.
@@ -85,7 +91,7 @@ When you select these options, any document handled by the extension must contai
 
 This extension has historically supported calls to the (now deprecated) Gemini Pro Vision model on Google AI and Vertex AI APIs.
 
-For the Gemini Pro Vision models Google AI requires prompts to have both an image and text part, whereas Vertex AI allows gemini-pro-vision to be prompted with text only as well. If you have selected to use the Gemini Pro Vision model (deprecated) and have Google AI as a provider then any document handled by the extension must contain an image field.
+If you configure an image field, every document handled by the extension must contain it. A document without an image is marked as errored rather than answered from the prompt alone.
 
 The Gemini Pro Vision API has a limit on image sizes. For Google AI this limit is currently 1MB, and for Vertex AI this limit is 4MB. This extension compress and resize images that fall above this limit.
 
@@ -122,9 +128,7 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Gemini API Provider: This extension makes use of the Gemini family of large language models. Currently the extension supports the Google AI Gemini API (for developers) and the Vertex AI Gemini API. Learn more about the differences between the Google AI and Vertex AI Gemini APIs here.
 
-* Vertex AI Gemini API Provider Location: If you are not using Vertex AI as your provider, this parameter can be skipped. If you are using Vertex AI as your provider, this parameter is required and is used to specify the location of the Vertex AI Gemini API provider. Note: Any models in preview on Vertex AI will require this parameter to be set to 'global'.
-
-* Gemini model: Input the name of the Gemini model you would like to use. To view available models for each provider, see: [Vertex AI Gemini models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models), [Google AI Gemini models](https://ai.google.dev/models/gemini)
+* Gemini model: Input the name of the Gemini model you would like to use. To view available models for each provider, see: [Vertex AI Gemini models](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/models), [Google AI Gemini models](https://ai.google.dev/models/gemini). Note: On Vertex AI, Gemini 3.x models (including the default 'gemini-3.6-flash') and any models in preview are only served from the 'global', 'us' and 'eu' endpoints, so Vertex AI API Location must be set to one of those - a single region such as 'us-central1' will fail. Note: Gemini 3.x deprecates the Temperature, Nucleus sampling probability and Sampling strategy parameters below; custom values are ignored.
 
 * Google AI API Key: If you have selected Google AI as your provider, then this parameteris required. If you have instead selected Vertex AI, then this parameter is not required, and application default credentials will be used.
 
@@ -138,11 +142,13 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 
 * Cloud Functions location: Where do you want to deploy the functions created for this extension? For help selecting a location, refer to the [location selection guide](https://firebase.google.com/docs/functions/locations). Note that Generative AI on Vertex AI is only available in the regions listed [here](https://cloud.google.com/vertex-ai/docs/generative-ai/learn/locations-genai). A list of languages and regions supported by the Gemini API on Google AI is [here](https://ai.google.dev/available_regions).
 
-* Temperature: Controls the randomness of the output. Values can range over [0,1], inclusive. A value closer to 1 will produce responses that are more varied, while a value closer to 0 will typically result in less surprising responses from the model.
+* Vertex AI API Location: If you are using Vertex AI as your provider, which location should be used for the Vertex AI API? This can differ from the Cloud Functions location. Defaults to 'Global'. Gemini 3.x models, including the default 'gemini-3.6-flash', and any models in preview are only served from the 'global', 'us' and 'eu' endpoints - a single region such as 'us-central1' returns an error for those models. Only pick a single region if the model you selected is served there. See [available locations](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations).
 
-* Nucleus sampling probability: If specified, nucleus sampling will be used as the decoding strategy. Nucleus sampling considers the smallest set of tokens whose probability sum is at least a fixed value. Enter a value between 0 and 1.
+* Temperature: Controls the randomness of the output. Values can range over [0,1], inclusive. A value closer to 1 will produce responses that are more varied, while a value closer to 0 will typically result in less surprising responses from the model. Note: Gemini 3.x deprecates this control - the Vertex AI model card for 'gemini-3.6-flash' states that custom values are ignored. It still applies to Gemini 2.5 models, which retire in October 2026.
 
-* Sampling strategy parameter: If specified, top-k sampling will be used as the decoding strategy. Top-k sampling considers the set of topK most probable tokens.
+* Nucleus sampling probability: If specified, nucleus sampling will be used as the decoding strategy. Nucleus sampling considers the smallest set of tokens whose probability sum is at least a fixed value. Enter a value between 0 and 1. Note: Gemini 3.x deprecates this control and ignores custom values. It still applies to Gemini 2.5 models, which retire in October 2026.
+
+* Sampling strategy parameter: If specified, top-k sampling will be used as the decoding strategy. Top-k sampling considers the set of topK most probable tokens. Note: Gemini 3.x deprecates this control and ignores custom values. It still applies to Gemini 2.5 models, which retire in October 2026.
 
 * Candidate count: When set to an integer higher than one, additional candidate responses, up to the specified number, will be stored in Firestore under the 'candidates' field.
 
@@ -155,6 +161,8 @@ This extension uses other Firebase and Google Cloud Platform services, which hav
 * Harassment Content Threshold: Threshold for harassment content. Specify what probability level of harassment content is blocked by the Gemini provider.
 
 * Sexual Content Threshold: Threshold for sexually explicit content. Specify what probability level of sexual content is blocked by the Gemini provider.
+
+* Enable Genkit Monitoring: If set to "Yes", enables Genkit Monitoring for collecting and viewing real-time telemetry data. This requires the Cloud Logging API, Cloud Trace API, and Cloud Monitoring API to be enabled, and the following IAM roles to be manually granted to the extension's service account: monitoring.metricWriter, cloudtrace.agent, and logging.logWriter. See the post-installation documentation for instructions.
 
 
 

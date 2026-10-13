@@ -55,6 +55,12 @@ Provide a star rating from 1-5 of the following review text: \“{{review_text}}
 
 In this case, `review_text`` is a field of the Firestore document and will be substituted into the prompt when querying.
 
+### Genkit Monitoring (optional)
+
+This extension optionally supports [Genkit Monitoring](https://firebase.google.com/docs/genkit/monitoring) for collecting real-time telemetry data. If you choose to enable this feature, you will need to manually grant additional IAM roles (`monitoring.metricWriter`, `cloudtrace.agent`, `logging.logWriter`) to the extension's service account after installation. See the post-installation documentation for detailed instructions.
+
+If the required roles are not granted, the extension will log an error but continue to function normally.
+
 ### Choosing a generative model
 
 When installing this extension you will be prompted to pick a Gemini model.
@@ -77,7 +83,7 @@ When you select these options, any document handled by the extension must contai
 
 This extension has historically supported calls to the (now deprecated) Gemini Pro Vision model on Google AI and Vertex AI APIs.
 
-For the Gemini Pro Vision models Google AI requires prompts to have both an image and text part, whereas Vertex AI allows gemini-pro-vision to be prompted with text only as well. If you have selected to use the Gemini Pro Vision model (deprecated) and have Google AI as a provider then any document handled by the extension must contain an image field.
+If you configure an image field, every document handled by the extension must contain it. A document without an image is marked as errored rather than answered from the prompt alone.
 
 The Gemini Pro Vision API has a limit on image sizes. For Google AI this limit is currently 1MB, and for Vertex AI this limit is 4MB. This extension compress and resize images that fall above this limit.
 

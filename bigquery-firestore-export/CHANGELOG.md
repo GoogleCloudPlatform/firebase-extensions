@@ -1,6 +1,19 @@
-## Version 0.2.1
+## Version 0.2.3
 
 fix - fix broken links
+
+## Version 0.2.2
+
+chore: bump Cloud Functions runtime to Node.js 22
+chore: run npm audit fix
+
+## Version 0.2.1
+
+fix - update `notificationPubsubTopic` when mismatched during extension reconfiguration to prevent data loss from notifications going to wrong topic
+
+fix - update `destinationDatasetId` when changed during extension reconfiguration to prevent data being written to wrong dataset
+
+test - add unit and e2e tests for reconfiguration drift detection
 
 ## Version 0.2.0
 

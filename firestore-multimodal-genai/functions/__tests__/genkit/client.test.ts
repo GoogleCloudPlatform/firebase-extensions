@@ -1,3 +1,19 @@
+/**
+ * Copyright 2026 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {GenkitGenerativeClient} from '../../src/generative-client/genkit';
 import {logger} from 'firebase-functions/v1';
 import {GenerateResponse, genkit} from 'genkit';
@@ -73,7 +89,7 @@ describe('GenkitGenerativeClient', () => {
       apiKey: 'test-api-key',
     },
     model: 'gemini-1.5-flash',
-    location: 'us-central1',
+    location: 'europe-west1', // Function location (should NOT be used for Vertex AI)
     projectId: 'test-project',
     instanceId: 'test-instance',
     prompt: 'Test prompt',
@@ -90,7 +106,7 @@ describe('GenkitGenerativeClient', () => {
     maxOutputTokens: 256,
     maxOutputTokensVertex: 1024,
     provider: 'google-ai',
-    vertexProviderLocation: 'regional',
+    vertexAiLocation: 'us-central1', // Vertex AI location (should be used)
     apiKey: 'test-api-key',
     safetySettings: [
       {
@@ -128,7 +144,7 @@ describe('GenkitGenerativeClient', () => {
     });
   });
 
-  it('should initialize with correct plugin and client for Vertex AI', () => {
+  it('should initialize with correct plugin and client for Vertex AI using vertexAiLocation', () => {
     const vertexConfig: Config = {
       ...mockConfig,
       provider: 'vertex-ai',
@@ -137,6 +153,7 @@ describe('GenkitGenerativeClient', () => {
     };
     new GenkitGenerativeClient(vertexConfig);
 
+    // Should use vertexAiLocation (us-central1), not function location (europe-west1)
     expect(vertexAI).toHaveBeenCalledWith({location: 'us-central1'});
     expect(genkit).toHaveBeenCalledWith({
       plugins: [expect.anything()],
@@ -164,14 +181,27 @@ describe('GenkitGenerativeClient', () => {
 
   it('should create the correct model reference', () => {
     const modelReference = GenkitGenerativeClient.createModelReference(
-      'gemini-1.5-flash',
+      'gemini-3.6-flash',
       'google-ai'
     );
-    expect(modelReference === null).toBe(false);
 
     expect(modelReference).toHaveProperty('name');
 
-    expect(modelReference!.name).toBe('googleai/gemini-1.5-flash');
+    expect(modelReference.name).toBe('googleai/gemini-3.6-flash');
+  });
+
+  it('should create a model reference for an unlisted model id', () => {
+    const googleAiReference = GenkitGenerativeClient.createModelReference(
+      'gemini-9-flash',
+      'google-ai'
+    );
+    const vertexAiReference = GenkitGenerativeClient.createModelReference(
+      'gemini-9-flash',
+      'vertex-ai'
+    );
+
+    expect(googleAiReference.name).toBe('googleai/gemini-9-flash');
+    expect(vertexAiReference.name).toBe('vertexai/gemini-9-flash');
   });
 
   it('should call generate with correct options and return response', async () => {
@@ -180,20 +210,69 @@ describe('GenkitGenerativeClient', () => {
       Promise.resolve(mockGenerateResponse as unknown as GenerateResponse<any>)
     );
 
-    const response = await client.generate('Test prompt');
+    const response = await client.generate('Test prompt', {
+      image: 'path/to/image.jpg',
+    });
 
     expect(client.client.generate).toHaveBeenCalledWith({
       messages: [
         {
           role: 'user',
-          content: [{text: 'Test prompt'}],
+          content: [
+            {text: 'Test prompt'},
+            {media: {url: 'data:image/jpeg;base64,base64EncodedImage'}},
+          ],
         },
       ],
       model: expect.any(Object),
       config: expect.any(Object),
+      image: 'path/to/image.jpg',
     });
 
     expect(response).toEqual({candidates: ['Generated text response']});
+  });
+
+  it('should generate from text only when the image field is configured but the document has no image', async () => {
+    const client = new GenkitGenerativeClient(mockConfig);
+    client.client.generate = jest.fn(() =>
+      Promise.resolve(mockGenerateResponse as unknown as GenerateResponse<any>)
+    );
+
+    const response = await client.generate('Test prompt');
+
+    expect(client.client.generate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messages: [{role: 'user', content: [{text: 'Test prompt'}]}],
+      })
+    );
+    expect(response).toEqual({candidates: ['Generated text response']});
+  });
+
+  it('should merge per-call safetySettings into the generate config', async () => {
+    const client = new GenkitGenerativeClient(mockConfig);
+    client.client.generate = jest.fn(() =>
+      Promise.resolve(mockGenerateResponse as unknown as GenerateResponse<any>)
+    );
+
+    const callerSafetySettings = [
+      {
+        category: HarmCategory.HARM_CATEGORY_HARASSMENT,
+        threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+      },
+    ];
+
+    await client.generate('Test prompt', {
+      image: 'path/to/image.jpg',
+      safetySettings: callerSafetySettings,
+    } as never);
+
+    expect(client.client.generate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        config: expect.objectContaining({
+          safetySettings: callerSafetySettings,
+        }),
+      })
+    );
   });
 
   it('should process an image if provided', async () => {
@@ -244,9 +323,9 @@ describe('GenkitGenerativeClient', () => {
     client.client.generate = jest.fn(() => Promise.reject(error));
     logger.error = jest.fn();
 
-    await expect(client.generate('Test prompt')).rejects.toThrow(
-      'Content generation failed.'
-    );
+    await expect(
+      client.generate('Test prompt', {image: 'path/to/image.jpg'})
+    ).rejects.toThrow('Content generation failed.');
 
     expect(logger.error).toHaveBeenCalledWith(
       'Failed to generate content:',
@@ -260,7 +339,7 @@ describe('GenkitGenerativeClient.shouldUseGenkitClient', () => {
     vertex: {model: 'gemini-1.0-pro'},
     googleAi: {model: 'gemini-1.5-flash', apiKey: 'test-api-key'},
     model: 'gemini-1.5-flash',
-    location: 'us-central1',
+    location: 'europe-west1',
     projectId: 'test-project',
     instanceId: 'test-instance',
     prompt: 'Test prompt',
@@ -277,7 +356,7 @@ describe('GenkitGenerativeClient.shouldUseGenkitClient', () => {
     maxOutputTokens: 256,
     maxOutputTokensVertex: 1024,
     provider: 'google-ai',
-    vertexProviderLocation: 'regional',
+    vertexAiLocation: 'us-central1',
     apiKey: 'test-api-key',
     safetySettings: [
       {
@@ -294,12 +373,12 @@ describe('GenkitGenerativeClient.shouldUseGenkitClient', () => {
     jest.clearAllMocks();
   });
 
-  it('should return false if the model includes "pro-vision"', () => {
+  it('should return true for a retired pro-vision id (no special case)', () => {
     const config = {...baseConfig, model: 'gemini-pro-vision'};
 
     const result = GenkitGenerativeClient.shouldUseGenkitClient(config);
 
-    expect(result).toBe(false);
+    expect(result).toBe(true);
   });
 
   it('should return false if multiple candidates are requested', () => {
@@ -317,39 +396,17 @@ describe('GenkitGenerativeClient.shouldUseGenkitClient', () => {
     expect(result).toBe(false);
   });
 
-  it('should return false if no model reference is found', () => {
-    const config = {...baseConfig, model: 'unknown-model'};
-
-    jest
-      .spyOn(GenkitGenerativeClient, 'createModelReference')
-      .mockReturnValueOnce(null);
-
-    const result = GenkitGenerativeClient.shouldUseGenkitClient(config);
-
-    expect(result).toBe(false);
-  });
-
-  it('should return true if conditions are met for Genkit client usage', () => {
-    const config = {...baseConfig, model: 'gemini-1.5-flash'};
-
-    jest
-      .spyOn(GenkitGenerativeClient, 'createModelReference')
-      .mockReturnValueOnce({
-        name: 'googleai/gemini-1.5-flash',
-        withVersion: jest.fn(),
-        withConfig: jest.fn(),
-      });
+  it('should return true for a model id that is not in the known list', () => {
+    const config = {...baseConfig, model: 'gemini-9-flash'};
 
     const result = GenkitGenerativeClient.shouldUseGenkitClient(config);
 
     expect(result).toBe(true);
   });
 
-  it('should call createModelReference with correct parameters', () => {
-    const spy = jest.spyOn(GenkitGenerativeClient, 'createModelReference');
+  it('should return true if conditions are met for Genkit client usage', () => {
+    const result = GenkitGenerativeClient.shouldUseGenkitClient(baseConfig);
 
-    GenkitGenerativeClient.shouldUseGenkitClient(baseConfig);
-
-    expect(spy).toHaveBeenCalledWith('gemini-1.5-flash', 'google-ai');
+    expect(result).toBe(true);
   });
 });

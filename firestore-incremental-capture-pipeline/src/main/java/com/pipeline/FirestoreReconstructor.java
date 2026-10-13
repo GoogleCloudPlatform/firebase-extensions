@@ -25,12 +25,18 @@ import com.google.firestore.v1.MapValue;
 import com.google.firestore.v1.Value;
 
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.time.Instant;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class FirestoreReconstructor {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FirestoreReconstructor.class);
 
     public enum FirestoreType {
         STRING,
@@ -122,7 +128,10 @@ public class FirestoreReconstructor {
                         val = Value.newBuilder().setTimestampValue(timestamp).build();
                         break;
 
+                    // The serializer emits "documentReference"; "reference" is kept for
+                    // changelog rows written by older serializer versions.
                     case "REFERENCE":
+                    case "DOCUMENTREFERENCE":
 
                         String pathString = entryValueObject.get("value").getAsString();
 
@@ -135,8 +144,17 @@ public class FirestoreReconstructor {
                         val = Value.newBuilder().setReferenceValue(fullReferenceString)
                                 .build();
                         break;
+                    case "NULL":
+                        val = Value.newBuilder().setNullValue(com.google.protobuf.NullValue.NULL_VALUE).build();
+                        break;
+                    case "BINARY":
+                        byte[] bytes = Base64.getDecoder().decode(entryValueObject.get("value").getAsString());
+                        val = Value.newBuilder().setBytesValue(com.google.protobuf.ByteString.copyFrom(bytes))
+                                .build();
+                        break;
                     default:
-                        val = null;
+                        LOG.warn("Skipping field '{}': unknown serialized type tag '{}'",
+                                entry.getKey(), entryValueObject.get("type").getAsString());
                         continue;
                 }
 

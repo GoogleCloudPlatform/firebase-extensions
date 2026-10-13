@@ -2,7 +2,6 @@
   "name": "@googlecloudplatform/firebase-extensions",
   "private": true,
   "devDependencies": {
-
     "@types/node": "^14.11.2",
     "dotenv": "^16.3.1",
     "eslint-plugin-prettier": "^5.0.0",
@@ -22,10 +21,14 @@
     "test": "cd _emulator && npm run reset:emulator && firebase emulators:start --project=demo-gcp & sleep 100 && lerna run test --concurrency 1",
     "test:local": "lerna run test --concurrency 1",
     "lint": "gts lint",
+    "license:check": "./scripts/addlicense.sh check",
+    "license:fix": "./scripts/addlicense.sh fix",
     "clean": "gts clean",
     "compile": "lerna run build",
     "fix": "gts fix",
     "pretest": "npm run compile",
-    "posttest": "npm run lint"
+    "posttest": "npm run lint",
+    "check-extension-version-main": "node ./scripts/check-extension-version-main.js",
+    "check-published-versions": "./scripts/check-published-versions.sh"
   }
 }

@@ -1,6 +1,23 @@
+/**
+ * Copyright 2026 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {DiscussionClient, Message} from './base_class';
 import {GoogleGenerativeAI} from '@google/generative-ai';
 import {logger} from '../logger';
+import {answerText, noAnswerMessage, wasBlocked} from './parts';
 import {SafetySetting} from '@google/generative-ai';
 
 interface GeminiChatOptions {
@@ -95,17 +112,21 @@ export class GeminiDiscussionClient extends DiscussionClient<
       );
     }
 
-    const text = result.response.text();
+    const first = result.response.candidates?.[0];
+    const text = wasBlocked(first)
+      ? undefined
+      : answerText(first?.content?.parts);
 
     if (!text) {
-      throw new Error('No text returned candidate');
+      throw new Error(noAnswerMessage(result.response));
     }
 
     return {
       response: text,
       candidates:
-        result.response.candidates?.map(c => c.content.parts[0].text ?? '') ??
-        [],
+        result.response.candidates?.map(
+          c => answerText(c.content.parts) ?? ''
+        ) ?? [],
       safetyMetadata: result.response.promptFeedback,
       history,
     };

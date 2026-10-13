@@ -1,3 +1,19 @@
+/**
+ * Copyright 2026 Google LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import {DiscussionClient, Message} from './base_class';
 import {logger} from '../logger';
 import {
@@ -7,6 +23,8 @@ import {
   Part,
 } from '@google-cloud/vertexai';
 import config from '../config';
+import {answerText, noAnswerMessage, wasBlocked} from './parts';
+import {vertexApiEndpoint} from './vertex_endpoint';
 import {SafetySetting as VertexSafetySetting} from '@google-cloud/vertexai';
 
 interface GeminiChatOptions {
@@ -41,9 +59,12 @@ export class VertexDiscussionClient extends DiscussionClient<
   modelName: string;
   constructor({modelName}: {apiKey?: string; modelName: string}) {
     super();
+    const location = config.vertex.modelLocation;
+    const apiEndpoint = vertexApiEndpoint(location);
     this.client = new VertexAI({
       project: config.projectId,
-      location: config.location,
+      location,
+      ...(apiEndpoint ? {apiEndpoint} : {}),
     });
     if (!modelName) {
       throw new Error('Model name required.');
@@ -90,14 +111,8 @@ export class VertexDiscussionClient extends DiscussionClient<
       safetySettings: options.safetySettings,
     };
     try {
-      const responseStream =
-        await generativeModel.generateContentStream(request);
-
-      // TODO: we can stream now!
-      const aggregatedResponse = await responseStream.response;
-
-      result = aggregatedResponse;
-      // result = await chatSession.sendMessage(latestApiMessage.parts[0].text);
+      // Unary, because the streaming aggregate drops the thought flag.
+      result = (await generativeModel.generateContent(request)).response;
     } catch (e) {
       logger.error('Failed to generate response', e);
       // TODO: the error message provided exposes the API key, so we should handle this/ get the Gemini team to fix it their side.
@@ -106,29 +121,18 @@ export class VertexDiscussionClient extends DiscussionClient<
       );
     }
 
-    if (
-      !result.candidates ||
-      !Array.isArray(result.candidates) ||
-      result.candidates.length === 0
-    ) {
-      // TODO: handle blocked responses
-      throw new Error('No candidates returned');
+    const candidates = (result.candidates ?? [])
+      .filter(c => !wasBlocked(c))
+      .map(c => answerText(c?.content?.parts))
+      .filter((text): text is string => !!text);
+
+    if (candidates.length === 0) {
+      throw new Error(noAnswerMessage(result));
     }
 
-    const candidates = result.candidates.filter(c => {
-      return (
-        c &&
-        c.content &&
-        c.content.parts &&
-        c.content.parts.length > 0 &&
-        c.content.parts[0].text &&
-        typeof c.content.parts[0].text === 'string'
-      );
-    });
-
     return {
-      response: candidates[0]!.content!.parts![0].text!,
-      candidates: candidates?.map(c => c.content!.parts![0].text!) ?? [],
+      response: candidates[0],
+      candidates,
       safetyMetadata: result.promptFeedback,
       history,
     };
