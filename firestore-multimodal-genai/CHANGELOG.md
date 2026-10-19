@@ -1,3 +1,7 @@
+## Version 1.1.1
+
+- docs: fix `sourceUrl` and `releaseNotesUrl` links in `extension.yaml`
+
 ## Version 1.1.0
 
 - feat: default to Gemini 3.6 Flash; Genkit accepts current Gemini 3.x ids without falling back to the legacy clients. Gemini 2.5 models retire in October 2026. Existing installs keep their stored `MODEL` and `VERTEX_AI_PROVIDER_LOCATION` values until reconfigured; move to a Gemini 3.x model and the `global` location before the retirement.

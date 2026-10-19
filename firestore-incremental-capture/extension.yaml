@@ -13,7 +13,7 @@
 # limitations under the License.
 
 name: firestore-incremental-capture
-version: 0.0.12
+version: 0.0.13
 specVersion: v1beta
 
 icon: icon.png
@@ -33,8 +33,8 @@ contributors:
     email: oss@invertase.io
     url: https://github.com/invertase
 
-sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/
-releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/
+sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-incremental-capture
+releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/blob/main/firestore-incremental-capture/CHANGELOG.md
 
 apis:
   - apiName: eventarc.googleapis.com
