@@ -1,5 +1,5 @@
 name: storage-extract-image-text
-version: 0.1.9
+version: 0.1.10
 specVersion: v1beta
 
 displayName: Extract Image Text with Cloud Vision AI
@@ -35,7 +35,7 @@ contributors:
     url: https://github.com/invertase
 
 sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/storage-extract-image-text
-releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/storage-extract-image-text/CHANGELOG.md
+releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/blob/main/storage-extract-image-text/CHANGELOG.md
 
 billingRequired: true
 

@@ -1,6 +1,6 @@
 name: firestore-genai-chatbot
 
-version: 0.1.0
+version: 0.1.1
 
 specVersion: v1beta
 
@@ -47,7 +47,7 @@ contributors:
     url: https://github.com/pr-Mais
 
 sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-genai-chatbot
-releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-genai-chatbot/CHANGELOG.md
+releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/blob/main/firestore-genai-chatbot/CHANGELOG.md
 
 billingRequired: true
 
