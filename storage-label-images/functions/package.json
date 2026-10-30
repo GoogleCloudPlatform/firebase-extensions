@@ -19,7 +19,7 @@
   "dependencies": {
     "@google-cloud/vision": "^4.1.2",
     "@types/jest": "^29.5.0",
-    "@types/node": "^18.15.11",
+    "@types/node": "^14.18.63",
     "firebase-admin": "^12.2.0",
     "firebase-functions": "^4.2.1",
     "firebase-functions-test": "^3.4.1",
