@@ -1,5 +1,5 @@
 name: storage-label-videos
-version: 0.1.6
+version: 0.1.7
 specVersion: v1beta
 
 displayName: Label Videos with Cloud Video AI
@@ -31,7 +31,7 @@ contributors:
     url: https://github.com/invertase
 
 sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/storage-label-videos
-releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/storage-label-videos/CHANGELOG.md
+releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/blob/main/storage-label-videos/CHANGELOG.md
 
 billingRequired: true
 

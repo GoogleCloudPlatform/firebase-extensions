@@ -1,5 +1,5 @@
 name: storage-transcode-videos
-version: 0.0.5
+version: 0.0.6
 specVersion: v1beta
 
 displayName: Transcode Videos on Google Cloud Storage
@@ -12,7 +12,8 @@ author:
   authorName: Firebase
   url: https://firebase.google.com
 
-sourceUrl: https://github.com/FirebaseExtended/experimental-extensions/tree/main/storage-transcode-videos
+sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/storage-transcode-videos
+releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/blob/main/storage-transcode-videos/CHANGELOG.md
 
 billingRequired: true
 

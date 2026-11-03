@@ -1,5 +1,5 @@
 name: firestore-multimodal-genai
-version: 1.1.0
+version: 1.1.1
 specVersion: v1beta
 
 icon: icon.png
@@ -26,7 +26,7 @@ tags:
 license: Apache-2.0 # https://spdx.org/licenses/
 
 sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-multimodal-genai
-releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-multimodal-genai/CHANGELOG.md
+releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/blob/main/firestore-multimodal-genai/CHANGELOG.md
 
 author:
   authorName: Google Cloud

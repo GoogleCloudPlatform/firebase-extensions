@@ -1,3 +1,7 @@
+## Version 0.1.10
+
+docs: fix `sourceUrl` and `releaseNotesUrl` links in `extension.yaml`
+
 ## Version 0.1.9
 
 chore: bump runtime to Node.js 22

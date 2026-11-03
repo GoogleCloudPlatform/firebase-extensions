@@ -1,3 +1,7 @@
+## Version 0.0.13
+
+docs: fix `sourceUrl` and `releaseNotesUrl` links in `extension.yaml`
+
 ## Version 0.0.12
 
 chore: complete runtime migration to Node.js 22

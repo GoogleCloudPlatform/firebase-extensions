@@ -1,5 +1,5 @@
 name: firestore-semantic-search
-version: 0.1.10
+version: 0.1.11
 specVersion: v1beta
 
 icon: icon.png
@@ -27,8 +27,8 @@ description: >-
 
 license: Apache-2.0 # https://spdx.org/licenses/
 
-sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/master/firestore-semantic-search
-releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/master/firestore-semantic-search/CHANGELOG.md
+sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-semantic-search
+releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/blob/main/firestore-semantic-search/CHANGELOG.md
 
 author:
   authorName: Firebase

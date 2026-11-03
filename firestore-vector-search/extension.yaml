@@ -13,7 +13,7 @@
 # limitations under the License.
 
 name: firestore-vector-search
-version: 0.1.3
+version: 0.1.4
 specVersion: v1beta
 
 tags:
@@ -41,7 +41,7 @@ icon: icon.png
 license: Apache-2.0 # https://spdx.org/licenses/
 
 sourceUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-vector-search
-releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/tree/main/firestore-vector-search/CHANGELOG.md
+releaseNotesUrl: https://github.com/GoogleCloudPlatform/firebase-extensions/blob/main/firestore-vector-search/CHANGELOG.md
 
 author:
   authorName: Google Cloud
