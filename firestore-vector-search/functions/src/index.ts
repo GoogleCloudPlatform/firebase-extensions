@@ -32,12 +32,21 @@ import {DocumentData} from '@google-cloud/firestore';
 import {getExtensions} from 'firebase-admin/extensions';
 import * as logs from './logs';
 import {createIndex} from './queries/setup';
+import {embeddingMetadataChanged} from './backfill';
 
 logs.init();
 
 // Embeddings
 
 const runtime = getExtensions().runtime();
+
+const embeddingMetadata = {
+  embeddingProvider: config.embeddingProvider,
+  embeddingModel: config.embeddingModel,
+  dimension: config.dimension,
+  inputField: config.inputField,
+  outputField: config.outputField,
+};
 
 export const embedOnWrite = functions.firestore
   .document(`${config.collectionName}/{docId}`)
@@ -52,13 +61,7 @@ const shouldDoBackfill = async (metadata?: DocumentData) => {
     return false;
   }
   // if the embedding provider or model is different, run the backfill
-  if (
-    !metadata ||
-    metadata.embeddingProvider !== config.embeddingProvider ||
-    metadata.dimension !== config.dimension ||
-    metadata.inputField !== config.inputField ||
-    metadata.outputField !== config.outputField
-  ) {
+  if (embeddingMetadataChanged(metadata, embeddingMetadata)) {
     await runtime.setProcessingState(
       'NONE',
       `Updating Embeddings for collection ${config.collectionName}.`
@@ -75,12 +78,7 @@ const backfillOptions: FirestoreBackfillOptions = {
   shouldDoBackfill,
   statusField: config.statusField,
   extensionInstanceId: config.instanceId,
-  metadata: {
-    embeddingProvider: config.embeddingProvider,
-    dimension: config.dimension,
-    inputField: config.inputField,
-    outputField: config.outputField,
-  },
+  metadata: embeddingMetadata,
 };
 
 //  Backfill
@@ -121,9 +119,7 @@ const updateOptions: FirestoreBackfillOptions = {
   metadataDocumentPath: config.indexMetadataDocumentPath,
   shouldDoBackfill,
   extensionInstanceId: config.instanceId,
-  metadata: {
-    embeddingProvider: config.embeddingProvider,
-  },
+  metadata: embeddingMetadata,
 };
 
 const onUpdateTrigger = firestoreProcessBackfillTrigger(
