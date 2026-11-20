@@ -72,18 +72,29 @@ describe('queryIndex', () => {
     );
   });
 
+  test('should return unauthenticated error if caller is not signed in', async () => {
+    await expect(
+      wrappedQueryIndex({
+        query: ['test query'],
+      })
+    ).rejects.toMatchObject({code: 'unauthenticated'});
+  });
+
   test('should return 400 if no query is provided', async () => {
     try {
-      await wrappedQueryIndex({});
+      await wrappedQueryIndex({}, {auth: {uid: 'test-user'}});
     } catch (e: any) {
       expect(e.code).toEqual('invalid-argument');
     }
   });
   test('should return 400 if query is not a string', async () => {
     try {
-      await wrappedQueryIndex({
-        query: 123,
-      });
+      await wrappedQueryIndex(
+        {
+          query: 123,
+        },
+        {auth: {uid: 'test-user'}}
+      );
     } catch (e: any) {
       expect(e.code).toEqual('invalid-argument');
     }
@@ -100,9 +111,12 @@ describe('queryIndex', () => {
     });
 
     try {
-      await wrappedQueryIndex({
-        query: ['test query'],
-      });
+      await wrappedQueryIndex(
+        {
+          query: ['test query'],
+        },
+        {auth: {uid: 'test-user'}}
+      );
     } catch (e) {
       expect(e).toEqual(new Error('Endpoint or index endpoint is not found.'));
     }
@@ -119,9 +133,12 @@ describe('queryIndex', () => {
       indexEndpoint: 'test-index-endpoint',
     });
 
-    const result = await wrappedQueryIndex({
-      query: ['test query'],
-    });
+    const result = await wrappedQueryIndex(
+      {
+        query: ['test query'],
+      },
+      {auth: {uid: 'test-user'}}
+    );
 
     expect(result).toEqual({
       status: 'ok',
