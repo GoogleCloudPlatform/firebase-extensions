@@ -211,6 +211,16 @@ params:
     validationErrorMessage: Enter a valid instance id
     required: true
 
+  - param: AUTHORIZED_RESTORE_PRINCIPALS
+    label: Authorized restore principals
+    description: >
+      Comma-separated list of service account emails authorized to trigger
+      backup restorations via onHttpRunRestoration (human operators can
+      impersonate an authorized service account). Leave empty to disable HTTP
+      restoration triggers (fail closed).
+    example: restore-runner@my-project.iam.gserviceaccount.com
+    required: false
+
 lifecycleEvents:
   onInstall:
     function: runInitialSetup

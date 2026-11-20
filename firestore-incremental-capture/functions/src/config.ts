@@ -68,4 +68,8 @@ export default {
   templateLocation: `gs://${bucketName}/${instanceId}/templates/myTemplate`,
   dataflowRegion:
     process.env.DATAFLOW_REGION || process.env.LOCATION || 'us-central1',
+  authorizedRestorePrincipals: (process.env.AUTHORIZED_RESTORE_PRINCIPALS || '')
+    .split(',')
+    .map(email => email.trim().toLowerCase())
+    .filter(Boolean),
 };
