@@ -188,6 +188,6 @@ This extension will operate with the following project IAM roles:
 
 * datastore.user (Reason: Allows this extension to access Cloud Firestore to read and process added messages.)
 
-* storage.objectAdmin (Reason: Allows the extension to read from your Cloud Storage.)
+* storage.objectViewer (Reason: Allows the extension to read from your Cloud Storage.)
 
 * aiplatform.user (Reason: Allows this extension to access the Gemini family of genai models via Vertex AI if this provider is chosen.)

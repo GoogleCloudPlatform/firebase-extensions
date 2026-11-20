@@ -55,7 +55,7 @@ roles:
       Allows this extension to access Cloud Firestore to read and process added
       messages.
 
-  - role: storage.objectAdmin
+  - role: storage.objectViewer
     reason: Allows the extension to read from your Cloud Storage.
 
   - role: aiplatform.user

@@ -17,6 +17,7 @@
 import * as admin from 'firebase-admin';
 import {logger} from 'firebase-functions/v1';
 import * as sharp from 'sharp';
+import config from '../config';
 
 export const isFromStorage = (image: string): boolean => {
   return image.startsWith('gs://');
@@ -48,14 +49,60 @@ export async function getImageBase64(
   return buffer.toString('base64');
 }
 
+export function getAllowedStorageBuckets(): Set<string> {
+  const allowed = new Set<string>();
+  const envBucket = process.env.BUCKET_NAME?.trim();
+
+  if (envBucket) {
+    for (const bucket of envBucket.split(',')) {
+      const trimmed = bucket.trim();
+      if (trimmed) {
+        allowed.add(trimmed);
+      }
+    }
+    return allowed;
+  }
+
+  const configuredBucket = config?.bucketName?.trim();
+  if (configuredBucket && !configuredBucket.startsWith('undefined.')) {
+    allowed.add(configuredBucket);
+  }
+
+  const projectId = (config?.projectId || process.env.PROJECT_ID)?.trim();
+  if (projectId) {
+    allowed.add(`${projectId}.appspot.com`);
+    allowed.add(`${projectId}.firebasestorage.app`);
+  }
+
+  return allowed;
+}
+
 export async function getImageFromStorage(image: string) {
   // e.g from gs://invertase--palm-demo.appspot.com/the-matrix.jpeg
   // we get invertase--palm-demo.appspot.com
   const bucketName = extractBucketName(image);
+  const allowedBuckets = getAllowedStorageBuckets();
 
-  const fileName = image.split(bucketName + '/')[1];
+  if (allowedBuckets.size === 0 || !allowedBuckets.has(bucketName)) {
+    throw new Error(
+      `Access denied: bucket "${bucketName}" is not in the allowed storage buckets.`
+    );
+  }
 
-  const imageExtension = fileName.split('.')[fileName.split('.').length - 1];
+  const expectedPrefix = `gs://${bucketName}/`;
+  if (!image.startsWith(expectedPrefix)) {
+    throw new Error('Unable to extract image path from Cloud Storage URI.');
+  }
+
+  const fileName = image.slice(expectedPrefix.length);
+  if (!fileName) {
+    throw new Error('Unable to extract image path from Cloud Storage URI.');
+  }
+
+  const lastSegment = fileName.split('/').pop() || '';
+  const dotIndex = lastSegment.lastIndexOf('.');
+  const imageExtension =
+    dotIndex > 0 ? lastSegment.slice(dotIndex + 1).toLowerCase() : '';
 
   if (!['jpg', 'jpeg', 'png'].includes(imageExtension)) {
     throw new Error('Unable to extract image extension.');

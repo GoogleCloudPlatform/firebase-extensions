@@ -16,9 +16,29 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+
+const mockDownload = jest.fn();
+const mockFile = jest.fn(() => ({download: mockDownload}));
+const mockBucket = jest.fn(() => ({file: mockFile}));
+
+jest.mock('firebase-admin', () => ({
+  storage: jest.fn(() => ({bucket: mockBucket})),
+}));
+
+const mockConfig: {projectId?: string; bucketName?: string} = {
+  projectId: 'demo-gcp',
+  bucketName: 'demo-gcp.appspot.com',
+};
+
+jest.mock('../src/config', () => ({
+  __esModule: true,
+  default: mockConfig,
+}));
+
 import {
   compressImageBuffer,
   extractBucketName,
+  getImageFromStorage,
 } from '../src/generative-client/image_utils';
 describe('compressImageBuffer', () => {
   test('should compress large image', async () => {
@@ -60,5 +80,94 @@ describe('extractBucketName', () => {
   test('throws an error for empty strings', () => {
     const url = '';
     expect(() => extractBucketName(url)).toThrow('Invalid URL format');
+  });
+});
+
+describe('getImageFromStorage', () => {
+  const originalEnv = process.env;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env = {...originalEnv};
+    delete process.env.BUCKET_NAME;
+    delete process.env.PROJECT_ID;
+    mockConfig.projectId = 'demo-gcp';
+    mockConfig.bucketName = 'demo-gcp.appspot.com';
+    mockDownload.mockResolvedValue([Buffer.from('image-bytes')]);
+  });
+
+  afterAll(() => {
+    process.env = originalEnv;
+  });
+
+  test('downloads image from default appspot.com project bucket', async () => {
+    const result = await getImageFromStorage(
+      'gs://demo-gcp.appspot.com/folder/image.png'
+    );
+
+    expect(mockBucket).toHaveBeenCalledWith('demo-gcp.appspot.com');
+    expect(mockFile).toHaveBeenCalledWith('folder/image.png');
+    expect(result).toEqual({
+      buffer: Buffer.from('image-bytes'),
+      imageExtension: 'png',
+    });
+  });
+
+  test('downloads image from default firebasestorage.app project bucket', async () => {
+    const result = await getImageFromStorage(
+      'gs://demo-gcp.firebasestorage.app/photos/pic.jpeg'
+    );
+
+    expect(mockBucket).toHaveBeenCalledWith('demo-gcp.firebasestorage.app');
+    expect(mockFile).toHaveBeenCalledWith('photos/pic.jpeg');
+    expect(result.imageExtension).toBe('jpeg');
+  });
+
+  test('rejects cross-bucket gs:// URI before calling Cloud Storage', async () => {
+    await expect(
+      getImageFromStorage('gs://other-bucket/secret.png')
+    ).rejects.toThrow(
+      'Access denied: bucket "other-bucket" is not in the allowed storage buckets.'
+    );
+    expect(mockBucket).not.toHaveBeenCalled();
+  });
+
+  test('enforces explicit BUCKET_NAME allowlist when set', async () => {
+    process.env.BUCKET_NAME = 'custom-allowed-bucket';
+
+    await expect(
+      getImageFromStorage('gs://custom-allowed-bucket/ok.jpg')
+    ).resolves.toMatchObject({imageExtension: 'jpg'});
+    expect(mockBucket).toHaveBeenCalledWith('custom-allowed-bucket');
+
+    jest.clearAllMocks();
+    await expect(
+      getImageFromStorage('gs://demo-gcp.appspot.com/blocked.jpg')
+    ).rejects.toThrow(
+      'Access denied: bucket "demo-gcp.appspot.com" is not in the allowed storage buckets.'
+    );
+    expect(mockBucket).not.toHaveBeenCalled();
+  });
+
+  test('rejects URI with missing object path', async () => {
+    await expect(
+      getImageFromStorage('gs://demo-gcp.appspot.com')
+    ).rejects.toThrow('Unable to extract image path from Cloud Storage URI.');
+    await expect(
+      getImageFromStorage('gs://demo-gcp.appspot.com/')
+    ).rejects.toThrow('Unable to extract image path from Cloud Storage URI.');
+    expect(mockBucket).not.toHaveBeenCalled();
+  });
+
+  test('fails closed when no projectId or allowed bucket is configured', async () => {
+    mockConfig.projectId = undefined;
+    mockConfig.bucketName = 'undefined.appspot.com';
+
+    await expect(
+      getImageFromStorage('gs://undefined.appspot.com/pic.png')
+    ).rejects.toThrow(
+      'Access denied: bucket "undefined.appspot.com" is not in the allowed storage buckets.'
+    );
+    expect(mockBucket).not.toHaveBeenCalled();
   });
 });
