@@ -92,13 +92,35 @@ gcloud auth configure-docker ${param:LOCATION}-docker.pkg.dev
 
 ## Triggering a restoration job
 
-You can trigger a restoration job by calling the `restoreFirestore` function [here](https://${LOCATION}-${PROJECT_ID}.cloudfunctions.net/${EXT_INSTANCE_ID}).
+You can trigger a restoration job by calling the `onHttpRunRestoration` function (`https://${LOCATION}-${PROJECT_ID}.cloudfunctions.net/ext-${EXT_INSTANCE_ID}-onHttpRunRestoration`).
 
-Here is an example that will run from one hour ago:
+Before calling the endpoint:
+
+1. Configure the **Authorized restore principals** (`AUTHORIZED_RESTORE_PRINCIPALS`) extension parameter with the comma-separated service account email(s) allowed to trigger restorations (for example `restore-runner@${PROJECT_ID}.iam.gserviceaccount.com`). Requests are rejected with `403 Forbidden` if this parameter is empty.
+2. Restrict Cloud Functions IAM invoker access on `ext-${EXT_INSTANCE_ID}-onHttpRunRestoration` by removing `allUsers` and granting `roles/cloudfunctions.invoker` only to the authorized service account(s):
 
 ```bash
-curl -m 70 -X POST https://us-central1-${PROJECT_ID}.cloudfunctions.net/ext-firestore-incremental-capture-onHttpRunRestoration \
--H "Authorization: bearer $(gcloud auth print-identity-token)" \
--H "Content-Type: application/json" \
--d "{\"timestamp\":$(date -u -v-1H +%s)}"
+RESTORE_SA="restore-runner@${PROJECT_ID}.iam.gserviceaccount.com"
+
+gcloud functions remove-iam-policy-binding ext-${EXT_INSTANCE_ID}-onHttpRunRestoration \
+  --region=${LOCATION} \
+  --project=${PROJECT_ID} \
+  --member="allUsers" \
+  --role="roles/cloudfunctions.invoker"
+
+gcloud functions add-iam-policy-binding ext-${EXT_INSTANCE_ID}-onHttpRunRestoration \
+  --region=${LOCATION} \
+  --project=${PROJECT_ID} \
+  --member="serviceAccount:${RESTORE_SA}" \
+  --role="roles/cloudfunctions.invoker"
+```
+
+3. Invoke the endpoint using a Google OIDC identity token scoped to the function URL audience. Because `gcloud auth print-identity-token --audiences` requires service account credentials, human operators must impersonate an allowlisted service account (requires `roles/iam.serviceAccountTokenCreator` on `${RESTORE_SA}`) with `--include-email`:
+
+```bash
+FUNCTION_URL="https://${LOCATION}-${PROJECT_ID}.cloudfunctions.net/ext-${EXT_INSTANCE_ID}-onHttpRunRestoration"
+curl -m 70 -X POST "${FUNCTION_URL}" \
+  -H "Authorization: Bearer $(gcloud auth print-identity-token --impersonate-service-account="${RESTORE_SA}" --audiences="${FUNCTION_URL}" --include-email)" \
+  -H "Content-Type: application/json" \
+  -d "{\"timestamp\":$(date -u -v-1H +%s)}"
 ```

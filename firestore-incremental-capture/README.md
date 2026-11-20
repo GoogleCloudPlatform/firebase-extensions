@@ -78,6 +78,8 @@ Google Cloud Console [here](https://console.cloud.google.com/dataflow/pipelines)
 
 * Backup instance Id: The name of the Firestore instance to backup the database to.
 
+* Authorized restore principals: Comma-separated list of service account emails authorized to trigger backup restorations via onHttpRunRestoration (human operators can impersonate an authorized service account). Leave empty to disable HTTP restoration triggers (fail closed).
+
 
 
 
