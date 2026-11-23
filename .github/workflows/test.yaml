@@ -8,8 +8,12 @@ on:
     branches:
       - '**'
 
+permissions: {}
+
 jobs:
   nodejs:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     strategy:
       matrix:
