@@ -96,7 +96,7 @@ You can trigger a restoration job by calling the `onHttpRunRestoration` function
 
 Before calling the endpoint:
 
-1. Configure the **Authorized restore principals** (`AUTHORIZED_RESTORE_PRINCIPALS`) extension parameter with the comma-separated service account email(s) allowed to trigger restorations (for example `restore-runner@${PROJECT_ID}.iam.gserviceaccount.com`). Requests are rejected with `403 Forbidden` if this parameter is empty.
+1. Ensure the **Authorized restore principals** (`AUTHORIZED_RESTORE_PRINCIPALS`) extension parameter includes the comma-separated service account email(s) allowed to trigger restorations (for example `restore-runner@${PROJECT_ID}.iam.gserviceaccount.com`). Requests from principals not in this list (or if the parameter is empty) are rejected with `403 Forbidden`.
 2. Restrict Cloud Functions IAM invoker access on `ext-${EXT_INSTANCE_ID}-onHttpRunRestoration` by removing `allUsers` and granting `roles/cloudfunctions.invoker` only to the authorized service account(s):
 
 ```bash

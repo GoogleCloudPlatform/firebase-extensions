@@ -216,10 +216,11 @@ params:
     description: >
       Comma-separated list of service account emails authorized to trigger
       backup restorations via onHttpRunRestoration (human operators can
-      impersonate an authorized service account). Leave empty to disable HTTP
-      restoration triggers (fail closed).
+      impersonate an authorized service account).
     example: restore-runner@my-project.iam.gserviceaccount.com
-    required: false
+    validationRegex: '^[^,\s@]+@[^,\s@]+\.[^,\s@]+(\s*,\s*[^,\s@]+@[^,\s@]+\.[^,\s@]+)*$'
+    validationErrorMessage: Must be a comma-separated list of valid email addresses
+    required: true
 
 lifecycleEvents:
   onInstall:
