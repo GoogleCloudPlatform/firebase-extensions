@@ -79,6 +79,8 @@ During installation, you may specify an **Image Field**. This installation param
 
 When you select these options, any document handled by the extension must contain an image field. The image field must be a string, and can either be the Cloud Storage URL of an object (e.g `gs://my-bucket.appspot.com/filename.png`).
 
+By default, Cloud Storage image reads are restricted to your project's default Firebase Storage buckets (`{PROJECT_ID}.appspot.com` and `{PROJECT_ID}.firebasestorage.app`). To read images from other buckets, configure the optional **Allowed Cloud Storage buckets** (`ALLOWED_STORAGE_BUCKETS`) parameter with a comma-separated list of allowed bucket names. Because the extension reads objects using `firebase-admin` (which bypasses Cloud Storage Security Rules within allowed buckets), ensure your Firestore Security Rules restrict who can write image URLs to the watched collection.
+
 ##### Gemini Pro Vision (deprecated)
 
 This extension has historically supported calls to the (now deprecated) Gemini Pro Vision model on Google AI and Vertex AI APIs.

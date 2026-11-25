@@ -1,3 +1,8 @@
+## Version 1.2.0
+
+- fix(security): restrict `gs://` image reads to allowed Cloud Storage buckets and reduce IAM role from `storage.admin` to `storage.objectViewer`.
+- feat: add optional `ALLOWED_STORAGE_BUCKETS` parameter to allow reading images from custom or additional Cloud Storage buckets (defaults to `{PROJECT_ID}.appspot.com` and `{PROJECT_ID}.firebasestorage.app` when unset).
+
 ## Version 1.1.1
 
 - docs: fix `sourceUrl` and `releaseNotesUrl` links in `extension.yaml`

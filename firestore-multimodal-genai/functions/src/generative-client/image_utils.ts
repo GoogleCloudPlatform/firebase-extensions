@@ -17,6 +17,7 @@
 import * as admin from 'firebase-admin';
 import {logger} from 'firebase-functions/v1';
 import * as sharp from 'sharp';
+import config, {resolveAllowedStorageBuckets} from '../config';
 
 export const isFromStorage = (image: string): boolean => {
   return image.startsWith('gs://');
@@ -48,14 +49,50 @@ export async function getImageBase64(
   return buffer.toString('base64');
 }
 
+export function getAllowedStorageBuckets(): Set<string> {
+  if (process.env.ALLOWED_STORAGE_BUCKETS !== undefined) {
+    return resolveAllowedStorageBuckets(
+      process.env.ALLOWED_STORAGE_BUCKETS,
+      config?.projectId || process.env.PROJECT_ID
+    );
+  }
+
+  if (config?.allowedStorageBuckets) {
+    return config.allowedStorageBuckets;
+  }
+
+  return resolveAllowedStorageBuckets(
+    undefined,
+    config?.projectId || process.env.PROJECT_ID
+  );
+}
+
 export async function getImageFromStorage(image: string) {
   // e.g from gs://invertase--palm-demo.appspot.com/the-matrix.jpeg
   // we get invertase--palm-demo.appspot.com
   const bucketName = extractBucketName(image);
+  const allowedBuckets = getAllowedStorageBuckets();
 
-  const fileName = image.split(bucketName + '/')[1];
+  if (!allowedBuckets.has(bucketName)) {
+    throw new Error(
+      `Access denied: bucket "${bucketName}" is not in the allowed storage buckets. Configure ALLOWED_STORAGE_BUCKETS to allow additional buckets.`
+    );
+  }
 
-  const imageExtension = fileName.split('.')[fileName.split('.').length - 1];
+  const expectedPrefix = `gs://${bucketName}/`;
+  if (!image.startsWith(expectedPrefix)) {
+    throw new Error('Unable to extract image path from Cloud Storage URI.');
+  }
+
+  const fileName = image.slice(expectedPrefix.length);
+  if (!fileName) {
+    throw new Error('Unable to extract image path from Cloud Storage URI.');
+  }
+
+  const lastSegment = fileName.split('/').pop() || '';
+  const dotIndex = lastSegment.lastIndexOf('.');
+  const imageExtension =
+    dotIndex > 0 ? lastSegment.slice(dotIndex + 1).toLowerCase() : '';
 
   if (!['jpg', 'jpeg', 'png'].includes(imageExtension)) {
     throw new Error('Unable to extract image extension.');
@@ -85,6 +122,10 @@ export function extractBucketName(url: string) {
   // Further split the second part by '/' to isolate the bucket name
   const bucketAndPath = parts[1].split('/', 1);
   const bucketName = bucketAndPath[0];
+
+  if (!bucketName) {
+    throw new Error('Invalid URL format');
+  }
 
   return bucketName;
 }
