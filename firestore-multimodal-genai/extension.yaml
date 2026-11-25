@@ -1,5 +1,5 @@
 name: firestore-multimodal-genai
-version: 1.1.1
+version: 1.2.0
 specVersion: v1beta
 
 icon: icon.png
@@ -533,3 +533,16 @@ params:
         value: no
     default: no
     required: true
+
+  - param: ALLOWED_STORAGE_BUCKETS
+    label: Allowed Cloud Storage buckets
+    description: >-
+      Optional comma-separated list of Cloud Storage bucket names that this
+      extension is allowed to read images from. When left empty, the extension
+      defaults to your project's default Firebase Storage buckets
+      (`{PROJECT_ID}.appspot.com` and `{PROJECT_ID}.firebasestorage.app`).
+      When set, only the listed buckets are allowed.
+    type: string
+    example: my-project.firebasestorage.app,my-custom-bucket
+    required: false
+    immutable: false

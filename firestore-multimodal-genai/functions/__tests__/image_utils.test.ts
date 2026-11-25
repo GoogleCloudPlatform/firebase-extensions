@@ -25,15 +25,31 @@ jest.mock('firebase-admin', () => ({
   storage: jest.fn(() => ({bucket: mockBucket})),
 }));
 
-const mockConfig: {projectId?: string; bucketName?: string} = {
+const mockConfig: {
+  projectId?: string;
+  allowedStorageBuckets?: Set<string>;
+} = {
   projectId: 'demo-gcp',
-  bucketName: 'demo-gcp.appspot.com',
 };
 
-jest.mock('../src/config', () => ({
-  __esModule: true,
-  default: mockConfig,
-}));
+jest.mock('../src/config', () => {
+  const prevProvider = process.env.GENERATIVE_AI_PROVIDER;
+  process.env.GENERATIVE_AI_PROVIDER = prevProvider || 'google-ai';
+  const actual = jest.requireActual('../src/config') as {
+    resolveAllowedStorageBuckets: (
+      allowedBucketsEnv?: string,
+      projectId?: string
+    ) => Set<string>;
+  };
+  if (prevProvider === undefined) {
+    delete process.env.GENERATIVE_AI_PROVIDER;
+  }
+  return {
+    __esModule: true,
+    default: mockConfig,
+    resolveAllowedStorageBuckets: actual.resolveAllowedStorageBuckets,
+  };
+});
 
 import {
   compressImageBuffer,
@@ -81,6 +97,12 @@ describe('extractBucketName', () => {
     const url = '';
     expect(() => extractBucketName(url)).toThrow('Invalid URL format');
   });
+
+  test('throws an error for gs:// URIs with an empty bucket name', () => {
+    expect(() => extractBucketName('gs:///pic.png')).toThrow(
+      'Invalid URL format'
+    );
+  });
 });
 
 describe('getImageFromStorage', () => {
@@ -89,10 +111,10 @@ describe('getImageFromStorage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     process.env = {...originalEnv};
-    delete process.env.BUCKET_NAME;
+    delete process.env.ALLOWED_STORAGE_BUCKETS;
     delete process.env.PROJECT_ID;
     mockConfig.projectId = 'demo-gcp';
-    mockConfig.bucketName = 'demo-gcp.appspot.com';
+    delete mockConfig.allowedStorageBuckets;
     mockDownload.mockResolvedValue([Buffer.from('image-bytes')]);
   });
 
@@ -123,28 +145,61 @@ describe('getImageFromStorage', () => {
     expect(result.imageExtension).toBe('jpeg');
   });
 
+  test('normalizes uppercase image extensions', async () => {
+    const result = await getImageFromStorage(
+      'gs://demo-gcp.appspot.com/photo.PNG'
+    );
+
+    expect(mockBucket).toHaveBeenCalledWith('demo-gcp.appspot.com');
+    expect(mockFile).toHaveBeenCalledWith('photo.PNG');
+    expect(result.imageExtension).toBe('png');
+  });
+
   test('rejects cross-bucket gs:// URI before calling Cloud Storage', async () => {
     await expect(
       getImageFromStorage('gs://other-bucket/secret.png')
     ).rejects.toThrow(
-      'Access denied: bucket "other-bucket" is not in the allowed storage buckets.'
+      'Access denied: bucket "other-bucket" is not in the allowed storage buckets. Configure ALLOWED_STORAGE_BUCKETS to allow additional buckets.'
     );
     expect(mockBucket).not.toHaveBeenCalled();
   });
 
-  test('enforces explicit BUCKET_NAME allowlist when set', async () => {
-    process.env.BUCKET_NAME = 'custom-allowed-bucket';
+  test('enforces explicit ALLOWED_STORAGE_BUCKETS allowlist when set', async () => {
+    process.env.ALLOWED_STORAGE_BUCKETS = 'bucket-a, bucket-b';
 
     await expect(
-      getImageFromStorage('gs://custom-allowed-bucket/ok.jpg')
+      getImageFromStorage('gs://bucket-a/ok.jpg')
     ).resolves.toMatchObject({imageExtension: 'jpg'});
-    expect(mockBucket).toHaveBeenCalledWith('custom-allowed-bucket');
+    expect(mockBucket).toHaveBeenCalledWith('bucket-a');
+
+    await expect(
+      getImageFromStorage('gs://bucket-b/ok.png')
+    ).resolves.toMatchObject({imageExtension: 'png'});
+    expect(mockBucket).toHaveBeenCalledWith('bucket-b');
 
     jest.clearAllMocks();
     await expect(
       getImageFromStorage('gs://demo-gcp.appspot.com/blocked.jpg')
     ).rejects.toThrow(
-      'Access denied: bucket "demo-gcp.appspot.com" is not in the allowed storage buckets.'
+      'Access denied: bucket "demo-gcp.appspot.com" is not in the allowed storage buckets. Configure ALLOWED_STORAGE_BUCKETS to allow additional buckets.'
+    );
+    expect(mockBucket).not.toHaveBeenCalled();
+  });
+
+  test('fails closed when ALLOWED_STORAGE_BUCKETS is whitespace/comma-only', async () => {
+    process.env.ALLOWED_STORAGE_BUCKETS = ' , ';
+
+    await expect(
+      getImageFromStorage('gs://demo-gcp.appspot.com/blocked.jpg')
+    ).rejects.toThrow(
+      'Access denied: bucket "demo-gcp.appspot.com" is not in the allowed storage buckets. Configure ALLOWED_STORAGE_BUCKETS to allow additional buckets.'
+    );
+    expect(mockBucket).not.toHaveBeenCalled();
+  });
+
+  test('rejects URI with empty bucket name as Invalid URL format', async () => {
+    await expect(getImageFromStorage('gs:///pic.png')).rejects.toThrow(
+      'Invalid URL format'
     );
     expect(mockBucket).not.toHaveBeenCalled();
   });
@@ -159,14 +214,26 @@ describe('getImageFromStorage', () => {
     expect(mockBucket).not.toHaveBeenCalled();
   });
 
+  test('rejects directory extensions, dotfiles, and non-image extensions', async () => {
+    await expect(
+      getImageFromStorage('gs://demo-gcp.appspot.com/dir.png/noext')
+    ).rejects.toThrow('Unable to extract image extension.');
+    await expect(
+      getImageFromStorage('gs://demo-gcp.appspot.com/.png')
+    ).rejects.toThrow('Unable to extract image extension.');
+    await expect(
+      getImageFromStorage('gs://demo-gcp.appspot.com/secret.txt')
+    ).rejects.toThrow('Unable to extract image extension.');
+    expect(mockBucket).not.toHaveBeenCalled();
+  });
+
   test('fails closed when no projectId or allowed bucket is configured', async () => {
     mockConfig.projectId = undefined;
-    mockConfig.bucketName = 'undefined.appspot.com';
 
     await expect(
       getImageFromStorage('gs://undefined.appspot.com/pic.png')
     ).rejects.toThrow(
-      'Access denied: bucket "undefined.appspot.com" is not in the allowed storage buckets.'
+      'Access denied: bucket "undefined.appspot.com" is not in the allowed storage buckets. Configure ALLOWED_STORAGE_BUCKETS to allow additional buckets.'
     );
     expect(mockBucket).not.toHaveBeenCalled();
   });

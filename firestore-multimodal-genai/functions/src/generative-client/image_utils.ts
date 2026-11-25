@@ -17,7 +17,7 @@
 import * as admin from 'firebase-admin';
 import {logger} from 'firebase-functions/v1';
 import * as sharp from 'sharp';
-import config from '../config';
+import config, {resolveAllowedStorageBuckets} from '../config';
 
 export const isFromStorage = (image: string): boolean => {
   return image.startsWith('gs://');
@@ -50,31 +50,21 @@ export async function getImageBase64(
 }
 
 export function getAllowedStorageBuckets(): Set<string> {
-  const allowed = new Set<string>();
-  const envBucket = process.env.BUCKET_NAME?.trim();
-
-  if (envBucket) {
-    for (const bucket of envBucket.split(',')) {
-      const trimmed = bucket.trim();
-      if (trimmed) {
-        allowed.add(trimmed);
-      }
-    }
-    return allowed;
+  if (process.env.ALLOWED_STORAGE_BUCKETS !== undefined) {
+    return resolveAllowedStorageBuckets(
+      process.env.ALLOWED_STORAGE_BUCKETS,
+      config?.projectId || process.env.PROJECT_ID
+    );
   }
 
-  const configuredBucket = config?.bucketName?.trim();
-  if (configuredBucket && !configuredBucket.startsWith('undefined.')) {
-    allowed.add(configuredBucket);
+  if (config?.allowedStorageBuckets) {
+    return config.allowedStorageBuckets;
   }
 
-  const projectId = (config?.projectId || process.env.PROJECT_ID)?.trim();
-  if (projectId) {
-    allowed.add(`${projectId}.appspot.com`);
-    allowed.add(`${projectId}.firebasestorage.app`);
-  }
-
-  return allowed;
+  return resolveAllowedStorageBuckets(
+    undefined,
+    config?.projectId || process.env.PROJECT_ID
+  );
 }
 
 export async function getImageFromStorage(image: string) {
@@ -83,9 +73,9 @@ export async function getImageFromStorage(image: string) {
   const bucketName = extractBucketName(image);
   const allowedBuckets = getAllowedStorageBuckets();
 
-  if (allowedBuckets.size === 0 || !allowedBuckets.has(bucketName)) {
+  if (!allowedBuckets.has(bucketName)) {
     throw new Error(
-      `Access denied: bucket "${bucketName}" is not in the allowed storage buckets.`
+      `Access denied: bucket "${bucketName}" is not in the allowed storage buckets. Configure ALLOWED_STORAGE_BUCKETS to allow additional buckets.`
     );
   }
 
@@ -132,6 +122,10 @@ export function extractBucketName(url: string) {
   // Further split the second part by '/' to isolate the bucket name
   const bucketAndPath = parts[1].split('/', 1);
   const bucketName = bucketAndPath[0];
+
+  if (!bucketName) {
+    throw new Error('Invalid URL format');
+  }
 
   return bucketName;
 }

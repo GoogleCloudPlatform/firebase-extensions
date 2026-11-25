@@ -52,6 +52,7 @@ export interface Config {
   apiKey?: string;
   safetySettings?: GoogleAISafetySetting[] | VertexSafetySetting[];
   bucketName?: string;
+  allowedStorageBuckets?: Set<string>;
   imageField: string;
   enableGenkitMonitoring?: boolean;
 }
@@ -85,7 +86,34 @@ function getSafetySettings(): GoogleAISafetySetting[] | VertexSafetySetting[] {
   }
 }
 
-const defaultBucketName = `${process.env.PROJECT_ID}.appspot.com`;
+const defaultBucketName = process.env.PROJECT_ID
+  ? `${process.env.PROJECT_ID}.appspot.com`
+  : undefined;
+
+export function resolveAllowedStorageBuckets(
+  allowedBucketsEnv?: string,
+  projectId?: string
+): Set<string> {
+  const allowed = new Set<string>();
+
+  if (allowedBucketsEnv !== undefined && allowedBucketsEnv !== '') {
+    for (const bucket of allowedBucketsEnv.split(',')) {
+      const trimmed = bucket.trim();
+      if (trimmed) {
+        allowed.add(trimmed);
+      }
+    }
+    return allowed;
+  }
+
+  const trimmedProjectId = projectId?.trim();
+  if (trimmedProjectId) {
+    allowed.add(`${trimmedProjectId}.appspot.com`);
+    allowed.add(`${trimmedProjectId}.firebasestorage.app`);
+  }
+
+  return allowed;
+}
 
 const candidates = {
   field: process.env.CANDIDATES_FIELD || 'candidates',
@@ -132,7 +160,11 @@ export default {
     : 1024,
   apiKey: process.env.API_KEY,
   safetySettings: getSafetySettings(),
-  bucketName: process.env.BUCKET_NAME || defaultBucketName,
+  bucketName: defaultBucketName,
+  allowedStorageBuckets: resolveAllowedStorageBuckets(
+    process.env.ALLOWED_STORAGE_BUCKETS,
+    process.env.PROJECT_ID
+  ),
   imageField: process.env.IMAGE_FIELD,
   enableGenkitMonitoring: process.env.ENABLE_GENKIT_MONITORING === 'yes',
 } as Config;

@@ -44,6 +44,8 @@ Many of the Gemini models accept multimodal prompts. This extension allows for m
 
 On installation you may pick an `image` field. The image field must be the Cloud Storage URL of an object (e.g `gs://my-bucket.appspot.com/filename.png`). This image will then be provided as part of the prompt.
 
+By default, the extension only reads images from your project's default Cloud Storage buckets (`${param:PROJECT_ID}.appspot.com` and `${param:PROJECT_ID}.firebasestorage.app`). To allow custom or additional buckets, configure the **Allowed Cloud Storage buckets** (`ALLOWED_STORAGE_BUCKETS`) extension parameter. Note that the extension reads objects via `firebase-admin`, which bypasses Cloud Storage Security Rules within allowed buckets; use Firestore Security Rules to control who can write image URLs to **${param:COLLECTION_NAME}**.
+
 ##### Gemini Pro Vision (deprecated)
 
 This extension has historically supported calls to the (now deprecated) Gemini Pro Vision model on Google AI and Vertex AI APIs.
