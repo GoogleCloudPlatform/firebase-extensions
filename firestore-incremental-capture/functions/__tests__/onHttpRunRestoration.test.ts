@@ -39,15 +39,21 @@ jest.mock('firebase-admin/functions', () => ({
   })),
 }));
 
-jest.mock('../src/config', () => ({
-  __esModule: true,
-  default: {
-    projectId: 'demo-gcp',
-    location: 'us-central1',
-    instanceId: 'firestore-incremental-capture',
-    authorizedRestorePrincipals: [],
-  },
-}));
+jest.mock('../src/config', () => {
+  const actual = jest.requireActual('../src/config') as {
+    parseAuthorizedPrincipals: (raw?: string) => string[];
+  };
+  return {
+    __esModule: true,
+    default: {
+      projectId: 'demo-gcp',
+      location: 'us-central1',
+      instanceId: 'firestore-incremental-capture',
+      authorizedRestorePrincipals: [],
+    },
+    parseAuthorizedPrincipals: actual.parseAuthorizedPrincipals,
+  };
+});
 
 import {onHttpRunRestorationHandler} from '../src/tasks/on_http_run_restoration_handler';
 
@@ -55,6 +61,11 @@ function createMockResponse() {
   const res: any = {
     statusCode: 200,
     body: undefined,
+    headers: {} as Record<string, string>,
+    set: jest.fn((header: string, value: string) => {
+      res.headers[header] = value;
+      return res;
+    }),
     status: jest.fn((code: number) => {
       res.statusCode = code;
       return res;
@@ -75,6 +86,7 @@ describe('onHttpRunRestorationHandler', () => {
     process.env = {...originalEnv};
     delete process.env.AUTHORIZED_RESTORE_PRINCIPALS;
     delete process.env.RESTORATION_AUDIENCE;
+    delete process.env.K_SERVICE;
     delete process.env.FUNCTION_NAME;
     mockEnqueue.mockResolvedValue(undefined);
   });
@@ -83,12 +95,13 @@ describe('onHttpRunRestorationHandler', () => {
     process.env = originalEnv;
   });
 
-  test('returns 405 for non-POST requests', async () => {
+  test('returns 405 with Allow: POST for non-POST requests', async () => {
     const req: any = {method: 'GET', headers: {}, body: {}};
     const res = createMockResponse();
 
     await onHttpRunRestorationHandler(req, res);
 
+    expect(res.set).toHaveBeenCalledWith('Allow', 'POST');
     expect(res.status).toHaveBeenCalledWith(405);
     expect(mockVerifyIdToken).not.toHaveBeenCalled();
     expect(mockEnqueue).not.toHaveBeenCalled();
@@ -175,7 +188,7 @@ describe('onHttpRunRestorationHandler', () => {
     expect(mockEnqueue).not.toHaveBeenCalled();
   });
 
-  test('returns 400 when timestamp is missing or in the future', async () => {
+  test('returns 400 when timestamp is missing, non-integer, milliseconds, or in the future', async () => {
     process.env.AUTHORIZED_RESTORE_PRINCIPALS = 'admin@example.com';
     mockVerifyIdToken.mockResolvedValue({
       getPayload: () => ({email: 'admin@example.com', email_verified: true}),
@@ -192,17 +205,62 @@ describe('onHttpRunRestorationHandler', () => {
     );
     expect(missingRes.status).toHaveBeenCalledWith(400);
 
+    const floatRes = createMockResponse();
+    await onHttpRunRestorationHandler(
+      {
+        method: 'POST',
+        headers: {authorization: 'Bearer valid-token'},
+        body: {timestamp: Math.floor(Date.now() / 1000) - 60.5},
+      } as any,
+      floatRes
+    );
+    expect(floatRes.status).toHaveBeenCalledWith(400);
+
+    const millisRes = createMockResponse();
+    await onHttpRunRestorationHandler(
+      {
+        method: 'POST',
+        headers: {authorization: 'Bearer valid-token'},
+        body: {timestamp: Date.now() - 60_000},
+      } as any,
+      millisRes
+    );
+    expect(millisRes.status).toHaveBeenCalledWith(400);
+
     const futureRes = createMockResponse();
     await onHttpRunRestorationHandler(
       {
         method: 'POST',
         headers: {authorization: 'Bearer valid-token'},
-        body: {timestamp: Date.now() + 60_000},
+        body: {timestamp: Math.floor(Date.now() / 1000) + 60},
       } as any,
       futureRes
     );
     expect(futureRes.status).toHaveBeenCalledWith(400);
     expect(mockEnqueue).not.toHaveBeenCalled();
+  });
+
+  test('prefers K_SERVICE over FUNCTION_NAME when computing expected audience', async () => {
+    process.env.K_SERVICE = 'ext-custom-onHttpRunRestoration';
+    process.env.FUNCTION_NAME = 'onHttpRunRestoration';
+    mockVerifyIdToken.mockRejectedValue(new Error('Invalid token'));
+
+    const res = createMockResponse();
+    await onHttpRunRestorationHandler(
+      {
+        method: 'POST',
+        headers: {authorization: 'Bearer bad-token'},
+        body: {timestamp: 1000},
+      } as any,
+      res
+    );
+
+    expect(mockVerifyIdToken).toHaveBeenCalledWith({
+      idToken: 'bad-token',
+      audience:
+        'https://us-central1-demo-gcp.cloudfunctions.net/ext-custom-onHttpRunRestoration',
+    });
+    expect(res.status).toHaveBeenCalledWith(401);
   });
 
   test('enqueues restoration task and returns 200 for authorized caller', async () => {
@@ -212,7 +270,7 @@ describe('onHttpRunRestorationHandler', () => {
       getPayload: () => ({email: 'admin@example.com', email_verified: true}),
     });
 
-    const timestamp = Date.now() - 60_000;
+    const timestamp = Math.floor(Date.now() / 1000) - 60;
     const body = {timestamp};
     const res = createMockResponse();
 

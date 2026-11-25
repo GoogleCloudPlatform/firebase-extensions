@@ -18,15 +18,13 @@ import {OAuth2Client} from 'google-auth-library';
 import {getFunctions} from 'firebase-admin/functions';
 import {Request, Response, logger} from 'firebase-functions/v1';
 
-import config from '../config';
+import config, {parseAuthorizedPrincipals} from '../config';
 
 const authClient = new OAuth2Client();
 
-function parseAuthorizedPrincipals(): string[] {
+function getAuthorizedPrincipals(): string[] {
   if (process.env.AUTHORIZED_RESTORE_PRINCIPALS !== undefined) {
-    return process.env.AUTHORIZED_RESTORE_PRINCIPALS.split(',')
-      .map(email => email.trim().toLowerCase())
-      .filter(Boolean);
+    return parseAuthorizedPrincipals(process.env.AUTHORIZED_RESTORE_PRINCIPALS);
   }
   return config.authorizedRestorePrincipals || [];
 }
@@ -36,6 +34,7 @@ function getExpectedAudience(): string {
     return process.env.RESTORATION_AUDIENCE;
   }
   const functionName =
+    process.env.K_SERVICE ||
     process.env.FUNCTION_NAME ||
     `ext-${config.instanceId}-onHttpRunRestoration`;
   return `https://${config.location}-${config.projectId}.cloudfunctions.net/${functionName}`;
@@ -46,7 +45,7 @@ export const onHttpRunRestorationHandler = async (
   response: Response
 ) => {
   if (request.method !== 'POST') {
-    response.status(405).send('Method Not Allowed');
+    response.set('Allow', 'POST').status(405).send('Method Not Allowed');
     return;
   }
 
@@ -72,12 +71,14 @@ export const onHttpRunRestorationHandler = async (
     email = payload?.email?.toLowerCase();
     emailVerified = payload?.email_verified === true;
   } catch (error) {
-    logger.warn('Failed to verify OIDC token for restoration request', error);
+    logger.warn('Failed to verify OIDC token for restoration request', {
+      errorName: error instanceof Error ? error.name : 'UnknownError',
+    });
     response.status(401).send('Unauthorized: invalid identity token');
     return;
   }
 
-  const authorizedPrincipals = parseAuthorizedPrincipals();
+  const authorizedPrincipals = getAuthorizedPrincipals();
   if (
     !emailVerified ||
     !email ||
@@ -94,18 +95,18 @@ export const onHttpRunRestorationHandler = async (
   const timestamp = request.body?.timestamp;
   if (
     typeof timestamp !== 'number' ||
-    !Number.isFinite(timestamp) ||
+    !Number.isInteger(timestamp) ||
     timestamp <= 0
   ) {
     logger.error(
-      '"timestamp" field is missing or invalid, please ensure that you are sending a valid numeric timestamp in the request body'
+      '"timestamp" field is missing or invalid, please ensure that you are sending a valid integer UNIX timestamp in seconds'
     );
     response.status(400).send('Bad Request: invalid "timestamp" field');
     return;
   }
 
-  const now = Date.now();
-  if (timestamp >= now) {
+  const nowSeconds = Math.floor(Date.now() / 1000);
+  if (timestamp > nowSeconds) {
     logger.error('The timestamp is in the future, aborting');
     response
       .status(400)

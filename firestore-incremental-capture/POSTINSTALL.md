@@ -92,25 +92,25 @@ gcloud auth configure-docker ${param:LOCATION}-docker.pkg.dev
 
 ## Triggering a restoration job
 
-You can trigger a restoration job by calling the `onHttpRunRestoration` function (`https://${LOCATION}-${PROJECT_ID}.cloudfunctions.net/ext-${EXT_INSTANCE_ID}-onHttpRunRestoration`).
+You can trigger a restoration job by calling the `onHttpRunRestoration` function (`https://${param:LOCATION}-${param:PROJECT_ID}.cloudfunctions.net/ext-${param:EXT_INSTANCE_ID}-onHttpRunRestoration`).
 
 Before calling the endpoint:
 
-1. Ensure the **Authorized restore principals** (`AUTHORIZED_RESTORE_PRINCIPALS`) extension parameter includes the comma-separated service account email(s) allowed to trigger restorations (for example `restore-runner@${PROJECT_ID}.iam.gserviceaccount.com`). Requests from principals not in this list (or if the parameter is empty) are rejected with `403 Forbidden`.
-2. Restrict Cloud Functions IAM invoker access on `ext-${EXT_INSTANCE_ID}-onHttpRunRestoration` by removing `allUsers` and granting `roles/cloudfunctions.invoker` only to the authorized service account(s):
+1. Ensure the **Authorized restore principals** (`AUTHORIZED_RESTORE_PRINCIPALS`) extension parameter includes the comma-separated service account email(s) allowed to trigger restorations (for example `restore-runner@${param:PROJECT_ID}.iam.gserviceaccount.com`). Requests from principals not in this list (or if the parameter is empty) are rejected with `403 Forbidden`.
+2. Restrict Cloud Functions IAM invoker access on `ext-${param:EXT_INSTANCE_ID}-onHttpRunRestoration` by removing `allUsers` and granting `roles/cloudfunctions.invoker` only to the authorized service account(s). Note that `firebase ext:update` and `firebase ext:configure` re-bind `allUsers` on `httpsTrigger` functions, so re-run this step after extension updates:
 
 ```bash
-RESTORE_SA="restore-runner@${PROJECT_ID}.iam.gserviceaccount.com"
+RESTORE_SA="restore-runner@${param:PROJECT_ID}.iam.gserviceaccount.com"
 
-gcloud functions remove-iam-policy-binding ext-${EXT_INSTANCE_ID}-onHttpRunRestoration \
-  --region=${LOCATION} \
-  --project=${PROJECT_ID} \
+gcloud functions remove-iam-policy-binding ext-${param:EXT_INSTANCE_ID}-onHttpRunRestoration \
+  --region=${param:LOCATION} \
+  --project=${param:PROJECT_ID} \
   --member="allUsers" \
-  --role="roles/cloudfunctions.invoker"
+  --role="roles/cloudfunctions.invoker" || true
 
-gcloud functions add-iam-policy-binding ext-${EXT_INSTANCE_ID}-onHttpRunRestoration \
-  --region=${LOCATION} \
-  --project=${PROJECT_ID} \
+gcloud functions add-iam-policy-binding ext-${param:EXT_INSTANCE_ID}-onHttpRunRestoration \
+  --region=${param:LOCATION} \
+  --project=${param:PROJECT_ID} \
   --member="serviceAccount:${RESTORE_SA}" \
   --role="roles/cloudfunctions.invoker"
 ```
@@ -118,9 +118,9 @@ gcloud functions add-iam-policy-binding ext-${EXT_INSTANCE_ID}-onHttpRunRestorat
 3. Invoke the endpoint using a Google OIDC identity token scoped to the function URL audience. Because `gcloud auth print-identity-token --audiences` requires service account credentials, human operators must impersonate an allowlisted service account (requires `roles/iam.serviceAccountTokenCreator` on `${RESTORE_SA}`) with `--include-email`:
 
 ```bash
-FUNCTION_URL="https://${LOCATION}-${PROJECT_ID}.cloudfunctions.net/ext-${EXT_INSTANCE_ID}-onHttpRunRestoration"
+FUNCTION_URL="https://${param:LOCATION}-${param:PROJECT_ID}.cloudfunctions.net/ext-${param:EXT_INSTANCE_ID}-onHttpRunRestoration"
 curl -m 70 -X POST "${FUNCTION_URL}" \
   -H "Authorization: Bearer $(gcloud auth print-identity-token --impersonate-service-account="${RESTORE_SA}" --audiences="${FUNCTION_URL}" --include-email)" \
   -H "Content-Type: application/json" \
-  -d "{\"timestamp\":$(date -u -v-1H +%s)}"
+  -d "{\"timestamp\":$(($(date +%s) - 3600))}"
 ```

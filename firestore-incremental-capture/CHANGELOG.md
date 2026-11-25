@@ -1,3 +1,7 @@
+## Version 0.1.0
+
+fix(security): require Google OIDC ID token authentication and principal allowlist authorization (`AUTHORIZED_RESTORE_PRINCIPALS`) on `onHttpRunRestoration`. Upgrading users must configure `AUTHORIZED_RESTORE_PRINCIPALS` and remove `allUsers` from `roles/cloudfunctions.invoker` on `onHttpRunRestoration` (see `POSTINSTALL.md`).
+
 ## Version 0.0.13
 
 docs: fix `sourceUrl` and `releaseNotesUrl` links in `extension.yaml`

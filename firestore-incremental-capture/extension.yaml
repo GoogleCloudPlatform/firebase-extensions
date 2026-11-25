@@ -13,7 +13,7 @@
 # limitations under the License.
 
 name: firestore-incremental-capture
-version: 0.0.13
+version: 0.1.0
 specVersion: v1beta
 
 icon: icon.png
@@ -218,7 +218,7 @@ params:
       backup restorations via onHttpRunRestoration (human operators can
       impersonate an authorized service account).
     example: restore-runner@my-project.iam.gserviceaccount.com
-    validationRegex: '^[^,\s@]+@[^,\s@]+\.[^,\s@]+(\s*,\s*[^,\s@]+@[^,\s@]+\.[^,\s@]+)*$'
+    validationRegex: '^\s*[^,\s@]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\s*,\s*[^,\s@]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})*\s*$'
     validationErrorMessage: Must be a comma-separated list of valid email addresses
     required: true
 
