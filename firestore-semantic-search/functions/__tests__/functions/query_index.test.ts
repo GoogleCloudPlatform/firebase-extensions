@@ -72,21 +72,28 @@ describe('queryIndex', () => {
     );
   });
 
+  test('should return unauthenticated error if caller is not signed in', async () => {
+    await expect(
+      wrappedQueryIndex({
+        query: ['test query'],
+      })
+    ).rejects.toMatchObject({code: 'unauthenticated'});
+  });
+
   test('should return 400 if no query is provided', async () => {
-    try {
-      await wrappedQueryIndex({});
-    } catch (e: any) {
-      expect(e.code).toEqual('invalid-argument');
-    }
+    await expect(
+      wrappedQueryIndex({}, {auth: {uid: 'test-user'}})
+    ).rejects.toMatchObject({code: 'invalid-argument'});
   });
   test('should return 400 if query is not a string', async () => {
-    try {
-      await wrappedQueryIndex({
-        query: 123,
-      });
-    } catch (e: any) {
-      expect(e.code).toEqual('invalid-argument');
-    }
+    await expect(
+      wrappedQueryIndex(
+        {
+          query: 123,
+        },
+        {auth: {uid: 'test-user'}}
+      )
+    ).rejects.toMatchObject({code: 'invalid-argument'});
   });
 
   test('should error if no public endpoint provided in metadata', async () => {
@@ -99,13 +106,17 @@ describe('queryIndex', () => {
       indexEndpoint: 'test-index-endpoint',
     });
 
-    try {
-      await wrappedQueryIndex({
-        query: ['test query'],
-      });
-    } catch (e) {
-      expect(e).toEqual(new Error('Endpoint or index endpoint is not found.'));
-    }
+    await expect(
+      wrappedQueryIndex(
+        {
+          query: ['test query'],
+        },
+        {auth: {uid: 'test-user'}}
+      )
+    ).rejects.toMatchObject({
+      code: 'not-found',
+      message: 'Endpoint or index endpoint is not found.',
+    });
   });
 
   xtest('should run with everything correct', async () => {
@@ -119,9 +130,12 @@ describe('queryIndex', () => {
       indexEndpoint: 'test-index-endpoint',
     });
 
-    const result = await wrappedQueryIndex({
-      query: ['test query'],
-    });
+    const result = await wrappedQueryIndex(
+      {
+        query: ['test query'],
+      },
+      {auth: {uid: 'test-user'}}
+    );
 
     expect(result).toEqual({
       status: 'ok',

@@ -1,3 +1,7 @@
+## Version 0.2.0
+
+fix(security): enforce Firebase App Check (`enforceAppCheck: true`), require signed-in Firebase Auth (`context.auth`), and validate `neighbours` bounds (`1` to `100`) on `queryIndex`.
+
 ## Version 0.1.11
 
 docs: fix `sourceUrl` and `releaseNotesUrl` links in `extension.yaml`

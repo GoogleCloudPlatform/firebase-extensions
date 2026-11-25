@@ -31,8 +31,20 @@ function queryValid(query: any): boolean {
   return query.some(item => typeof item === 'string' && item.length > 0);
 }
 
-export async function queryIndexHandler(data: any) {
-  const {query, neighbours} = data;
+const MAX_NEIGHBOURS_COUNT = 100;
+
+export async function queryIndexHandler(
+  data: any,
+  context?: functions.https.CallableContext
+) {
+  if (!context?.auth) {
+    throw new functions.https.HttpsError(
+      'unauthenticated',
+      'The function must be called while authenticated.'
+    );
+  }
+
+  const {query, neighbours} = data || {};
 
   if (!query || !queryValid(query)) {
     throw new functions.https.HttpsError(
@@ -42,7 +54,26 @@ export async function queryIndexHandler(data: any) {
     );
   }
 
-  const neighboursCount = parseInt(neighbours) || 10;
+  let neighboursCount = 10;
+  if (neighbours !== undefined && neighbours !== null && neighbours !== '') {
+    const parsedNeighbours =
+      typeof neighbours === 'number'
+        ? neighbours
+        : typeof neighbours === 'string' && /^\d+$/.test(neighbours.trim())
+        ? Number(neighbours.trim())
+        : NaN;
+    if (
+      !Number.isInteger(parsedNeighbours) ||
+      parsedNeighbours < 1 ||
+      parsedNeighbours > MAX_NEIGHBOURS_COUNT
+    ) {
+      throw new functions.https.HttpsError(
+        'invalid-argument',
+        `The "neighbours" argument must be an integer between 1 and ${MAX_NEIGHBOURS_COUNT}.`
+      );
+    }
+    neighboursCount = parsedNeighbours;
+  }
 
   const queryEmbeddings = await getEmbeddings(query);
 
