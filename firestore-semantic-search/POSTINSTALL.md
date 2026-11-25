@@ -12,6 +12,8 @@ Once processing is complete, a Callable function will be available to the user t
 
 Calling the function using the gcloud CLI:
 
+> Note: Because `queryIndex` enforces Firebase App Check and requires a signed-in Firebase Auth user, `gcloud functions call` (which omits Auth and App Check tokens) will return `401 UNAUTHENTICATED`. Use the Firebase Client SDK with App Check and Auth initialized (see **Example client integration** below).
+
 ```bash
 gcloud functions --project ${param:PROJECT_ID} call ext-${param:EXT_INSTANCE_ID}-queryIndex --data '{"data": {"query":[""]}}'
 ```

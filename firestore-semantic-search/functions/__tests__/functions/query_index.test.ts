@@ -81,23 +81,19 @@ describe('queryIndex', () => {
   });
 
   test('should return 400 if no query is provided', async () => {
-    try {
-      await wrappedQueryIndex({}, {auth: {uid: 'test-user'}});
-    } catch (e: any) {
-      expect(e.code).toEqual('invalid-argument');
-    }
+    await expect(
+      wrappedQueryIndex({}, {auth: {uid: 'test-user'}})
+    ).rejects.toMatchObject({code: 'invalid-argument'});
   });
   test('should return 400 if query is not a string', async () => {
-    try {
-      await wrappedQueryIndex(
+    await expect(
+      wrappedQueryIndex(
         {
           query: 123,
         },
         {auth: {uid: 'test-user'}}
-      );
-    } catch (e: any) {
-      expect(e.code).toEqual('invalid-argument');
-    }
+      )
+    ).rejects.toMatchObject({code: 'invalid-argument'});
   });
 
   test('should error if no public endpoint provided in metadata', async () => {
@@ -110,16 +106,17 @@ describe('queryIndex', () => {
       indexEndpoint: 'test-index-endpoint',
     });
 
-    try {
-      await wrappedQueryIndex(
+    await expect(
+      wrappedQueryIndex(
         {
           query: ['test query'],
         },
         {auth: {uid: 'test-user'}}
-      );
-    } catch (e) {
-      expect(e).toEqual(new Error('Endpoint or index endpoint is not found.'));
-    }
+      )
+    ).rejects.toMatchObject({
+      code: 'not-found',
+      message: 'Endpoint or index endpoint is not found.',
+    });
   });
 
   xtest('should run with everything correct', async () => {

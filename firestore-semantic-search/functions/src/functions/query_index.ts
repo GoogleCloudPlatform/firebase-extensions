@@ -56,7 +56,12 @@ export async function queryIndexHandler(
 
   let neighboursCount = 10;
   if (neighbours !== undefined && neighbours !== null && neighbours !== '') {
-    const parsedNeighbours = Number(neighbours);
+    const parsedNeighbours =
+      typeof neighbours === 'number'
+        ? neighbours
+        : typeof neighbours === 'string' && /^\d+$/.test(neighbours.trim())
+        ? Number(neighbours.trim())
+        : NaN;
     if (
       !Number.isInteger(parsedNeighbours) ||
       parsedNeighbours < 1 ||

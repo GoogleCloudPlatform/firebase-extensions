@@ -101,6 +101,8 @@ describe('queryIndexHandler auth & bounds', () => {
         status: 'UNAUTHENTICATED',
       },
     });
+    expect(mockGetEmbeddings).not.toHaveBeenCalled();
+    expect(mockFirestoreGet).not.toHaveBeenCalled();
     expect(mockQueryIndex).not.toHaveBeenCalled();
   });
 
@@ -117,34 +119,68 @@ describe('queryIndexHandler auth & bounds', () => {
     expect(mockQueryIndex).not.toHaveBeenCalled();
   });
 
-  test('rejects invalid or out-of-range neighbours count', async () => {
+  test('rejects invalid or out-of-range neighbours count and null data', async () => {
     const authContext = {auth: {uid: 'user-1'}} as any;
 
-    await expect(
-      queryIndexHandler({query: ['hello'], neighbours: 0}, authContext)
-    ).rejects.toMatchObject({code: 'invalid-argument'});
+    await expect(queryIndexHandler(null, authContext)).rejects.toMatchObject({
+      code: 'invalid-argument',
+    });
 
-    await expect(
-      queryIndexHandler({query: ['hello'], neighbours: -5}, authContext)
-    ).rejects.toMatchObject({code: 'invalid-argument'});
-
-    await expect(
-      queryIndexHandler({query: ['hello'], neighbours: 101}, authContext)
-    ).rejects.toMatchObject({code: 'invalid-argument'});
-
-    await expect(
-      queryIndexHandler({query: ['hello'], neighbours: 'abc'}, authContext)
-    ).rejects.toMatchObject({code: 'invalid-argument'});
+    for (const invalid of [
+      0,
+      -5,
+      101,
+      1.5,
+      true,
+      [5],
+      {value: 5},
+      'abc',
+      '0x10',
+      '0b11',
+      '1e1',
+      '+5',
+    ]) {
+      await expect(
+        queryIndexHandler({query: ['hello'], neighbours: invalid}, authContext)
+      ).rejects.toMatchObject({code: 'invalid-argument'});
+    }
 
     expect(mockQueryIndex).not.toHaveBeenCalled();
   });
 
-  test('allows authenticated caller and passes validated neighbours count', async () => {
-    const result = await queryIndexHandler({query: ['hello'], neighbours: 5}, {
-      auth: {uid: 'user-1'},
-    } as any);
+  test('allows valid boundary and default neighbours counts for authenticated caller', async () => {
+    const authContext = {auth: {uid: 'user-1'}} as any;
 
-    expect(mockQueryIndex).toHaveBeenCalledWith(
+    await queryIndexHandler({query: ['hello']}, authContext);
+    expect(mockQueryIndex).toHaveBeenLastCalledWith(
+      expect.any(Array),
+      10,
+      'example.endpoint',
+      '123'
+    );
+
+    await queryIndexHandler({query: ['hello'], neighbours: 1}, authContext);
+    expect(mockQueryIndex).toHaveBeenLastCalledWith(
+      expect.any(Array),
+      1,
+      'example.endpoint',
+      '123'
+    );
+
+    await queryIndexHandler({query: ['hello'], neighbours: 100}, authContext);
+    expect(mockQueryIndex).toHaveBeenLastCalledWith(
+      expect.any(Array),
+      100,
+      'example.endpoint',
+      '123'
+    );
+
+    const result = await queryIndexHandler(
+      {query: ['hello'], neighbours: ' 5 '},
+      authContext
+    );
+
+    expect(mockQueryIndex).toHaveBeenLastCalledWith(
       expect.any(Array),
       5,
       'example.endpoint',
