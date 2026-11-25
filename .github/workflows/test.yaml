@@ -8,25 +8,29 @@ on:
     branches:
       - '**'
 
+permissions: {}
+
 jobs:
   nodejs:
+    permissions:
+      contents: read
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node: ['22']
     name: node.js_${{ matrix.node }}_test
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3
         with:
           node-version: ${{ matrix.node }}
           cache: npm
           cache-dependency-path: '**/package-lock.json'
 
       - name: Cache Firebase emulators
-        uses: actions/cache@v3
+        uses: actions/cache@6f8efc29b200d32929f49075959781ed54ec270c # v3
         with:
           path: ~/.cache/firebase/emulators
           key:
@@ -36,13 +40,13 @@ jobs:
             ${{ runner.os }}-firebase-emulators-
 
       - name: Cache Firebase tools
-        uses: actions/cache@v3
+        uses: actions/cache@6f8efc29b200d32929f49075959781ed54ec270c # v3
         with:
           path: ~/.npm/firebase-tools
           key: ${{ runner.os }}-firebase-tools-13.35.1
 
       - name: Cache Lerna packages
-        uses: actions/cache@v3
+        uses: actions/cache@6f8efc29b200d32929f49075959781ed54ec270c # v3
         with:
           path: |
             node_modules
@@ -63,7 +67,7 @@ jobs:
           npm ci --ignore-scripts
 
       - name: Install Firebase CLI
-        uses: nick-invision/retry@v1
+        uses: nick-invision/retry@39da88d5f7d15a96aed861dbabbe8b7443e3182a # v1
         with:
           timeout_minutes: 10
           retry_wait_seconds: 60
@@ -84,7 +88,7 @@ jobs:
         run: sleep 30
 
       - name: Run tests
-        run: lerna run test --concurrency 1
+        run: npx lerna run test --concurrency 1
 
       - name: Stop Firebase emulator
         if: always()
