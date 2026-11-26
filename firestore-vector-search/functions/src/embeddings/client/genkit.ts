@@ -18,6 +18,7 @@ import {EmbedderReference, Genkit, genkit} from 'genkit';
 import {config} from '../../config';
 import {GenkitPluginV2} from 'genkit/plugin';
 import {googleAI, vertexAI} from '@genkit-ai/google-genai';
+import {GEMINI_EMBEDDING_MODEL} from './models';
 
 export class GenkitEmbedClient {
   provider: 'vertexai' | 'googleai' | 'multimodal';
@@ -38,7 +39,7 @@ export class GenkitEmbedClient {
     let plugins: GenkitPluginV2[] = [];
 
     if (this.provider === 'vertexai') {
-      this.embedder = vertexAI.embedder('gemini-embedding-001', {
+      this.embedder = vertexAI.embedder(GEMINI_EMBEDDING_MODEL, {
         outputDimensionality: 768,
       });
       plugins = [
@@ -48,7 +49,7 @@ export class GenkitEmbedClient {
       ];
     }
     if (this.provider === 'googleai') {
-      this.embedder = googleAI.embedder('gemini-embedding-001', {
+      this.embedder = googleAI.embedder(GEMINI_EMBEDDING_MODEL, {
         outputDimensionality: 768,
       });
       plugins = [
