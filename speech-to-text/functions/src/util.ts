@@ -15,6 +15,7 @@
  */
 import * as util from 'util';
 import * as ffmpeg from 'fluent-ffmpeg';
+import * as path from 'path';
 import {Failure, TranscribeAudioSuccess} from './types';
 import {Channel} from 'firebase-admin/eventarc';
 import {google} from '@google-cloud/speech/build/protos/protos';
@@ -88,6 +89,18 @@ function separateByTags(
 export const probePromise = util.promisify<string, ffmpeg.FfprobeData>(
   ffmpeg.ffprobe
 );
+
+export function getTranscodedStoragePath(
+  objectName: string,
+  outputStoragePath?: string
+): string {
+  const fileName = `${path.posix.basename(objectName)}.wav`;
+  const normalizedOutputPath = outputStoragePath?.replace(/^\/+|\/+$/g, '');
+
+  return normalizedOutputPath
+    ? `${normalizedOutputPath}/${fileName}`
+    : fileName;
+}
 
 export async function publishFailureEvent(
   eventChannel: Channel,
